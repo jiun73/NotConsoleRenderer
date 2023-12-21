@@ -3,7 +3,13 @@
 
 /*
 * Ceci est un exemple!
-* Tu peut regarder dans TileRenderer.h, il y a d'autres fonctions
+* Tu peut regarder dans TileRenderer.h, il y a d'autres fonctions 
+* (par exemple, tu peut dessiner des images... :) )
+* 
+* Ya pas encore de texte, j'imagine tu peut utiliser la console pour ca 
+* ou si tu est plus ambitieux, tu peut essayer de le faire toi même
+* 
+* Juste a creer un nouveau proet dans la solution et copier les settings de 'exemple'
 */
 
 int main() 
