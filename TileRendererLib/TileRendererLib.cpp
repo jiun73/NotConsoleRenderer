@@ -17,10 +17,10 @@ namespace hidden {
 	bool __init__ = false;
 	bool __run__ = true;
 
-	const int fps = 60;
-	Uint32 frameStart;
-	Uint32 frameTime;
-	Uint32 frameDelay = 1000 / fps;
+	const int fps = 120;
+	Uint32 frameStart = 0;
+	Uint32 frameTime = 0;
+	Uint32 frameDelay = 1000.0 / fps;
 
 	KeyboardInput _keyboard;
 	MouseInput _mouse;
@@ -43,6 +43,28 @@ using namespace hidden;
 void set_window_size(V2d_i size) { window_size = size; }
 void set_window_resizable() { window_flags = SDL_WindowFlags(window_flags | SDL_WINDOW_RESIZABLE); }
 
+V2d_d get_renderer_scale()
+{
+	float x, y;
+	SDL_RenderGetScale(sdl_ren, &x, &y);
+	return { (double)x,(double)y };
+}
+
+V2d_d get_window_size()
+{
+	int x, y;
+	SDL_GetWindowSize(sdl_win, &x, &y);
+	return { (double)x,(double)y };
+}
+
+V2d_d get_true_mouse_pos()
+{
+	V2d_d mpos = mouse().position();
+	mpos += (((V2d_d)window_size * get_renderer_scale()) - get_window_size()) / 2;
+	mpos /= get_renderer_scale();
+	return mpos;
+}
+
 bool run()
 {
 	if (!__init__)
@@ -55,17 +77,19 @@ bool run()
 	else
 	{
 		SDL_RenderPresent(sdl_ren);
+
+		frameTime = SDL_GetTicks() - frameStart;
+
+		if (frameDelay > frameTime)
+			SDL_Delay(frameDelay - frameTime);
+
+		
 	}
 
 	if (!__run__)
 	{
 		SDL_DestroyRenderer(sdl_ren);
 		SDL_DestroyWindow(sdl_win);
-
-		frameTime = SDL_GetTicks() - frameStart;
-
-		if (frameDelay > frameTime)
-			SDL_Delay(frameDelay - frameTime);
 	}
 
 	while (SDL_PollEvent(&sdl_event)) 

@@ -21,7 +21,6 @@ int main()
 	{
 		pencil(rgb(255, 255, 0));
 		
-
 		draw_line({ 10,0 }, { 0,10 });
 		draw_line({ 10,0 }, { 20,10 });
 		draw_line({ 5,5 }, {15,5});
@@ -34,6 +33,8 @@ int main()
 		pencil(rainbow(1000));
 
 		draw_circle({75,5},5);
+
+		draw_clear();
 	}
 
 	return 0;

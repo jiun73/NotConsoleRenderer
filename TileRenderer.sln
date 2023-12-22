@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Exemple", "TileRenderer\Til
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TileRendererLib", "TileRendererLib\TileRendererLib.vcxproj", "{C415FF44-B82E-4974-B660-9598A1FE3CA9}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Bruhuh", "Bruhuh\Bruhuh.vcxproj", "{066EE93E-5533-47DC-AC28-0C14184F0D34}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{C415FF44-B82E-4974-B660-9598A1FE3CA9}.Release|x64.Build.0 = Release|x64
 		{C415FF44-B82E-4974-B660-9598A1FE3CA9}.Release|x86.ActiveCfg = Release|Win32
 		{C415FF44-B82E-4974-B660-9598A1FE3CA9}.Release|x86.Build.0 = Release|Win32
+		{066EE93E-5533-47DC-AC28-0C14184F0D34}.Debug|x64.ActiveCfg = Debug|x64
+		{066EE93E-5533-47DC-AC28-0C14184F0D34}.Debug|x64.Build.0 = Debug|x64
+		{066EE93E-5533-47DC-AC28-0C14184F0D34}.Debug|x86.ActiveCfg = Debug|Win32
+		{066EE93E-5533-47DC-AC28-0C14184F0D34}.Debug|x86.Build.0 = Debug|Win32
+		{066EE93E-5533-47DC-AC28-0C14184F0D34}.Release|x64.ActiveCfg = Release|x64
+		{066EE93E-5533-47DC-AC28-0C14184F0D34}.Release|x64.Build.0 = Release|x64
+		{066EE93E-5533-47DC-AC28-0C14184F0D34}.Release|x86.ActiveCfg = Release|Win32
+		{066EE93E-5533-47DC-AC28-0C14184F0D34}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
