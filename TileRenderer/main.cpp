@@ -33,7 +33,7 @@ int main()
 
 		pencil(rainbow(1000));
 
-		draw_rect({ {70,0},10 });
+		draw_circle({75,5},5);
 	}
 
 	return 0;

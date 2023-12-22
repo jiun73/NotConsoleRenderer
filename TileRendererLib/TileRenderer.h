@@ -27,6 +27,7 @@ void draw_rect(Rect rectangle);
 void draw_full_rect(Rect rectangle);
 void draw_line(V2d_i start_position, V2d_i end_position);
 void draw_image(const string& path, Rect destination);
+void draw_circle(V2d_i pos, int radius);
 
 void load_texture(const string& path);
 Random& random();
