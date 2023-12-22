@@ -16,6 +16,12 @@ using std::string;
 namespace hidden {
 	bool __init__ = false;
 	bool __run__ = true;
+
+	const int fps = 60;
+	Uint32 frameStart;
+	Uint32 frameTime;
+	Uint32 frameDelay = 1000 / fps;
+
 	KeyboardInput _keyboard;
 	MouseInput _mouse;
 	JoystickInput _joystick;
@@ -55,10 +61,18 @@ bool run()
 	{
 		SDL_DestroyRenderer(sdl_ren);
 		SDL_DestroyWindow(sdl_win);
+
+		frameTime = SDL_GetTicks() - frameStart;
+
+		if (frameDelay > frameTime)
+			SDL_Delay(frameDelay - frameTime);
 	}
 
 	while (SDL_PollEvent(&sdl_event)) 
 	{
+		if (sdl_event.type == SDL_QUIT)
+			return false;
+
 		_keyboard.events(sdl_event);
 		_mouse.events(sdl_event);
 		_joystick.events(sdl_event);
@@ -67,6 +81,8 @@ bool run()
 	_keyboard.update();
 	_mouse.update();
 	_joystick.update();
+
+	frameStart = SDL_GetTicks();
 
 	return __run__;
 }
@@ -85,6 +101,31 @@ SoundManager& sound() { return _sound; }
 
 //les valeurs vont de 0 à 255
 Color rgb(int red, int green, int blue) {return { (uint8_t)red,(uint8_t)green,(uint8_t)blue,255 };}
+
+Color rainbow(int speed)
+{
+	double ratio = ((int)SDL_GetTicks() % (int)speed) / (double)speed;
+	//we want to normalize ratio so that it fits in to 6 regions
+	//where each region is 256 units long
+	int normalized = int(ratio * 256 * 6);
+
+	//find the distance to the start of the closest region
+	int x = normalized % 256;
+
+	int red = 0, grn = 0, blu = 0;
+	switch (normalized / 256)
+	{
+	case 0: red = 255;      grn = x;        blu = 0;       break;//red
+	case 1: red = 255 - x;  grn = 255;      blu = 0;       break;//yellow
+	case 2: red = 0;        grn = 255;      blu = x;       break;//green
+	case 3: red = 0;        grn = 255 - x;  blu = 255;     break;//cyan
+	case 4: red = x;        grn = 0;        blu = 255;     break;//blue
+	case 5: red = 255;      grn = 0;        blu = 255 - x; break;//magenta
+	}
+
+	Color rain = { static_cast<uint8_t>(red),static_cast<uint8_t>(grn),static_cast<uint8_t>(blu), 255 };
+	return rain;
+}
 
 void pencil(Color color) { SDL_SetRenderDrawColor(sdl_ren, color.r, color.g, color.b, color.a); }
 void draw_pix(V2d_i position) { SDL_RenderDrawPoint(sdl_ren, position.x, position.y); }

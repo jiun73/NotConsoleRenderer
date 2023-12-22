@@ -19,13 +19,21 @@ int main()
 
 	while (run()) 
 	{
-		pencil(rgb(255, 0, 0));
-		draw_line(10, 20);
+		pencil(rgb(255, 255, 0));
+		
 
-		if (mouse().pressed(1))
-		{
-			std::cout << "bruh" << std::endl;
-		}
+		draw_line({ 10,0 }, { 0,10 });
+		draw_line({ 10,0 }, { 20,10 });
+		draw_line({ 5,5 }, {15,5});
+
+		draw_line({ 30, 0 }, { 30,10 });
+		draw_line({ 30, 10 }, { 40,10 });
+		draw_line({ 50, 0 }, { 50,10 });
+		draw_line({ 50, 10 }, { 60,10 });
+
+		pencil(rainbow(1000));
+
+		draw_rect({ {70,0},10 });
 	}
 
 	return 0;

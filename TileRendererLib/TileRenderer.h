@@ -19,6 +19,8 @@ MouseInput& mouse();
 JoystickInput& joystick();
 
 Color rgb(int red, int green, int blue);
+Color rainbow(int speed );
+
 void pencil(Color color);
 void draw_pix(V2d_i position);
 void draw_rect(Rect rectangle);
