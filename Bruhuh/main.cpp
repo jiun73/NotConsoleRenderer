@@ -1,4 +1,5 @@
 #include "TileRenderer.h"
+#include "EntityX.h"
 
 struct Shape 
 {
@@ -39,9 +40,16 @@ struct Object
 	Color color;
 };
 
+struct Position_x 
+{
+	V2d_d position;
+};
+
+ComponentXAdder< Position_x> pos_adder;
+
 int main()
 {
-	set_window_size(300);
+	set_window_size(500);
 	set_window_resizable();
 
 	Shape s;

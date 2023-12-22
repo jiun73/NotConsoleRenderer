@@ -152,6 +152,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Rect.h" />
+    <ClInclude Include="Singleton.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="TileRenderer.h" />
     <ClInclude Include="Vec2D.h" />
@@ -166,6 +167,9 @@
     </ClCompile>
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="TileRendererLib.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="EntityX.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
