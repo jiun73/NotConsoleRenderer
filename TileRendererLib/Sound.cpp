@@ -13,6 +13,8 @@ void SoundManager::init()
 
 	Mix_AllocateChannels(8);
 	Mix_Volume(1, MIX_MAX_VOLUME / 2);
+
+	std::cout << "Mixer init" << std::endl;
 }
 
 Mix_Music* SoundManager::getMusic(std::string path)
@@ -23,7 +25,7 @@ Mix_Music* SoundManager::getMusic(std::string path)
 	return loaded_music.at(path);
 }
 
-inline Mix_Chunk* SoundManager::getSound(std::string path)
+ Mix_Chunk* SoundManager::getSound(std::string path)
 {
 	if (!loaded_sounds.count(path))
 		loadSound(path);

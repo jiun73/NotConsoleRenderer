@@ -7,6 +7,7 @@
 #include "TileRenderer.h"
 #include "SDL_image.h"
 #include "Sound.h"
+#include "EntityX.h"
 
 #include <map>
 
@@ -15,6 +16,7 @@ using std::string;
 
 namespace hidden {
 	bool __init__ = false;
+	bool __lock__ = false;
 	bool __run__ = true;
 
 	const int fps = 120;
@@ -65,25 +67,36 @@ V2d_d get_true_mouse_pos()
 	return mpos;
 }
 
-bool run()
+void init() 
 {
 	if (!__init__)
 	{
 		SDL_Init(SDL_INIT_EVERYTHING);
 		SDL_CreateWindowAndRenderer(window_size.x, window_size.y, window_flags, &sdl_win, &sdl_ren);
 		SDL_RenderSetLogicalSize(sdl_ren, window_size.x, window_size.y);
+		sound().init();	
 		__init__ = true;
 	}
-	else
+}
+
+bool run()
+{
+	
+	if (!__lock__)
 	{
+		init();
+		__lock__ = true;
+	}
+	else 
+	{
+		EntX::get()->update();
+
 		SDL_RenderPresent(sdl_ren);
 
 		frameTime = SDL_GetTicks() - frameStart;
 
 		if (frameDelay > frameTime)
 			SDL_Delay(frameDelay - frameTime);
-
-		
 	}
 
 	if (!__run__)

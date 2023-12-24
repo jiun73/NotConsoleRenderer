@@ -5,6 +5,7 @@
 #include "Color.h"
 #include "Random.h"
 #include "Rect.h"
+#include "Sound.h"
 
 #undef main	
 
@@ -14,6 +15,9 @@ V2d_d get_renderer_scale();
 V2d_d get_window_size();
 V2d_d get_true_mouse_pos();
 
+SoundManager& sound();
+
+void init();
 void close();
 bool run();
 

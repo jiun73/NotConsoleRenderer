@@ -58,7 +58,7 @@ bool MouseInput::held(int key)
 
 bool MouseInput::pressed(int key)
 {
-	return held(key) && (last & SDL_BUTTON(key)) && !locked;
+	return held(key) && !(last & SDL_BUTTON(key)) && !locked;
 	//return (current_mouse_state[key] && !last_mouse_state[key]) && !locked;
 }
 

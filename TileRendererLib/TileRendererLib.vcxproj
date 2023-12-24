@@ -113,6 +113,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)External Libraries\SDL2\include;$(SolutionDir)External Libraries\ENet\include;$(SolutionDir)External Libraries\SDL2_mixer\SDL2_mixer-2.6.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -158,6 +159,7 @@
     <ClInclude Include="Vec2D.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="EntityX.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

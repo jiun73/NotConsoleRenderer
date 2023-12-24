@@ -23,7 +23,17 @@ public:
 	Mix_Chunk* getSound(std::string path);
 
 	void loadMusic(std::string path);
-	void loadSound(std::string path) { loaded_sounds.emplace(path, Mix_LoadWAV(path.c_str())); }
+	void loadSound(std::string path) 
+	{ 
+		Mix_Chunk* chunk = Mix_LoadWAV(path.c_str());
+
+		if (!chunk)
+		{
+			std::cout << "Failed to load " << path << " " << Mix_GetError() << std::endl;;
+		}
+
+		loaded_sounds.emplace(path, chunk); 
+	}
 
 	void playMusic(std::string path, int loopCount = -1);
 	void playMusicFadeIn(std::string path, int fadeinspeed, int loopCount = -1);

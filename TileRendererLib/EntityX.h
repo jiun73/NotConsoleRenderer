@@ -2,6 +2,7 @@
 #include <type_traits>
 #include <new>
 #include <unordered_map>
+#include <map>
 #include <vector>
 #include <array>
 #include <tuple>
@@ -10,20 +11,22 @@
 #include <iostream>
 #include <bitset>
 #include <algorithm>
+#include <functional>
 
 #include "Singleton.h"
 
 //roughly based on https://indiegamedev.net/2020/05/19/an-entity-component-system-with-data-locality-in-cpp/
 
-//using std::launder;
+using std::launder;
 using std::unordered_map;
+using std::map;
 using std::multimap;
 using std::vector;
 using std::array;
 using std::pair;
 using std::tuple;
 using std::tuple_element_t;
-using std::tuple_element_t;
+using std::function;
 
 const size_t MAX_COMPONENT = 32;
 typedef unsigned char* ComponentData;
@@ -91,7 +94,7 @@ struct ComponentXFactory : public ComponentX
 
 	void destruct(ComponentData data) override
 	{
-		C* location = reinterpret_cast<C*>(data);
+		C* location = launder(reinterpret_cast<C*>(data));
 
 		location->~C();
 	}
@@ -104,11 +107,35 @@ struct ComponentXFactory : public ComponentX
 	size_t size() const override { return sizeof(C); }
 };
 
+struct ArchetypeX
+{
+	size_t entityCount = 0;
+	unordered_map< ComponentID, ComponentData> data;
+	unordered_map< ComponentID, size_t> data_size;
+	unordered_map < EntityID, size_t> redirects;
+	ComponentBytes key = 0;
+
+	EntityID get_entity_at_id(size_t index) 
+	{
+		for (auto& pair : redirects) //we find the entity that is at the end of the list, not sure if there is a better way to do this
+		{
+			if (pair.second == index) //what we're going to do is move the latest entity to fill the spot we just freed
+			{
+				return pair.first;
+			}
+		}
+
+		assert(0);
+
+		return 0;
+	}
+};
+
 struct SystemX
 {
 	virtual ComponentBytes key() = 0; //Key is used here to determine the system's required components
 	virtual void create() = 0;
-	virtual void update(const vector<ComponentData>& data, size_t size, const vector<size_t>& component_sizes) = 0;
+	virtual void update(const ArchetypeX& arch, const map<ComponentID, size_t>& sizes, size_t& index) = 0;
 };
 
 template<typename T, typename... Reqs>
@@ -140,12 +167,15 @@ struct SystemXFactory : public SystemX
 
 
 	template<size_t I = 0, typename... Rs>
-	inline void call_update(const vector<ComponentData>& data, const vector<size_t>& size, const size_t& index, Rs*... rest)
+	inline void call_update(const ArchetypeX& arch, const map<ComponentID, size_t>& sizes, const size_t& index, Rs*... rest)
 	{
 		if constexpr (I < sizeof...(Reqs))
 		{
 			using type = tuple_element_t<I, tuple<Reqs...>>;
-			call_update<I + 1>(data, size, index, rest..., reinterpret_cast<type*>(&data.at(I)[index * size.at(I)]));
+			ComponentID cid = TypeId<ComponentX>::id<type>();
+			call_update<I + 1>(
+				arch, sizes, index, rest..., 
+				reinterpret_cast<type*>(&arch.data.at(cid)[index * sizes.at(cid)]));
 		}
 		else if constexpr (I == sizeof...(Reqs))
 		{
@@ -153,11 +183,11 @@ struct SystemXFactory : public SystemX
 		}
 	}
 
-	void update(const vector<ComponentData>& data, size_t size, const vector<size_t>& component_sizes) override
+	void update(const ArchetypeX& arch, const map<ComponentID, size_t>& sizes,size_t& index) override
 	{
-		for (size_t i = 0; i < size; i++)
+		for (index = 0; index < arch.entityCount; index++)
 		{
-			call_update<0>(data, component_sizes, i);
+			call_update<0>(arch, sizes, index);
 		}
 	}
 
@@ -168,144 +198,53 @@ struct SystemXFactory : public SystemX
 
 };
 
-struct ArchetypeX
-{
-	size_t componentCount = 0;
-	size_t entityCount = 0;
-	unordered_map< ComponentID, ComponentData> data;
-	unordered_map< ComponentID, size_t> data_size;
-	unordered_map < EntityID, size_t> redirects;
-	ComponentBytes key = 0;
-};
-
 class EntityManagerX
 {
 private:
 	array<ComponentX*, MAX_COMPONENT> factories;
 	unordered_map<ComponentBytes, ArchetypeX> archetypes;
 	multimap<uint8_t, SystemX*> systems;
+
+	unordered_map<EntityID, ComponentBytes> entities;
 	EntityID entity_counter = 0;
 
-	void add_archetype(ComponentBytes key)
-	{
-		archetypes.emplace(key, ArchetypeX());
-		ArchetypeX& arch = archetypes.at(key);
-		arch.key = key;
-		std::cout << "Archetype " << std::bitset<32>(key) << " added" << std::endl;
-	}
+	vector<pair<EntityID, function<void(EntityID)>>> callbacks;
+
+	ComponentBytes current_arch;
+	size_t index;
+
+	void add_archetype(ComponentBytes key);
 
 public:
-	template<typename T>
-	T* get_entity_component(EntityID eid, ComponentBytes key)
-	{
-		ComponentID cid = TypeId<ComponentX>::id<T>();
-		ArchetypeX& arch = archetypes.at(key);
-		size_t index = arch.redirects.at(eid);
-		size_t size = arch.data_size.at(cid);
-		ComponentData data = arch.data.at(cid);
+	bool entity_has_component(EntityID eid, ComponentID cid);
+	ComponentData get_entity_component_data(EntityID eid, ComponentID cid);
 
-		return reinterpret_cast<T*>(&data[index * size]);
+	template<typename T> T* get_entity_component(EntityID eid);
+
+	template<typename T>					void register_component_type();
+	template<typename T, typename... Reqs>	void register_system(uint8_t layer);
+
+	void remove_entity(EntityID eid);
+	EntityID add_entity(const vector<ComponentID>& list);
+
+	void add_callback(function<void(EntityID)> function, EntityID eid);
+	void add_callback_current(function<void(EntityID)> function)
+	{
+		ArchetypeX& arch = archetypes.at(current_arch);
+		EntityID entity = arch.get_entity_at_id(index);
+		add_callback(function, entity);
 	}
-
-	template<typename T>
-	void register_component_type()
+	void destroy_this()
 	{
-		size_t new_id = TypeId<ComponentX>::id<T>();
-		factories.at(new_id) = new ComponentXFactory<T>();
-		std::cout << "Component " << new_id << " added" << std::endl;
-	}
-
-	template<typename T, typename... Reqs>
-	void register_system(uint8_t layer)
-	{
-		SystemX* new_system = new SystemXFactory<T, Reqs...>();
-		new_system->create();
-		systems.emplace(layer, new_system);
-		std::cout << "System " << std::bitset<32>(new_system->key()) << " added" << std::endl;
-	}
-
-	pair<EntityID, ComponentBytes> add_entity(const vector<ComponentID>& list)
-	{
-		ComponentBytes byteform = get_bytes_from_list(list);
-
-		int componentCount = list.size();
-
-		if (!archetypes.count(byteform)) //if archetype doesn't exist, create it
-		{
-			add_archetype(byteform);
-		}
-
-		ArchetypeX& archetype = archetypes.at(byteform);
-		archetype.entityCount++;
-		size_t new_id = entity_counter++;
-
-		for (size_t i = 0; i < componentCount; i++)
-		{
-			ComponentID id = list.at(i); //Resize the vector for the new data
-			ComponentX* factory = factories.at(i);
-
-			size_t& size = archetype.data_size[id];
-			size_t oldSize = size;
-			size_t compSize = factory->size();
-
-			if (size < archetype.entityCount) //is there is not enough size
+		add_callback_current([](EntityID eid)
 			{
-				if (size == 0) size = 2; else size *= 2;
-				ComponentData data = new unsigned char[compSize * size]; //reallocate 
-
-				std::cout << "Reallocating to " << size << " from " << oldSize << std::endl;
-
-				for (size_t y = 0; y < oldSize; y++)
-				{
-					factory->move(&archetype.data[id][y * compSize], &data[y * compSize]); //move data to the new storage
-					factory->destruct(&archetype.data[id][y * compSize]);
-				}
-
-				delete[](archetype.data[id]); //delete old data
-
-				archetype.data[id] = data; //set the new data
-			}
-
-			factory->construct(&archetype.data[id][(archetype.entityCount - 1) * compSize]); //create the new component data
-			archetype.redirects.emplace(new_id, archetype.entityCount - 1);
-		}
-
-		std::cout << "Entity " << new_id << " added" << std::endl;
-
-		return { new_id ,byteform };
+				Singleton<EntityManagerX>::get()->remove_entity(eid);
+			});
 	}
 
-	void update()
-	{
-		for (auto& pair : systems)
-		{
-			SystemX* system = pair.second;
-			ComponentBytes sys_key = system->key();
+	void do_callbacks();
 
-			for (auto& arch : archetypes)
-			{
-				if ((arch.first & sys_key) == sys_key) //if system's component is a subset of archtype's
-				{
-					//std::cout << "Updating system " << std::bitset<32>(sys_key) << std::endl;
-					ArchetypeX& archetype = arch.second;
-					vector<ComponentData> alldata;
-					vector<size_t> sizes;
-
-					for (auto& component_type : archetype.data)
-					{
-						if (sys_key & (1 << component_type.first)) //component is in system
-						{
-							//std::cout << "Adding Component " << component_type.first << std::endl;
-							alldata.push_back(component_type.second);
-							sizes.push_back(factories.at(component_type.first)->size());
-						}
-					}
-
-					system->update(alldata, archetype.entityCount, sizes);
-				}
-			}
-		}
-	}
+	void update();
 };
 
 typedef Singleton<EntityManagerX> EntX;
@@ -315,7 +254,6 @@ class EntityX
 {
 private:
 	EntityID id = 0;
-	ComponentBytes key = 0;
 
 	bool created = false;
 
@@ -339,7 +277,7 @@ public:
 	template<typename T>
 	inline void set_arguments(const T& arg)
 	{
-		T* comp = EntX::get()->get_entity_component<T>(id, key);
+		T* comp = EntX::get()->get_entity_component<T>(id);
 		*comp = arg;
 	}
 
@@ -360,11 +298,15 @@ public:
 			});
 		created = true;
 
-		auto pair = EntX::get()->add_entity(components);
-		id = pair.first;
-		key = pair.second;
+		id = EntX::get()->add_entity(components);
 
 		set_arguments(args...);
+	}
+
+	void destroy()
+	{
+		EntX::get()->remove_entity(id);
+		created = false;
 	}
 };
 
@@ -382,3 +324,27 @@ struct SystemXAdder
 	~SystemXAdder() {}
 };
 
+//Definitions
+
+template<typename T>
+inline T* EntityManagerX::get_entity_component(EntityID eid)
+{
+	return reinterpret_cast<T*>(get_entity_component_data(eid, TypeId<ComponentX>::id<T>()));
+}
+
+template<typename T>
+inline void EntityManagerX::register_component_type()
+{
+	size_t new_id = TypeId<ComponentX>::id<T>();
+	factories.at(new_id) = new ComponentXFactory<T>();
+	std::cout << "Component " << new_id << " added" << std::endl;
+}
+
+template<typename T, typename ...Reqs>
+inline void EntityManagerX::register_system(uint8_t layer)
+{
+	SystemX* new_system = new SystemXFactory<T, Reqs...>();
+	new_system->create();
+	systems.emplace(layer, new_system);
+	std::cout << "System " << std::bitset<32>(new_system->key()) << " added" << std::endl;
+}

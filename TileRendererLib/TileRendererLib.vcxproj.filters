@@ -62,6 +62,9 @@
     <ClCompile Include="Sound.cpp">
       <Filter>Header Files\Classes</Filter>
     </ClCompile>
+    <ClCompile Include="EntityX.cpp">
+      <Filter>Header Files\Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="EntityX.h">
