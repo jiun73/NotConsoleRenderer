@@ -1,5 +1,6 @@
 #include "TileRenderer.h"
 #include "EntityX.h"
+#include "Vec3D.h"
 
 double getAngleTowardPoint(V2d_d origin, V2d_d target)
 {
@@ -62,20 +63,23 @@ struct ParticleEmitter_x
 
 struct Shape_x 
 {
-	vector<V2d_i> points;
+	vector<V2d_d> points;
 	V2d_d position = 0;
 	double angle = 0;
+	double scale = 1;
 
 	V2d_d find_point(V2d_d p)
 	{
 		double norm = p.norm();
 		double orientation = p.orientation() + angle;
 
-		return p.polar(norm, orientation) + position;
+		return (p.polar(norm, orientation) * scale + position) ;
 	}
 
 	void draw()
 	{
+		if (points.empty()) return;
+
 		for (auto it = points.begin() + 1; it != points.end(); it++)
 		{
 			draw_line((V2d_i)find_point(*(it - 1)), (V2d_i)find_point(*it));
@@ -144,7 +148,7 @@ struct Shooter_system
 	{
 		angle->angle = -getAngleTowardPoint(position->position, get_true_mouse_pos()) + (0.5 * M_PI);
 
-		if (mouse().pressed(1))
+		if (mouse().held(1))
 		{
 			EntityX<Position_x, Angle_x, GFX_x, Shape_x, Physics_x, Lifetime_x> bullet;
 
@@ -235,6 +239,177 @@ SystemXAdder<0, Lifetime_system, Lifetime_x> lifetime_system_adder;
 SystemXAdder<1, Particle_system, ParticleEmitter_x, Position_x> particle_system_adder;
 SystemXAdder<0, PlayerMoveParticle_system, ParticleEmitter_x, Controller_x> player_particle_system_adder;
 
+Shape_x get_letter_shape(char c)
+{
+	switch (c)
+	{
+	case ' ':
+		return { {} };
+	case '0':
+		return { {{{-5,0},{0,-5},{5,0}, {0,5}}} };
+	case '1':
+		return { {{0,-5},{0,5}} };
+	case '2':
+		return { {{-5,0},{0,-5},{5,0},{-5, 5}, 5, {-5, 5}, {5,0}, {0,-5}} };
+	case '3':
+		return { {{-5}, {5, -2.5}, {-5,0}, {5,2.5}, {-5,5}, {5,2.5}, {-5,0}, {5, -2.5} }};
+	case '4':
+		return { {5, {5, 0},{5,-5},{-5,0},{5,0}} };
+	case '5':
+		return { { {-5,5},{5,2.5}, {-5,0},-5, {5, -5}, -5, {-5,0},{5,2.5}} };
+	case '6':
+		return { { -5, {-5, 5}, 5, {-5, 0}} };
+	case '7':
+		return { {-5, {5, -5}, {-5,5},{5, -5}} };
+	case '8':
+		return { {{0,-5}, {-5,-2.5}, {5,2.5}, {0,5}, {-5, 2.5}, {5, -2.5}} };
+	case '9':
+		return { {5,{5,-5},-5, {5,0}} };
+	case 'A':
+		return { { {-2.5,0}, {-5,5},{0,-5},{5},{2.5,0}} };
+	case 'a':
+		return { {{0,-2.5},{-5, 1.25 }, {0,5}, {5,1.25},5} };
+	case 'B':
+		return { {{-5,5},{5,2.5},{-5,0},{5,-2.5},-5} };
+	case 'b':
+		return { {-5, {-5,5},{5,2.5},{-5,0}} };
+	case 'C':
+		return { {5,{-5,0},{5,-5},{-5,0}} };
+	case 'c':
+		return { {5, {-5,1.25}, {5,-2.5},{-5,1.25}} };
+	case 'D':
+		return { {-5,{-5,5},{5,0}} };
+	case 'd':
+		return { {{5,-5},5,{-5,2.5},{5,0}} };
+	case 'E':
+		return { {5,{-5,0},{5,-5},{-5,0},{5,0},{-5,0}} };
+	case 'e':
+		return { {5, {-5,1.25},{0,-2.5},{5,1.25}, {-5,1.25},5} };
+	case 'F':
+		return { {{ 5,-5},-5,{-5,0},{5,0},{-5,0},{-5,5},-5} };
+	case 'f':
+		return { {{5,-2.5},{-5,1.25},{5,1.25},{-5,1.25},{-5,5},{-5,1.25} } };
+	case 'G':
+		return { {{2.5,-2.5},{0,-5},{-5,0},{0,5},{5,0},0,{5,0}, {0,5}, {-5,0}, {0,-5}} };
+	case 'g':
+		return { {{{0,-2.5}, {5,-2.5},{0,-2.5},{5,1.25},{-5,6.25},{0,7.5},{5,6.25},{-5, 1.25}}} };
+	case 'H':
+		return { {{-5,{-5,5},{-5,0},{5,0},5,{5,-5},{5,0},{-5,0}}} };
+	case 'h':
+		return { {{-5,5},{-5,0},5,{-5,0},-5} };
+	case 'I':
+		return { {{-5,{5,-5},{0,-5},{0,5},5,{-5,5},{0,5},{0,-5}}} };
+	case 'i':
+		return { {{{-5, -2.5},{5,-2.5},{0,-2.5},{0,5},{5,5},{-5,5},{0,5},{0,-2.5}}} };
+	case 'J':
+		return { {{-5,0},{0,5},{5,0},{5,-5},{0,-5},{5,-5},{5,0},{0,5}} };
+	case 'j':
+		return { {{-2.5, -2.5}, {2.5,-2.5},{2.5,5},{0,7.5},{-2.5,5},{0,7.5},{2.5,5}, {2.5,-2.5}} };
+	case 'K':
+		return { {{-5,{-5,5},{-5,0},{5,-5},{-5,0},5, {-5,0}}} };
+	case 'k':
+		return { {{-5,{-5,5},{-5,1.25},{5,1.25},{-5,1.25},5, {-5,1.25}}} };
+	case 'L':
+		return { {-5, {-5,5},5,{-5,5}} };
+	case 'l':
+		return { {-5, {-5,5},{2.5,1.25},{-5,5}} };
+	case 'M':
+		return { {{-5,5},-5,{0,5},{5,-5},5,{5,-5},{0,5},-5} };
+	case 'm':
+		return { {{-5,5},{-5,-2.5},{0,1.25},{5,-2.5},5,{5,-2.5},{0,1.25},{-5,-2.5}} };
+	case 'N':
+		return { {{-5,5}, -5, 5,{5,-5}, 5, -5} };
+	case 'n':
+		return { {{-5, -2.5}, {-5,5},{5, -2.5},5,{5, -2.5}, {-5,5} } };
+	case 'O':
+		return { {{{-5,0},{0,-5},{5,0}, {0,5}}} };
+	case 'o':
+		return { {{{-5,1.25},{0,-2.5},{5,1.25}, {0,5}}} };
+	case 'P':
+		return { {-5, {5,-2.5}, {-5,0},{-5,5}} };
+	case 'p':
+		return { {{-5,-2.5}, {5,1.25}, {-5,2.5},{-5,7.5}} };
+	case 'Q':
+		return { {{-5,0},{0,5},2.5, 0, 5, 2.5, {5,0}, {0,-5}} };
+	case 'q':
+		return { {{5,1.25}, {0,-2.5},{-5,1.25},{0,5},{5,1.25},{5,-2.5},{5,7.5}} };
+	case 'R':
+		return { {{-5,5},{-5,0},5,{-5,0},{5,-2.5},-5} };
+	case 'r':
+		return { {{-5,5},{-5,-2.5},{ -5,0},{0,-2.5},{5,0},{0,-2.5},{-5,0} } };
+	case 'S':
+		return { {{-5,5},{5,2.5},{-5,-2.5},{5,-5},{-5,-2.5},{5,2.5}} };
+	case 's':
+		return { {{-5,5},{5,1.25},{-5,0},{5,-2.5},{-5,0},{5,1.25}} };
+	case 'T':
+		return { {-5,{5,-5},{0,-5},{0,5},{0,-5}} };
+	case 't':
+		return { {{-5, -2.5},{5,-2.5},{0,-2.5},{0,5},{0,-2.5}} };
+	case 'U':
+		return { {-5, {-5,5},5,{5,-5},5,{-5,5}} };
+	case 'u':
+		return { {{-5,-2.5}, {-5,5},5,{5,-2.5},5,{-5,5}} };
+	case 'V':
+		return { { -5, {0,5},{5,-5},{0,5}} };
+	case 'v':
+		return { { {-5,-2.5}, {0,5},{5,-2.5},{0,5}} };
+	case 'W':
+		return { {{5,-5},5,{0,-5},{-5,5},-5,{-5,5},{0,-5},5} };
+	case 'w':
+		return { {{5,-2.5},5,{0,1.25},{-5,5},{-5,-2.5},{-5,5},{0,1.25},5} };
+	case 'X':
+		return { {-5, 5, 0, {-5,5}, 0 , {5,-5}, 0} };
+	case 'x':
+		return { {{-5,-2.5}, {0,1.25}, 5, {0,1.25}, {-5,5}, {0,1.25} , {5,-2.5}, {0,1.25}} };
+	case 'Y':
+		return { {-5, 0, {5,-5}, {-5,5},0} };
+	case 'y':
+		return { {{-5,-2.5}, {0,1.25}, {5,-2.5}, {-5,5},{0,1.25}} };
+	case 'Z':
+		return { {{-5, {5,-5}, {-5,5},5, {-5,5}, {5,-5}}} };
+	case 'z':
+		return { {{{-5,-2.5}, {5,-2.5}, {-5,5},5, {-5,5}, {5,-2.5}}} };
+	default :
+		return {};
+	}
+}
+
+void distort_shape(Shape_x& shape, int force = 5)
+{
+	for (auto& p : shape.points)
+	{
+		p += {random().frange(-force, force), random().frange(-force, force)};
+	}
+}
+
+void draw_letter(char c, V2d_i pos, double scale = 1)
+{
+	Shape_x shape = get_letter_shape(c);
+
+	shape.position = pos;
+	shape.scale = scale;
+
+	distort_shape(shape, 2);
+	shape.draw();
+}
+
+void draw_text(string s, V2d_i pos, double scale = 1)
+{
+	int basex = pos.x;
+	for (auto & c : s)
+	{
+		if (c == '\n')
+		{
+			pos.x = basex;
+			pos.y += 12 * scale;
+			continue;
+		}
+
+		draw_letter(c, pos + 5 * scale, scale);
+		pos.x += 12 * scale;
+	}
+}
+
 int main()
 {
 	set_window_size(500);
@@ -263,6 +438,10 @@ int main()
 	{
 		pencil(COLOR_BLACK);
 		draw_clear();
+
+		pencil(COLOR_PINK);
+
+		draw_text("GIVE UP", 0, 2);
 	}
 
 	return 0;

@@ -157,6 +157,7 @@
     <ClInclude Include="Sound.h" />
     <ClInclude Include="TileRenderer.h" />
     <ClInclude Include="Vec2D.h" />
+    <ClInclude Include="Vec3D.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EntityX.cpp" />
