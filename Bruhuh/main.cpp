@@ -2,6 +2,9 @@
 #include "EntityX.h"
 #include "Vec3D.h"
 
+#include <functional>
+
+
 double getAngleTowardPoint(V2d_d origin, V2d_d target)
 {
 	return (-atan2(double(origin.y - target.y), double(origin.x - target.x)) - (M_PI / 2));
@@ -94,6 +97,14 @@ struct Lifetime_x
 	int life = 999;
 };
 
+struct Distorter_x 
+{
+	function<void(V2d_d&, size_t)> transform;
+	bool set = false;
+	Shape_x old_shape;
+	
+};
+
 ComponentXAdder<Position_x> pos_adder;
 ComponentXAdder<Angle_x> angle_adder;
 ComponentXAdder<GFX_x> gfx_adder;
@@ -103,6 +114,17 @@ ComponentXAdder<Shooter_x> shooter_adder;
 ComponentXAdder<Physics_x> physics_adder;
 ComponentXAdder<Lifetime_x> lifetime_adder;
 ComponentXAdder<ParticleEmitter_x> emitter_adder;
+ComponentXAdder<Distorter_x> distorter_adder;
+
+void apply_shape(Shape_x& shape, function<void(V2d_d&, size_t)> transform)
+{
+	size_t i = 0;
+	for (auto& p : shape.points)
+	{
+		transform(p, i);
+		i++;
+	}
+}
 
 struct Shape_system 
 {
@@ -230,6 +252,24 @@ struct PlayerMoveParticle_system
 	}
 };
 
+struct Distorter_system 
+{
+	void update(Distorter_x* distorter, Shape_x* shape)
+	{
+		if (!distorter->set)
+		{
+			distorter->old_shape = *shape;
+			distorter->set = true;
+		}
+		else 
+		{
+			*shape = distorter->old_shape;
+		}
+
+		apply_shape(*shape, distorter->transform);
+	}
+};
+
 SystemXAdder<0, Shape_system, Position_x, Angle_x, Shape_x> shape_system_adder;
 SystemXAdder<0, GFX_system, GFX_x, Shape_x> polygon_gfx_system_adder;
 SystemXAdder<0, Controller_system, Position_x, Controller_x> controller_system_adder;
@@ -238,6 +278,7 @@ SystemXAdder<0, Physics_system, Physics_x, Position_x, Angle_x> physics_system_a
 SystemXAdder<0, Lifetime_system, Lifetime_x> lifetime_system_adder;
 SystemXAdder<1, Particle_system, ParticleEmitter_x, Position_x> particle_system_adder;
 SystemXAdder<0, PlayerMoveParticle_system, ParticleEmitter_x, Controller_x> player_particle_system_adder;
+SystemXAdder<1, Distorter_system, Distorter_x, Shape_x> distorter_system_adder;
 
 Shape_x get_letter_shape(char c)
 {
@@ -373,13 +414,20 @@ Shape_x get_letter_shape(char c)
 		return {};
 	}
 }
-
-void distort_shape(Shape_x& shape, int force = 5)
+void distort_shape(Shape_x& shape, double force = 5)
 {
-	for (auto& p : shape.points)
-	{
-		p += {random().frange(-force, force), random().frange(-force, force)};
-	}
+	apply_shape(shape, [&](V2d_d& point, size_t)
+		{
+			point += {random().frange(-force, force), random().frange(-force, force)};;
+		});
+}
+
+void wave_shape(Shape_x& shape, double amplitude = 5)
+{
+	apply_shape(shape, [&](V2d_d& point, size_t i)
+		{
+			point += {sin((SDL_GetTicks()/100.0) + i * 5)* amplitude, cos((SDL_GetTicks() / 100.0) + i * 5) * amplitude};;
+		});
 }
 
 void draw_letter(char c, V2d_i pos, double scale = 1)
@@ -389,7 +437,7 @@ void draw_letter(char c, V2d_i pos, double scale = 1)
 	shape.position = pos;
 	shape.scale = scale;
 
-	distort_shape(shape, 2);
+	distort_shape(shape, sin(SDL_GetTicks() / 100.0) + 1);
 	shape.draw();
 }
 
@@ -422,7 +470,7 @@ int main()
 	sound().loadSound("Sounds/shoot_sfx3.wav");
 	sound().loadSound("Sounds/shoot_sfx4.wav");
 
-	EntityX< Position_x, Angle_x, GFX_x, Controller_x, Shape_x, Shooter_x, ParticleEmitter_x> player;
+	EntityX< Position_x, Angle_x, GFX_x, Controller_x, Shape_x, Shooter_x, ParticleEmitter_x, Distorter_x> player;
 
 	player.create(
 		{ 250 },
@@ -431,7 +479,13 @@ int main()
 		{},
 		{ { -5,{10,0},{-5,5} } },
 		{},
-		{ {30} }
+		{ {30} }, 
+		{
+			[&](V2d_d& v, size_t i) 
+		{
+			v += {random().frange(-1, 1), random().frange(-1, 1)};;
+		}
+		}
 	);
 
 	while (run())
@@ -441,7 +495,7 @@ int main()
 
 		pencil(COLOR_PINK);
 
-		draw_text("GIVE UP", 0, 2);
+		draw_text("GIVE UP", 250, 2);
 	}
 
 	return 0;
