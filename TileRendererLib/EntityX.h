@@ -113,10 +113,26 @@ struct ArchetypeX
 	unordered_map< ComponentID, ComponentData> data;
 	unordered_map< ComponentID, size_t> data_size;
 	unordered_map < EntityID, size_t> redirects;
+	unordered_map < size_t, EntityID> redirects_reverse;
 	ComponentBytes key = 0;
+
+	void add_redirect(EntityID eid, size_t index)
+	{
+		redirects.emplace(eid, index);
+		redirects_reverse.emplace(index, eid);
+	}
+
+	void remove_redirect_entity(EntityID eid)
+	{
+		size_t index = redirects.at(eid);
+		redirects.erase(eid);
+		redirects_reverse.erase(index);
+	}
 
 	EntityID get_entity_at_id(size_t index) 
 	{
+		return redirects_reverse.at(index);
+
 		for (auto& pair : redirects) //we find the entity that is at the end of the list, not sure if there is a better way to do this
 		{
 			if (pair.second == index) //what we're going to do is move the latest entity to fill the spot we just freed
@@ -137,6 +153,7 @@ struct SystemX
 	virtual void create() = 0;
 	virtual void update(const ArchetypeX& arch, const map<ComponentID, size_t>& sizes, size_t& index) = 0;
 	virtual void after_update() = 0;
+	virtual char* get_this() = 0;
 };
 
 template<typename T, typename... Reqs>
@@ -199,6 +216,7 @@ struct SystemXFactory : public SystemX
 		return _key;
 	}
 
+	char* get_this() override { return reinterpret_cast<char*>( & system); }
 };
 
 template<typename T, typename... Reqs>
@@ -206,6 +224,9 @@ class SystemXManagerFactory : public SystemX
 {
 	T system;
 	tuple<vector<Reqs*>...> collected_data;
+	vector<EntityID> ids;
+
+	char* get_this() override { return reinterpret_cast<char*>(&system); }
 
 	template<size_t I = 0>
 	inline void collect_components(vector<ComponentID>& collector)
@@ -254,6 +275,7 @@ class SystemXManagerFactory : public SystemX
 		for (index = 0; index < arch.entityCount; index++)
 		{
 			collect_data<0>(arch, sizes, index);
+			ids.push_back(arch.redirects_reverse.at(index));
 		}
 	}
 
@@ -266,7 +288,7 @@ class SystemXManagerFactory : public SystemX
 		}
 		else if constexpr (I == sizeof...(Reqs))
 		{
-			system.update(args...);
+			system.update(args..., ids);
 		}
 	}
 
@@ -284,6 +306,7 @@ class SystemXManagerFactory : public SystemX
 	{
 		unfold_tuple<0>();
 		clear_tuple();
+		ids.clear();
 	}
 };
 
@@ -293,6 +316,7 @@ private:
 	array<ComponentX*, MAX_COMPONENT> factories;
 	unordered_map<ComponentBytes, ArchetypeX> archetypes;
 	multimap<uint8_t, SystemX*> systems;
+	map<SystemID, SystemX*> systems_by_id;
 
 	unordered_map<EntityID, ComponentBytes> entities;
 	EntityID entity_counter = 0;
@@ -303,8 +327,10 @@ private:
 	size_t index;
 
 	void add_archetype(ComponentBytes key);
+	void add_system(uint8_t layer, SystemX* system, SystemID id);
 
 public:
+	bool has_entity(EntityID eid) { return entities.count(eid); }
 	bool entity_has_component(EntityID eid, ComponentID cid);
 	ComponentData get_entity_component_data(EntityID eid, ComponentID cid);
 
@@ -313,6 +339,7 @@ public:
 	template<typename T>					void register_component_type();
 	template<typename T, typename... Reqs>	void register_system(uint8_t layer);
 	template<typename T, typename... Reqs>	void register_system_manager(uint8_t layer);
+	template<typename T>					T* get_system();
 
 	void remove_entity(EntityID eid);
 	EntityID add_entity(const vector<ComponentID>& list);
@@ -330,6 +357,14 @@ public:
 			{
 				Singleton<EntityManagerX>::get()->remove_entity(eid);
 			});
+	}
+	void destroy_this(EntityID eid)
+	{
+		add_callback([](EntityID eid)
+			{
+				if(Singleton<EntityManagerX>::get()->has_entity(eid))
+					Singleton<EntityManagerX>::get()->remove_entity(eid);
+			}, eid);
 	}
 
 	void do_callbacks();
@@ -441,17 +476,21 @@ template<typename T, typename ...Reqs>
 inline void EntityManagerX::register_system(uint8_t layer)
 {
 	SystemX* new_system = new SystemXFactory<T, Reqs...>();
-	new_system->create();
-	systems.emplace(layer, new_system);
-	std::cout << "System " << std::bitset<32>(new_system->key()) << " added" << std::endl;
+	add_system(layer, new_system, TypeId<SystemX>::id<T>());
 }
 
 template<typename T, typename ...Reqs>
 inline void EntityManagerX::register_system_manager(uint8_t layer)
 {
 	SystemX* new_system = new SystemXManagerFactory<T, Reqs...>();
-	new_system->create();
-	systems.emplace(layer, new_system);
-	std::cout << "System (manager) " << std::bitset<32>(new_system->key()) << " added" << std::endl;
+	add_system(layer, new_system, TypeId<SystemX>::id<T>());
+}
+
+template<typename T>
+inline T* EntityManagerX::get_system()
+{
+	SystemX* system = systems_by_id.at(TypeId<SystemX>::id<T>());
+
+	return reinterpret_cast<T*>(system->get_this());
 }
 

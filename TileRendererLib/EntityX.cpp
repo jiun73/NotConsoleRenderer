@@ -1,5 +1,13 @@
 #include "EntityX.h"
 
+void EntityManagerX::add_system(uint8_t layer, SystemX* system, SystemID id)
+{
+	system->create();
+	systems.emplace(layer, system);
+	systems_by_id.emplace(id, system);
+	std::cout << "System " << std::bitset<32>(system->key()) << " added" << std::endl;
+}
+
 inline void EntityManagerX::add_archetype(ComponentBytes key)
 {
 	archetypes.emplace(key, ArchetypeX());
@@ -37,12 +45,17 @@ void EntityManagerX::remove_entity(EntityID eid)
 	size_t latestIndex = archetype.entityCount - 1;
 	size_t latestEntity = archetype.get_entity_at_id(latestIndex);
 
-	archetype.redirects.erase(eid);
+	//archetype.redirects.erase(eid);
+
+	archetype.remove_redirect_entity(eid);
 
 	if (oldIndex != latestIndex)
 	{
-		archetype.redirects.erase(latestEntity);
-		archetype.redirects.emplace(latestEntity, oldIndex);
+		//archetype.redirects.erase(latestEntity);
+		//archetype.redirects.emplace(latestEntity, oldIndex);
+
+		archetype.remove_redirect_entity(latestEntity);
+		archetype.add_redirect(latestEntity, oldIndex);
 	}
 
 	archetype.entityCount--;
@@ -111,7 +124,7 @@ EntityID EntityManagerX::add_entity(const vector<ComponentID>& list)
 		}
 
 		factory->construct(&archetype.data[id][(archetype.entityCount - 1) * compSize]); //create the new component data
-		archetype.redirects.emplace(new_id, archetype.entityCount - 1);
+		archetype.add_redirect(new_id, archetype.entityCount - 1);
 	}
 
 	//std::cout << "Entity " << new_id << " added" << std::endl;
