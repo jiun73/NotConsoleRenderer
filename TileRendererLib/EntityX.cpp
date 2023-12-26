@@ -154,6 +154,11 @@ void EntityManagerX::update()
 		}
 	}
 
+	for (auto& pair : systems)
+	{
+		pair.second->after_update();
+	}
+
 	do_callbacks();
 }
 

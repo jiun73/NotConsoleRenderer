@@ -136,6 +136,7 @@ struct SystemX
 	virtual ComponentBytes key() = 0; //Key is used here to determine the system's required components
 	virtual void create() = 0;
 	virtual void update(const ArchetypeX& arch, const map<ComponentID, size_t>& sizes, size_t& index) = 0;
+	virtual void after_update() = 0;
 };
 
 template<typename T, typename... Reqs>
@@ -143,7 +144,7 @@ struct SystemXFactory : public SystemX
 {
 	T system;
 
-	ComponentBytes _key;
+	ComponentBytes _key = 0;
 
 	template<size_t I = 0>
 	inline void collect_components(vector<ComponentID>& collector)
@@ -191,11 +192,99 @@ struct SystemXFactory : public SystemX
 		}
 	}
 
+	void after_update() override {}
+
 	ComponentBytes key() override
 	{
 		return _key;
 	}
 
+};
+
+template<typename T, typename... Reqs>
+class SystemXManagerFactory : public SystemX
+{
+	T system;
+	tuple<vector<Reqs*>...> collected_data;
+
+	template<size_t I = 0>
+	inline void collect_components(vector<ComponentID>& collector)
+	{
+		using tuple_type = tuple<Reqs...>;
+		if constexpr (I < sizeof...(Reqs))
+		{
+			using element_t = tuple_element_t<I, tuple_type>;
+			ComponentID id = TypeId<ComponentX>::id<element_t>();
+			collector.push_back(id);
+			collect_components<I + 1>(collector);
+		}
+	}
+
+	void create() override
+	{
+		vector<ComponentID> list;
+		collect_components(list);
+		_key = get_bytes_from_list(list);
+	}
+
+	ComponentBytes _key = 0;
+
+	ComponentBytes key() override
+	{
+		return _key;
+	}
+
+	template<size_t I>
+	void collect_data(const ArchetypeX& arch, const map<ComponentID, size_t>& sizes, size_t& index)
+	{
+		using tuple_type = tuple<Reqs...>;
+		if constexpr (I < sizeof...(Reqs))
+		{
+			using element_t = tuple_element_t<I, tuple_type>;
+			ComponentID id = TypeId<ComponentX>::id<element_t>();
+
+			std::get<I>(collected_data).push_back(reinterpret_cast<element_t*>(&arch.data.at(id)[sizes.at(id) * index]));
+
+			collect_data<I + 1>(arch, sizes, index);
+		}
+	}
+
+	void update(const ArchetypeX& arch, const map<ComponentID, size_t>& sizes, size_t& index) override
+	{
+		for (index = 0; index < arch.entityCount; index++)
+		{
+			collect_data<0>(arch, sizes, index);
+		}
+	}
+
+	template<size_t I, typename... Rs>
+	void unfold_tuple(vector<Rs*>&... args)
+	{
+		if constexpr (I < sizeof...(Reqs))
+		{
+			unfold_tuple<I + 1>(args..., std::get<I>(collected_data));
+		}
+		else if constexpr (I == sizeof...(Reqs))
+		{
+			system.update(args...);
+		}
+	}
+
+	template<size_t I = 0>
+	void clear_tuple() 
+	{
+		if constexpr (I < sizeof...(Reqs))
+		{
+			std::get<I>(collected_data).clear();
+			clear_tuple<I + 1>();
+		}
+	}
+
+	void after_update() override 
+	{
+		unfold_tuple<0>();
+		clear_tuple();
+	}
 };
 
 class EntityManagerX
@@ -223,6 +312,7 @@ public:
 
 	template<typename T>					void register_component_type();
 	template<typename T, typename... Reqs>	void register_system(uint8_t layer);
+	template<typename T, typename... Reqs>	void register_system_manager(uint8_t layer);
 
 	void remove_entity(EntityID eid);
 	EntityID add_entity(const vector<ComponentID>& list);
@@ -324,6 +414,13 @@ struct SystemXAdder
 	~SystemXAdder() {}
 };
 
+template<size_t L, typename T, typename... Reqs>
+struct SystemXManagerAdder
+{
+	SystemXManagerAdder() { EntX::get()->register_system_manager<T, Reqs...>(L); }
+	~SystemXManagerAdder() {}
+};
+
 //Definitions
 
 template<typename T>
@@ -348,3 +445,13 @@ inline void EntityManagerX::register_system(uint8_t layer)
 	systems.emplace(layer, new_system);
 	std::cout << "System " << std::bitset<32>(new_system->key()) << " added" << std::endl;
 }
+
+template<typename T, typename ...Reqs>
+inline void EntityManagerX::register_system_manager(uint8_t layer)
+{
+	SystemX* new_system = new SystemXManagerFactory<T, Reqs...>();
+	new_system->create();
+	systems.emplace(layer, new_system);
+	std::cout << "System (manager) " << std::bitset<32>(new_system->key()) << " added" << std::endl;
+}
+

@@ -1,14 +1,16 @@
 #include "TileRenderer.h"
 #include "EntityX.h"
 #include "Vec3D.h"
-
+#include "Shape_x.h"
 #include <functional>
 
+enum CollisionTypes 
+{};
 
-double getAngleTowardPoint(V2d_d origin, V2d_d target)
+enum ColliderTags
 {
-	return (-atan2(double(origin.y - target.y), double(origin.x - target.x)) - (M_PI / 2));
-}
+	TAG_PLAYER,
+};
 
 //struct Object
 //{
@@ -64,34 +66,6 @@ struct ParticleEmitter_x
 	bool emit = true;
 };
 
-struct Shape_x 
-{
-	vector<V2d_d> points;
-	V2d_d position = 0;
-	double angle = 0;
-	double scale = 1;
-
-	V2d_d find_point(V2d_d p)
-	{
-		double norm = p.norm();
-		double orientation = p.orientation() + angle;
-
-		return (p.polar(norm, orientation) * scale + position) ;
-	}
-
-	void draw()
-	{
-		if (points.empty()) return;
-
-		for (auto it = points.begin() + 1; it != points.end(); it++)
-		{
-			draw_line((V2d_i)find_point(*(it - 1)), (V2d_i)find_point(*it));
-		}
-
-		draw_line((V2d_i)find_point(points.front()), (V2d_i)find_point(points.back()));
-	}
-};
-
 struct Lifetime_x 
 {
 	int life = 999;
@@ -105,6 +79,11 @@ struct Distorter_x
 	
 };
 
+struct Collider_x 
+{
+	int tag;
+};
+
 ComponentXAdder<Position_x> pos_adder;
 ComponentXAdder<Angle_x> angle_adder;
 ComponentXAdder<GFX_x> gfx_adder;
@@ -115,6 +94,7 @@ ComponentXAdder<Physics_x> physics_adder;
 ComponentXAdder<Lifetime_x> lifetime_adder;
 ComponentXAdder<ParticleEmitter_x> emitter_adder;
 ComponentXAdder<Distorter_x> distorter_adder;
+ComponentXAdder<Collider_x> collider_adder;
 
 void apply_shape(Shape_x& shape, function<void(V2d_d&, size_t)> transform)
 {
@@ -170,9 +150,9 @@ struct Shooter_system
 	{
 		angle->angle = -getAngleTowardPoint(position->position, get_true_mouse_pos()) + (0.5 * M_PI);
 
-		if (mouse().held(1))
+		if (mouse().pressed(1))
 		{
-			EntityX<Position_x, Angle_x, GFX_x, Shape_x, Physics_x, Lifetime_x> bullet;
+			EntityX<Position_x, Angle_x, GFX_x, Shape_x, Physics_x, Lifetime_x, Collider_x> bullet;
 
 			bullet.create(
 				*position,
@@ -180,7 +160,8 @@ struct Shooter_system
 				{ COLOR_WHITE },
 				{ { -5, 5, {-5,5 } } },
 				{ V2d_d().polar(3, angle->angle), 0, 0.3 },
-				{ 100 }
+				{ 100 },
+				{ 1}
 			);
 
 			sound().playSound("Sounds/shoot_sfx" + std::to_string(random().range(1, 4)) + ".wav");
@@ -270,6 +251,33 @@ struct Distorter_system
 	}
 };
 
+struct Collision_system 
+{
+	GJK gjk;
+
+	void update(vector<Shape_x*>& shapes, vector<Collider_x*>& colliders, vector<Position_x*>& positions)
+	{
+		size_t i = 0;
+		for (auto it1 = shapes.begin(); it1 != shapes.end(); it1++) //TODO: shitty way to do this
+		{
+			size_t y = 0;
+			for (auto it2 = shapes.begin(); it2 != shapes.end(); it2++)
+			{
+				if (it1 != it2)
+				{
+					if (gjk.find(**it1, **it2))
+					{
+						std::cout << i << " collided with " << y << std::endl;
+						positions.at(y)->position += gjk.EPA(**it1, **it2);
+					}
+				}
+				y++;
+			}
+			i++;
+		}
+	}
+};
+
 SystemXAdder<0, Shape_system, Position_x, Angle_x, Shape_x> shape_system_adder;
 SystemXAdder<0, GFX_system, GFX_x, Shape_x> polygon_gfx_system_adder;
 SystemXAdder<0, Controller_system, Position_x, Controller_x> controller_system_adder;
@@ -279,6 +287,7 @@ SystemXAdder<0, Lifetime_system, Lifetime_x> lifetime_system_adder;
 SystemXAdder<1, Particle_system, ParticleEmitter_x, Position_x> particle_system_adder;
 SystemXAdder<0, PlayerMoveParticle_system, ParticleEmitter_x, Controller_x> player_particle_system_adder;
 SystemXAdder<1, Distorter_system, Distorter_x, Shape_x> distorter_system_adder;
+SystemXManagerAdder<1, Collision_system, Shape_x, Collider_x, Position_x> collision_system_adder;
 
 Shape_x get_letter_shape(char c)
 {
@@ -470,22 +479,26 @@ int main()
 	sound().loadSound("Sounds/shoot_sfx3.wav");
 	sound().loadSound("Sounds/shoot_sfx4.wav");
 
-	EntityX< Position_x, Angle_x, GFX_x, Controller_x, Shape_x, Shooter_x, ParticleEmitter_x, Distorter_x> player;
+	EntityX< Position_x, Angle_x, GFX_x, Controller_x, Shape_x, Shooter_x, ParticleEmitter_x, Collider_x> player;
+	EntityX<Position_x, Shape_x, GFX_x, Angle_x, Collider_x> test_collider;
 
 	player.create(
 		{ 250 },
 		{ 0 },
 		{ rgb(255, 255, 0) },
 		{},
-		{ { -5,{10,0},{-5,5} } },
+		{ { -50,{100,0},{-50,50} } },
 		{},
-		{ {30} }, 
-		{
-			[&](V2d_d& v, size_t i) 
-		{
-			v += {random().frange(-1, 1), random().frange(-1, 1)};;
-		}
-		}
+		{ {30} },
+		{0}
+	);
+
+	test_collider.create(
+		{ 250 }, 
+		{ {-50,{-50,50},50,{50,-50}} }, 
+		{rgb(255,255,255)},
+		{ 0 },
+		{0}
 	);
 
 	while (run())
