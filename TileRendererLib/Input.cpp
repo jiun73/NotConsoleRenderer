@@ -84,9 +84,10 @@ bool MouseInput::released(int key)
 KeyboardInput::KeyboardInput()
 {
 	int numkeys;
-	const uint8_t* state = SDL_GetKeyboardState(&numkeys);
+	const uint8_t* s = SDL_GetKeyboardState(&numkeys);
 	for (size_t i = 0; i < numkeys; i++)
 	{
+		state.push_back(false);
 		last.push_back(false);
 		temp.push_back(false);
 	}
@@ -96,8 +97,20 @@ void KeyboardInput::update()
 {
 	if (!textmode)
 	{
-		last = temp;
-		state = SDL_GetKeyboardState(NULL);
+		last = state;
+		int numkeys;
+		const uint8_t* s = SDL_GetKeyboardState(&numkeys);
+
+		state.clear();
+
+		for (size_t i = 0; i < numkeys; i++)
+		{
+			state.push_back(s[i]);
+		}
+	}
+	else
+	{
+
 	}
 }
 
@@ -146,26 +159,13 @@ bool KeyboardInput::held(int key)
 
 bool KeyboardInput::pressed(int key)
 {
-	if (state[key] && !last[key])
-	{
-		temp[key] = true;
-		return true && !locked;
-	}
-	else if (!state[key])
-		temp[key] = false;
-	return false;
+	return (state[key] && !last[key]);
 }
 
 bool KeyboardInput::released(int key)
 {
-	if (!state[key] && last[key])
-	{
-		temp[key] = false;
-		return true && !locked;
-	}
-	else if (state[key])
-		temp[key] = true && !locked;
-	return false;
+
+	return (!state[key] && last[key]);
 }
 
 void KeyboardInput::quickKeyboardSelect(V2d_i& pos)

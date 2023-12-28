@@ -45,8 +45,8 @@ V2d_d AP22::min_vec(std::vector<V2d_d>& list, V2d_d start)
 
 	draw_line((V2d_i)find_point(points.front()), (V2d_i)find_point(points.back()));
 
-	draw_circle(support(-getAngleTowardPoint(position, mouse_position()) + (0.5 * M_PI)), 10);
-	draw_circle(support_op(-getAngleTowardPoint(position, mouse_position()) + (0.5 * M_PI)), 10);
+	//draw_circle(support(-getAngleTowardPoint(position, mouse_position()) + (0.5 * M_PI)), 10);
+	//draw_circle(support_op(-getAngleTowardPoint(position, mouse_position()) + (0.5 * M_PI)), 10);
 }
 
  V2d_d Shape_x::mean()

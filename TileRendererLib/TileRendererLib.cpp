@@ -132,7 +132,7 @@ JoystickInput&	joystick()	{ return _joystick; }
 
 bool key_pressed(SDL_Scancode code) { return keyboard().pressed(code); }
 bool key_held(SDL_Scancode code) { return keyboard().held(code); }
-bool key_released(SDL_Scancode code) { return keyboard().held(code); }
+bool key_released(SDL_Scancode code) { return keyboard().released(code); }
 bool mouse_left_pressed() { return mouse().pressed(SDL_BUTTON_LEFT); }
 bool mouse_left_held() { return mouse().held(SDL_BUTTON_LEFT); }
 bool mouse_left_released() { return mouse().released(SDL_BUTTON_LEFT); }

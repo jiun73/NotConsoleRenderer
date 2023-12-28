@@ -12,7 +12,8 @@ class KeyboardInput
 {
 private:
 	bool textmode = false;
-	const uint8_t* state = nullptr;
+	//const uint8_t* state = nullptr;
+	std::vector<bool> state;
 	std::vector<bool> last;
 	std::vector<bool> temp;
 
