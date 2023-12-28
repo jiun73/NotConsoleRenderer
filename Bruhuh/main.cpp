@@ -275,7 +275,7 @@ struct Collider_x
 
 struct AI_x
 {
-
+	int counter = 0;
 };
 
 ComponentXAdder<Position_x> pos_adder;
@@ -505,21 +505,43 @@ struct Collision_system
 
 struct AI_system 
 {
-	void update() 
+	void update(AI_x* ai, Angle_x* angle, Position_x* position, Physics_x* physic) 
 	{
+		physic->angular_velocity = 0.05;
 
+		ai->counter++;
+
+		if (ai->counter >= 50)
+		{
+			EntityX<Position_x, Angle_x, GFX_x, Shape_x, Physics_x, Lifetime_x, Collider_x> bullet;
+
+			bullet.create(
+				*position,
+				{ random().frange(-2 * M_PI, 2 * M_PI) },
+				{ COLOR_WHITE },
+				{ get_letter_shape('A') },
+				{ V2d_d().polar(1, angle->angle), 0, 0 },
+				{ 100 },
+				{ TAG_PBULLET }
+			);
+
+			sound().playSound("Sounds/shoot_sfx" + std::to_string(random().range(1, 4)) + ".wav");
+
+			ai->counter = 0;
+		}
 	}
 };
 
-SystemXAdder<1, Shape_system, Position_x, Angle_x, Shape_x> shape_system_adder;
-SystemXAdder<1, GFX_system, GFX_x, Shape_x> polygon_gfx_system_adder;
-SystemXAdder<1, Controller_system, Position_x, Controller_x> controller_system_adder;
-SystemXAdder<1, Shooter_system, Shooter_x, Position_x, Angle_x> shooter_system_adder;
-SystemXAdder<1, Physics_system, Physics_x, Position_x, Angle_x> physics_system_adder;
-SystemXAdder<1, Lifetime_system, Lifetime_x> lifetime_system_adder;
-SystemXAdder<2, Particle_system, ParticleEmitter_x, Position_x> particle_system_adder;
-SystemXAdder<1, PlayerMoveParticle_system, ParticleEmitter_x, Controller_x> player_particle_system_adder;
-SystemXAdder<2, Distorter_system, Distorter_x, Shape_x> distorter_system_adder;
+SystemXAdder<0, Shape_system, Position_x, Angle_x, Shape_x> shape_system_adder;
+SystemXAdder<0, GFX_system, GFX_x, Shape_x> polygon_gfx_system_adder;
+SystemXAdder<0, Controller_system, Position_x, Controller_x> controller_system_adder;
+SystemXAdder<0, Shooter_system, Shooter_x, Position_x, Angle_x> shooter_system_adder;
+SystemXAdder<0, Physics_system, Physics_x, Position_x, Angle_x> physics_system_adder;
+SystemXAdder<0, Lifetime_system, Lifetime_x> lifetime_system_adder;
+SystemXAdder<1, Particle_system, ParticleEmitter_x, Position_x> particle_system_adder;
+SystemXAdder<0, PlayerMoveParticle_system, ParticleEmitter_x, Controller_x> player_particle_system_adder;
+SystemXAdder<1, Distorter_system, Distorter_x, Shape_x> distorter_system_adder;
+SystemXAdder<1, AI_system, AI_x, Angle_x, Position_x, Physics_x> ai_system_adder;
 SystemXManagerAdder<0, Collision_system, Shape_x, Collider_x, Position_x> collision_system_adder;
 
 template<typename... Ts>
@@ -542,8 +564,29 @@ int main()
 
 	EntityX< Position_x, Angle_x, GFX_x, Controller_x, Shape_x, Shooter_x, ParticleEmitter_x, Collider_x> player;
 	Object<> test_collider;
-	Object<> enemy;
+	Object<AI_x, Physics_x> enemy;
 	//Object<> test_collider2;
+
+	player.create(
+		{ 250 },
+		{ 0 },
+		{ rgb(255, 255, 0) },
+		{},
+		{ { {-5,5},{10,0}, -5 } },
+		{},
+		{ {30} },
+		{ TAG_PLAYER_ }
+	);
+
+	enemy.create(
+		{ 300 },
+		{ { {-5,5},{10,0}, -5 } },
+		{ COLOR_PINK },
+		{ 0 },
+		{ TAG_ENEMY__ },
+		{0},
+		{0}
+	);
 
 	//std::cout << "first test: " << std::endl;
 
@@ -607,26 +650,6 @@ int main()
 	//	if (sup1 != sup2)
 	//		std::cout << sup1 << ", " << sup2 << " angle: " << angle << std::endl;
 	//}
-
-
-	player.create(
-		{ 250 },
-		{ 0 },
-		{ rgb(255, 255, 0) },
-		{},
-		{ { {-5,5},{10,0}, - 5 } },
-		{},
-		{ {30} },
-		{ TAG_PLAYER_ }
-	);
-
-	enemy.create(
-		{ 30 },
-		{ {get_letter_shape('0')} },
-		{ COLOR_PINK },
-		{0},
-		{TAG_ENEMY__}
-	);
 
 	while (run())
 	{
