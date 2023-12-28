@@ -12,10 +12,12 @@ class KeyboardInput
 {
 private:
 	bool textmode = false;
-	//const uint8_t* state = nullptr;
-	std::vector<bool> state;
-	std::vector<bool> last;
+	int numkeys;
+	const uint8_t* state = nullptr;
+	uint8_t* last = nullptr;
 	std::vector<bool> temp;
+
+	bool first_update = true;
 
 public:
 	string text_in;
@@ -24,7 +26,11 @@ public:
 	bool numberInputOnly = false;
 
 	KeyboardInput();
-	~KeyboardInput() {}
+	~KeyboardInput() 
+	{
+		if (last != nullptr)
+			delete[] last;
+	}
 
 	void update();
 	void events(SDL_Event event);

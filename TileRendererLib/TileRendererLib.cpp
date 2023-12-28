@@ -97,6 +97,8 @@ bool run()
 
 		if (frameDelay > frameTime)
 			SDL_Delay(frameDelay - frameTime);
+
+		_keyboard.update();
 	}
 
 	if (!__run__)
@@ -115,7 +117,7 @@ bool run()
 		_joystick.events(sdl_event);
 	}
 
-	_keyboard.update();
+	
 	_mouse.update();
 	_joystick.update();
 

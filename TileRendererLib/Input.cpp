@@ -83,70 +83,56 @@ bool MouseInput::released(int key)
 
 KeyboardInput::KeyboardInput()
 {
-	int numkeys;
-	const uint8_t* s = SDL_GetKeyboardState(&numkeys);
-	for (size_t i = 0; i < numkeys; i++)
-	{
-		state.push_back(false);
-		last.push_back(false);
-		temp.push_back(false);
-	}
+	state = SDL_GetKeyboardState(&numkeys);
+	last = new uint8_t[numkeys];
 }
 
 void KeyboardInput::update()
 {
 	if (!textmode)
 	{
-		last = state;
-		int numkeys;
-		const uint8_t* s = SDL_GetKeyboardState(&numkeys);
-
-		state.clear();
-
-		for (size_t i = 0; i < numkeys; i++)
-		{
-			state.push_back(s[i]);
-		}
-	}
-	else
-	{
-
+		first_update = false;
+		memcpy(last, state, numkeys); //copy state to last
+		state = SDL_GetKeyboardState(&numkeys);
 	}
 }
 
 void KeyboardInput::events(SDL_Event e)
 {
-	if (e.type == SDL_KEYDOWN)
+	if (textmode)
 	{
-		if (e.key.keysym.sym == SDLK_BACKSPACE && text_in.length() > 0)				//Handle backspace
-			text_in.pop_back();
-		else if (e.key.keysym.sym == SDLK_c && SDL_GetModState() & KMOD_CTRL)				//Handle copy
-			SDL_SetClipboardText(text_in.c_str());
-		else if (e.key.keysym.sym == SDLK_v && SDL_GetModState() & KMOD_CTRL)				//Handle paste
-			text_in = SDL_GetClipboardText();
-		else if (e.key.keysym.sym == SDLK_RETURN)	//Handle paste
+		if (e.type == SDL_KEYDOWN)
 		{
-			text_in += "\n";
-		}
-	}
-	else if (e.type == SDL_TEXTINPUT)
-	{
-		//Not copy or pasting
-		if (!(SDL_GetModState() & KMOD_CTRL && (e.text.text[0] == 'c' || e.text.text[0] == 'C' || e.text.text[0] == 'v' || e.text.text[0] == 'V')))
-		{
-			//Append character
-			if (!numberInputOnly)
+			if (e.key.keysym.sym == SDLK_BACKSPACE && text_in.length() > 0)				//Handle backspace
+				text_in.pop_back();
+			else if (e.key.keysym.sym == SDLK_c && SDL_GetModState() & KMOD_CTRL)				//Handle copy
+				SDL_SetClipboardText(text_in.c_str());
+			else if (e.key.keysym.sym == SDLK_v && SDL_GetModState() & KMOD_CTRL)				//Handle paste
+				text_in = SDL_GetClipboardText();
+			else if (e.key.keysym.sym == SDLK_RETURN)	//Handle paste
 			{
-				text_in += e.text.text;
+				text_in += "\n";
 			}
-			else
+		}
+		else if (e.type == SDL_TEXTINPUT)
+		{
+			//Not copy or pasting
+			if (!(SDL_GetModState() & KMOD_CTRL && (e.text.text[0] == 'c' || e.text.text[0] == 'C' || e.text.text[0] == 'v' || e.text.text[0] == 'V')))
 			{
-				int i = *e.text.text;
-				if (i >= 48 && i <= 57) //only if is a number
+				//Append character
+				if (!numberInputOnly)
+				{
 					text_in += e.text.text;
+				}
+				else
+				{
+					int i = *e.text.text;
+					if (i >= 48 && i <= 57) //only if is a number
+						text_in += e.text.text;
 
-				if (text_in.empty() && i == 45) //allows '-' to be written if the text is empty (for negative numbers)
-					text_in += e.text.text;
+					if (text_in.empty() && i == 45) //allows '-' to be written if the text is empty (for negative numbers)
+						text_in += e.text.text;
+				}
 			}
 		}
 	}
@@ -164,8 +150,7 @@ bool KeyboardInput::pressed(int key)
 
 bool KeyboardInput::released(int key)
 {
-
-	return (!state[key] && last[key]);
+	return (!state[key] && last[key] && !first_update);
 }
 
 void KeyboardInput::quickKeyboardSelect(V2d_i& pos)
