@@ -59,7 +59,7 @@ V2d_d get_window_size()
 	return { (double)x,(double)y };
 }
 
-V2d_d get_true_mouse_pos()
+V2d_d mouse_position()
 {
 	V2d_d mpos = mouse().position();
 	mpos += (((V2d_d)window_size * get_renderer_scale()) - get_window_size()) / 2;
@@ -129,6 +129,16 @@ void close() { __run__ = false; }
 KeyboardInput&	keyboard()	{ return _keyboard; }
 MouseInput&		mouse()		{ return _mouse; }
 JoystickInput&	joystick()	{ return _joystick; }
+
+bool key_pressed(SDL_Scancode code) { return keyboard().pressed(code); }
+bool key_held(SDL_Scancode code) { return keyboard().held(code); }
+bool key_released(SDL_Scancode code) { return keyboard().held(code); }
+bool mouse_left_pressed() { return mouse().pressed(SDL_BUTTON_LEFT); }
+bool mouse_left_held() { return mouse().held(SDL_BUTTON_LEFT); }
+bool mouse_left_released() { return mouse().released(SDL_BUTTON_LEFT); }
+bool mouse_right_pressed() { return mouse().pressed(SDL_BUTTON_RIGHT); }
+bool mouse_right_held() { return mouse().held(SDL_BUTTON_RIGHT); }
+bool mouse_right_released() { return mouse().released(SDL_BUTTON_RIGHT); }
 
 //j'ai la flemme de faire des meilleures fonctions, mais tu peut regarder dans Sound.h si tu veut jouer des sons 
 //C'est pas suuuper compliqué

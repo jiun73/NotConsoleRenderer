@@ -11,26 +11,26 @@ public:
 	Random(int seed) : rd(), mt(rd()) { mt.seed(static_cast<std::mt19937::result_type>(seed)); }
 	virtual ~Random() {}
 
-	int range(int min, int max)
+	int range(int min, int max) //Retourne un entier entre min et max
 	{
 		std::uniform_int_distribution<int> dist(min, max);
 		return dist(mt);
 	}
 
-	double frange(double min, double max)
+	double frange(double min, double max) //retourne un double entre min et max
 	{
 		std::uniform_real_distribution<double> dist(min, max);
 		return dist(mt);
 	}
 
-	bool percentage(int comp)
+	bool percentage(int comp) //idk jspu ce que ca fait
 	{
 		return (range(0, 100) < comp);
 	}
 
 	//weight, value
-	template<typename T>
-	T biased(std::vector<std::pair<int, T>> vs)
+	template<typename T> 
+	T biased(std::vector<std::pair<int, T>> vs) //inutile
 	{
 		std::vector<T> bias;
 		for (auto v : vs)

@@ -22,8 +22,8 @@ public:
 	Mix_Music* getMusic(std::string path);
 	Mix_Chunk* getSound(std::string path);
 
-	void loadMusic(std::string path);
-	void loadSound(std::string path) 
+	void loadMusic(std::string path); 
+	void loadSound(std::string path)
 	{ 
 		Mix_Chunk* chunk = Mix_LoadWAV(path.c_str());
 
@@ -35,7 +35,7 @@ public:
 		loaded_sounds.emplace(path, chunk); 
 	}
 
-	void playMusic(std::string path, int loopCount = -1);
+	void playMusic(std::string path, int loopCount = -1); //<---- pour faire jouer de la MUSIQUE (.wav)
 	void playMusicFadeIn(std::string path, int fadeinspeed, int loopCount = -1);
 	void stopMusic() { Mix_HaltMusic(); }
 	void stopMusicFadeOut(int fadeoutspeed) { Mix_FadeOutMusic(fadeoutspeed); }
@@ -50,7 +50,7 @@ public:
 	bool isPlayingMusic() { return Mix_PlayingMusic(); }
 
 	int channelCount() { return Mix_AllocateChannels(-1); }
-	bool playSound(std::string path, int loopCount = 0) { return (Mix_PlayChannel(-1, getSound(path), loopCount) != -1); }
+	bool playSound(std::string path, int loopCount = 0) { return (Mix_PlayChannel(-1, getSound(path), loopCount) != -1); } //<--- probablement la seule fonction plus utile 'path' est un chemin ou se trouve le .wav
 	void pauseSounds() { Mix_Pause(-1); }
 	void resumeSounds() { Mix_Resume(-1); }
 

@@ -2,6 +2,8 @@
 #include "Vec2D.h"
 #include "SDL.h"
 
+//Classe rectangle
+
 template<class T>
 struct Rectangle
 {

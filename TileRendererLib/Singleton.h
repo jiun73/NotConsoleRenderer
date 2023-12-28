@@ -1,5 +1,7 @@
 #pragma once
 
+//T'inquiète
+
 template<typename T>
 class Singleton
 {

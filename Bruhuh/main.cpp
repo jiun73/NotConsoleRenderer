@@ -7,7 +7,7 @@
 void apply_shape(Shape_x& shape, function<void(V2d_d&, size_t)> transform)
 {
 	size_t i = 0;
-	for (auto& p : shape.points)
+	for (auto& p : shape.get_points())
 	{
 		transform(p, i);
 		i++;
@@ -203,16 +203,8 @@ enum ColliderTags
 	TAG_PLAYER_ = 0b0001,
 	TAG_TESTOBJ = 0b0010,
 	TAG_PBULLET = 0b0100,
+	TAG_ENEMY__ = 0b1000
 };
-
-//struct Object
-//{
-//	Shape shape;
-//	int life = 100;
-//	V2d_d vel = 0;
-//	bool circle = false;
-//	Color color;
-//};
 
 struct Physics_x 
 {
@@ -281,6 +273,11 @@ struct Collider_x
 	ColliderTag tag;
 };
 
+struct AI_x
+{
+
+};
+
 ComponentXAdder<Position_x> pos_adder;
 ComponentXAdder<Angle_x> angle_adder;
 ComponentXAdder<GFX_x> gfx_adder;
@@ -292,6 +289,7 @@ ComponentXAdder<Lifetime_x> lifetime_adder;
 ComponentXAdder<ParticleEmitter_x> emitter_adder;
 ComponentXAdder<Distorter_x> distorter_adder;
 ComponentXAdder<Collider_x> collider_adder;
+ComponentXAdder<AI_x> ai_adder;
 
 struct Shape_system 
 {
@@ -335,7 +333,7 @@ struct Shooter_system
 {
 	void update(Shooter_x* shooter, Position_x* position, Angle_x* angle)
 	{
-		angle->angle = -getAngleTowardPoint(position->position, get_true_mouse_pos()) + (0.5 * M_PI);
+		angle->angle = -getAngleTowardPoint(position->position, mouse_position()) + (0.5 * M_PI);
 
 		if (mouse().pressed(1))
 		{
@@ -449,8 +447,16 @@ struct Collision_system
 	{
 		masks[tag] |= collidesWith;
 
-		ColliderPair pair = ((uint64_t)tag << 32) | collidesWith;
-		types[pair] = type;
+		for (size_t i = 0; i < 32; i++)
+		{
+			size_t m = (1ull << i);
+			size_t t = collidesWith & m;
+			if (t)
+			{
+				ColliderPair pair = ((uint64_t)tag << 32) | t;
+				types[pair] = type;
+			}
+		}
 
 		std::cout << "Collider tag " << std::bitset<32>(tag) << " now " << std::bitset<32>(masks[tag]) << std::endl;
 	}
@@ -488,11 +494,20 @@ struct Collision_system
 							break;
 						}	
 					}
+					//gjk.visualize(**it1, **it2);
 				}
 				y++;
 			}
 			i++;
 		}
+	}
+};
+
+struct AI_system 
+{
+	void update() 
+	{
+
 	}
 };
 
@@ -507,6 +522,8 @@ SystemXAdder<1, PlayerMoveParticle_system, ParticleEmitter_x, Controller_x> play
 SystemXAdder<2, Distorter_system, Distorter_x, Shape_x> distorter_system_adder;
 SystemXManagerAdder<0, Collision_system, Shape_x, Collider_x, Position_x> collision_system_adder;
 
+template<typename... Ts>
+using Object = EntityX<Position_x, Shape_x, GFX_x, Angle_x, Collider_x, Ts...>;
 
 int main()
 {
@@ -520,39 +537,95 @@ int main()
 	sound().loadSound("Sounds/shoot_sfx3.wav");
 	sound().loadSound("Sounds/shoot_sfx4.wav");
 
-	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_TESTOBJ, TAG_PLAYER_, CTYPE_PUSH);
+	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_TESTOBJ, TAG_PLAYER_ | TAG_TESTOBJ, CTYPE_PUSH);
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_PBULLET, TAG_TESTOBJ, CTYPE_PUSH);
-	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_TESTOBJ, TAG_TESTOBJ, CTYPE_PUSH);
 
 	EntityX< Position_x, Angle_x, GFX_x, Controller_x, Shape_x, Shooter_x, ParticleEmitter_x, Collider_x> player;
-	EntityX<Position_x, Shape_x, GFX_x, Angle_x, Collider_x> test_collider;
-	EntityX<Position_x, Shape_x, GFX_x, Angle_x, Collider_x> test_collider2;
+	Object<> test_collider;
+	Object<> enemy;
+	//Object<> test_collider2;
+
+	//std::cout << "first test: " << std::endl;
+
+	//Shape_x shape({ -50,{-50,50},50,{50,-50} });
+
+	//V2d_d buf1 = 0;
+	//V2d_d buf2 = 0;
+	//for (int i = 0; i < 1000000; i++)
+	//{
+	//	double angle = 2 * M_PI * (i / 1000000.0);
+	//	V2d_d sup1 = shape.support(angle);
+	//	V2d_d sup2 = shape.support_op(angle);
+
+	//	if (sup1 != buf1)
+	//	{
+	//		std::cout << "1 changed " << buf1 << sup1 << " angle: " << angle << std::endl;
+	//		buf1 = sup1;
+	//	}
+
+	//	if (sup2 != buf2)
+	//	{
+	//		std::cout << "2 changed " << buf2 << sup2 << " angle: " << angle << std::endl;
+	//		buf2 = sup2;
+	//	}
+
+	//	//if (sup1 != sup2)
+	//		//std::cout << sup1 << ", " << sup2 << " angle: " << angle << std::endl;
+	//}
+
+	//for (int i = -1000000; i < 1000000; i++)
+	//{
+	//	double angle = 2 * M_PI * (i / 500000.0);
+	//	V2d_d sup1 = shape.support(angle);
+	//	V2d_d sup2 = shape.support_op(angle);
+	//	if (sup1 != sup2)
+	//		std::cout << sup1 << ", " << sup2 << " angle: " << angle << std::endl;
+	//}
+
+	//std::cout << "second test: " << std::endl;
+
+	//Shape_x shape2({ {-5,5},{10,0}, -5 });
+
+	//for (int i = -1000000; i < 1000000; i++)
+	//{
+	//	double angle = 2 * M_PI * (i / 500000.0);
+	//	V2d_d sup1 = shape2.support(angle);
+	//	V2d_d sup2 = shape2.support_op(angle);
+	//	if (sup1 != sup2)
+	//		std::cout << sup1 << ", " << sup2 << " angle: " << angle << std::endl;
+	//}
+
+	//std::cout << "third test: " << std::endl;
+
+	//Shape_x shape3({ -5,{10,0}, {-5,5} });
+
+	//for (int i = -1000000; i < 1000000; i++)
+	//{
+	//	double angle = 2 * M_PI * (i / 500000.0);
+	//	V2d_d sup1 = shape2.support(angle);
+	//	V2d_d sup2 = shape2.support_op(angle);
+	//	if (sup1 != sup2)
+	//		std::cout << sup1 << ", " << sup2 << " angle: " << angle << std::endl;
+	//}
+
 
 	player.create(
 		{ 250 },
 		{ 0 },
 		{ rgb(255, 255, 0) },
 		{},
-		{ { -5,{10,0},{-5,5} } },
+		{ { {-5,5},{10,0}, - 5 } },
 		{},
 		{ {30} },
 		{ TAG_PLAYER_ }
 	);
 
-	test_collider.create(
-		{ 250 }, 
-		{ {-50,{-50,50},50,{50,-50}} }, 
-		{rgb(255,255,255)},
-		{ 0 },
-		{ TAG_TESTOBJ }
-	);
-
-	test_collider2.create(
-		{ {250,140} },
-		{ {-50,{-50,50},50,{50,-50}} },
-		{ rgb(255,255,255) },
-		{ 0 },
-		{ TAG_TESTOBJ }
+	enemy.create(
+		{ 30 },
+		{ {get_letter_shape('0')} },
+		{ COLOR_PINK },
+		{0},
+		{TAG_ENEMY__}
 	);
 
 	while (run())
@@ -562,8 +635,28 @@ int main()
 
 		pencil(COLOR_PINK);
 
-		draw_text("GIVE UP", 250, 2);
+		//draw_text("How do you do?", 10, 2);
+
 	}
+
+	/*test_collider.create(
+		{ 250 }, 
+		{ {-50,{-50,50},50,{50,-50}} }, 
+		{rgb(255,255,255)},
+		{ 0 },
+		{ TAG_TESTOBJ }
+	);*/
+
+	/*test_collider2.create(
+		{ {250,140} },
+		{ {-50,{-50,50},50,{50,-50}} },
+		{ rgb(255,255,255) },
+		{ 0 },
+		{ TAG_TESTOBJ }
+	);*/
+
+	
+	
 
 	return 0;
 }

@@ -12,6 +12,9 @@ enum Colors
 	COLOR_GREEN
 };
 
+//Classe Couleur! 
+//bruh
+
 struct Color
 {
 	uint8_t r, g, b, a = 0;

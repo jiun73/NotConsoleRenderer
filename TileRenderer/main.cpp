@@ -19,6 +19,9 @@ int main()
 
 	while (run()) 
 	{
+		pencil(COLOR_BLACK);
+		draw_clear();
+
 		pencil(rgb(255, 255, 0));
 		
 		draw_line({ 10,0 }, { 0,10 });
@@ -34,7 +37,7 @@ int main()
 
 		draw_circle({75,5},5);
 
-		draw_clear();
+		
 	}
 
 	return 0;

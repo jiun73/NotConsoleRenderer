@@ -12,6 +12,8 @@
 #undef min
 #endif
 
+//Vecteur 2D comme tu la deja utilisé probablement
+
 template<typename T>
 struct Vector2D
 {
@@ -56,7 +58,7 @@ struct Vector2D
 
 	T		dot(const Vector2D& v) { return (x * v.x) + (y * v.y); };
 	double	norm() { return sqrt(x * x + y * y); }
-	double	orientation() { return atan2(y, x); }
+	double	orientation() const { return atan2(y, x); }
 	Vector2D& polar(double norm, double angle)
 	{
 		x = norm * cos(angle);

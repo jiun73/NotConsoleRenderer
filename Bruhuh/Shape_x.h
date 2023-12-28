@@ -19,85 +19,55 @@ inline double getAngleTowardPoint(V2d_d origin, V2d_d target)
 	return (-atan2(double(origin.y - target.y), double(origin.x - target.x)) - (M_PI / 2));
 }
 
+inline V2d_d tripleCrossProduct(const V2d_d& c, const V2d_d& b, const V2d_d& a)
+{
+	return
+	{
+		a.y * (b.x * c.y - b.y * c.x),
+		a.x * (b.y * c.x - b.x * c.y)
+	};
+}
+
 
 
 struct Shape_x
 {
+private:
 	vector<V2d_d> points;
+	map<double, V2d_d> support_regions;
+	bool needs_recalc = true;
+
+public:
 	V2d_d position = 0;
 	double angle = 0;
 	double scale = 1;
 
-	V2d_d find_point(V2d_d p)
-	{
-		double norm = p.norm();
-		double orientation = p.orientation() + angle;
+	Shape_x() {}
+	Shape_x(const vector<V2d_d>& points) : points(points) {}
+	~Shape_x() {}
 
-		return (p.polar(norm, orientation) * scale + position);
+	vector<V2d_d>& get_points() 
+	{
+		needs_recalc = true;
+		return points;
 	}
 
-	void draw()
-	{
-		if (points.empty()) return;
+	const vector<V2d_d>& read_points() { return points; }
+	vector<V2d_d>& get_points_no_recalc() { return points; }
 
-		for (auto it = points.begin() + 1; it != points.end(); it++)
-		{
-			draw_line((V2d_i)find_point(*(it - 1)), (V2d_i)find_point(*it));
-		}
+	V2d_d find_point(V2d_d p);
 
-		draw_line((V2d_i)find_point(points.front()), (V2d_i)find_point(points.back()));
-	}
+	void draw();
 
-	V2d_d mean() 
-	{
-		V2d_d sum = 0;
-		for (auto p : points)
-			sum += p;
+	V2d_d mean();
 
-		return sum / points.size();
-	}
+	Shape_x get_mincowski(Shape_x& other);
 
-	Shape_x get_mincowski(Shape_x& other)
-	{
-		Shape_x md;
+	void calc_support_points();
+	void calc_support_edge(const V2d_d& p1, const V2d_d& p2);
 
-		std::vector<V2d_d> allp;
-		std::set<double> angles;
-		std::set<V2d_d> maxp;
-
-		for (int i = 0; i < 1000; i++)
-		{
-			double angle = 2.0 * M_PI * ((double)i / 1000);
-			md.points.push_back(support(angle) - other.support(angle + M_PI));
-		}
-
-		return md;
-	}
-
-	V2d_d support(double support_angle)
-	{
-		V2d_d _mean = mean();
-		V2d_d* support = nullptr;
-		V2d_d direction;
-
-		direction.polar(1.0, support_angle - angle); //TODO: yikes! this calls sin and cos
-
-		double max = 0;
-		for (auto& p : points)
-		{
-			V2d_d relative = p - _mean;
-			double dot = direction.dot(relative);
-			if (dot > max)
-			{
-				support = &p;
-				max = dot;
-			}
-		}
-
-		if (support == nullptr) return 0;
-
-		return find_point(*support);
-	}
+	V2d_d support_op(double angl);
+	V2d_d support(double support_angle);
 };
 
 
@@ -105,15 +75,6 @@ struct Shape_x
 struct GJK 
 {
 	vector<V2d_d> simplex;
-	
-	V2d_d tripleCrossProduct(const V2d_d& c, const V2d_d& b, const V2d_d& a)
-	{
-		return
-		{
-			a.y * (b.x * c.y - b.y * c.x),
-			a.x * (b.y * c.x - b.x * c.y)
-		};
-	}
 
 	bool lineCase(V2d_d& dir)
 	{
@@ -173,7 +134,7 @@ struct GJK
 		V2d_d direction;
 		double angle;
 
-		simplex.push_back(get_minkowski_support(shape1, shape2, 0)); //start with direction 0
+		simplex.push_back(get_minkowski_support(shape1, shape2, 0.3)); //start with direction 0
 		direction = -simplex.at(0);
 
 		while (true)
@@ -192,8 +153,7 @@ struct GJK
 
 	void visualize(Shape_x& shape1, Shape_x& shape2)
 	{
-		Shape_x simplex_shape;
-		simplex_shape.points = simplex;
+		Shape_x simplex_shape(simplex);
 		simplex_shape.position += 250;
 
 		pencil(COLOR_PINK);

@@ -17,6 +17,18 @@
 
 //roughly based on https://indiegamedev.net/2020/05/19/an-entity-component-system-with-data-locality-in-cpp/
 
+/*
+* En gros c'est un truc compliqué pour mieux organiser mon jeu
+* Si tu veut un exemple de comment l'utiliser, tu peut voir mon jeu, mais c'est pas vraiment nécessaire
+* mais si tu sait comment l'utiliser ca rend la vie plus facile
+* 
+* Ca créé des 'entités' qui ont des données (les 'components')
+* Selon les components qu'un entité a, il y a différents systèmes qui vont transformer ces données
+* Par exemple, si un entité a le component 'Physics' et 'Position'
+* Peut être qu'un systeme pourrait calculer la gravité et changer la position en conséquence
+* En tout cas, c'est utile, mais peut être trop complexe pour l'instant
+*/
+
 using std::launder;
 using std::unordered_map;
 using std::map;
