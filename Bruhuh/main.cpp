@@ -14,6 +14,16 @@ void apply_shape(Shape_x& shape, function<void(V2d_d&, size_t)> transform)
 	}
 }
 
+double distance_square(const V2d_d& pos1, const V2d_d& pos2)
+{
+	return (pos1.x - pos2.x) * (pos1.x - pos2.x) + (pos1.y - pos2.y) * (pos1.y - pos2.y);
+}
+
+double distance(const V2d_d& pos1, const V2d_d& pos2)
+{
+	return sqrt(distance_square(pos1, pos2));
+}
+
 Shape_x get_letter_shape(char c)
 {
 	switch (c)
@@ -276,6 +286,12 @@ struct Collider_x
 struct AI_x
 {
 	int counter = 0;
+	int shots = 3;
+	int charge = 0;
+	int lock = 0;
+	bool lock2 = false;
+	bool lock3 = false;
+	int random = 0;
 };
 
 ComponentXAdder<Position_x> pos_adder;
@@ -290,6 +306,8 @@ ComponentXAdder<ParticleEmitter_x> emitter_adder;
 ComponentXAdder<Distorter_x> distorter_adder;
 ComponentXAdder<Collider_x> collider_adder;
 ComponentXAdder<AI_x> ai_adder;
+
+EntityX< Position_x, Angle_x, GFX_x, Controller_x, Shape_x, Shooter_x, ParticleEmitter_x, Collider_x> player;
 
 struct Shape_system 
 {
@@ -503,31 +521,121 @@ struct Collision_system
 	}
 };
 
+double lerp(double a, double b, double t)
+{
+	return a + t * (b - a);
+}
+
 struct AI_system 
 {
 	void update(AI_x* ai, Angle_x* angle, Position_x* position, Physics_x* physic) 
 	{
-		physic->angular_velocity = 0.05;
+		angle->angle = -getAngleTowardPoint(position->position, player.component<Position_x>()->position) + (0.5 * M_PI);
 
 		ai->counter++;
 
-		if (ai->counter >= 50)
+		if (ai->shots > 0 && distance_square(position->position, player.component<Position_x>()->position) < 30000)
 		{
-			EntityX<Position_x, Angle_x, GFX_x, Shape_x, Physics_x, Lifetime_x, Collider_x> bullet;
+			ai->charge = false;
 
-			bullet.create(
-				*position,
-				{ random().frange(-2 * M_PI, 2 * M_PI) },
-				{ COLOR_WHITE },
-				{ get_letter_shape('A') },
-				{ V2d_d().polar(1, angle->angle), 0, 0 },
-				{ 100 },
-				{ TAG_PBULLET }
-			);
+			physic->velocity.x = lerp(physic->velocity.x, 0, 0.05);
+			physic->velocity.y = lerp(physic->velocity.y, 0, 0.05);
 
-			sound().playSound("Sounds/shoot_sfx" + std::to_string(random().range(1, 4)) + ".wav");
+			if (!ai->lock2)
+			{
+				ai->random = random().range(14, 30);
+				ai->lock2 = false;
+			}
 
-			ai->counter = 0;
+			if (ai->counter >= ai->random)
+			{
+				EntityX<Position_x, Angle_x, GFX_x, Shape_x, Physics_x, Lifetime_x, Collider_x> bullet;
+
+				bullet.create(
+					*position,
+					{ random().frange(-2 * M_PI, 2 * M_PI) },
+					{ COLOR_WHITE },
+					{ get_letter_shape('A') },
+					{ V2d_d().polar(2, angle->angle), 0, 0 },
+					{ 100 },
+					{ 0 }
+				);
+
+				sound().playSound("Sounds/shoot_sfx" + std::to_string(random().range(1, 4)) + ".wav");
+
+				ai->counter = 0;
+				ai->shots--;
+
+				ai->random = random().range(14, 30);
+			}
+
+			
+		}
+		else
+		{
+			if (!ai->lock2)
+			{
+				ai->random = random().range(20, 30);
+				ai->lock2 = true;
+			}
+
+			if (ai->counter >= 100)
+			{	
+				ai->shots += 3;
+				ai->counter = 0;
+			}
+
+			if (distance_square(position->position, player.component<Position_x>()->position) > 30000)
+			{
+				physic->acceleration = V2d_d().polar(0.01, angle->angle);
+			}
+			
+			if (ai->shots > ai->random)
+			{
+				ai->charge = 1000;
+				ai->lock = 4000;
+				ai->shots = 4;
+			}
+			else if (!ai->charge) {
+
+				double top_speed = 1.7;
+
+				if (physic->velocity.x > top_speed)
+					physic->velocity.x = top_speed;
+
+				if (physic->velocity.y > top_speed)
+					physic->velocity.y = top_speed;
+
+				if (physic->velocity.x < -top_speed)
+					physic->velocity.x = -top_speed;
+
+				if (physic->velocity.y < -top_speed)
+					physic->velocity.y = -top_speed;
+			}
+
+			if (ai->charge)
+			{
+				physic->velocity.x = lerp(physic->velocity.x, 0, 0.03);
+				physic->velocity.y = lerp(physic->velocity.y, 0, 0.03);
+
+				if (ai->lock)
+				{
+					if (!ai->lock3)
+					{
+						ai->lock3 = true;
+						sound().playSound("Sounds/charge_sfx.wav");
+					}
+					physic->acceleration = V2d_d().polar(0.16, angle->angle);
+					ai->lock--;
+				}
+
+				ai->charge--;
+			}
+			else
+				if (ai->lock3)
+				{
+					ai->lock3 = false;
+				}
 		}
 	}
 };
@@ -549,7 +657,7 @@ using Object = EntityX<Position_x, Shape_x, GFX_x, Angle_x, Collider_x, Ts...>;
 
 int main()
 {
-	set_window_size(500);
+	set_window_size(1000);
 	set_window_resizable();
 
 	init();
@@ -561,17 +669,21 @@ int main()
 
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_TESTOBJ, TAG_PLAYER_ | TAG_TESTOBJ, CTYPE_PUSH);
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_PBULLET, TAG_TESTOBJ, CTYPE_PUSH);
+	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_PBULLET, TAG_ENEMY__, CTYPE_DESTROY);
+	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_ENEMY__, TAG_PBULLET, CTYPE_DESTROY);
 
-	EntityX< Position_x, Angle_x, GFX_x, Controller_x, Shape_x, Shooter_x, ParticleEmitter_x, Collider_x> player;
 	Object<> test_collider;
 	Object<AI_x, Physics_x> enemy;
+	Object<AI_x, Physics_x> enemy2;
+	Object<AI_x, Physics_x> enemy3;
+	Object<AI_x, Physics_x> enemy4;
 	//Object<> test_collider2;
 
 	player.create(
 		{ 250 },
 		{ 0 },
 		{ rgb(255, 255, 0) },
-		{},
+		{ 2},
 		{ { {-5,5},{10,0}, -5 } },
 		{},
 		{ {30} },
@@ -586,6 +698,36 @@ int main()
 		{ TAG_ENEMY__ },
 		{0},
 		{0}
+	);
+
+	enemy2.create(
+		{ 310 },
+		{ { {-5,5},{10,0}, -5 } },
+		{ COLOR_PINK },
+		{ 0 },
+		{ TAG_ENEMY__ },
+		{ 0 },
+		{ 0 }
+	);
+
+	enemy3.create(
+		{ 320 },
+		{ { {-5,5},{10,0}, -5 } },
+		{ COLOR_PINK },
+		{ 0 },
+		{ TAG_ENEMY__ },
+		{ 0 },
+		{ 0 }
+	);
+
+	enemy4.create(
+		{ 330 },
+		{ { {-5,5},{10,0}, -5 } },
+		{ COLOR_PINK },
+		{ 0 },
+		{ TAG_ENEMY__ },
+		{ 0 },
+		{ 0 }
 	);
 
 	//std::cout << "first test: " << std::endl;

@@ -398,6 +398,9 @@ public:
 	EntityX() {}
 	~EntityX() {}
 
+	template<typename T>
+	T* component() { return EntX::get()->get_entity_component<T>(id); }
+
 	template<size_t I>
 	inline void collect_components(vector<ComponentID>& collector)
 	{
