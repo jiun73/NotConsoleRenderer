@@ -1,5 +1,8 @@
 #include "Shape_x.h"
 
+function<V2d_d(V2d_d)> global_shape_transform = nullptr;
+uint32_t global_shape_transform_dt = 0;
+
 V2d_d AP22::max_vec(std::vector<V2d_d>& list, V2d_d start)
 {
 	V2d_d max = start;
@@ -30,6 +33,11 @@ V2d_d AP22::min_vec(std::vector<V2d_d>& list, V2d_d start)
 {
 	double norm = p.norm();
 	double orientation = p.orientation() + angle;
+
+	if (global_shape_transform)
+	{
+		return global_shape_transform(p.polar(norm, orientation) * scale + position);
+	}
 
 	return (p.polar(norm, orientation) * scale + position);
 }

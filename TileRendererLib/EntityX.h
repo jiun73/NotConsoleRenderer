@@ -344,6 +344,9 @@ private:
 public:
 	bool has_entity(EntityID eid) { return entities.count(eid); }
 	bool entity_has_component(EntityID eid, ComponentID cid);
+	template<typename T>
+	bool entity_has_component(EntityID eid) { return entity_has_component(eid, TypeId<ComponentID>::id<T>()); }
+
 	ComponentData get_entity_component_data(EntityID eid, ComponentID cid);
 
 	template<typename T> T* get_entity_component(EntityID eid);
@@ -397,6 +400,8 @@ private:
 public:
 	EntityX() {}
 	~EntityX() {}
+
+	EntityID get_id() { return id; }
 
 	template<typename T>
 	T* component() { return EntX::get()->get_entity_component<T>(id); }

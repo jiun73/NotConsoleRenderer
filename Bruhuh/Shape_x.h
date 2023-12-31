@@ -28,7 +28,8 @@ inline V2d_d tripleCrossProduct(const V2d_d& c, const V2d_d& b, const V2d_d& a)
 	};
 }
 
-
+extern function<V2d_d(V2d_d)> global_shape_transform;
+extern uint32_t global_shape_transform_dt;
 
 struct Shape_x
 {

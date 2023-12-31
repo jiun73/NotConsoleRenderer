@@ -206,14 +206,16 @@ enum CollisionTypes
 	CTYPE_CUSTOM,
 	CTYPE_PUSH,
 	CTYPE_DESTROY,
+	CTYPE_HURT
 };
 
 enum ColliderTags
 {
-	TAG_PLAYER_ = 0b0001,
-	TAG_TESTOBJ = 0b0010,
-	TAG_PBULLET = 0b0100,
-	TAG_ENEMY__ = 0b1000
+	TAG_PLAYER_ = 0b00001,
+	TAG_TESTOBJ = 0b00010,
+	TAG_PBULLET = 0b00100,
+	TAG_ENEMY__ = 0b01000,
+	TAG_EBULLET = 0b10000
 };
 
 struct Physics_x 
@@ -294,6 +296,11 @@ struct AI_x
 	int random = 0;
 };
 
+struct Health_x 
+{
+	int health = 10;
+};
+
 ComponentXAdder<Position_x> pos_adder;
 ComponentXAdder<Angle_x> angle_adder;
 ComponentXAdder<GFX_x> gfx_adder;
@@ -306,8 +313,9 @@ ComponentXAdder<ParticleEmitter_x> emitter_adder;
 ComponentXAdder<Distorter_x> distorter_adder;
 ComponentXAdder<Collider_x> collider_adder;
 ComponentXAdder<AI_x> ai_adder;
+ComponentXAdder<Health_x> health_adder;
 
-EntityX< Position_x, Angle_x, GFX_x, Controller_x, Shape_x, Shooter_x, ParticleEmitter_x, Collider_x> player;
+EntityX< Position_x, Angle_x, GFX_x, Controller_x, Shape_x, Shooter_x, ParticleEmitter_x, Collider_x, Health_x> player;
 
 struct Shape_system 
 {
@@ -362,7 +370,7 @@ struct Shooter_system
 				{ random().frange(-2 * M_PI, 2 * M_PI) },
 				{ COLOR_WHITE },
 				{ get_letter_shape('G')},
-				{ V2d_d().polar(3, angle->angle), 0, 0 },
+				{ V2d_d().polar(5, angle->angle), 0, 0 },
 				{ 100 },
 				{ TAG_PBULLET }
 			);
@@ -508,6 +516,28 @@ struct Collision_system
 						case CTYPE_DESTROY:
 							EntX::get()->destroy_this(ids.at(y));
 							break;
+						case CTYPE_HURT:
+							if (EntX::get()->entity_has_component<Health_x>(ids.at(y)))
+							{
+								EntX::get()->get_entity_component < Health_x>(ids.at(y))->health--;
+
+								if (ids.at(y) == player.get_id())
+								{
+									global_shape_transform = [](V2d_d point)
+										{
+											uint32_t c = SDL_GetTicks() - global_shape_transform_dt;
+
+											if (c > 1000) global_shape_transform = nullptr;
+
+											double delta = (1000 - std::min(c, uint32_t(1000))) / 1000.0;
+											return point + V2d_d(random().range(0, 15 * delta), random().range(0, 15 * delta));
+										};
+									global_shape_transform_dt = SDL_GetTicks();
+								}
+
+							}
+							
+							break;
 						default:
 							break;
 						}	
@@ -558,7 +588,7 @@ struct AI_system
 					{ get_letter_shape('A') },
 					{ V2d_d().polar(2, angle->angle), 0, 0 },
 					{ 100 },
-					{ 0 }
+					{ TAG_EBULLET }
 				);
 
 				sound().playSound("Sounds/shoot_sfx" + std::to_string(random().range(1, 4)) + ".wav");
@@ -640,6 +670,15 @@ struct AI_system
 	}
 };
 
+struct Health_system 
+{
+	void update(Health_x* health)
+	{
+		if (health->health <= 0)
+			EntX::get()->destroy_this();
+	}
+};
+
 SystemXAdder<0, Shape_system, Position_x, Angle_x, Shape_x> shape_system_adder;
 SystemXAdder<0, GFX_system, GFX_x, Shape_x> polygon_gfx_system_adder;
 SystemXAdder<0, Controller_system, Position_x, Controller_x> controller_system_adder;
@@ -650,6 +689,7 @@ SystemXAdder<1, Particle_system, ParticleEmitter_x, Position_x> particle_system_
 SystemXAdder<0, PlayerMoveParticle_system, ParticleEmitter_x, Controller_x> player_particle_system_adder;
 SystemXAdder<1, Distorter_system, Distorter_x, Shape_x> distorter_system_adder;
 SystemXAdder<1, AI_system, AI_x, Angle_x, Position_x, Physics_x> ai_system_adder;
+SystemXAdder<1, Health_system, Health_x> health_system_adder;
 SystemXManagerAdder<0, Collision_system, Shape_x, Collider_x, Position_x> collision_system_adder;
 
 template<typename... Ts>
@@ -657,7 +697,7 @@ using Object = EntityX<Position_x, Shape_x, GFX_x, Angle_x, Collider_x, Ts...>;
 
 int main()
 {
-	set_window_size(1000);
+	set_window_size(800);
 	set_window_resizable();
 
 	init();
@@ -667,17 +707,27 @@ int main()
 	sound().loadSound("Sounds/shoot_sfx3.wav");
 	sound().loadSound("Sounds/shoot_sfx4.wav");
 
-	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_TESTOBJ, TAG_PLAYER_ | TAG_TESTOBJ, CTYPE_PUSH);
-	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_PBULLET, TAG_TESTOBJ, CTYPE_PUSH);
-	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_PBULLET, TAG_ENEMY__, CTYPE_DESTROY);
+	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_TESTOBJ, TAG_PLAYER_ | TAG_TESTOBJ | TAG_ENEMY__, CTYPE_PUSH);
+	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_TESTOBJ, TAG_PBULLET, CTYPE_DESTROY);
+	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_PBULLET, TAG_ENEMY__, CTYPE_HURT);
+	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_EBULLET, TAG_PLAYER_, CTYPE_HURT);
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_ENEMY__, TAG_PBULLET, CTYPE_DESTROY);
+	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_PLAYER_, TAG_EBULLET, CTYPE_DESTROY);
 
 	Object<> test_collider;
-	Object<AI_x, Physics_x> enemy;
-	Object<AI_x, Physics_x> enemy2;
-	Object<AI_x, Physics_x> enemy3;
-	Object<AI_x, Physics_x> enemy4;
-	//Object<> test_collider2;
+	Object<AI_x, Physics_x, Health_x> enemy;
+	Object<AI_x, Physics_x, Health_x> enemy2;
+	Object<AI_x, Physics_x, Health_x> enemy3;
+	Object<AI_x, Physics_x, Health_x> enemy4;
+	Object<> test_collider2;
+
+	test_collider2.create(
+		{ {250,140} },
+		{ {-50,{-50,50},50,{50,-50}} },
+		{ rgb(255,255,255) },
+		{ 0 },
+		{ TAG_TESTOBJ }
+	);
 
 	player.create(
 		{ 250 },
@@ -687,47 +737,47 @@ int main()
 		{ { {-5,5},{10,0}, -5 } },
 		{},
 		{ {30} },
-		{ TAG_PLAYER_ }
+		{ TAG_PLAYER_ }, {}
 	);
 
 	enemy.create(
 		{ 300 },
-		{ { {-5,5},{10,0}, -5 } },
+		{ { {-10, -10}, {0,-3}, {5,0}, {0,3},{-10,10},0 } },
 		{ COLOR_PINK },
 		{ 0 },
 		{ TAG_ENEMY__ },
 		{0},
-		{0}
+		{ 0 }, {}
 	);
 
 	enemy2.create(
 		{ 310 },
-		{ { {-5,5},{10,0}, -5 } },
+		{ { {-10, -10}, {0,-3}, {5,0}, {0,3},{-10,10},0 } },
 		{ COLOR_PINK },
 		{ 0 },
 		{ TAG_ENEMY__ },
 		{ 0 },
-		{ 0 }
+		{ 0 }, {}
 	);
 
 	enemy3.create(
 		{ 320 },
-		{ { {-5,5},{10,0}, -5 } },
+		{ { {-10, -10}, {0,-3}, {5,0}, {0,3},{-10,10},0 } },
 		{ COLOR_PINK },
 		{ 0 },
 		{ TAG_ENEMY__ },
 		{ 0 },
-		{ 0 }
+		{ 0 }, {}
 	);
 
 	enemy4.create(
 		{ 330 },
-		{ { {-5,5},{10,0}, -5 } },
+		{ { {-10, -10}, {0,-3}, {5,0}, {0,3},{-10,10},0 } },
 		{ COLOR_PINK },
 		{ 0 },
 		{ TAG_ENEMY__ },
 		{ 0 },
-		{ 0 }
+		{ 0 }, {}
 	);
 
 	//std::cout << "first test: " << std::endl;
@@ -800,7 +850,7 @@ int main()
 
 		pencil(COLOR_PINK);
 
-		//draw_text("How do you do?", 10, 2);
+		draw_text("How do you do?", 10, 2);
 
 	}
 
@@ -812,13 +862,7 @@ int main()
 		{ TAG_TESTOBJ }
 	);*/
 
-	/*test_collider2.create(
-		{ {250,140} },
-		{ {-50,{-50,50},50,{50,-50}} },
-		{ rgb(255,255,255) },
-		{ 0 },
-		{ TAG_TESTOBJ }
-	);*/
+	
 
 	
 	
