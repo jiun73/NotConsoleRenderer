@@ -25,6 +25,8 @@ ComponentXAdder<AI_x> ai_adder;
 
 #include "BasicSystems.h"
 
+#include "GameGlobalData.h"
+
 struct PlayerMoveParticle_system 
 {
 	void update(ParticleEmitter_x* emitter, Controller_x* controller)
@@ -40,6 +42,8 @@ struct PlayerMoveParticle_system
 			emitter->emit = false;
 	}
 };
+
+TaggedEntityX<ENTITY_PLAYER, Position_x, Angle_x, GFX_x, Controller_x, Shape_x, Shooter_x, ParticleEmitter_x, Collider_x, Health_x> player;
 
 struct AI_system 
 {
@@ -64,19 +68,22 @@ struct AI_system
 
 			if (ai->counter >= ai->random)
 			{
-				EntityX<Position_x, Angle_x, GFX_x, Shape_x, Physics_x, Lifetime_x, Collider_x> bullet;
+				EntX::get()->add_callback_current([position, angle](EntityID)
+					{
+						EntityX<Position_x, Angle_x, GFX_x, Shape_x, Physics_x, Lifetime_x, Collider_x> bullet;
 
-				bullet.create(
-					*position,
-					{ random().frange(-2 * M_PI, 2 * M_PI) },
-					{ COLOR_WHITE },
-					{ get_letter_shape('A') },
-					{ V2d_d().polar(3, angle->angle), 0, 0 },
-					{ 100 },
-					{ TAG_EBULLET }
-				);
+						bullet.create(
+							*position,
+							{ random().frange(-2 * M_PI, 2 * M_PI) },
+							{ COLOR_WHITE },
+							{ get_letter_shape('A') },
+							{ V2d_d().polar(3, angle->angle), 0, 0 },
+							{ 100 },
+							{ TAG_EBULLET }
+						);
 
-				sound().playSound("Sounds/shoot_sfx" + std::to_string(random().range(1, 4)) + ".wav");
+						sound().playSound("Sounds/shoot_sfx" + std::to_string(random().range(1, 4)) + ".wav");
+					});
 
 				ai->counter = 0;
 				ai->shots--;
@@ -158,7 +165,7 @@ struct AI_system
 SystemXAdder<0, Shape_system, Position_x, Angle_x, Shape_x> shape_system_adder;
 SystemXAdder<0, GFX_system, GFX_x, Shape_x> polygon_gfx_system_adder;
 SystemXAdder<0, Controller_system, Position_x, Controller_x> controller_system_adder;
-SystemXAdder<0, Shooter_system, Shooter_x, Position_x, Angle_x> shooter_system_adder;
+SystemXAdder<1, Shooter_system, Shooter_x, Position_x, Angle_x> shooter_system_adder;
 SystemXAdder<0, Physics_system, Physics_x, Position_x, Angle_x> physics_system_adder;
 SystemXAdder<0, Lifetime_system, Lifetime_x> lifetime_system_adder;
 SystemXAdder<1, Particle_system, ParticleEmitter_x, Position_x> particle_system_adder;
@@ -167,6 +174,8 @@ SystemXAdder<1, Distorter_system, Distorter_x, Shape_x> distorter_system_adder;
 SystemXAdder<1, AI_system, AI_x, Angle_x, Position_x, Physics_x> ai_system_adder;
 SystemXAdder<1, Health_system, Health_x> health_system_adder;
 SystemXManagerAdder<0, Collision_system, Shape_x, Collider_x, Position_x> collision_system_adder;
+
+
 
 int main()
 {
@@ -181,7 +190,7 @@ int main()
 	sound().loadSound("Sounds/shoot_sfx4.wav");
 
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_TESTOBJ, TAG_PLAYER_ | TAG_TESTOBJ | TAG_ENEMY__, CTYPE_PUSH);
-	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_TESTOBJ, TAG_PBULLET, CTYPE_DESTROY);
+	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_TESTOBJ, TAG_PBULLET | TAG_EBULLET, CTYPE_DESTROY);
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_PBULLET, TAG_ENEMY__, CTYPE_HURT);
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_EBULLET, TAG_PLAYER_, CTYPE_HURT);
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_ENEMY__, TAG_PBULLET, CTYPE_DESTROY);
@@ -193,7 +202,16 @@ int main()
 
 	test.create({ 789 });
 
-	auto range = EntX::get()->get_entities_by_tag(1);
+	player.create(
+		{ 250 },
+		{ 0 },
+		{ rgb(255, 255, 0) },
+		{ 2 },
+		{ { {-5,5},{10,0}, -5 } },
+		{},
+		{ {30} },
+		{ TAG_PLAYER_ }, {}
+	);
 
 	test_collider.create(
 		{ {250,140} },
@@ -201,17 +219,6 @@ int main()
 		{ rgb(255,255,255) },
 		{ 0 },
 		{ TAG_TESTOBJ }
-	);
-
-	player.create(
-		{ 250 },
-		{ 0 },
-		{ rgb(255, 255, 0) },
-		{ 2},
-		{ { {-5,5},{10,0}, -5 } },
-		{},
-		{ {30} },
-		{ TAG_PLAYER_ }, {}
 	);
 
 	auto spawn = []() {EntX::get()->add_entity<Position_x, Shape_x, GFX_x, Angle_x, Collider_x, AI_x, Physics_x, Health_x>(
@@ -230,6 +237,8 @@ int main()
 	spawn();
 	spawn();
 	spawn();
+
+	auto range = EntX::get()->get_entities_by_tag(1);
 
 	for (auto it = range.first; it != range.second; it++)
 	{

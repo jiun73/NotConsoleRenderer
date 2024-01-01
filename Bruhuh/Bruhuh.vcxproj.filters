@@ -51,7 +51,7 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="CollisionComponent.h">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Components</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

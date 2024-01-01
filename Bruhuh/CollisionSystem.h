@@ -1,8 +1,6 @@
 #pragma once
 #include "CollisionComponent.h"
-#include "GameGlobalData.h"
-
-struct Collision_system
+struct Collision_system 
 {
 	GJK gjk;
 
@@ -24,7 +22,7 @@ struct Collision_system
 			}
 		}
 
-		std::cout << "Collider tag " << std::bitset<32>(tag) << " mask now " << std::bitset<32>(masks[tag]) << std::endl;
+		std::cout << "Collider tag " << std::bitset<32>(tag) << " now " << std::bitset<32>(masks[tag]) << std::endl;
 	}
 
 	void update(vector<Shape_x*>& shapes, vector<Collider_x*>& colliders, vector<Position_x*>& positions, vector<EntityID>& ids)
@@ -39,49 +37,51 @@ struct Collision_system
 			for (auto it2 = shapes.begin(); it2 != shapes.end(); it2++)
 			{
 				ColliderTag tag2 = colliders.at(y)->tag;
-				if (!(it1 != it2 && tag2 & key)) { y++;  continue;}
-				if (!gjk.find(**it1, **it2)) { y++;  continue; }
-
-				//std::cout << ids.at(i) << " collided with " << ids.at(y) << std::endl;
-
-				ColliderPair pair = ((uint64_t)tag1 << 32) | tag2;
-				switch (types[pair])
+				if (it1 != it2 && tag2& key)
 				{
-				case CTYPE_CUSTOM:
-					break;
-				case CTYPE_PUSH:
-					positions.at(y)->position += gjk.EPA(**it1, **it2);
-					break;
-				case CTYPE_DESTROY:
-					EntX::get()->destroy_this(ids.at(y));
-					break;
-				case CTYPE_HURT:
-					if (EntX::get()->entity_has_component<Health_x>(ids.at(y)))
+					if (gjk.find(**it1, **it2))
 					{
-						EntX::get()->get_entity_component < Health_x>(ids.at(y))->health--;
+						//std::cout << ids.at(i) << " collided with " << ids.at(y) << std::endl;
 
-						if (ids.at(y) == player.get_id())
+						ColliderPair pair = ((uint64_t)tag1 << 32) | tag2;
+						switch (types[pair])
 						{
-							global_shape_transform = [](V2d_d point)
-								{
-									uint32_t c = SDL_GetTicks() - global_shape_transform_dt;
+						case CTYPE_CUSTOM:
+							break;
+						case CTYPE_PUSH:
+							positions.at(y)->position += gjk.EPA(**it1, **it2);
+							break;
+						case CTYPE_DESTROY:
+							EntX::get()->destroy_this(ids.at(y));
+							break;
+						case CTYPE_HURT:
+							if (EntX::get()->entity_has_component<Health_x>(ids.at(y)))
+							{
+								EntX::get()->get_entity_component < Health_x>(ids.at(y))->health--;
 
-									if (c > 1000) global_shape_transform = nullptr;
+								//if (ids.at(y) == player.get_id())
+								//{
+								//	global_shape_transform = [](V2d_d point)
+								//		{
+								//			uint32_t c = SDL_GetTicks() - global_shape_transform_dt;
 
-									double delta = (1000 - std::min(c, uint32_t(1000))) / 1000.0;
-									return point + V2d_d(random().range(0, 15 * delta), random().range(0, 15 * delta));
-								};
-							global_shape_transform_dt = SDL_GetTicks();
-						}
+								//			if (c > 1000) global_shape_transform = nullptr;
 
+								//			double delta = (1000 - std::min(c, uint32_t(1000))) / 1000.0;
+								//			return point + V2d_d(random().range(0, 15 * delta), random().range(0, 15 * delta));
+								//		};
+								//	global_shape_transform_dt = SDL_GetTicks();
+								//}
+
+							}
+							
+							break;
+						default:
+							break;
+						}	
 					}
-
-					break;
-				default:
-					break;
+					//gjk.visualize(**it1, **it2);
 				}
-				//gjk.visualize(**it1, **it2);
-				
 				y++;
 			}
 			i++;
