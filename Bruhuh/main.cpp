@@ -19,16 +19,6 @@ struct AI_x
 #include "BasicComponents.h"
 #include "CollisionSystem.h"
 
-ComponentXAdder<Angle_x> angle_adder;
-ComponentXAdder<GFX_x> gfx_adder;
-ComponentXAdder<Controller_x> controller_adder;
-ComponentXAdder<Shooter_x> shooter_adder;
-ComponentXAdder<Physics_x> physics_adder;
-ComponentXAdder<Lifetime_x> lifetime_adder;
-ComponentXAdder<ParticleEmitter_x> emitter_adder;
-ComponentXAdder<Distorter_x> distorter_adder;
-ComponentXAdder<Health_x> health_adder;
-
 ComponentXAdder<Shape_x> shape_adder;
 ComponentXAdder<Collider_x> collider_adder;
 ComponentXAdder<AI_x> ai_adder;
@@ -81,7 +71,7 @@ struct AI_system
 					{ random().frange(-2 * M_PI, 2 * M_PI) },
 					{ COLOR_WHITE },
 					{ get_letter_shape('A') },
-					{ V2d_d().polar(2, angle->angle), 0, 0 },
+					{ V2d_d().polar(3, angle->angle), 0, 0 },
 					{ 100 },
 					{ TAG_EBULLET }
 				);
@@ -193,19 +183,19 @@ int main()
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_TESTOBJ, TAG_PLAYER_ | TAG_TESTOBJ | TAG_ENEMY__, CTYPE_PUSH);
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_TESTOBJ, TAG_PBULLET, CTYPE_DESTROY);
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_PBULLET, TAG_ENEMY__, CTYPE_HURT);
-	//EntX::get()->get_system<Collision_system>()->add_pairing(TAG_EBULLET, TAG_PLAYER_, CTYPE_HURT);
+	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_EBULLET, TAG_PLAYER_, CTYPE_HURT);
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_ENEMY__, TAG_PBULLET, CTYPE_DESTROY);
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_ENEMY__, TAG_ENEMY__, CTYPE_PUSH);
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_PLAYER_, TAG_EBULLET, CTYPE_DESTROY);
 
 	Object<> test_collider;
-	Object<AI_x, Physics_x, Health_x> enemy;
-	Object<AI_x, Physics_x, Health_x> enemy2;
-	Object<AI_x, Physics_x, Health_x> enemy3;
-	Object<AI_x, Physics_x, Health_x> enemy4;
-	Object<> test_collider2;
+	TaggedEntityX<1, Health_x> test;
 
-	test_collider2.create(
+	test.create({ 789 });
+
+	auto range = EntX::get()->get_entities_by_tag(1);
+
+	test_collider.create(
 		{ {250,140} },
 		{ {-50,{-50,50},50,{50,-50}} },
 		{ rgb(255,255,255) },
@@ -224,45 +214,29 @@ int main()
 		{ TAG_PLAYER_ }, {}
 	);
 
-	enemy.create(
+	auto spawn = []() {EntX::get()->add_entity<Position_x, Shape_x, GFX_x, Angle_x, Collider_x, AI_x, Physics_x, Health_x>(
 		{ 300 },
 		{ { {-10, -10}, {0,-3}, {5,0}, {0,3},{-10,10},0 } },
 		{ COLOR_PINK },
 		{ 0 },
 		{ TAG_ENEMY__ },
-		{0},
-		{ 0 }, {}
-	);
+		{ 0 },
+		{ 0 }, {}, ENTITY_ENEMY
+	); };
 
-	enemy2.create(
-		{ 310 },
-		{ { {-10, -10}, {0,-3}, {5,0}, {0,3},{-10,10},0 } },
-		{ COLOR_PINK },
-		{ 0 },
-		{ TAG_ENEMY__ },
-		{ 0 },
-		{ 0 }, {}
-	);
+	spawn();
+	spawn();
+	spawn();
+	spawn();
+	spawn();
+	spawn();
 
-	enemy3.create(
-		{ 320 },
-		{ { {-10, -10}, {0,-3}, {5,0}, {0,3},{-10,10},0 } },
-		{ COLOR_PINK },
-		{ 0 },
-		{ TAG_ENEMY__ },
-		{ 0 },
-		{ 0 }, {}
-	);
+	for (auto it = range.first; it != range.second; it++)
+	{
+		Health_x* health = EntX::get()->get_entity_component<Health_x>(it->second);
 
-	enemy4.create(
-		{ 330 },
-		{ { {-10, -10}, {0,-3}, {5,0}, {0,3},{-10,10},0 } },
-		{ COLOR_PINK },
-		{ 0 },
-		{ TAG_ENEMY__ },
-		{ 0 },
-		{ 0 }, {}
-	);
+		std::cout << health->health << std::endl;
+	}
 
 	while (run())
 	{

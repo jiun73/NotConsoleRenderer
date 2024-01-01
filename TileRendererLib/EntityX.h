@@ -44,6 +44,7 @@ const size_t MAX_COMPONENT = 32;
 typedef unsigned char* ComponentData;
 typedef size_t ComponentID;
 typedef size_t EntityID;
+typedef size_t EntityTag;
 typedef size_t SystemID;
 typedef uint32_t ComponentBytes;
 
@@ -168,13 +169,9 @@ struct SystemX
 	virtual char* get_this() = 0;
 };
 
-template<typename T, typename... Reqs>
-struct SystemXFactory : public SystemX
+template<typename... Reqs>
+struct ComponentCollector
 {
-	T system;
-
-	ComponentBytes _key = 0;
-
 	template<size_t I = 0>
 	inline void collect_components(vector<ComponentID>& collector)
 	{
@@ -187,11 +184,24 @@ struct SystemXFactory : public SystemX
 			collect_components<I + 1>(collector);
 		}
 	}
+};
+
+
+
+template<typename T, typename... Reqs>
+struct SystemXFactory : public SystemX
+{
+	T system;
+
+	ComponentBytes _key = 0;
 
 	void create() override
 	{
 		vector<ComponentID> list;
-		collect_components(list);
+
+		ComponentCollector<Reqs...> collector;
+		collector.collect_components(list);
+
 		_key = get_bytes_from_list(list);
 	}
 
@@ -240,23 +250,13 @@ class SystemXManagerFactory : public SystemX
 
 	char* get_this() override { return reinterpret_cast<char*>(&system); }
 
-	template<size_t I = 0>
-	inline void collect_components(vector<ComponentID>& collector)
-	{
-		using tuple_type = tuple<Reqs...>;
-		if constexpr (I < sizeof...(Reqs))
-		{
-			using element_t = tuple_element_t<I, tuple_type>;
-			ComponentID id = TypeId<ComponentX>::id<element_t>();
-			collector.push_back(id);
-			collect_components<I + 1>(collector);
-		}
-	}
-
 	void create() override
 	{
 		vector<ComponentID> list;
-		collect_components(list);
+
+		ComponentCollector<Reqs...> collector;
+		collector.collect_components(list);
+
 		_key = get_bytes_from_list(list);
 	}
 
@@ -331,6 +331,8 @@ private:
 	map<SystemID, SystemX*> systems_by_id;
 
 	unordered_map<EntityID, ComponentBytes> entities;
+	multimap<EntityTag, EntityID> entity_tags;
+	map< EntityID, EntityTag> entity_tags_reversed;
 	EntityID entity_counter = 0;
 
 	vector<pair<EntityID, function<void(EntityID)>>> callbacks;
@@ -340,6 +342,14 @@ private:
 
 	void add_archetype(ComponentBytes key);
 	void add_system(uint8_t layer, SystemX* system, SystemID id);
+
+	void remove_tag_pair(EntityTag tag, EntityID eid);
+
+	void add_tag_pair(EntityTag tag, EntityID eid)
+	{
+		entity_tags.emplace(tag, eid);
+		entity_tags_reversed.emplace(eid, tag);
+	}
 
 public:
 	bool has_entity(EntityID eid) { return entities.count(eid); }
@@ -356,8 +366,45 @@ public:
 	template<typename T, typename... Reqs>	void register_system_manager(uint8_t layer);
 	template<typename T>					T* get_system();
 
-	void remove_entity(EntityID eid);
-	EntityID add_entity(const vector<ComponentID>& list);
+	void		remove_entity(EntityID eid);
+	EntityID	add_entity(const vector<ComponentID>& list);
+	EntityID	add_entity_tagged(const vector<ComponentID>& list, EntityTag tag);
+
+	void set_entity_component(EntityID id) {}
+
+	template<typename T>
+	void set_entity_component(EntityID id, const T& component)
+	{
+		T* comp = get_entity_component<T>(id);
+		*comp = component;
+	}
+
+	template<typename T, typename... Rs>
+	void set_entity_component(EntityID id, const T& component, const Rs&... rest)
+	{
+		set_entity_component(id, component);
+		set_entity_component(id, rest...);
+	}
+
+	template<typename... Comp>
+	EntityID	add_entity(const Comp&... components, EntityTag tag = 0) 
+	{
+		vector<ComponentID> components_list;
+		ComponentCollector<Comp...> collector;
+		collector.collect_components(components_list);
+		std::sort(components_list.begin(), components_list.end(), [](ComponentID a, ComponentID b)
+			{
+				return a > b;
+			});
+
+		EntityID eid = add_entity_tagged(components_list, tag);
+
+		set_entity_component<Comp...>(eid, components...);
+
+		return eid;
+	}
+
+	auto get_entities_by_tag(EntityTag tag) { return entity_tags.equal_range(tag); }
 
 	void add_callback(function<void(EntityID)> function, EntityID eid);
 	void add_callback_current(function<void(EntityID)> function)
@@ -389,8 +436,8 @@ public:
 
 typedef Singleton<EntityManagerX> EntX;
 
-template<typename... Reqs>
-class EntityX
+template<size_t Tag, typename... Reqs>
+class TaggedEntityX
 {
 private:
 	EntityID id = 0;
@@ -398,28 +445,15 @@ private:
 	bool created = false;
 
 public:
-	EntityX() {}
-	~EntityX() {}
+	TaggedEntityX() {}
+	~TaggedEntityX() {}
 
 	EntityID get_id() { return id; }
 
 	template<typename T>
 	T* component() { return EntX::get()->get_entity_component<T>(id); }
 
-	template<size_t I>
-	inline void collect_components(vector<ComponentID>& collector)
-	{
-		using tuple_type = tuple<Reqs...>;
-		if constexpr (I < sizeof...(Reqs))
-		{
-			using element_t = tuple_element_t<I, tuple_type>;
-			ComponentID id = TypeId<ComponentX>::id<element_t>();
-			collector.push_back(id);
-			collect_components<I + 1>(collector);
-		}
-	}
-
-	template<typename T>
+	/*template<typename T>
 	inline void set_arguments(const T& arg)
 	{
 		T* comp = EntX::get()->get_entity_component<T>(id);
@@ -431,21 +465,26 @@ public:
 	{
 		set_arguments(arg);
 		set_arguments(rest...);
-	}
+	}*/
 
 	void create(const Reqs&... args)
 	{
-		vector<ComponentID> components;
-		collect_components<0>(components);
+		/*vector<ComponentID> components;
+
+		ComponentCollector<Reqs...> collector;
+		collector.collect_components(components);
+
 		std::sort(components.begin(), components.end(), [](ComponentID a, ComponentID b)
 			{
 				return a > b;
 			});
 		created = true;
 
-		id = EntX::get()->add_entity(components);
+		id = EntX::get()->add_entity_tagged(components, Tag);
 
-		set_arguments(args...);
+		set_arguments(args...);*/
+
+		id = EntX::get()->add_entity<Reqs...>(args..., Tag);
 	}
 
 	void destroy()
@@ -454,6 +493,9 @@ public:
 		created = false;
 	}
 };
+
+template<typename... Reqs>
+using EntityX = TaggedEntityX<0, Reqs...>;
 
 template<typename T>
 struct ComponentXAdder

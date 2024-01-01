@@ -23,6 +23,22 @@ bool EntityManagerX::entity_has_component(EntityID eid, ComponentID cid)
 	return (key & (1ull << cid));
 }
 
+void EntityManagerX::remove_tag_pair(EntityTag tag, EntityID eid)
+{
+	entity_tags_reversed.erase(eid);
+
+	auto range = entity_tags.equal_range(tag);
+
+	for (auto it = range.first; it != range.second; it++)
+	{
+		if (it->second == eid)
+		{
+			entity_tags.erase(it);
+			break;
+		}
+	}
+}
+
 ComponentData EntityManagerX::get_entity_component_data(EntityID eid, ComponentID cid)
 {
 	size_t key = entities.at(eid);
@@ -78,6 +94,12 @@ void EntityManagerX::remove_entity(EntityID eid)
 
 	entities.erase(eid);
 
+	EntityTag tag = entity_tags_reversed.at(eid);
+	if (tag != 0)
+	{
+		remove_tag_pair(tag, eid);
+	}
+
 	//std::cout << "Entity " << eid << " destroyed" << std::endl;
 }
 
@@ -130,8 +152,18 @@ EntityID EntityManagerX::add_entity(const vector<ComponentID>& list)
 	//std::cout << "Entity " << new_id << " added" << std::endl;
 
 	entities.emplace(new_id, byteform);
+	entity_tags_reversed.emplace(new_id, 0);
 
 	return new_id;
+}
+
+EntityID EntityManagerX::add_entity_tagged(const vector<ComponentID>& list, EntityTag tag)
+{
+	EntityID eid = add_entity(list);
+
+	if (tag == 0) return eid;
+	add_tag_pair(tag, eid);
+	return eid;
 }
 
 void EntityManagerX::add_callback(function<void(EntityID)> function, EntityID eid)

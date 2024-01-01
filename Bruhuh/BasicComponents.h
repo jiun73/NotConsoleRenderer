@@ -75,3 +75,12 @@ struct Health_x
 };
 
 inline ComponentXAdder<Position_x> pos_adder;
+inline ComponentXAdder<Angle_x> angle_adder;
+inline ComponentXAdder<GFX_x> gfx_adder;
+inline ComponentXAdder<Controller_x> controller_adder;
+inline ComponentXAdder<Shooter_x> shooter_adder;
+inline ComponentXAdder<Physics_x> physics_adder;
+inline ComponentXAdder<Lifetime_x> lifetime_adder;
+inline ComponentXAdder<ParticleEmitter_x> emitter_adder;
+inline ComponentXAdder<Distorter_x> distorter_adder;
+inline ComponentXAdder<Health_x> health_adder;
