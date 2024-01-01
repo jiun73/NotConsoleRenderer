@@ -478,6 +478,8 @@ struct SystemXManagerAdder
 
 //Definitions
 
+#include <iomanip>
+
 template<typename T>
 inline T* EntityManagerX::get_entity_component(EntityID eid)
 {
@@ -489,7 +491,7 @@ inline void EntityManagerX::register_component_type()
 {
 	size_t new_id = TypeId<ComponentX>::id<T>();
 	factories.at(new_id) = new ComponentXFactory<T>();
-	std::cout << "Component " << new_id << " added" << std::endl;
+	std::cout << "Component " << std::setw(2) << new_id << " added '" <<  typeid(T).name() <<"' " << std::endl;
 }
 
 template<typename T, typename ...Reqs>

@@ -104,6 +104,11 @@ void draw_line(V2d_i start_position, V2d_i end_position);
 //'path' est le chemin ou se trouve l'image
 void draw_image(const string& path, Rect destination);
 
+//Comme draw_image, sauf que ca permet de dessiner seulement une partie de l'image
+//La 'source' est les coordonnés ou va etre pris la partie de l'image a dessiner
+//Faut essayer pour comprendre vraiment, c'est difficile a expliquer comme ca
+void draw_image_form_source(const string& path, Rect source, Rect destination);
+
 //Dessine un cercle avec le millieu à la position 'pos' et au rayon 'radius'
 void draw_circle(V2d_i pos, int radius);
 
@@ -113,8 +118,15 @@ void draw_clear();
 //Permet de charger un texture à l'avance, mais 'draw_image' le fait si ce n'est pas fait manuellement
 //'path' est le chemin ou se trouve l'image
 void load_texture(const string& path);
+V2d_i get_image_size(const string& path);
 
 //----------------------------------------------------------ALEATOIRE-------------------------------------------------------------------------
 
 //retourne un 'Random' (Voir la classe dans Random.h)
 Random& random();
+
+//----------------------------------------------------------UTILITAIRE------------------------------------------------------------------------
+
+double lerp(double a, double b, double t); //Linear interpolation formula
+double distance_square(const V2d_d& pos1, const V2d_d& pos2); //square of the distance between two points (to avoid using expensive sqrt)
+double distance(const V2d_d& pos1, const V2d_d& pos2); //real distance between points

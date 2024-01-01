@@ -198,9 +198,34 @@ void load_texture(const string& path)
 	textures.emplace(path, tex);
 }
 
+V2d_i get_image_size(const string& path)
+{
+	SDL_Texture* tex = textures.at(path);
+
+	V2d_i ret;
+	SDL_QueryTexture(tex, NULL, NULL, &ret.x, &ret.y);
+
+	return ret;
+}
+
 Random& random()
 {
 	return _random;
+}
+
+double lerp(double a, double b, double t)
+{
+	return a + t * (b - a);
+}
+
+double distance_square(const V2d_d& pos1, const V2d_d& pos2)
+{
+	return (pos1.x - pos2.x) * (pos1.x - pos2.x) + (pos1.y - pos2.y) * (pos1.y - pos2.y);
+}
+
+double distance(const V2d_d& pos1, const V2d_d& pos2)
+{
+	return sqrt(distance_square(pos1, pos2));
 }
 
 void draw_image(const string& path, Rect destination) 
@@ -211,6 +236,16 @@ void draw_image(const string& path, Rect destination)
 	}
 
 	SDL_RenderCopy(sdl_ren, textures.at(path), NULL, destination.SDL());
+}
+
+void draw_image_form_source(const string& path, Rect source, Rect destination)
+{
+	if (!textures.count(path))
+	{
+		load_texture(path);
+	}
+
+	SDL_RenderCopy(sdl_ren, textures.at(path), source.SDL(), destination.SDL());
 }
 
 void draw_circle(V2d_i pos, int radius)

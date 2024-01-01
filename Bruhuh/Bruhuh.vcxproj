@@ -131,11 +131,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GameGlobalData.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Shape_x.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BasicComponents.h" />
+    <ClInclude Include="BasicSystems.h" />
+    <ClInclude Include="CollisionComponent.h" />
+    <ClInclude Include="CollisionSystem.h" />
+    <ClInclude Include="GameGlobalData.h" />
     <ClInclude Include="Shape_x.h" />
+    <ClInclude Include="Utility.h" />
     <ClInclude Include="Weapons.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
