@@ -8,6 +8,7 @@
 #include "SDL_image.h"
 #include "Sound.h"
 #include "EntityX.h"
+#include "Fonts.h"
 
 #include <map>
 
@@ -37,6 +38,7 @@ namespace hidden {
 	SoundManager _sound;
 	Random _random;
 
+	FontsManager _fonts;
 	map<string, SDL_Texture* > textures;
 }
 

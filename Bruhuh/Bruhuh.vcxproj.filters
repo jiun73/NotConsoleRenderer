@@ -26,5 +26,8 @@
     <ClInclude Include="Shape_x.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Weapons.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

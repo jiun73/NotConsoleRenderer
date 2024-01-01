@@ -710,8 +710,9 @@ int main()
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_TESTOBJ, TAG_PLAYER_ | TAG_TESTOBJ | TAG_ENEMY__, CTYPE_PUSH);
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_TESTOBJ, TAG_PBULLET, CTYPE_DESTROY);
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_PBULLET, TAG_ENEMY__, CTYPE_HURT);
-	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_EBULLET, TAG_PLAYER_, CTYPE_HURT);
+	//EntX::get()->get_system<Collision_system>()->add_pairing(TAG_EBULLET, TAG_PLAYER_, CTYPE_HURT);
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_ENEMY__, TAG_PBULLET, CTYPE_DESTROY);
+	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_ENEMY__, TAG_ENEMY__, CTYPE_PUSH);
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_PLAYER_, TAG_EBULLET, CTYPE_DESTROY);
 
 	Object<> test_collider;
@@ -780,69 +781,6 @@ int main()
 		{ 0 }, {}
 	);
 
-	//std::cout << "first test: " << std::endl;
-
-	//Shape_x shape({ -50,{-50,50},50,{50,-50} });
-
-	//V2d_d buf1 = 0;
-	//V2d_d buf2 = 0;
-	//for (int i = 0; i < 1000000; i++)
-	//{
-	//	double angle = 2 * M_PI * (i / 1000000.0);
-	//	V2d_d sup1 = shape.support(angle);
-	//	V2d_d sup2 = shape.support_op(angle);
-
-	//	if (sup1 != buf1)
-	//	{
-	//		std::cout << "1 changed " << buf1 << sup1 << " angle: " << angle << std::endl;
-	//		buf1 = sup1;
-	//	}
-
-	//	if (sup2 != buf2)
-	//	{
-	//		std::cout << "2 changed " << buf2 << sup2 << " angle: " << angle << std::endl;
-	//		buf2 = sup2;
-	//	}
-
-	//	//if (sup1 != sup2)
-	//		//std::cout << sup1 << ", " << sup2 << " angle: " << angle << std::endl;
-	//}
-
-	//for (int i = -1000000; i < 1000000; i++)
-	//{
-	//	double angle = 2 * M_PI * (i / 500000.0);
-	//	V2d_d sup1 = shape.support(angle);
-	//	V2d_d sup2 = shape.support_op(angle);
-	//	if (sup1 != sup2)
-	//		std::cout << sup1 << ", " << sup2 << " angle: " << angle << std::endl;
-	//}
-
-	//std::cout << "second test: " << std::endl;
-
-	//Shape_x shape2({ {-5,5},{10,0}, -5 });
-
-	//for (int i = -1000000; i < 1000000; i++)
-	//{
-	//	double angle = 2 * M_PI * (i / 500000.0);
-	//	V2d_d sup1 = shape2.support(angle);
-	//	V2d_d sup2 = shape2.support_op(angle);
-	//	if (sup1 != sup2)
-	//		std::cout << sup1 << ", " << sup2 << " angle: " << angle << std::endl;
-	//}
-
-	//std::cout << "third test: " << std::endl;
-
-	//Shape_x shape3({ -5,{10,0}, {-5,5} });
-
-	//for (int i = -1000000; i < 1000000; i++)
-	//{
-	//	double angle = 2 * M_PI * (i / 500000.0);
-	//	V2d_d sup1 = shape2.support(angle);
-	//	V2d_d sup2 = shape2.support_op(angle);
-	//	if (sup1 != sup2)
-	//		std::cout << sup1 << ", " << sup2 << " angle: " << angle << std::endl;
-	//}
-
 	while (run())
 	{
 		pencil(COLOR_BLACK);
@@ -850,22 +788,9 @@ int main()
 
 		pencil(COLOR_PINK);
 
-		draw_text("How do you do?", 10, 2);
+		draw_text("LOAD A B\nADD A B A", 10, 2);
 
 	}
-
-	/*test_collider.create(
-		{ 250 }, 
-		{ {-50,{-50,50},50,{50,-50}} }, 
-		{rgb(255,255,255)},
-		{ 0 },
-		{ TAG_TESTOBJ }
-	);*/
-
-	
-
-	
-	
 
 	return 0;
 }
