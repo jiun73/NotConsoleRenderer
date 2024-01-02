@@ -51,20 +51,24 @@ struct Shooter_system
 
 		if (mouse().pressed(1))
 		{
-			EntityX<Position_x, Angle_x, GFX_x, Shape_x, Physics_x, Lifetime_x, Collider_x> bullet;
+			EntX::get()->add_callback_current([position, angle](EntityID) {
+				EntityX<Position_x, Angle_x, GFX_x, Shape_x, Physics_x, Lifetime_x, Collider_x> bullet;
 
-			bullet.create(
-				*position,
-				{ random().frange(-2 * M_PI, 2 * M_PI) },
-				{ COLOR_WHITE },
-				{ get_letter_shape('G') },
-				{ V2d_d().polar(5, angle->angle), 0, 0 },
-				{ 100 },
-				{ TAG_PBULLET }
+				bullet.create(
+					*position,
+					{ random().frange(-2 * M_PI, 2 * M_PI) },
+					{ COLOR_WHITE },
+					{ { {-5,5},{10,0}, -5 } },
+					{ V2d_d().polar(5, angle->angle), 0, 0 },
+					{ 100 },
+					{ TAG_PBULLET }
+				);
+
+				sound().playSound("Sounds/shoot_sfx" + std::to_string(random().range(1, 4)) + ".wav");
+				}
 			);
-
-			sound().playSound("Sounds/shoot_sfx" + std::to_string(random().range(1, 4)) + ".wav");
 		}
+		
 	}
 };
 

@@ -405,6 +405,7 @@ public:
 	}
 
 	auto get_entities_by_tag(EntityTag tag) { return entity_tags.equal_range(tag); }
+	
 
 	void add_callback(function<void(EntityID)> function, EntityID eid);
 	void add_callback_current(function<void(EntityID)> function)

@@ -118,16 +118,12 @@ V2d_d AP22::min_vec(std::vector<V2d_d>& list, V2d_d start)
 	support_regions.emplace(region, point2);
  }
 
- V2d_d Shape_x::support_op(double support_angle)
+ V2d_d Shape_x::support(double support_angle)
  {
+	 V2d_d _mean = mean();
 	 support_angle += M_PI;
+	 support_angle -= angle;
 	 support_angle -= (2 * M_PI) * std::floor(support_angle * (1 / (2 * M_PI)));
-	 
-
-	/* while (support_angle >= 2 * M_PI)
-		 support_angle -= 2 * M_PI;
-	 while (support_angle < 0)
-		 support_angle += 2 * M_PI;*/
 
 	 if (needs_recalc)
 	 {
@@ -135,17 +131,17 @@ V2d_d AP22::min_vec(std::vector<V2d_d>& list, V2d_d start)
 		 needs_recalc = false;
 	 }
 
-	 auto it = support_regions.lower_bound(support_angle - angle);
+	 auto it = support_regions.lower_bound(support_angle);
 
 	 if (it == support_regions.end())
-		 return find_point(support_regions.begin()->second);
+		 return find_point(support_regions.begin()->second + _mean) ;
 
-	 return find_point(it->second);
+	 return find_point(it->second + _mean);
  }
 
- V2d_d Shape_x::support(double support_angle)
+ V2d_d Shape_x::support_op(double support_angle)
 {
-	 //support_angle -= (2 * M_PI) * std::floor(support_angle * (1 / (2 * M_PI)));
+	 support_angle -= (2 * M_PI) * std::floor(support_angle * (1 / (2 * M_PI)));
 	 V2d_d _mean = mean();
 	V2d_d* support = nullptr;
 	V2d_d direction;

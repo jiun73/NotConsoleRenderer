@@ -49,11 +49,17 @@ struct AI_system
 {
 	void update(AI_x* ai, Angle_x* angle, Position_x* position, Physics_x* physic) 
 	{
-		angle->angle = -getAngleTowardPoint(position->position, player.component<Position_x>()->position) + (0.5 * M_PI);
+		auto player_range = EntX::get()->get_entities_by_tag(ENTITY_PLAYER);
+
+		if (player_range.first == player_range.second) return;
+
+		V2d_d& player_position = EntX::get()->get_entity_component<Position_x>(player_range.first->second)->position;
+
+		angle->angle = -getAngleTowardPoint(position->position, player_position) + (0.5 * M_PI);
 
 		ai->counter++;
 
-		if (ai->shots > 0 && distance_square(position->position, player.component<Position_x>()->position) < 30000)
+		if (ai->shots > 0 && distance_square(position->position, player_position) < 30000)
 		{
 			ai->charge = false;
 
@@ -76,7 +82,7 @@ struct AI_system
 							*position,
 							{ random().frange(-2 * M_PI, 2 * M_PI) },
 							{ COLOR_WHITE },
-							{ get_letter_shape('A') },
+							{ { {-5,5},{10,0}, -5 } },
 							{ V2d_d().polar(3, angle->angle), 0, 0 },
 							{ 100 },
 							{ TAG_EBULLET }
@@ -107,7 +113,7 @@ struct AI_system
 				ai->counter = 0;
 			}
 
-			if (distance_square(position->position, player.component<Position_x>()->position) > 30000)
+			if (distance_square(position->position, player_position) > 30000)
 			{
 				physic->acceleration = V2d_d().polar(0.01, angle->angle);
 			}
@@ -198,9 +204,6 @@ int main()
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_PLAYER_, TAG_EBULLET, CTYPE_DESTROY);
 
 	Object<> test_collider;
-	TaggedEntityX<1, Health_x> test;
-
-	test.create({ 789 });
 
 	player.create(
 		{ 250 },
@@ -223,7 +226,7 @@ int main()
 
 	auto spawn = []() {EntX::get()->add_entity<Position_x, Shape_x, GFX_x, Angle_x, Collider_x, AI_x, Physics_x, Health_x>(
 		{ 300 },
-		{ { {-10, -10}, {0,-3}, {5,0}, {0,3},{-10,10},0 } },
+		{ { {-10, -10},{-10,10}, {5,0} } },
 		{ COLOR_PINK },
 		{ 0 },
 		{ TAG_ENEMY__ },
@@ -231,7 +234,6 @@ int main()
 		{ 0 }, {}, ENTITY_ENEMY
 	); };
 
-	spawn();
 	spawn();
 	spawn();
 	spawn();
@@ -246,6 +248,31 @@ int main()
 
 		std::cout << health->health << std::endl;
 	}
+
+	Shape_x shape({ {-10, -10}, {5,0},{-10,10} });
+	V2d_d last = 0;
+	for (size_t i = 0; i < 10000; i++)
+	{
+		double angle = 2 * M_PI * (i / 10000.0);
+		V2d_d sup = shape.support_op(angle);
+		if (sup == last) continue;
+		std::cout << sup << " at " << angle << std::endl;
+		last = sup;
+	}
+
+	std::cout << std::endl;
+
+	Shape_x shape2({ {-10, -10},{-10,10}, {5,0} });
+	last = 0;
+	for (size_t i = 0; i < 10000; i++)
+	{
+		double angle = 2 * M_PI * (i / 10000.0);
+		V2d_d sup = shape2.support(angle);
+		if (sup == last) continue;
+		std::cout << sup << " at " << angle << std::endl;
+		last = sup;
+	}
+
 
 	while (run())
 	{

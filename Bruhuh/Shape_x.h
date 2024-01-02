@@ -254,7 +254,8 @@ struct GJK
 			V2d_d ABperp = -tripleCrossProduct(AB, AO, AB);
 
 			V2d_d new_point = get_minkowski_support(shape1, shape2, ABperp.orientation());
-			//*(it - 1) == new_point || (it != simplex.end()) && *(it) == new_point
+			//*(it - 1) == new_point || (it != simplex.end()) && *(it) == new_point ???
+			//std::count(simplex.begin(), simplex.end(), new_point)
 			if (std::count(simplex.begin(), simplex.end(), new_point)) //we're on the edge of the md, return
 			{
 				if (distance < min)
