@@ -74,6 +74,7 @@ void init()
 	if (!__init__)
 	{
 		SDL_Init(SDL_INIT_EVERYTHING);
+		TTF_Init();
 		SDL_CreateWindowAndRenderer(window_size.x, window_size.y, window_flags, &sdl_win, &sdl_ren);
 		SDL_RenderSetLogicalSize(sdl_ren, window_size.x, window_size.y);
 		sound().init();	
@@ -286,6 +287,38 @@ void draw_circle(V2d_i pos, int radius)
 			tx += 2;
 			error += (tx - diameter);
 		}
+	}
+}
+
+FontsManager& fonts() 
+{
+	return _fonts;
+}
+
+void load_font(const string& path)
+{
+	_fonts.add_font(sdl_ren, path);
+}
+
+const Font& get_font(size_t i)
+{
+	return _fonts.get(i);
+}
+
+int draw_glyph(const char& character, const V2d_i& pos, const Font& font)
+{
+	const Glyph& glyph = font.get(character);
+	Rect dest = { pos, glyph.source.sz };
+	SDL_RenderCopy(sdl_ren, font.atlas, &glyph.sdl_src, dest.SDL());
+	return glyph.advance;
+}
+
+void draw_line(const string& text, const V2d_i& pos, const Font& font)
+{
+	int counter = pos.x;
+	for (auto& c : text)
+	{
+		counter += draw_glyph(c, { counter, pos.y }, font);
 	}
 }
 

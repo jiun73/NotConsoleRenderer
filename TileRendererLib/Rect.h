@@ -64,3 +64,5 @@ struct Rectangle
 typedef Rectangle<double> Rect_d;
 typedef Rectangle<float> Rect_f;
 typedef Rectangle<int> Rect;
+
+

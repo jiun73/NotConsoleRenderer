@@ -181,7 +181,7 @@ SystemXAdder<1, AI_system, AI_x, Angle_x, Position_x, Physics_x> ai_system_adder
 SystemXAdder<1, Health_system, Health_x> health_system_adder;
 SystemXManagerAdder<0, Collision_system, Shape_x, Collider_x, Position_x> collision_system_adder;
 
-
+#include "Weapons.h"
 
 int main()
 {
@@ -204,6 +204,8 @@ int main()
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_PLAYER_, TAG_EBULLET, CTYPE_DESTROY);
 
 	Object<> test_collider;
+
+	load_font("Fonts/Perfect DOS VGA 437 Win.ttf");
 
 	player.create(
 		{ 250 },
@@ -234,54 +236,100 @@ int main()
 		{ 0 }, {}, ENTITY_ENEMY
 	); };
 
-	spawn();
-	spawn();
-	spawn();
-	spawn();
-	spawn();
-
-	auto range = EntX::get()->get_entities_by_tag(1);
-
-	for (auto it = range.first; it != range.second; it++)
-	{
-		Health_x* health = EntX::get()->get_entity_component<Health_x>(it->second);
-
-		std::cout << health->health << std::endl;
-	}
-
-	Shape_x shape({ {-10, -10}, {5,0},{-10,10} });
-	V2d_d last = 0;
-	for (size_t i = 0; i < 10000; i++)
-	{
-		double angle = 2 * M_PI * (i / 10000.0);
-		V2d_d sup = shape.support_op(angle);
-		if (sup == last) continue;
-		std::cout << sup << " at " << angle << std::endl;
-		last = sup;
-	}
-
-	std::cout << std::endl;
-
-	Shape_x shape2({ {-10, -10},{-10,10}, {5,0} });
-	last = 0;
-	for (size_t i = 0; i < 10000; i++)
-	{
-		double angle = 2 * M_PI * (i / 10000.0);
-		V2d_d sup = shape2.support(angle);
-		if (sup == last) continue;
-		std::cout << sup << " at " << angle << std::endl;
-		last = sup;
-	}
-
-
+	WeaponParser parser;
+	parser.computer.bulletType.bulletCreationFunction = []()
+		{
+			std::cout << "pew!" << std::endl;
+		};
+	parser.computer.storage = 100;
 	while (run())
 	{
-		pencil(COLOR_BLACK);
+		pencil(COLOR_CYAN);
 		draw_clear();
 
-		pencil(COLOR_PINK);
+		/*pencil(COLOR_PINK);
 
-		draw_text("LOAD A B\nADD A B A", 10, 2);
+		keyboard().openTextInput();
+		draw_text(keyboard().getTextInput(), 10, 2);
+		std::vector<WeaponError> errors = parser.load(keyboard().getTextInput());
+
+		for (auto& error : errors)
+		{
+			Rect dest;
+			dest.pos = { (int)error.offset * 24, error.line * 24 };
+			dest.sz = 35;
+			draw_rect(dest);
+			switch (error.type)
+			{
+			case ERROR_NOT_A_REGISTER:
+				std::cout << "Register not available!" << std::endl;
+				break;
+			case ERROR_NOT_IN_INVENTORY:
+				std::cout << "Not enough tokens in inventory!" << std::endl;
+				break;
+			case ERROR_INVALID_ARGUMENT:
+				std::cout << "Argument invalid! expected: ";
+				
+				switch (error.subtype)
+				{
+				case ERROR_EXPECTING_VALUE:
+					std::cout << "constant or register";
+					break;
+				case ERROR_EXPECTING_REGISTER:
+					std::cout << "register";
+					break;
+				case ERROR_EXPECTING_ADDRESS:
+					std::cout << "address or register";
+					break;
+				case ERROR_EXPECTING_ARGUMENT:
+					std::cout << "non-empty argument";
+					break;
+				default:
+					break;
+				}
+
+				std::cout << std::endl;
+
+				break;
+			case ERROR_TOO_MANY_ARGS:
+				std::cout << "Too many arguments!" << std::endl;
+				break;
+			case ERROR_NOT_ENOUGH_ARGS:
+				std::cout << "Not enough arguments!" << std::endl;
+				break;
+			case ERROR_INVALID_INSTRUCTION:
+				std::cout << "Instruction doesn't exist!" << std::endl;
+				break;
+			
+			default:
+				break;
+			}
+		}
+
+		if (mouse_left_held())
+		{
+			parser.computer.registers.resize(27);
+			parser.computer.tick();
+		}
+
+		Rect dest;
+		dest.pos = { 0, (int)parser.computer.programCounter * 24 };
+		dest.sz = 35;
+		draw_rect(dest);
+
+		for (size_t i = 0; i < parser.computer.registers.size(); i++)
+		{
+			char c = 'A' + i;
+			string s = " ";
+			s.at(0) = c;
+
+			string ss = "" + s + ": " + std::to_string(parser.computer.registers.at(i).value);
+			draw_text(ss, { 0,300 + (int)i * 24 }, 2);
+		}*/
+
+		draw_text("Lorem ipsum dolor sit amet. Qui minima voluptate est quia tenetur est perspiciatis corporis. Quo consequatur neque eum aperiam laborum a vero quam nam illo minima non iste enim aut accusantium sunt. Et voluptatem voluptatem et aliquam aliquam ut libero enim.Et quasi aspernatur non modi soluta aut velit voluptatem et quia nihil aut sequi nulla ex ducimus aliquid nam enim dolor.Et voluptates quis id magnam ipsa sit impedit voluptates qui asperiores nihil in porro autem aut distinctio repudiandae aut labore itaque.Ut tempore galisum cum aperiam corporis et enim maxime non animi quisquam qui soluta nulla.Est beatae rerum qui culpa omnis vel maxime magnam et maxime tenetur vel corporis autem sit nostrum ipsa 33 velit labore.Qui assumenda nihil et necessitatibus debitis qui tempora sunt hic adipisci aliquid et deleniti nemo ad rerum sequi.Eum asperiores maiores a eius recusandae ad earum illum.Est sequi repudiandae ut placeat aliquid in provident minima ut voluptatem corporis.",0, get_font(0));
+
+		//fonts().get(0).render_atlas();
 	}
 
 	return 0;

@@ -6,6 +6,7 @@
 #include "Random.h"
 #include "Rect.h"
 #include "Sound.h"
+#include "Fonts.h"
 
 #undef main	
 
@@ -116,9 +117,21 @@ void draw_circle(V2d_i pos, int radius);
 void draw_clear();
 
 //Permet de charger un texture à l'avance, mais 'draw_image' le fait si ce n'est pas fait manuellement
-//'path' est le chemin ou se trouve l'image
+//\param 'path' est le chemin ou se trouve l'image
 void load_texture(const string& path);
 V2d_i get_image_size(const string& path);
+
+//----------------------------------------------------------TEXTE-----------------------------------------------------------------------------
+
+FontsManager& fonts(); 
+
+void load_font(const string& path);
+
+const Font& get_font(size_t i);
+
+int draw_glyph(const char& character, const V2d_i& pos, const Font& font);
+
+void draw_line(const string& text, const V2d_i& pos, const Font& font);
 
 //----------------------------------------------------------ALEATOIRE-------------------------------------------------------------------------
 

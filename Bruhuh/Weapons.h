@@ -57,7 +57,7 @@ struct WeaponInstruction
 
 	array<int, 3> inputs;
 	array<int, 3> values;
-	array<bool, 3> isReg;
+	array<bool, 3> isRegisterValue;
 
 	bool data = false;
 	bool empty = true;
@@ -76,14 +76,20 @@ enum ComputerErrorTypes
 	ERROR_INVALID_ARGUMENT,
 	ERROR_TOO_MANY_ARGS,
 	ERROR_NOT_ENOUGH_ARGS,
-	ERROR_INVALID_INSTRUCTION
+	ERROR_INVALID_INSTRUCTION,
+	ERROR_EXPECTING_VALUE,
+	ERROR_EXPECTING_REGISTER,
+	ERROR_EXPECTING_ADDRESS,
+	ERROR_EXPECTING_ARGUMENT
 };
 
 struct WeaponError 
 {
+	size_t offset = 0;
 	ComputerErrorTypes type = ERROR_NONE;
+	ComputerErrorTypes subtype = ERROR_NONE;
 	int line = 0;
-	int offset = 0;
+	
 };
 
 struct WeaponComputer
@@ -97,19 +103,46 @@ struct WeaponComputer
 
 	WeaponBullet bulletType;
 
-	uint32_t clockSpeed = 0;
+	uint32_t clockSpeed = 100;
 	uint32_t clockLast = 0;
 
 	size_t programCounter = 0;
 	vector<WeaponInstruction> instructions; 
 
+	bool doNotIncrCounter = false;
+
 	void shoot() { bulletType.bulletCreationFunction(); }
 
-	void cycle()
+	bool cycle()
 	{
+		if (instructions.size() == 0) return true;
+		if (programCounter > instructions.size() - 1) programCounter = 0;
+
 		WeaponInstruction& instruction = instructions.at(programCounter);
+
+		if (instruction.empty) { programCounter++; return false; }
+
+		for (size_t i = 0; i < instruction.inputs.size(); i++)
+		{
+			bool isReg = instruction.isRegisterValue.at(i);
+
+			if (isReg)
+			{
+				if (instruction.inputs.at(i) < 0) continue;
+
+				instruction.values.at(i) = registers.at(instruction.inputs.at(i)).value;
+			}
+			else
+			{
+				instruction.values.at(i) = instruction.inputs.at(i);
+			}
+		}
+
 		instruction.instructionFunction(*this, instruction);
+
+		if (doNotIncrCounter) { doNotIncrCounter = false; return true; }
 		programCounter++;
+		return true;
 	}
 
 	void tick()
@@ -118,78 +151,95 @@ struct WeaponComputer
 
 		while (timeSinceLast > clockSpeed)
 		{
-			cycle();
+			
+			if(cycle())
 			timeSinceLast -= clockSpeed;
 		}
 
-		clockLast = SDL_GetTicks() + timeSinceLast;
+		clockLast = SDL_GetTicks() - timeSinceLast;
 	}
 };
 
-pair<function<void(WeaponComputer&, WeaponInstruction&)>, int> get_instruction(ComputerInstructionSet type)
+enum InstructionArgTypes 
+{
+	ARG_REGISTER,
+	ARG_VALUE,
+	ARG_ADDRESS
+};
+
+struct Instruction 
+{
+	function<void(WeaponComputer&, WeaponInstruction&)> function;
+	vector<int> args_types;
+};
+
+Instruction get_instruction(ComputerInstructionSet type)
 {
 	switch (type)
 	{
 	case LOAD:
 		return { [](WeaponComputer& computer, WeaponInstruction& data)
 			{
+				std::cout << data[1] << " " << data[2] << std::endl;
 				computer.registers.at(data[2]).value = data[1];
-			}, 2};
+			}, {ARG_VALUE, ARG_REGISTER} };
 	case JUMP:
 		return { [](WeaponComputer& computer, WeaponInstruction& data)
 			{
 				computer.programCounter += data[1];
-			}, 1 };
+				computer.doNotIncrCounter = true;
+			}, {ARG_ADDRESS} };
 	case SHOOT:
 		return { [](WeaponComputer& computer, WeaponInstruction& data)
 			{
 				computer.shoot();
-			},0 };
+			},{} };
 	case WAIT:
 		return { [](WeaponComputer& computer, WeaponInstruction& data)
 			{
 				computer.clockLast += data[1];
-			}, 1};
+			}, {ARG_VALUE} };
 	case IF:
 		break;
 	case ADD:
 		return { [](WeaponComputer& computer, WeaponInstruction& data)
 			{
 				computer.registers.at(data[3]).value = data[1] + data[2];
-			}, 3 };
+			}, {ARG_VALUE, ARG_VALUE, ARG_REGISTER} };
 	case SUB:
 		return { [](WeaponComputer& computer, WeaponInstruction& data)
 			{
 				computer.registers.at(data[3]).value = data[1] - data[2];
-			}, 3};
+			}, {ARG_VALUE, ARG_VALUE, ARG_REGISTER} };
 	case GOTO:
 		return { [](WeaponComputer& computer, WeaponInstruction& data)
 			{
 				computer.programCounter = data[1];
-			},3 };
+				computer.doNotIncrCounter = true;
+			}, {ARG_ADDRESS} };
 	case SWAP:
 		return { [](WeaponComputer& computer, WeaponInstruction& data)
 			{
 				int buffer = computer.registers.at(data[1]).value;
 				computer.registers.at(data[1]).value = computer.registers.at(data[2]).value;
 				computer.registers.at(data[2]).value = buffer;
-			}, 2 };
+			}, {ARG_REGISTER, ARG_REGISTER} };
 	case VALUE:
 		return { [](WeaponComputer& computer, WeaponInstruction& data)
 			{
 				computer.cycle();
-			}, 0 };
+			}, { ARG_VALUE } };
 	case WRITE:
 		return { [](WeaponComputer& computer, WeaponInstruction& data)
 			{
 
 				WeaponInstruction val;
-				val.instructionFunction = get_instruction(VALUE).first;
+				val.instructionFunction = get_instruction(VALUE).function;
 				val.inputs.at(0) = data[1];
 				val[1] = data[1];
 
 				computer.instructions.at(data[2]) = val;
-			}, 2 };
+			}, { ARG_VALUE, ARG_ADDRESS} };
 	case READ:
 		return { [](WeaponComputer& computer, WeaponInstruction& data)
 			{
@@ -198,7 +248,7 @@ pair<function<void(WeaponComputer&, WeaponInstruction&)>, int> get_instruction(C
 				{
 					computer.registers.at(data[2]).value = instr[1];
 				}
-			}, 2 };
+			}, {ARG_ADDRESS, ARG_REGISTER} };
 	case HALT:
 		break;
 	default:
@@ -231,56 +281,106 @@ struct WeaponParser
 {
 	WeaponComputer computer;
 
+	size_t get_true_offset(const vector<string>& args, size_t offset)
+	{
+		size_t ret = 0;
+		for (size_t i = 0; i < std::min(args.size(), offset); i++)
+		{
+			ret += args.at(i).size() + 1;
+		}
+		return ret;
+	}
+
 	WeaponError load_intruction(const string& line)
 	{
 		vector<string> args = split(line, ' ');
+
 		if (args.size() == 0)
 		{
-			WeaponInstruction empty;
-			empty.empty = true;
-			computer.instructions.push_back(empty);
 			return {};
 		}
 
 		ComputerInstructionSet type = get_instruction_type(args.at(0));
 
-		if (type == INVALID) return { ERROR_INVALID_INSTRUCTION };
+		if (type == INVALID) return { 0, ERROR_INVALID_INSTRUCTION };
 
-		auto pair = get_instruction(type);
-
-		if (pair.second > args.size() - 1) return { ERROR_TOO_MANY_ARGS };
-		if (pair.second < args.size() - 1) return { ERROR_NOT_ENOUGH_ARGS };
+		Instruction info = get_instruction(type);
 
 		WeaponInstruction new_intruction;
-		new_intruction.instructionFunction = pair.first;
+		new_intruction.empty = false;
+		for (auto& is : new_intruction.isRegisterValue)
+		{
+			is = false;
+		}
+
+		new_intruction.instructionFunction = info.function;
 		for (size_t i = 1; i < args.size(); i++)
 		{
 			string& arg = args.at(i);
-			if (all_of(arg.begin(), arg.end(), isupper))
+
+			if (arg.size() == 0) return { get_true_offset(args, i), ERROR_INVALID_ARGUMENT, ERROR_EXPECTING_ARGUMENT };
+
+			int& input = new_intruction.inputs.at(i - 1);
+
+			switch (info.args_types.at(i - 1))
 			{
-				if (arg.size() == 1) //register
-				{
-					char c = arg.at(0);
-					new_intruction[i] = c - 'A';
+			case ARG_VALUE:
+			{
+				bool isRegisterValue = all_of(arg.begin(), arg.end(), isupper);
+				bool isConstantValue = all_of(arg.begin(), arg.end(), isdigit);
+				if (!(isRegisterValue || isConstantValue)) return { get_true_offset(args, i), ERROR_INVALID_ARGUMENT, ERROR_EXPECTING_VALUE };
+				if (isConstantValue) input = stoi(arg);
+				else if (isRegisterValue) 
+				{ 	
+					if (arg.size() != 1) return { get_true_offset(args, i), ERROR_INVALID_ARGUMENT, ERROR_EXPECTING_REGISTER };
+					input = arg.at(0) - 'A';
+					new_intruction.isRegisterValue.at(i - 1) = true;
 				}
-				else //special register
+				break;
+			}
+
+			case ARG_REGISTER:
+				if(!all_of(arg.begin(), arg.end(), isupper)) return { get_true_offset(args, i), ERROR_INVALID_ARGUMENT, ERROR_EXPECTING_REGISTER };
+				if (arg.size() != 1) return { get_true_offset(args, i), ERROR_INVALID_ARGUMENT, ERROR_EXPECTING_REGISTER };
+				input = arg.at(0) - 'A';
+				break;
+			case ARG_ADDRESS:
+			{
+				bool isRegisterValue = all_of(arg.begin(), arg.end(), isupper);
+
+				if (isRegisterValue)
 				{
-					return { ERROR_INVALID_ARGUMENT };
+					if (arg.size() != 1) return { get_true_offset(args, i), ERROR_INVALID_ARGUMENT, ERROR_EXPECTING_REGISTER };
+					input = arg.at(0) - 'A';
+					new_intruction.isRegisterValue.at(i - 1) = true;
+				}
+				else
+				{
+					if (arg.size() <= 1) return { get_true_offset(args, i), ERROR_INVALID_ARGUMENT, ERROR_EXPECTING_ADDRESS };
+					if (arg.at(0) != '$') return { get_true_offset(args, i), ERROR_INVALID_ARGUMENT, ERROR_EXPECTING_ADDRESS };
+
+					string address = arg.substr(1);
+					input = stoi(address);
 				}
 			}
-			else if (all_of(arg.begin(), arg.end(), isdigit))
-			{
-				new_intruction[i] = stoi(args.at(i));
-			}
-			else
-			{
-				return { ERROR_INVALID_ARGUMENT };
+				break;
+			default:
+				return { get_true_offset(args, i), ERROR_INVALID_INSTRUCTION };
 			}
 		}
+
+		if (info.args_types.size() < args.size() - 1) return { get_true_offset(args, args.size()), ERROR_TOO_MANY_ARGS };
+		if (info.args_types.size() > args.size() - 1) return { get_true_offset(args, args.size()), ERROR_NOT_ENOUGH_ARGS };
+
+		computer.instructions.push_back(new_intruction);
+
+		return {};
 	}
 
 	vector<WeaponError> load(const string& code)
 	{
+		computer.instructions.clear();
+		computer.instructions.resize(computer.storage);
 		vector<string> lines = split(code, '\n');
 		vector<WeaponError> errors;
 
