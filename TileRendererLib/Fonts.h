@@ -85,7 +85,7 @@ public:
 		size_t estimated_area = count_valid_glyphs(max_char) * (size_t)height * (size_t)height;
 		V2d_i surface_size = next_2pow(sqrt(estimated_area));
 
-		std::cout << "estimated size for atlas: " << surface_size << std::endl;
+		//std::cout << "estimated size for atlas: " << surface_size << std::endl;
 
 		SDL_Surface* atlas_sur = SDL_CreateRGBSurface(0, surface_size.x, surface_size.y, 32, 0, 0, 0, 0xff);
 		SDL_assert(ttf);

@@ -61,6 +61,9 @@ int main()
 			sound().playSound("Sounds/rizz.wav");
 		}
 		
+		int pos = (int)(sin((SDL_GetTicks() % 1000) / 1000.0)  * 100) - 50;
+		draw_simple_text("You have no bitches", { pos,60 }, get_font(1)); //get_font(1) voir 'Fonts/fonts.hint'
+		draw_simple_text("You have no bitches", {0,120}, get_font(0)); //get_font(0) voir 'Fonts/fonts.hint'
 	}
 
 	return 0;
