@@ -113,7 +113,11 @@ public:
 			new_glyph.character = character;
 
 			SDL_Surface* glyph_sur = TTF_RenderGlyph_Solid(ttf, character, Color(COLOR_WHITE).SDL());
-			SDL_assert(glyph_sur);
+			if (!glyph_sur)
+			{
+				continue;
+			}
+			
 
 			current_dest.sz = { glyph_sur->w, glyph_sur->h };
 			maxy = std::max(maxy, current_dest.sz.y);
@@ -150,11 +154,15 @@ public:
 
 	const Glyph& get(const char& character) const
 	{
-		return glyphs.at(character);
+		if(glyphs.count(character))
+			return glyphs.at(character);
+		return Glyph();
 	}
 };
 
 #include "StringManip.h"
+
+typedef size_t FontID;
 
 class FontsManager 
 {
@@ -162,15 +170,16 @@ private:
 	vector<Font> fonts;
 
 public:
-	void add_font(SDL_Renderer* renderer, const string& path, int size = 16)
+	FontID add_font(SDL_Renderer* renderer, const string& path, int size = 64)
 	{
 		Font font(fonts.size());
 		font.load(renderer, path, size);
 		fonts.push_back(font);
 		std::cout << "Font " << font.name << " loaded" << std::endl;
+		return fonts.size() - 1;
 	}
 
-	const Font& get(size_t i) 
+	const Font& get(FontID i)
 	{
 		return fonts.at(i);
 	}
@@ -180,11 +189,20 @@ public:
 		File hint_file(path, FILE_READING_STRING);
 		string content = hint_file.getString();
 
+		size_t sz = 0;
 		vector<string> fonts_paths = split(content, '\n');
 		for (auto& paths : fonts_paths)
 		{
-			vector<string> settings = split(content, ';');
+			vector<string> settings = split(paths, ';');
+			if (settings.size() != 2)
+			{
+				std::cout << "font at line " << sz << " has no size!" << std::endl;
+				continue;
+			}
 			add_font(renderer, settings.at(0), stoi(settings.at(1)));
+			sz++;
 		}
+
+		std::cout << sz << " fonts loaded from hint file" << std::endl;
 	}
 };

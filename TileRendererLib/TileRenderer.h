@@ -125,13 +125,32 @@ V2d_i get_image_size(const string& path);
 
 FontsManager& fonts(); 
 
-void load_font(const string& path);
+/*
+* Charge une police d'ecriture à partir d'un chemin
+* La police peut être de plusieurs type (ex: .ttf)
+* Une bonne source de ce genre de polices: https://www.dafont.com/fr/theme.php?cat=601&page=2
+* 
+* Un autre facon de charger une police d'écriture est d'écrire le chemin dans le fichier 'Fonts/fonts.hint'
+* de cette facon: 'chemin;taille' (une police par ligne)
+* Son index devient alors sa position dans le fichier (ex: ligne 1 = 0)
+*/
+FontID load_font(const string& path);
 
-const Font& get_font(size_t i);
+/*
+* Retourne une police d'écriture par son index
+* \param 'i' est un index retourné par load_font() ou 
+* la ligne ou la police apparait dans le fichier 'Fonts/fonts.hint'
+*/
+const Font& get_font(FontID i);
 
 int draw_glyph(const char& character, const V2d_i& pos, const Font& font);
 
-void draw_line(const string& text, const V2d_i& pos, const Font& font);
+/*
+* Dessine du simple texte aligné vers la gauche.supporte les retours de ligne
+* \param 'font' est une police d'écriture obtenu avec get_font()
+* \param 'pos' est le coin en haut à gauche du texte
+*/
+void draw_simple_text(const string& text, const V2d_i& pos, const Font& font);
 
 //----------------------------------------------------------ALEATOIRE-------------------------------------------------------------------------
 

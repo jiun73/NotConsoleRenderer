@@ -172,7 +172,7 @@ void draw_letter(char c, V2d_i pos, double scale = 1)
 	shape.draw();
 }
 
-void draw_text(string s, V2d_i pos, double scale = 1)
+void draw_text_b(string s, V2d_i pos, double scale = 1)
 {
 	int basex = pos.x;
 	for (auto& c : s)

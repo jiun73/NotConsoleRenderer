@@ -78,6 +78,7 @@ void init()
 		SDL_CreateWindowAndRenderer(window_size.x, window_size.y, window_flags, &sdl_win, &sdl_ren);
 		SDL_RenderSetLogicalSize(sdl_ren, window_size.x, window_size.y);
 		sound().init();	
+		fonts().read_hint_file(sdl_ren);
 		__init__ = true;
 	}
 }
@@ -295,12 +296,12 @@ FontsManager& fonts()
 	return _fonts;
 }
 
-void load_font(const string& path)
+FontID load_font(const string& path)
 {
-	_fonts.add_font(sdl_ren, path);
+	return _fonts.add_font(sdl_ren, path);
 }
 
-const Font& get_font(size_t i)
+const Font& get_font(FontID i)
 {
 	return _fonts.get(i);
 }
@@ -313,12 +314,18 @@ int draw_glyph(const char& character, const V2d_i& pos, const Font& font)
 	return glyph.advance;
 }
 
-void draw_line(const string& text, const V2d_i& pos, const Font& font)
+void draw_simple_text(const string& text, const V2d_i& pos, const Font& font)
 {
-	int counter = pos.x;
+	int xcounter = pos.x;
+	int ycounter = pos.y;
 	for (auto& c : text)
 	{
-		counter += draw_glyph(c, { counter, pos.y }, font);
+		if (c == '\n')
+		{
+			xcounter = pos.x;
+			ycounter += font.lineskip;
+		}
+		xcounter += draw_glyph(c, { xcounter, ycounter }, font);
 	}
 }
 
