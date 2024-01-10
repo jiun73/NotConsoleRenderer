@@ -19,7 +19,8 @@ enum ComputerInstructionSet
 	JUMP,
 	SHOOT,
 	WAIT,
-	IF,
+	JEZ,
+	JNZ,
 	ADD,
 	SUB,
 	GOTO,
@@ -45,7 +46,7 @@ struct WeaponRegister
 {
 	bool _signed_ = true;
 	bool readonly = false;
-	int bit = 0;
+	int bit = 5;
 	int value;
 };
 
@@ -95,6 +96,7 @@ struct WeaponError
 struct WeaponComputer
 {
 	vector<WeaponRegister> registers;
+	vector<string>* source;
 
 	int temperature = 0;
 	int maxTemp = 0;
@@ -107,20 +109,57 @@ struct WeaponComputer
 	uint32_t clockLast = 0;
 
 	size_t programCounter = 0;
+	size_t emptyCnt = 0;
 	vector<WeaponInstruction> instructions; 
 
 	bool doNotIncrCounter = false;
 
 	void shoot() { bulletType.bulletCreationFunction(); }
 
-	bool cycle()
+	bool next_instr() 
 	{
-		if (instructions.size() == 0) return true;
-		if (programCounter > instructions.size() - 1) programCounter = 0;
+		if (instructions.size() == 0) return false;
 
+		while (instructions.at(programCounter).empty)
+		{
+			programCounter++; 
+
+			if (programCounter > instructions.size() - 1) programCounter = 0;
+			
+			emptyCnt++;
+			if (emptyCnt == storage) { emptyCnt = 0; return false; }
+		}
+		emptyCnt = 0;
+		return true;
+	}
+
+	void set_register_values() 
+	{
+		for (auto& reg : registers)
+		{
+			int bits = reg.bit - reg._signed_;
+
+			int max = 0;
+			for (size_t i = 0; i < bits; i++) max |= 1 << i;
+
+			if (!reg._signed_)
+			{
+				if (reg.value < 0) reg.value = max - (-reg.value % (max + 1));
+				if (reg.value > max) reg.value = reg.value % (max + 1);
+			}
+			else
+			{
+				if (reg.value > max) reg.value = -max + (reg.value % (max + 1));
+				if (reg.value < -max) reg.value = max - (-reg.value % (max + 1));
+			}
+		}
+	}
+
+	void cycle()
+	{
 		WeaponInstruction& instruction = instructions.at(programCounter);
 
-		if (instruction.empty) { programCounter++; return false; }
+		if (instruction.empty) return;
 
 		for (size_t i = 0; i < instruction.inputs.size(); i++)
 		{
@@ -140,23 +179,23 @@ struct WeaponComputer
 
 		instruction.instructionFunction(*this, instruction);
 
-		if (doNotIncrCounter) { doNotIncrCounter = false; return true; }
-		programCounter++;
-		return true;
+		if (!doNotIncrCounter)  
+			programCounter++;
+		else
+			doNotIncrCounter = false;
 	}
 
 	void tick()
 	{
 		uint32_t timeSinceLast = SDL_GetTicks() - clockLast;
-
-		while (timeSinceLast > clockSpeed)
+		
+		if (timeSinceLast > clockSpeed)
 		{
-			
-			if(cycle())
-			timeSinceLast -= clockSpeed;
+			cycle();
+			set_register_values();
+			next_instr();
+			clockLast = SDL_GetTicks();
 		}
-
-		clockLast = SDL_GetTicks() - timeSinceLast;
 	}
 };
 
@@ -164,7 +203,8 @@ enum InstructionArgTypes
 {
 	ARG_REGISTER,
 	ARG_VALUE,
-	ARG_ADDRESS
+	ARG_ADDRESS,
+	ARG_DATA
 };
 
 struct Instruction 
@@ -180,7 +220,6 @@ Instruction get_instruction(ComputerInstructionSet type)
 	case LOAD:
 		return { [](WeaponComputer& computer, WeaponInstruction& data)
 			{
-				std::cout << data[1] << " " << data[2] << std::endl;
 				computer.registers.at(data[2]).value = data[1];
 			}, {ARG_VALUE, ARG_REGISTER} };
 	case JUMP:
@@ -188,7 +227,7 @@ Instruction get_instruction(ComputerInstructionSet type)
 			{
 				computer.programCounter += data[1];
 				computer.doNotIncrCounter = true;
-			}, {ARG_ADDRESS} };
+			}, {ARG_VALUE} };
 	case SHOOT:
 		return { [](WeaponComputer& computer, WeaponInstruction& data)
 			{
@@ -199,8 +238,24 @@ Instruction get_instruction(ComputerInstructionSet type)
 			{
 				computer.clockLast += data[1];
 			}, {ARG_VALUE} };
-	case IF:
-		break;
+	case JEZ:
+		return { [](WeaponComputer& computer, WeaponInstruction& data)
+			{
+				if (data[1] == 0)
+				{
+					computer.programCounter = data[2];
+					computer.doNotIncrCounter = true;
+				}
+			}, {ARG_VALUE, ARG_ADDRESS} };
+	case JNZ:
+		return { [](WeaponComputer& computer, WeaponInstruction& data)
+			{
+				if (data[1] != 0)
+				{
+					computer.programCounter = data[2];
+					computer.doNotIncrCounter = true;
+				}
+			}, {ARG_VALUE, ARG_ADDRESS} };
 	case ADD:
 		return { [](WeaponComputer& computer, WeaponInstruction& data)
 			{
@@ -226,9 +281,7 @@ Instruction get_instruction(ComputerInstructionSet type)
 			}, {ARG_REGISTER, ARG_REGISTER} };
 	case VALUE:
 		return { [](WeaponComputer& computer, WeaponInstruction& data)
-			{
-				computer.cycle();
-			}, { ARG_VALUE } };
+			{}, { ARG_DATA } };
 	case WRITE:
 		return { [](WeaponComputer& computer, WeaponInstruction& data)
 			{
@@ -237,17 +290,21 @@ Instruction get_instruction(ComputerInstructionSet type)
 				val.instructionFunction = get_instruction(VALUE).function;
 				val.inputs.at(0) = data[1];
 				val[1] = data[1];
+				val.data = true;
 
 				computer.instructions.at(data[2]) = val;
+				computer.source->at(data[2]) = "VALUE " + std::to_string(data[1]);
 			}, { ARG_VALUE, ARG_ADDRESS} };
 	case READ:
 		return { [](WeaponComputer& computer, WeaponInstruction& data)
 			{
 				WeaponInstruction& instr = computer.instructions.at(data[1]);
-				if (instr.data)
+				if (!instr.empty && instr.data)
 				{
-					computer.registers.at(data[2]).value = instr[1];
+					computer.registers.at(data[2]).value = instr.inputs.at(0);
 				}
+				else
+					computer.registers.at(data[2]).value = 0;
 			}, {ARG_ADDRESS, ARG_REGISTER} };
 	case HALT:
 		break;
@@ -258,19 +315,20 @@ Instruction get_instruction(ComputerInstructionSet type)
 
 ComputerInstructionSet get_instruction_type(string type)
 {
-	if (type == "LOAD") return LOAD;
-	if (type == "JUMP") return JUMP;
-	if (type == "SHOOT") return SHOOT;
-	if (type == "WAIT") return WAIT;
-	if (type == "IF") return IF;
-	if (type == "ADD") return ADD;
-	if (type == "SUB") return SUB;
-	if (type == "GOTO") return GOTO;
-	if (type == "SWAP") return SWAP;
-	if (type == "VALUE") return VALUE;
-	if (type == "WRITE") return WRITE;
-	if (type == "READ") return READ;
-	if (type == "HALT") return HALT;
+	if (type == "LOAD")		return LOAD;
+	if (type == "JUMP")		return JUMP;
+	if (type == "SHOOT")	return SHOOT;
+	if (type == "WAIT")		return WAIT;
+	if (type == "JEZ")		return JEZ;
+	if (type == "JNZ")		return JNZ;
+	if (type == "ADD")		return ADD;
+	if (type == "SUB")		return SUB;
+	if (type == "GOTO")		return GOTO;
+	if (type == "SWAP")		return SWAP;
+	if (type == "VALUE")	return VALUE;
+	if (type == "WRITE")	return WRITE;
+	if (type == "READ")		return READ;
+	if (type == "HALT")		return HALT;
 	return INVALID;
 }
 
@@ -280,6 +338,7 @@ using std::all_of;
 struct WeaponParser 
 {
 	WeaponComputer computer;
+	vector<string> source;
 
 	size_t get_true_offset(const vector<string>& args, size_t offset)
 	{
@@ -291,7 +350,7 @@ struct WeaponParser
 		return ret;
 	}
 
-	WeaponError load_intruction(const string& line)
+	WeaponError load_intruction(const string& line, size_t i )
 	{
 		vector<string> args = split(line, ' ');
 
@@ -313,6 +372,8 @@ struct WeaponParser
 			is = false;
 		}
 
+		if (info.args_types.size() < args.size() - 1) return { get_true_offset(args, args.size()), ERROR_TOO_MANY_ARGS };
+
 		new_intruction.instructionFunction = info.function;
 		for (size_t i = 1; i < args.size(); i++)
 		{
@@ -324,7 +385,10 @@ struct WeaponParser
 
 			switch (info.args_types.at(i - 1))
 			{
-			case ARG_VALUE:
+			case ARG_DATA:
+				new_intruction.data = true;
+				[[fallthrough]];
+			case ARG_VALUE: 
 			{
 				bool isRegisterValue = all_of(arg.begin(), arg.end(), isupper);
 				bool isConstantValue = all_of(arg.begin(), arg.end(), isdigit);
@@ -369,10 +433,9 @@ struct WeaponParser
 			}
 		}
 
-		if (info.args_types.size() < args.size() - 1) return { get_true_offset(args, args.size()), ERROR_TOO_MANY_ARGS };
 		if (info.args_types.size() > args.size() - 1) return { get_true_offset(args, args.size()), ERROR_NOT_ENOUGH_ARGS };
 
-		computer.instructions.push_back(new_intruction);
+		computer.instructions.at(i) = new_intruction;
 
 		return {};
 	}
@@ -381,13 +444,14 @@ struct WeaponParser
 	{
 		computer.instructions.clear();
 		computer.instructions.resize(computer.storage);
-		vector<string> lines = split(code, '\n');
+		computer.source = &source;
+		//vector<string> lines = split(code, '\n');
 		vector<WeaponError> errors;
 
 		size_t i = 0;
-		for (auto& line : lines)
+		for (auto& line : source)
 		{
-			WeaponError error = load_intruction(line);
+			WeaponError error = load_intruction(line, i);
 			error.line = i;
 			if (error.type != ERROR_NONE)
 			{
@@ -399,3 +463,25 @@ struct WeaponParser
 		return errors;
 	}
 };
+
+inline std::string get_error_message(const WeaponError& error)
+{
+	switch (error.type)
+	{
+	case ERROR_INVALID_ARGUMENT:
+		switch (error.subtype) {
+		case ERROR_EXPECTING_VALUE:		return "Argument invalid! expected: constant or register";
+		case ERROR_EXPECTING_REGISTER:	return "Argument invalid! expected: register";
+		case ERROR_EXPECTING_ADDRESS:	return "Argument invalid! expected: address or register";
+		case ERROR_EXPECTING_ARGUMENT:	return "Argument invalid! expected: non-empty argument";
+		default: return "Argument invalid!";
+		}
+
+	case ERROR_NOT_A_REGISTER:		return "Register not available!";
+	case ERROR_NOT_IN_INVENTORY:	return "Not enough tokens in inventory!";
+	case ERROR_TOO_MANY_ARGS:		return "Too many arguments!";
+	case ERROR_NOT_ENOUGH_ARGS:		return "Not enough arguments!";
+	case ERROR_INVALID_INSTRUCTION:	return "Instruction doesn't exist!";
+	default:						return "Something went wrong!";
+	}
+}

@@ -24,6 +24,7 @@ public:
 
 	bool locked = false;
 	bool numberInputOnly = false;
+	bool lockInputsInTextmode = true;
 
 	KeyboardInput();
 	~KeyboardInput() 
@@ -42,7 +43,7 @@ public:
 	//Start the collection of data typed as a string
 	void openTextInput() { SDL_StartTextInput(); textmode = true; }
 	void closeTextInput() { SDL_StopTextInput(); textmode = false; }
-	string getTextInput();
+	string& getTextInput();
 
 	template<typename T> void	quickKeyboardControl(Vector2D<T>& pos, int force);
 	template<typename T> void	quickKeyboardControlWASD(Vector2D<T>& pos, int force);
@@ -59,7 +60,7 @@ class MouseInput
 private:
 	Uint32 last = 0;
 	Uint32 current = 0;
-	SDL_Event event;
+	SDL_Event event = SDL_Event();
 	int scrolly = 0;
 
 public:

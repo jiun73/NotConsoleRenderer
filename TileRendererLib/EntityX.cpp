@@ -43,7 +43,7 @@ ComponentData EntityManagerX::get_entity_component_data(EntityID eid, ComponentI
 {
 	size_t key = entities.at(eid);
 
-	ArchetypeX& arch = archetypes.at(key);
+	ArchetypeX& arch = archetypes.at((ComponentBytes)key);
 	size_t index = arch.redirects.at(eid);
 
 	size_t size = factories.at(cid)->size();
@@ -55,7 +55,7 @@ ComponentData EntityManagerX::get_entity_component_data(EntityID eid, ComponentI
 void EntityManagerX::remove_entity(EntityID eid)
 {
 	size_t key = entities.at(eid);
-	ArchetypeX& archetype = archetypes.at(key);
+	ArchetypeX& archetype = archetypes.at((ComponentBytes)key);
 
 	size_t oldIndex = archetype.redirects.at(eid);
 	size_t latestIndex = archetype.entityCount - 1;
@@ -107,7 +107,7 @@ EntityID EntityManagerX::add_entity(const vector<ComponentID>& list)
 {
 	ComponentBytes byteform = get_bytes_from_list(list);
 
-	int componentCount = list.size();
+	int componentCount = (int)list.size();
 
 	if (!archetypes.count(byteform)) //if archetype doesn't exist, create it
 	{

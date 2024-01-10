@@ -10,6 +10,8 @@
 
 #undef main	
 
+using std::pair;
+
 /*
 * C'est ici qu'il y a tout les fonction que tu peut appeller avec mon engine
 */
@@ -142,20 +144,39 @@ FontID load_font(const string& path);
 * la ligne ou la police apparait dans le fichier 'Fonts/fonts.hint'
 */
 const Font& get_font(FontID i);
+void set_font_pencil(const Color& color, const Font& font);
 
-int draw_glyph(const char& character, const V2d_i& pos, const Font& font);
+int draw_glyph(const char& character, const V2d_i& pos, const Font& font, int kerning = 0);
 
 /*
-* Dessine du simple texte aligné vers la gauche.supporte les retours de ligne
+* Dessine du simple texte aligné vers la gauche. supporte les retours de ligne
 * \param 'font' est une police d'écriture obtenu avec get_font()
 * \param 'pos' est le coin en haut à gauche du texte
 */
 void draw_simple_text(const string& text, const V2d_i& pos, const Font& font);
 
+void draw_text(const string& text, const int& max_width, const V2d_i& pos, const Font& font);
+
+void draw_line(const string& text, const V2d_i& pos, const Font& font);
+
+int get_text_draw_size(const string& text, const Font& font);
+
+namespace hidden 
+{
+	int get_text_draw_size(string::const_iterator begin, string::const_iterator end, const Font& font);
+	pair<string::const_iterator, string::const_iterator> get_text_range_max_size(int max_size, string::const_iterator begin, string::const_iterator end, const Font& font);
+	pair<string::const_iterator, string::const_iterator> get_text_range_linebreak(string::const_iterator begin, string::const_iterator end);
+	void draw_line_range(string::const_iterator begin, string::const_iterator end, const V2d_i& pos, const Font& font);
+}
+
 //----------------------------------------------------------ALEATOIRE-------------------------------------------------------------------------
 
 //retourne un 'Random' (Voir la classe dans Random.h)
 Random& random();
+
+//----------------------------------------------------------COLLISION-------------------------------------------------------------------------
+
+bool point_in_rectangle(const V2d_i& point, const Rect& rectangle);
 
 //----------------------------------------------------------UTILITAIRE------------------------------------------------------------------------
 

@@ -23,7 +23,7 @@ namespace hidden {
 	const int fps = 120;
 	Uint32 frameStart = 0;
 	Uint32 frameTime = 0;
-	Uint32 frameDelay = 1000.0 / fps;
+	Uint32 frameDelay = (Uint32)(1000.0 / fps);
 
 	KeyboardInput _keyboard;
 	MouseInput _mouse;
@@ -215,6 +215,12 @@ Random& random()
 	return _random;
 }
 
+bool point_in_rectangle(const V2d_i& point, const Rect& rectangle)
+{
+	return	((point.x >= rectangle.pos.x) && (point.x <= rectangle.pos.x + rectangle.sz.x)) && 
+			((point.y >= rectangle.pos.y) && (point.y <= rectangle.pos.y + rectangle.sz.y));
+}
+
 double lerp(double a, double b, double t)
 {
 	return a + t * (b - a);
@@ -306,11 +312,18 @@ const Font& get_font(FontID i)
 	return _fonts.get(i);
 }
 
-int draw_glyph(const char& character, const V2d_i& pos, const Font& font)
+void set_font_pencil(const Color& color, const Font& font)
+{
+	font.set_color(color);
+}
+
+int draw_glyph(const char& character, const V2d_i& pos, const Font& font, int kerning)
 {
 	const Glyph& glyph = font.get(character);
-	Rect dest = { pos, glyph.source.sz };
-	SDL_RenderCopy(sdl_ren, font.atlas, &glyph.sdl_src, dest.SDL());
+	SDL_Rect dest = glyph.sdl_dest;
+	dest.x += pos.x + kerning;
+	dest.y += pos.y;
+	SDL_RenderCopy(sdl_ren, font.atlas, &glyph.sdl_src, &dest);
 	return glyph.advance;
 }
 
@@ -324,8 +337,97 @@ void draw_simple_text(const string& text, const V2d_i& pos, const Font& font)
 		{
 			xcounter = pos.x;
 			ycounter += font.lineskip;
+			continue;
 		}
 		xcounter += draw_glyph(c, { xcounter, ycounter }, font);
 	}
+}
+
+void draw_text(const string& text, const int& max_width, const V2d_i& pos, const Font& font)
+{
+	string::const_iterator current = text.cbegin();
+
+	int ycounter = 0;
+	while (current != text.cend())
+	{
+		auto lineskip_range = get_text_range_linebreak(current, text.cend());
+		auto current_in_range = lineskip_range.first;
+
+		while (current_in_range != lineskip_range.second)
+		{
+			auto size_range = get_text_range_max_size(max_width, current_in_range, lineskip_range.second, font);
+
+			draw_line_range(size_range.first, size_range.second, pos + V2d_i(0, ycounter), font);
+			ycounter += font.lineskip;
+
+			current_in_range = size_range.second;
+		}
+		
+		
+
+		current = lineskip_range.second;
+	}
+}
+
+void hidden::draw_line_range(string::const_iterator begin, string::const_iterator end, const V2d_i& pos, const Font& font)
+{
+	V2d_i counter = pos;
+	char prev = 0;
+	for (auto it = begin; it != end; it++) 
+	{
+		int kerning = 0;
+		if (prev != 0)
+		{
+			kerning = font.get_kerning((Uint16)prev, (Uint16)*it);
+		}
+		counter.x += draw_glyph(*it, counter, font);
+		prev = *it;
+	}
+}
+
+void draw_line(const string& text, const V2d_i& pos, const Font& font)
+{
+	draw_line_range(text.cbegin(), text.cend(), pos, font);
+}
+
+int hidden::get_text_draw_size(string::const_iterator begin, string::const_iterator end, const Font& font)
+{
+	int counter = 0;
+	for (auto it = begin; it != end; it++)
+	{
+		const Glyph& glyph = font.get(*it);
+		counter += glyph.advance;
+	}
+	return counter;
+}
+
+pair<string::const_iterator, string::const_iterator> hidden::get_text_range_max_size(int max_size, string::const_iterator begin, string::const_iterator end, const Font& font)
+{
+	int counter = 0;
+	for (auto it = begin; it != end; it++)
+	{
+		const Glyph& glyph = font.get(*it);
+		counter += glyph.advance;
+
+		if (counter > max_size)
+			return { begin, it };
+	}
+
+	return {begin, end};
+}
+
+pair<string::const_iterator, string::const_iterator> hidden::get_text_range_linebreak(string::const_iterator begin, string::const_iterator end)
+{
+	for (auto it = begin; it != end; it++)
+	{
+		if (*it == '\n')
+			return { begin, it + 1 };
+	}
+	return { begin, end };
+}
+
+int get_text_draw_size(const string& text, const Font& font)
+{
+	return hidden::get_text_draw_size(text.cbegin(), text.cend(), font);
 }
 

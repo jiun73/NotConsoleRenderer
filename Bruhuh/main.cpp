@@ -183,9 +183,16 @@ SystemXManagerAdder<0, Collision_system, Shape_x, Collider_x, Position_x> collis
 
 #include "Weapons.h"
 
+inline int margin = 200;
+
+enum Fonts 
+{
+	FONT_PIXEL
+};
+
 int main()
 {
-	set_window_size(800);
+	set_window_size({800 + margin * 2,800});
 	set_window_resizable();
 
 	init();
@@ -239,69 +246,162 @@ int main()
 		{
 			std::cout << "pew!" << std::endl;
 		};
-	parser.computer.storage = 100;
+	parser.computer.storage = 25;
+	parser.computer.clockSpeed = 10;
+
+	bool edit = true;
+	bool inputWasEmpty = false;
+	int current_selected_line = 0;
+
+	const Font& pixel_font = get_font(FONT_PIXEL);
+
+	auto change_line = [&](int n)
+		{
+			current_selected_line = n;
+
+			current_selected_line = std::max(current_selected_line, 0);
+			current_selected_line = std::min(current_selected_line, parser.computer.storage - 1);
+
+			keyboard().getTextInput() = parser.source.at(current_selected_line);
+		};
+
+	keyboard().lockInputsInTextmode = false;
+
 	while (run())
 	{
 		pencil(COLOR_CYAN);
 		draw_clear();
 
-		/*pencil(COLOR_PINK);
+		pencil(COLOR_BLACK);
+		draw_full_rect({ 0, {margin,800} });
+		draw_full_rect({ {800 + margin, 0}, {margin,800} });
 
-		keyboard().openTextInput();
-		draw_text(keyboard().getTextInput(), 10, 2);
+		Rect dest;
+		dest.pos = { 0, pixel_font.height * ((int)(parser.computer.programCounter)) };
+		dest.sz = { margin, pixel_font.height };
+		pencil(rgb(100,100,100));
+		draw_full_rect(dest);
+
+		size_t i = 0;
+		for (auto& lines : parser.source)
+		{
+			if(parser.computer.instructions.at(i).data)
+				set_font_pencil(COLOR_GREEN, pixel_font);
+			else
+				set_font_pencil(COLOR_WHITE, pixel_font);
+			draw_text(lines, 800, {0, (int)i * pixel_font.height}, pixel_font);
+			i++;
+		}
+		
+		parser.source.resize(parser.computer.storage);
+
+		if (edit)
+		{
+			string& input = keyboard().getTextInput();
+			keyboard().openTextInput();
+			parser.source.at(current_selected_line) = input;
+
+			if (key_pressed(SDL_SCANCODE_RETURN))
+			{
+				input.pop_back();
+				parser.source.at(current_selected_line) = input;
+
+				change_line(current_selected_line + 1);
+				if (parser.source.back() == "")
+				{
+					
+					parser.source.insert(parser.source.begin() + current_selected_line, "");
+					size_t i = current_selected_line + 1;
+					for (auto it = parser.source.begin() + current_selected_line + 1; it != parser.source.end(); it++)
+					{
+						if (i >= parser.computer.storage) break;
+						if (parser.computer.instructions.at(i - 1).data)
+						{
+							std::swap(parser.source.at(i), parser.source.at(i - 1));
+						}
+						i++;
+					}
+					keyboard().getTextInput() = parser.source.at(current_selected_line);
+					parser.source.pop_back();
+				}
+			}
+
+			if (key_pressed(SDL_SCANCODE_BACKSPACE) && input.empty() && inputWasEmpty)
+			{
+				change_line(current_selected_line - 1);
+			}
+
+			if (key_pressed(SDL_SCANCODE_UP))
+			{
+				change_line(current_selected_line - 1);
+			}
+
+			if (key_pressed(SDL_SCANCODE_DOWN))
+			{
+				change_line(current_selected_line + 1);
+			}
+
+			Rect dest;
+			dest.pos = { get_text_draw_size(input, pixel_font), current_selected_line * pixel_font.height};
+			dest.sz = { pixel_font.get('A').sdl_dest.w, pixel_font.get('A').sdl_dest.h };
+
+			pencil(COLOR_WHITE);
+			draw_full_rect(dest);
+
+			inputWasEmpty = input.empty();
+		}
+
 		std::vector<WeaponError> errors = parser.load(keyboard().getTextInput());
+
+		
+		
+		for (size_t i = 0; i < parser.source.size(); i++)
+		{
+			Rect dest;
+			dest.pos = { 0, pixel_font.height * (int)i };
+			dest.sz = { margin, pixel_font.height };
+
+			if (point_in_rectangle(mouse_position(), dest))
+			{
+				if (mouse_left_pressed())
+				{
+					change_line(i);
+				}
+				pencil(COLOR_WHITE);
+			}
+			else
+				pencil(COLOR_BLACK);
+
+			draw_rect(dest);
+		}
+
+		pencil(COLOR_PINK);
 
 		for (auto& error : errors)
 		{
-			Rect dest;
-			dest.pos = { (int)error.offset * 24, error.line * 24 };
-			dest.sz = 35;
-			draw_rect(dest);
-			switch (error.type)
+			//string& line_text = lines.at(error.line);
+			string line_text = keyboard().getTextInput();
+			int text_size;
+			char character;
+			error.offset -= 2;
+
+			if (line_text.size() > error.offset)
 			{
-			case ERROR_NOT_A_REGISTER:
-				std::cout << "Register not available!" << std::endl;
-				break;
-			case ERROR_NOT_IN_INVENTORY:
-				std::cout << "Not enough tokens in inventory!" << std::endl;
-				break;
-			case ERROR_INVALID_ARGUMENT:
-				std::cout << "Argument invalid! expected: ";
-				
-				switch (error.subtype)
-				{
-				case ERROR_EXPECTING_VALUE:
-					std::cout << "constant or register";
-					break;
-				case ERROR_EXPECTING_REGISTER:
-					std::cout << "register";
-					break;
-				case ERROR_EXPECTING_ADDRESS:
-					std::cout << "address or register";
-					break;
-				case ERROR_EXPECTING_ARGUMENT:
-					std::cout << "non-empty argument";
-					break;
-				default:
-					break;
-				}
-
-				std::cout << std::endl;
-
-				break;
-			case ERROR_TOO_MANY_ARGS:
-				std::cout << "Too many arguments!" << std::endl;
-				break;
-			case ERROR_NOT_ENOUGH_ARGS:
-				std::cout << "Not enough arguments!" << std::endl;
-				break;
-			case ERROR_INVALID_INSTRUCTION:
-				std::cout << "Instruction doesn't exist!" << std::endl;
-				break;
-			
-			default:
-				break;
+				text_size = hidden::get_text_draw_size(line_text.cbegin(), line_text.cbegin() + error.offset, pixel_font);
+				character = line_text.at(error.offset);
 			}
+			else
+			{
+				text_size = 0;
+				character = 'a';
+			}
+
+			Rect dest;
+			dest.pos = { text_size, error.line * pixel_font.height };
+			dest.sz = {pixel_font.get(character).advance,pixel_font.height};
+			draw_rect(dest);
+
+			draw_simple_text(get_error_message(error), { margin, error.line * pixel_font.height }, pixel_font);
 		}
 
 		if (mouse_left_held())
@@ -310,10 +410,12 @@ int main()
 			parser.computer.tick();
 		}
 
-		Rect dest;
-		dest.pos = { 0, (int)parser.computer.programCounter * 24 };
-		dest.sz = 35;
-		draw_rect(dest);
+		if (mouse_right_pressed())
+		{
+			parser.computer.registers.resize(27);
+			parser.computer.clockLast = SDL_GetTicks() - parser.computer.clockSpeed * 2;
+			parser.computer.tick();
+		}
 
 		for (size_t i = 0; i < parser.computer.registers.size(); i++)
 		{
@@ -322,12 +424,8 @@ int main()
 			s.at(0) = c;
 
 			string ss = "" + s + ": " + std::to_string(parser.computer.registers.at(i).value);
-			draw_text(ss, { 0,300 + (int)i * 24 }, 2);
-		}*/
-
-		draw_simple_text("Lorem ipsum dolor sit amet. Qui minima voluptate est quia tenetur est perspiciatis corporis. Quo consequatur neque eum aperiam laborum a vero quam nam illo minima non iste enim aut accusantium sunt. Et voluptatem voluptatem et aliquam aliquam ut libero enim.Et quasi aspernatur non modi soluta aut velit voluptatem et quia nihil aut sequi nulla ex ducimus aliquid nam enim dolor.Et voluptates quis id magnam ipsa sit impedit voluptates qui asperiores nihil in porro autem aut distinctio repudiandae aut labore itaque.Ut tempore galisum cum aperiam corporis et enim maxime non animi quisquam qui soluta nulla.Est beatae rerum qui culpa omnis vel maxime magnam et maxime tenetur vel corporis autem sit nostrum ipsa 33 velit labore.Qui assumenda nihil et necessitatibus debitis qui tempora sunt hic adipisci aliquid et deleniti nemo ad rerum sequi.Eum asperiores maiores a eius recusandae ad earum illum.Est sequi repudiandae ut placeat aliquid in provident minima ut voluptatem corporis.",0, get_font(1));
-
-		//fonts().get(0).render_atlas();
+			draw_text(ss, 800, { 0,300 + (int)i * 24 }, get_font(0));
+		}
 	}
 
 	return 0;

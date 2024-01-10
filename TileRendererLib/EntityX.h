@@ -325,7 +325,7 @@ class SystemXManagerFactory : public SystemX
 class EntityManagerX
 {
 private:
-	array<ComponentX*, MAX_COMPONENT> factories;
+	array<ComponentX*, MAX_COMPONENT> factories = {};
 	unordered_map<ComponentBytes, ArchetypeX> archetypes;
 	multimap<uint8_t, SystemX*> systems;
 	map<SystemID, SystemX*> systems_by_id;
@@ -337,8 +337,8 @@ private:
 
 	vector<pair<EntityID, function<void(EntityID)>>> callbacks;
 
-	ComponentBytes current_arch;
-	size_t index;
+	ComponentBytes current_arch = 0;
+	size_t index = 0;
 
 	void add_archetype(ComponentBytes key);
 	void add_system(uint8_t layer, SystemX* system, SystemID id);

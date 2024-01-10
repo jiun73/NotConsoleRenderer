@@ -89,7 +89,7 @@ KeyboardInput::KeyboardInput()
 
 void KeyboardInput::update()
 {
-	if (!textmode)
+	if (!textmode || (textmode && !lockInputsInTextmode))
 	{
 		first_update = false;
 		memcpy(last, state, numkeys); //copy state to last
@@ -168,7 +168,7 @@ void KeyboardInput::quickKeyboardSelect(V2d_i& pos)
 		pos.x += 1;
 }
 
-string KeyboardInput::getTextInput()
+string& KeyboardInput::getTextInput()
 {
 	return text_in;
 }
