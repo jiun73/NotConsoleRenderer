@@ -16,6 +16,9 @@
     <Filter Include="Source Files\Components">
       <UniqueIdentifier>{05a8aaa1-8e63-4547-b8b3-75c8ad988bf2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\WeaponComputer">
+      <UniqueIdentifier>{2172d68b-ccaf-43c7-b510-4a7380569793}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -27,11 +30,14 @@
     <ClCompile Include="GameGlobalData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Weapons.cpp">
+      <Filter>Source Files\WeaponComputer</Filter>
+    </ClCompile>
+    <ClCompile Include="WeaponParser.cpp">
+      <Filter>Source Files\WeaponComputer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Weapons.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="BasicComponents.h">
       <Filter>Source Files\Components</Filter>
     </ClInclude>
@@ -52,6 +58,21 @@
     </ClInclude>
     <ClInclude Include="CollisionComponent.h">
       <Filter>Source Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Weapons.h">
+      <Filter>Source Files\WeaponComputer</Filter>
+    </ClInclude>
+    <ClInclude Include="WeaponErrors.h">
+      <Filter>Source Files\WeaponComputer</Filter>
+    </ClInclude>
+    <ClInclude Include="WeaponHelpers.h">
+      <Filter>Source Files\WeaponComputer</Filter>
+    </ClInclude>
+    <ClInclude Include="WeaponIntructions.h">
+      <Filter>Source Files\WeaponComputer</Filter>
+    </ClInclude>
+    <ClInclude Include="WeaponParser.h">
+      <Filter>Source Files\WeaponComputer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

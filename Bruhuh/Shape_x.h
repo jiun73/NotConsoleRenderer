@@ -233,7 +233,7 @@ struct GJK
 		}
 	}
 
-	double distance;
+	double distance = 0;
 	V2d_d point;
 	pair<V2d_d, V2d_d> edge;
 

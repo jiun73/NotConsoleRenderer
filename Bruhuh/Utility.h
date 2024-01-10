@@ -180,11 +180,11 @@ void draw_text_b(string s, V2d_i pos, double scale = 1)
 		if (c == '\n')
 		{
 			pos.x = basex;
-			pos.y += 12 * scale;
+			pos.y += (int)(12.0 * scale);
 			continue;
 		}
 
 		draw_letter(c, pos + 5 * scale, scale);
-		pos.x += 12 * scale;
+		pos.x += (int)(12.0 * scale);
 	}
 }

@@ -24,3 +24,14 @@ inline vector<string> split(const string& str, const char delim)
 		last = pos + 1;
 	}
 }
+
+#include <regex>
+
+inline bool isNum(const std::string& s) { return std::regex_match(s, std::regex("-?[0-9]+")); }
+
+inline int destringify(const string& str, int& target) 
+{
+	if (!isNum(str)) return false;
+	target = std::stoi(str);
+	return true;
+}

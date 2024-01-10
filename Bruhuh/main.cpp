@@ -24,7 +24,6 @@ ComponentXAdder<Collider_x> collider_adder;
 ComponentXAdder<AI_x> ai_adder;
 
 #include "BasicSystems.h"
-
 #include "GameGlobalData.h"
 
 struct PlayerMoveParticle_system 
@@ -181,14 +180,205 @@ SystemXAdder<1, AI_system, AI_x, Angle_x, Position_x, Physics_x> ai_system_adder
 SystemXAdder<1, Health_system, Health_x> health_system_adder;
 SystemXManagerAdder<0, Collision_system, Shape_x, Collider_x, Position_x> collision_system_adder;
 
-#include "Weapons.h"
+#include "WeaponParser.h"
 
-inline int margin = 200;
+inline const int margin = 200;
+inline const int window = 800;
+inline const Rect left_border = { 0, {margin, window} };
+inline const Rect right_border = { {margin + window,0}, {margin, window} };
+inline const Rect main_window = { {margin, 0}, window };
 
 enum Fonts 
 {
 	FONT_PIXEL
 };
+
+void render_intructions(const WeaponParser& parser, const Font& font, bool editing)
+{
+	size_t i = 0;
+	for (auto& lines : parser.source)
+	{
+		if (parser.computer->instructions.at(i).data)
+			set_font_pencil(COLOR_GREEN, font);
+		else
+			if (editing)
+				set_font_pencil(COLOR_WHITE, font);
+			else
+				set_font_pencil(rgb(100, 100, 100), font);
+
+		draw_text(lines, 800, { 0, (int)i * font.height }, font);
+		i++;
+	}
+}
+
+void change_line(const WeaponParser& parser, int& current_line, int n)
+{
+	current_line = n;
+	current_line = std::max(current_line, 0);
+	current_line = std::min(current_line, parser.computer->storage - 1);
+	keyboard().getTextInput() = parser.source.at(current_line);
+}
+
+void render_registers(const WeaponParser& parser)
+{
+	for (size_t i = 0; i < parser.computer->registers.size(); i++)
+	{
+		WeaponRegister& reg = parser.computer->registers.at(i);
+		char c = 'A' + (char)i;
+		string s = "  " + std::to_string(reg.bit - reg._signed_) + "-bit";
+		s.at(0) = c;
+
+		string ss = "" + s + ": " + std::to_string(parser.computer->registers.at(i).value);
+		draw_text(ss, 800, { 0,300 + (int)i * 24 }, get_font(0));
+	}
+}
+
+void load_sounds()
+{
+	sound().loadSound("Sounds/shoot_sfx1.wav");
+	sound().loadSound("Sounds/shoot_sfx2.wav");
+	sound().loadSound("Sounds/shoot_sfx3.wav");
+	sound().loadSound("Sounds/shoot_sfx4.wav");
+}
+
+void set_collision_pairs() 
+{
+	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_TESTOBJ, TAG_PLAYER_ | TAG_TESTOBJ | TAG_ENEMY__, CTYPE_PUSH);
+	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_TESTOBJ, TAG_PBULLET | TAG_EBULLET, CTYPE_DESTROY);
+	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_PBULLET, TAG_ENEMY__, CTYPE_HURT);
+	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_EBULLET, TAG_PLAYER_, CTYPE_HURT);
+	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_ENEMY__, TAG_PBULLET, CTYPE_DESTROY);
+	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_ENEMY__, TAG_ENEMY__, CTYPE_PUSH);
+	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_PLAYER_, TAG_EBULLET, CTYPE_DESTROY);
+}
+
+void render_errors(vector<WeaponError>& errors, const Font& font) 
+{
+	pencil(COLOR_PINK);
+
+	for (auto& error : errors)
+	{
+		string line_text = keyboard().getTextInput();
+		int text_size;
+		char character;
+		error.offset -= 2;
+
+		if (line_text.size() > error.offset)
+		{
+			text_size = hidden::get_text_draw_size(line_text.cbegin(), line_text.cbegin() + error.offset, font);
+			character = line_text.at(error.offset);
+		}
+		else
+		{
+			text_size = 0;
+			character = 'a';
+		}
+
+		Rect dest;
+		dest.pos = { text_size, error.line * font.height };
+		dest.sz = { font.get(character).advance,font.height };
+		draw_rect(dest);
+
+		draw_simple_text(get_error_message(error), { margin, error.line * font.height }, font);
+	}
+}
+
+void render_line_selection(const WeaponParser& parser, const Font& font) 
+{
+	for (size_t i = 0; i < parser.source.size(); i++)
+	{
+		Rect dest;
+		dest.pos = { 0, font.height * (int)i };
+		dest.sz = { margin, font.height };
+
+		if (point_in_rectangle(mouse_position(), dest))
+			pencil(COLOR_WHITE);
+		else
+			pencil(COLOR_BLACK);
+
+		draw_rect(dest);
+	}
+}
+
+void handle_line_selection(const WeaponParser& parser, const Font& font, int& selected_line) 
+{
+	for (size_t i = 0; i < parser.source.size(); i++)
+	{
+		Rect dest;
+		dest.pos = { 0, font.height * (int)i };
+		dest.sz = { margin, font.height };
+
+		if (point_in_rectangle(mouse_position(), dest) && mouse_left_pressed()) change_line(parser, selected_line, (int)i);
+	}
+}
+
+void render_cursor(const string& input, const int& selected_line, const Font& font)
+{
+	Rect dest;
+	dest.pos = { get_text_draw_size(input, font), selected_line * font.height };
+	dest.sz = { font.get('A').sdl_dest.w, font.get('A').sdl_dest.h };
+	pencil(COLOR_WHITE);
+	draw_full_rect(dest);
+}
+
+void handle_new_line_insert(WeaponParser& parser, const int& selected_line)
+{
+	if (parser.source.back() == "")
+	{
+		parser.source.insert(parser.source.begin() + selected_line, "");
+		size_t i = selected_line + 1;
+		for (auto it = parser.source.begin() + selected_line + 1; it != parser.source.end(); it++) //ensure that data intruction don't change addresses
+		{
+			if (i >= parser.computer->storage) break;
+			if (parser.computer->instructions.at(i - 1).data)
+				std::swap(parser.source.at(i), parser.source.at(i - 1));
+			i++;
+		}
+		keyboard().getTextInput() = parser.source.at(selected_line);
+		parser.source.pop_back();
+	}
+}
+
+void handle_edit_mode(WeaponParser& parser, int& selected_line, const Font& font)
+{
+	keyboard().openTextInput();
+	string& input = keyboard().getTextInput();
+	parser.source.at(selected_line) = input;
+
+	if (key_pressed(SDL_SCANCODE_RETURN))
+	{
+		input.pop_back();
+		parser.source.at(selected_line) = input;
+		change_line(parser, selected_line, selected_line + 1);
+		handle_new_line_insert(parser, selected_line);
+	}
+
+	static int inputWasEmpty = false;
+	int lineMove = 0;
+
+	if (key_pressed(SDL_SCANCODE_BACKSPACE) && input.empty() && inputWasEmpty) lineMove = -1;
+	if (key_pressed(SDL_SCANCODE_UP)) lineMove = -1;
+	if (key_pressed(SDL_SCANCODE_DOWN)) lineMove = 1;
+
+	if(lineMove) change_line(parser, selected_line, selected_line + lineMove);
+	inputWasEmpty = input.empty();
+
+	auto errors = parser.load(*parser.computer);
+
+	render_cursor(input, selected_line, font);
+	render_errors(errors, font);
+	render_line_selection(parser, font);
+	handle_line_selection(parser, font, selected_line);
+}
+
+void render_program_counter(const WeaponParser& parser, const Font& font)
+{
+	Rect dest;
+	dest.pos = { 0, font.height * ((int)(parser.computer->programCounter)) };
+	dest.sz = { margin, font.height };
+	pencil(rgb(50, 50, 50));
+	draw_full_rect(dest);
+}
 
 int main()
 {
@@ -197,18 +387,8 @@ int main()
 
 	init();
 
-	sound().loadSound("Sounds/shoot_sfx1.wav");
-	sound().loadSound("Sounds/shoot_sfx2.wav");
-	sound().loadSound("Sounds/shoot_sfx3.wav");
-	sound().loadSound("Sounds/shoot_sfx4.wav");
-
-	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_TESTOBJ, TAG_PLAYER_ | TAG_TESTOBJ | TAG_ENEMY__, CTYPE_PUSH);
-	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_TESTOBJ, TAG_PBULLET | TAG_EBULLET, CTYPE_DESTROY);
-	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_PBULLET, TAG_ENEMY__, CTYPE_HURT);
-	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_EBULLET, TAG_PLAYER_, CTYPE_HURT);
-	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_ENEMY__, TAG_PBULLET, CTYPE_DESTROY);
-	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_ENEMY__, TAG_ENEMY__, CTYPE_PUSH);
-	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_PLAYER_, TAG_EBULLET, CTYPE_DESTROY);
+	load_sounds();
+	set_collision_pairs();
 
 	Object<> test_collider;
 
@@ -241,29 +421,20 @@ int main()
 		{ 0 }, {}, ENTITY_ENEMY
 	); };
 
-	WeaponParser parser;
-	parser.computer.bulletType.bulletCreationFunction = []()
-		{
-			std::cout << "pew!" << std::endl;
-		};
-	parser.computer.storage = 25;
-	parser.computer.clockSpeed = 10;
+	WeaponComputer computer;
+	computer.bulletType.bulletCreationFunction = []() {std::cout << "pew!" << std::endl;};
+	computer.storage = 25;
+	computer.clockSpeed = 50;
+	computer.registers.resize(3);
 
+	WeaponParser parser;
+	parser.load(computer);
+	
 	bool edit = true;
 	bool inputWasEmpty = false;
-	int current_selected_line = 0;
+	int selected_line = 0;
 
 	const Font& pixel_font = get_font(FONT_PIXEL);
-
-	auto change_line = [&](int n)
-		{
-			current_selected_line = n;
-
-			current_selected_line = std::max(current_selected_line, 0);
-			current_selected_line = std::min(current_selected_line, parser.computer.storage - 1);
-
-			keyboard().getTextInput() = parser.source.at(current_selected_line);
-		};
 
 	keyboard().lockInputsInTextmode = false;
 
@@ -273,158 +444,41 @@ int main()
 		draw_clear();
 
 		pencil(COLOR_BLACK);
-		draw_full_rect({ 0, {margin,800} });
-		draw_full_rect({ {800 + margin, 0}, {margin,800} });
+		draw_full_rect({ 0, {margin,window} });
+		draw_full_rect({ {window + margin, 0}, {margin,window} });
 
-		Rect dest;
-		dest.pos = { 0, pixel_font.height * ((int)(parser.computer.programCounter)) };
-		dest.sz = { margin, pixel_font.height };
-		pencil(rgb(100,100,100));
-		draw_full_rect(dest);
-
-		size_t i = 0;
-		for (auto& lines : parser.source)
-		{
-			if(parser.computer.instructions.at(i).data)
-				set_font_pencil(COLOR_GREEN, pixel_font);
-			else
-				set_font_pencil(COLOR_WHITE, pixel_font);
-			draw_text(lines, 800, {0, (int)i * pixel_font.height}, pixel_font);
-			i++;
-		}
-		
-		parser.source.resize(parser.computer.storage);
+		render_program_counter(parser, pixel_font);
+		render_intructions(parser, pixel_font, edit);
+		render_registers(parser);
 
 		if (edit)
 		{
-			string& input = keyboard().getTextInput();
-			keyboard().openTextInput();
-			parser.source.at(current_selected_line) = input;
+			handle_edit_mode(parser, selected_line, pixel_font);
 
-			if (key_pressed(SDL_SCANCODE_RETURN))
+			if (mouse_left_pressed() && point_in_rectangle(mouse_position(), main_window ))
 			{
-				input.pop_back();
-				parser.source.at(current_selected_line) = input;
-
-				change_line(current_selected_line + 1);
-				if (parser.source.back() == "")
-				{
-					
-					parser.source.insert(parser.source.begin() + current_selected_line, "");
-					size_t i = current_selected_line + 1;
-					for (auto it = parser.source.begin() + current_selected_line + 1; it != parser.source.end(); it++)
-					{
-						if (i >= parser.computer.storage) break;
-						if (parser.computer.instructions.at(i - 1).data)
-						{
-							std::swap(parser.source.at(i), parser.source.at(i - 1));
-						}
-						i++;
-					}
-					keyboard().getTextInput() = parser.source.at(current_selected_line);
-					parser.source.pop_back();
-				}
+				std::cout << "exit edit mode" << std::endl;
+				keyboard().closeTextInput();
+				edit = false;
 			}
-
-			if (key_pressed(SDL_SCANCODE_BACKSPACE) && input.empty() && inputWasEmpty)
-			{
-				change_line(current_selected_line - 1);
-			}
-
-			if (key_pressed(SDL_SCANCODE_UP))
-			{
-				change_line(current_selected_line - 1);
-			}
-
-			if (key_pressed(SDL_SCANCODE_DOWN))
-			{
-				change_line(current_selected_line + 1);
-			}
-
-			Rect dest;
-			dest.pos = { get_text_draw_size(input, pixel_font), current_selected_line * pixel_font.height};
-			dest.sz = { pixel_font.get('A').sdl_dest.w, pixel_font.get('A').sdl_dest.h };
-
-			pencil(COLOR_WHITE);
-			draw_full_rect(dest);
-
-			inputWasEmpty = input.empty();
 		}
-
-		std::vector<WeaponError> errors = parser.load(keyboard().getTextInput());
-
-		
-		
-		for (size_t i = 0; i < parser.source.size(); i++)
+		else if (mouse_left_pressed() && point_in_rectangle(mouse_position(), left_border))
 		{
-			Rect dest;
-			dest.pos = { 0, pixel_font.height * (int)i };
-			dest.sz = { margin, pixel_font.height };
-
-			if (point_in_rectangle(mouse_position(), dest))
-			{
-				if (mouse_left_pressed())
-				{
-					change_line(i);
-				}
-				pencil(COLOR_WHITE);
-			}
-			else
-				pencil(COLOR_BLACK);
-
-			draw_rect(dest);
-		}
-
-		pencil(COLOR_PINK);
-
-		for (auto& error : errors)
-		{
-			//string& line_text = lines.at(error.line);
-			string line_text = keyboard().getTextInput();
-			int text_size;
-			char character;
-			error.offset -= 2;
-
-			if (line_text.size() > error.offset)
-			{
-				text_size = hidden::get_text_draw_size(line_text.cbegin(), line_text.cbegin() + error.offset, pixel_font);
-				character = line_text.at(error.offset);
-			}
-			else
-			{
-				text_size = 0;
-				character = 'a';
-			}
-
-			Rect dest;
-			dest.pos = { text_size, error.line * pixel_font.height };
-			dest.sz = {pixel_font.get(character).advance,pixel_font.height};
-			draw_rect(dest);
-
-			draw_simple_text(get_error_message(error), { margin, error.line * pixel_font.height }, pixel_font);
+			std::cout << "enter edit mode" << std::endl;
+			edit = true;
 		}
 
 		if (mouse_left_held())
 		{
-			parser.computer.registers.resize(27);
-			parser.computer.tick();
+			parser.load(computer);
+			computer.tick();
 		}
 
 		if (mouse_right_pressed())
 		{
-			parser.computer.registers.resize(27);
-			parser.computer.clockLast = SDL_GetTicks() - parser.computer.clockSpeed * 2;
-			parser.computer.tick();
-		}
-
-		for (size_t i = 0; i < parser.computer.registers.size(); i++)
-		{
-			char c = 'A' + i;
-			string s = " ";
-			s.at(0) = c;
-
-			string ss = "" + s + ": " + std::to_string(parser.computer.registers.at(i).value);
-			draw_text(ss, 800, { 0,300 + (int)i * 24 }, get_font(0));
+			parser.load(computer);		
+			computer.clockLast = SDL_GetTicks() - computer.clockSpeed * 2;
+			computer.tick();
 		}
 	}
 

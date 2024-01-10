@@ -134,6 +134,8 @@
     <ClCompile Include="GameGlobalData.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Shape_x.cpp" />
+    <ClCompile Include="WeaponParser.cpp" />
+    <ClCompile Include="Weapons.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicComponents.h" />
@@ -143,6 +145,10 @@
     <ClInclude Include="GameGlobalData.h" />
     <ClInclude Include="Shape_x.h" />
     <ClInclude Include="Utility.h" />
+    <ClInclude Include="WeaponErrors.h" />
+    <ClInclude Include="WeaponHelpers.h" />
+    <ClInclude Include="WeaponIntructions.h" />
+    <ClInclude Include="WeaponParser.h" />
     <ClInclude Include="Weapons.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
