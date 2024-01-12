@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TileRendererLib", "TileRend
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Bruhuh", "Bruhuh\Bruhuh.vcxproj", "{066EE93E-5533-47DC-AC28-0C14184F0D34}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01- CollisionX", "01- CollisionX\01- CollisionX.vcxproj", "{63A09DC9-0E11-4700-8358-627A3F61F8DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +43,14 @@ Global
 		{066EE93E-5533-47DC-AC28-0C14184F0D34}.Release|x64.Build.0 = Release|x64
 		{066EE93E-5533-47DC-AC28-0C14184F0D34}.Release|x86.ActiveCfg = Release|Win32
 		{066EE93E-5533-47DC-AC28-0C14184F0D34}.Release|x86.Build.0 = Release|Win32
+		{63A09DC9-0E11-4700-8358-627A3F61F8DE}.Debug|x64.ActiveCfg = Debug|x64
+		{63A09DC9-0E11-4700-8358-627A3F61F8DE}.Debug|x64.Build.0 = Debug|x64
+		{63A09DC9-0E11-4700-8358-627A3F61F8DE}.Debug|x86.ActiveCfg = Debug|Win32
+		{63A09DC9-0E11-4700-8358-627A3F61F8DE}.Debug|x86.Build.0 = Debug|Win32
+		{63A09DC9-0E11-4700-8358-627A3F61F8DE}.Release|x64.ActiveCfg = Release|x64
+		{63A09DC9-0E11-4700-8358-627A3F61F8DE}.Release|x64.Build.0 = Release|x64
+		{63A09DC9-0E11-4700-8358-627A3F61F8DE}.Release|x86.ActiveCfg = Release|Win32
+		{63A09DC9-0E11-4700-8358-627A3F61F8DE}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
