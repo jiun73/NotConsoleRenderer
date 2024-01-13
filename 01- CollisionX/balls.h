@@ -87,17 +87,24 @@ private:
 			velocite.x = -1;
 		}
 	}
-	bool in_perimeter(square carre)
+	bool in_perimeter(square carre,string& zone)
 	{
 		int perimetre = 5;
-		if (pos.x + xy.x + perimetre >= carre.get_pos().x && abs(pos.y - carre.get_pos().y) < xy.x * 2 && pos.x < carre.get_pos().x || 
-			pos.x <= carre.get_pos().x + carre.get_xy().x + perimetre && abs(pos.y - carre.get_pos().y) < xy.x * 2 && pos.x > carre.get_pos().x ||
-			pos.y + xy.y + perimetre >= carre.get_pos().y && abs(pos.x - carre.get_pos().x) < xy.x * 2 && pos.y < carre.get_pos().y ||
+		bool vrai = false;
+		bool fact = false;
+		if (pos.x + xy.x + perimetre >= carre.get_pos().x && abs(pos.y - carre.get_pos().y) < xy.x * 2 && pos.x < carre.get_pos().x ||
+			pos.x <= carre.get_pos().x + carre.get_xy().x + perimetre && abs(pos.y - carre.get_pos().y) < xy.x * 2 && pos.x > carre.get_pos().x)
+		{
+			vrai = true;
+			zone = "vertical";
+		}
+		if (pos.y + xy.y + perimetre >= carre.get_pos().y && abs(pos.x - carre.get_pos().x) < xy.x * 2 && pos.y < carre.get_pos().y ||
 			pos.y <= carre.get_pos().y + carre.get_xy().y + perimetre && abs(pos.x - carre.get_pos().x) < xy.x * 2 && pos.y > carre.get_pos().y  )
 		{
-			return true;
+			zone = "horizontal";
+			fact = true;
 		}
-		return false;
+		return vrai && fact;
 	}
 	bool line_touch(vector<V2d_i> line1, vector<V2d_i> line2)
 	{
@@ -127,6 +134,11 @@ private:
 		}
 		return false;
 	}
+	string get_zone(square carre)
+	{
+		string zone;
+		return zone;
+	}
 public:
 	V2d_i create()
 	{
@@ -144,12 +156,15 @@ public:
 			{
 				continue;
 			}
-			if (in_perimeter(vect.at(i)))
+			string zone;
+			if (in_perimeter(vect.at(i),zone))
 			{
-				string zone;
-				if (touched(vect.at(i), zone))
+				square carre = vect.at(i);
+				if (pos.x < carre.get_pos().x + carre.get_xy().x &&
+					pos.x + xy.x > carre.get_pos().x &&
+					pos.y < carre.get_pos().y + carre.get_xy().y &&
+					pos.y + xy.y > carre.get_pos().y) //(touched(vect.at(i), zone)) 
 				{
-					//vect.push_back(nouveau());
 					if (zone == "horizontal")
 					{
 						velocite.y *= -1;
@@ -231,3 +246,6 @@ public:
 		return points;
 	}
 };
+
+
+
