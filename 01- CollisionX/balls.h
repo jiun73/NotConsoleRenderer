@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TileRenderer.h"
+#include <cmath>
 
 const int X_CONSOLE = 1000;
 const int Y_CONSOLE = 750;
@@ -28,9 +29,10 @@ struct square
 private:
 	Rect rect(V2d_i& pos, V2d_i xy,V2d_i velocite)
 	{
-		V2d_i tailleEcran = get_window_size();
+		pencil(COLOR_GREEN);
 		draw_rect(Rect({ pos, xy }));
-		nettoyer(pos, xy,velocite);
+		//nettoyer(pos, xy,velocite);
+		pencil(COLOR_GREEN);
 		pos += velocite;
 		return {pos,xy};
 	}
@@ -51,13 +53,19 @@ private:
 		return 1;
 	}
 
+	vector<V2d_i> get_perimeter(int spacing)
+	{
+		V2d_i sop = pos - spacing;
+		V2d_i yx = xy + spacing;
+	}
+
 	V2d_i tailleEcran = get_window_size();
 	V2d_i pos = { random().range(0,X_CONSOLE),random().range(0,Y_CONSOLE) };
 	V2d_i velocite = { choose(),choose() };
 	V2d_i xy = { 20,20 };
 	void change_velocity(V2d_i pos, V2d_i xy, V2d_i& velocite)
 	{
-		string son = "../TileRenderer/Sounds/rizz.wav";
+		string son = "doing.wav"; //../TileRenderer/Sounds/rizz.wav
 		if (pos.y == 0)
 		{
 			velocite.y = 1;
@@ -79,27 +87,82 @@ private:
 			velocite.x = -1;
 		}
 	}
+	bool in_perimeter(square carre)
+	{
+		int perimetre = 5;
+		if (pos.x + xy.x + perimetre >= carre.get_pos().x && abs(pos.y - carre.get_pos().y) < xy.x * 2 && pos.x < carre.get_pos().x || 
+			pos.x <= carre.get_pos().x + carre.get_xy().x + perimetre && abs(pos.y - carre.get_pos().y) < xy.x * 2 && pos.x > carre.get_pos().x ||
+			pos.y + xy.y + perimetre >= carre.get_pos().y && abs(pos.x - carre.get_pos().x) < xy.x * 2 && pos.y < carre.get_pos().y ||
+			pos.y <= carre.get_pos().y + carre.get_xy().y + perimetre && abs(pos.x - carre.get_pos().x) < xy.x * 2 && pos.y > carre.get_pos().y  )
+		{
+			return true;
+		}
+		return false;
+	}
+	bool line_touch(vector<V2d_i> line1, vector<V2d_i> line2)
+	{
+		for (int n = 0; n < line1.size(); n++)
+		{
+			for (int i = 0; i < line2.size(); i++)
+			{
+				if (line1.at(n) == line2.at(i))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	bool touched(square carre, string& zone)
+	{
+		if (line_touch(get_top_coordinates(), carre.get_bottom_coordinates()) || line_touch(get_bottom_coordinates(), carre.get_top_coordinates()))
+		{
+			zone = "horizontal";
+			return true;
+		}
+		else if (line_touch(get_left_coordinates(), carre.get_right_coordinates()) || line_touch(get_right_coordinates(), carre.get_left_coordinates()))
+		{
+			zone = "vertical";
+			return true;
+		}
+		return false;
+	}
 public:
 	V2d_i create()
 	{
 		pencil(COLOR_GREEN);
 		rect(pos, xy, velocite);
-		/*string txt = "Vos coordonnées: " + pos.x;
-		txt += ", " + pos.y;
-		draw_text(txt, X_CONSOLE, { X_CONSOLE / 2 - 100 }, get_font(1));*/
 		change_velocity(pos, xy, velocite);
 		return pos;
 	}
-	bool boink(vector<square> vect)
+	
+	void boink(vector<square>& vect)
 	{
 		for (int i = 0; i < vect.size(); i++)
 		{
-			if (rect(pos,xy,velocite) == vect.at(i).get_rect())
+			if (pos == vect.at(i).get_pos())
 			{
-				return true;
+				continue;
+			}
+			if (in_perimeter(vect.at(i)))
+			{
+				string zone;
+				if (touched(vect.at(i), zone))
+				{
+					//vect.push_back(nouveau());
+					if (zone == "horizontal")
+					{
+						velocite.y *= -1;
+						//vect.at(i).get_velo().y *= -1;
+					}
+					if (zone == "vertical")
+					{
+						velocite.x *= -1;
+						//vect.at(i).get_velo().x *= -1;
+					}
+				}
 			}
 		}
-		return false;
 	}
 	V2d_i get_pos()
 	{
@@ -117,5 +180,54 @@ public:
 	{
 		return rect(pos, xy, velocite);
 	}
+	vector<V2d_i> get_top_coordinates()
+	{
+		vector<V2d_i> points;
+		for (int n = pos.x; n <= pos.x + xy.x; n++)
+		{
+			points.push_back({ n,pos.y });
+		}
+		return points;
+	}
+	vector<V2d_i> get_bottom_coordinates()
+	{
+		vector<V2d_i> points;
+		for (int n = pos.x; n <= pos.x + xy.x; n++)
+		{
+			points.push_back({ n,pos.y + xy.y });
+		}
+		return points;
+	}
+	vector<V2d_i> get_left_coordinates()
+	{
+		vector<V2d_i> points;
+		for (int n = pos.y; n <= pos.y + xy.y; n++)
+		{
+			points.push_back({ n,pos.x });
+		}
+		return points;
+	}
+	vector<V2d_i> get_right_coordinates()
+	{
+		vector<V2d_i> points;
+		for (int n = pos.y; n <= pos.y + xy.y; n++)
+		{
+			points.push_back({ n,pos.x + xy.x });
+		}
+		return points;
+	}
 
+
+	vector<V2d_i> get_points()
+	{
+		vector<V2d_i> points;
+		for (int n = pos.x; n <= pos.x + xy.x; n++)
+		{
+			for (int i = pos.y; i <= pos.y + xy.y; i++)
+			{
+				points.push_back({ n,i });
+			}
+		}
+		return points;
+	}
 };

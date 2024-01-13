@@ -17,21 +17,19 @@ int main()
 {
 	setlocale(LC_ALL, "");
 
-	circle cercle;
-	square carre;
-	square a;
-	square b;
-	square c;
-	square d;
-	square e;
 	V2d_i window = {X_CONSOLE,Y_CONSOLE};
 	set_window_size(window);
 	set_window_resizable();
 
-	vector<V2d_i> rectangles;
-	vector<square> vect = { a,b,c,d };
+	vector<square> vect;
+	for (int i = 0; i < 5; i++)
+	{
+		vect.push_back(nouveau());
+	}
 	while (run())
 	{
+		pencil(COLOR_BLACK);
+		draw_clear();
 		pencil(COLOR_GREEN);
 		for (int i = 0; i < vect.size(); i++)
 		{
@@ -43,10 +41,7 @@ int main()
 		}
 		for (int i = 0; i < vect.size(); i++)
 		{
-			/*if (vect.at(i).boink(vect))
-			{
-				vect.push_back(nouveau());
-			}*/
+			vect.at(i).boink(vect);
 		}
 	}
 }
