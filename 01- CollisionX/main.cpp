@@ -7,12 +7,6 @@
 
 #include "balls.h"
 
-square nouveau()
-{
-	square carre;
-	return carre;
-}
-
 int main()
 {
 	setlocale(LC_ALL, "");
@@ -24,7 +18,7 @@ int main()
 	vector<square> vect;
 	for (int i = 0; i < 5; i++)
 	{
-		vect.push_back(nouveau());
+		vect.push_back(square());
 	}
 	while (run())
 	{
@@ -37,7 +31,7 @@ int main()
 		}
 		if (mouse_left_pressed())
 		{
-			vect.push_back(nouveau());
+			vect.push_back(square());
 		}
 		for (int i = 0; i < vect.size(); i++)
 		{

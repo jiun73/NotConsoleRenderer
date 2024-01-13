@@ -61,7 +61,7 @@ private:
 
 	V2d_i tailleEcran = get_window_size();
 	V2d_i pos = { random().range(0,X_CONSOLE),random().range(0,Y_CONSOLE) };
-	V2d_i velocite = { choose(),choose() };
+	
 	V2d_i xy = { 20,20 };
 	void change_velocity(V2d_i pos, V2d_i xy, V2d_i& velocite)
 	{
@@ -87,59 +87,55 @@ private:
 			velocite.x = -1;
 		}
 	}
-	bool in_perimeter(square carre,string& zone)
+	bool in_perimeter(square carre)
 	{
 		int perimetre = 5;
-		bool vrai = false;
-		bool fact = false;
 		if (pos.x + xy.x + perimetre >= carre.get_pos().x && abs(pos.y - carre.get_pos().y) < xy.x * 2 && pos.x < carre.get_pos().x ||
-			pos.x <= carre.get_pos().x + carre.get_xy().x + perimetre && abs(pos.y - carre.get_pos().y) < xy.x * 2 && pos.x > carre.get_pos().x)
-		{
-			vrai = true;
-			zone = "vertical";
-		}
-		if (pos.y + xy.y + perimetre >= carre.get_pos().y && abs(pos.x - carre.get_pos().x) < xy.x * 2 && pos.y < carre.get_pos().y ||
+			pos.x <= carre.get_pos().x + carre.get_xy().x + perimetre && abs(pos.y - carre.get_pos().y) < xy.x * 2 && pos.x > carre.get_pos().x ||
+			pos.y + xy.y + perimetre >= carre.get_pos().y && abs(pos.x - carre.get_pos().x) < xy.x * 2 && pos.y < carre.get_pos().y ||
 			pos.y <= carre.get_pos().y + carre.get_xy().y + perimetre && abs(pos.x - carre.get_pos().x) < xy.x * 2 && pos.y > carre.get_pos().y  )
 		{
-			zone = "horizontal";
-			fact = true;
+			return true;
 		}
-		return vrai && fact;
+		return false;
 	}
-	bool line_touch(vector<V2d_i> line1, vector<V2d_i> line2)
+	int line_touch(vector<V2d_i> line1, vector<V2d_i> line2)
 	{
+		vector<V2d_i> points;
 		for (int n = 0; n < line1.size(); n++)
 		{
 			for (int i = 0; i < line2.size(); i++)
 			{
-				if (line1.at(n) == line2.at(i))
+				if (line1.at(n).x == line2.at(i).x)
 				{
-					return true;
+					points.push_back(line1.at(n));
 				}
 			}
 		}
-		return false;
+		return points.size();
 	}
-	bool touched(square carre, string& zone)
+	string touched(square carre)
 	{
-		if (line_touch(get_top_coordinates(), carre.get_bottom_coordinates()) || line_touch(get_bottom_coordinates(), carre.get_top_coordinates()))
+		int nombre = line_touch(get_top_coordinates(), carre.get_bottom_coordinates());
+		if (nombre > 3)
 		{
-			zone = "horizontal";
-			return true;
+			return "horizontal";
+		}
+		else
+		{
+			return "vertical";
+		}
+		/*if (line_touch(get_top_coordinates(), carre.get_bottom_coordinates()) || line_touch(get_bottom_coordinates(), carre.get_top_coordinates()))
+		{
+			return "horizontal";
 		}
 		else if (line_touch(get_left_coordinates(), carre.get_right_coordinates()) || line_touch(get_right_coordinates(), carre.get_left_coordinates()))
 		{
-			zone = "vertical";
-			return true;
-		}
-		return false;
-	}
-	string get_zone(square carre)
-	{
-		string zone;
-		return zone;
+			return "vertical";
+		}*/
 	}
 public:
+	V2d_i velocite = { choose(),choose() };
 	V2d_i create()
 	{
 		pencil(COLOR_GREEN);
@@ -156,8 +152,7 @@ public:
 			{
 				continue;
 			}
-			string zone;
-			if (in_perimeter(vect.at(i),zone))
+			if (in_perimeter(vect.at(i)))
 			{
 				square carre = vect.at(i);
 				if (pos.x < carre.get_pos().x + carre.get_xy().x &&
@@ -165,15 +160,16 @@ public:
 					pos.y < carre.get_pos().y + carre.get_xy().y &&
 					pos.y + xy.y > carre.get_pos().y) //(touched(vect.at(i), zone)) 
 				{
+					string zone = touched(vect.at(i));
 					if (zone == "horizontal")
 					{
 						velocite.y *= -1;
-						//vect.at(i).get_velo().y *= -1;
+						//vect.at(i).velocite.y *= -1;
 					}
 					if (zone == "vertical")
 					{
 						velocite.x *= -1;
-						//vect.at(i).get_velo().x *= -1;
+						//vect.at(i).velocite.x *= -1;
 					}
 				}
 			}
