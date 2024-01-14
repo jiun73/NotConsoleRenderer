@@ -130,7 +130,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="balls.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Strings.cpp" />
   </ItemGroup>

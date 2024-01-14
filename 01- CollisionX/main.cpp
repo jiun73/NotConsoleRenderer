@@ -18,6 +18,7 @@ void afficher_message_defaite(square& main,vector<square>& vect, bool& jouer,V2d
 		pencil(COLOR_BLACK);
 		draw_clear();
 		main.main_touched = false;
+		main.begin = false;
 		jouer = true;
 		for (int i = 0; i < 5; i++)
 		{
@@ -93,6 +94,7 @@ int main()
 		if (!main.main_touched)
 		{
 			main.create();
+			main.show_coordinates();
 			main.boink(vect);
 		}
 		else
@@ -109,18 +111,18 @@ int main()
 		{
 			show_fruit(posFruit);
 			show_score(score);
-		}
-		if (main.get_pos().x < posFruit.x + 20 &&
-			main.get_pos().x + 20 > posFruit.x &&
-			main.get_pos().y < posFruit.y + 20 &&
-			main.get_pos().y + 20 > posFruit.y)
-		{
-			posFruit.x = random().range(0, X_CONSOLE - 20);
-			posFruit.y = random().range(0, Y_CONSOLE - 20);
-			sound().stopMusic();
-			sound().playSound("eatfruit.wav");
-			vect.push_back(square());
-			score += scoreIncrease;
+			if (main.get_pos().x < posFruit.x + 20 &&
+				main.get_pos().x + 20 > posFruit.x &&
+				main.get_pos().y < posFruit.y + 20 &&
+				main.get_pos().y + 20 > posFruit.y)
+			{
+				posFruit.x = random().range(0, X_CONSOLE - 20);
+				posFruit.y = random().range(0, Y_CONSOLE - 20);
+				sound().stopMusic();
+				sound().playSound("eatfruit.wav");
+				vect.push_back(square());
+				score += scoreIncrease;
+			}
 		}
 	}
 }
