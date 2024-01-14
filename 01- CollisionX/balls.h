@@ -30,9 +30,11 @@ private:
 	Rect rect(V2d_i& pos, V2d_i xy,V2d_i velocite)
 	{
 		pencil(COLOR_GREEN);
+		if (is_main)
+		{
+			pencil(COLOR_WHITE);
+		}
 		draw_rect(Rect({ pos, xy }));
-		//nettoyer(pos, xy,velocite);
-		pencil(COLOR_GREEN);
 		pos += velocite;
 		return {pos,xy};
 	}
@@ -116,7 +118,7 @@ private:
 	}
 	string touched(square carre)
 	{
-		int nombre = line_touch(get_top_coordinates(), carre.get_bottom_coordinates());
+		int nombre = line_touch(get_top_coordinates(), carre.get_top_coordinates());
 		if (nombre > 3)
 		{
 			return "horizontal";
@@ -133,72 +135,6 @@ private:
 		{
 			return "vertical";
 		}*/
-	}
-public:
-	V2d_i velocite = { choose(),choose() };
-	V2d_i create()
-	{
-		pencil(COLOR_GREEN);
-		rect(pos, xy, velocite);
-		change_velocity(pos, xy, velocite);
-		return pos;
-	}
-	
-	void boink(vector<square>& vect)
-	{
-		for (int i = 0; i < vect.size(); i++)
-		{
-			if (pos == vect.at(i).get_pos())
-			{
-				continue;
-			}
-			if (in_perimeter(vect.at(i)))
-			{
-				square carre = vect.at(i);
-				if (pos.x < carre.get_pos().x + carre.get_xy().x &&
-					pos.x + xy.x > carre.get_pos().x &&
-					pos.y < carre.get_pos().y + carre.get_xy().y &&
-					pos.y + xy.y > carre.get_pos().y) //(touched(vect.at(i), zone)) 
-				{
-					string zone = touched(vect.at(i));
-					if (zone == "horizontal")
-					{
-						velocite.y *= -1;
-						//vect.at(i).velocite.y *= -1;
-					}
-					if (zone == "vertical")
-					{
-						velocite.x *= -1;
-						//vect.at(i).velocite.x *= -1;
-					}
-				}
-			}
-		}
-	}
-	V2d_i get_pos()
-	{
-		return pos;
-	}
-	V2d_i get_xy()
-	{
-		return xy;
-	}
-	V2d_i get_velo()
-	{
-		return velocite;
-	}
-	Rect get_rect()
-	{
-		return rect(pos, xy, velocite);
-	}
-	vector<V2d_i> get_top_coordinates()
-	{
-		vector<V2d_i> points;
-		for (int n = pos.x; n <= pos.x + xy.x; n++)
-		{
-			points.push_back({ n,pos.y });
-		}
-		return points;
 	}
 	vector<V2d_i> get_bottom_coordinates()
 	{
@@ -227,8 +163,15 @@ public:
 		}
 		return points;
 	}
-
-
+	vector<V2d_i> get_top_coordinates()
+	{
+		vector<V2d_i> points;
+		for (int n = pos.x; n <= pos.x + xy.x; n++)
+		{
+			points.push_back({ n,pos.y });
+		}
+		return points;
+	}
 	vector<V2d_i> get_points()
 	{
 		vector<V2d_i> points;
@@ -240,6 +183,97 @@ public:
 			}
 		}
 		return points;
+	}
+	void move_main(V2d_i& pos, V2d_i xy, V2d_i velocite)
+	{
+		if (key_held(SDL_SCANCODE_A) && pos.x > 0)
+		{
+			velocite = { -1,0 };
+		}
+		if (key_held(SDL_SCANCODE_D) && pos.x + xy.x < X_CONSOLE)
+		{
+			velocite = { 1,0 };
+		}
+		else if (key_held(SDL_SCANCODE_W) && pos.y > 0)
+		{
+			velocite = { 0,-1 };
+		}
+		if (key_held(SDL_SCANCODE_S) && pos.y + xy.y < Y_CONSOLE)
+		{
+			velocite = { 0,1 };
+		}
+		pos += velocite;
+	}
+public:
+	V2d_i velocite = { choose(),choose() };
+	bool is_main = false;
+	V2d_i create()
+	{
+		pencil(COLOR_GREEN);
+		if (is_main)
+		{
+			pencil(COLOR_WHITE);
+		}
+		rect(pos, xy, velocite);
+		if (!is_main)
+		{
+			change_velocity(pos, xy, velocite);
+		}
+		else
+		{
+			move_main(pos, xy, velocite);
+		}
+		return pos;
+	}
+	bool main_touched = false;
+	void boink(vector<square>& vect)
+	{
+		for (int i = 0; i < vect.size(); i++)
+		{
+			if (pos == vect.at(i).get_pos())
+			{
+				continue;
+			}
+			if (in_perimeter(vect.at(i)))
+			{
+				square carre = vect.at(i);
+				if (pos.x < carre.get_pos().x + carre.get_xy().x &&
+					pos.x + xy.x > carre.get_pos().x &&
+					pos.y < carre.get_pos().y + carre.get_xy().y &&
+					pos.y + xy.y > carre.get_pos().y) //(touched(vect.at(i), zone)) 
+				{
+					if (is_main)
+					{
+						vect.clear();
+						pencil(COLOR_BLACK);
+						draw_clear();
+						main_touched = true;
+						sound().stopMusic();
+						sound().playSound("lost.wav");
+						break;
+					}
+					string zone = touched(vect.at(i));
+					if (zone == "horizontal")
+					{
+						velocite.y *= -1;
+						//vect.at(i).velocite.y *= -1;
+					}
+					if (zone == "vertical")
+					{
+						velocite.x *= -1;
+						//vect.at(i).velocite.x *= -1;
+					}
+				}
+			}
+		}
+	}
+	V2d_i get_pos()
+	{
+		return pos;
+	}
+	V2d_i get_xy()
+	{
+		return xy;
 	}
 };
 

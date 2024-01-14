@@ -6,6 +6,42 @@
 
 
 #include "balls.h"
+#include "Strings.h"
+
+void afficher_message_defaite(square& main,vector<square>& vect, bool& jouer,V2d_i& posFruit, bool& showFruit)
+{
+	pencil(COLOR_WHITE);
+	draw_simple_text("Vous avez perdu :(  Appuyez sur 'q' pour rejouer !", { X_CONSOLE / 2,Y_CONSOLE / 2 }, get_font(0));
+	if (key_pressed(SDL_SCANCODE_Q))
+	{
+		//sound().stopMusic();
+		pencil(COLOR_BLACK);
+		draw_clear();
+		main.main_touched = false;
+		jouer = true;
+		for (int i = 0; i < 5; i++)
+		{
+			vect.push_back(square());
+		}
+		posFruit.x = random().range(0, X_CONSOLE - 20);
+		posFruit.y = random().range(0, Y_CONSOLE - 20);
+		showFruit = true;
+	}
+}
+
+void show_fruit(V2d_i posFruit)
+{
+	draw_image("fruit.jpg", { posFruit,{20,20} });
+}
+
+void show_score(int score)
+{
+	string scores;
+	scores = entier_en_chaine(score);
+	string phrase = "Votre score est: " + scores;
+	pencil(COLOR_WHITE);
+	draw_simple_text(phrase, { X_CONSOLE/2,10 }, get_font(0));
+}
 
 int main()
 {
@@ -20,6 +56,22 @@ int main()
 	{
 		vect.push_back(square());
 	}
+
+	// main character
+	square main;
+	main.is_main = true;
+	main.velocite = 0;
+
+	// Fruit
+	V2d_i posFruit;
+	posFruit.x = random().range(0, X_CONSOLE - 20);
+	posFruit.y = random().range(0, Y_CONSOLE - 20);
+	bool showFruit = true;
+
+	// Score
+	int score = 0;
+	const int scoreIncrease = 100;
+
 	while (run())
 	{
 		pencil(COLOR_BLACK);
@@ -36,6 +88,39 @@ int main()
 		for (int i = 0; i < vect.size(); i++)
 		{
 			vect.at(i).boink(vect);
+		}
+		pencil(COLOR_WHITE);
+		if (!main.main_touched)
+		{
+			main.create();
+			main.boink(vect);
+		}
+		else
+		{
+			showFruit = false;
+			bool jouer = false;
+			if (!jouer)
+			{
+				afficher_message_defaite(main, vect,jouer,posFruit,showFruit);
+				score = 0;
+			}
+		}
+		if (showFruit)
+		{
+			show_fruit(posFruit);
+			show_score(score);
+		}
+		if (main.get_pos().x < posFruit.x + 20 &&
+			main.get_pos().x + 20 > posFruit.x &&
+			main.get_pos().y < posFruit.y + 20 &&
+			main.get_pos().y + 20 > posFruit.y)
+		{
+			posFruit.x = random().range(0, X_CONSOLE - 20);
+			posFruit.y = random().range(0, Y_CONSOLE - 20);
+			sound().stopMusic();
+			sound().playSound("eatfruit.wav");
+			vect.push_back(square());
+			score += scoreIncrease;
 		}
 	}
 }
