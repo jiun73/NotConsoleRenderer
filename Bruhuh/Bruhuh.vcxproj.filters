@@ -74,5 +74,8 @@
     <ClInclude Include="WeaponParser.h">
       <Filter>Source Files\WeaponComputer</Filter>
     </ClInclude>
+    <ClInclude Include="BulletTypes.h">
+      <Filter>Source Files\WeaponComputer</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

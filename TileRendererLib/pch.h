@@ -12,5 +12,7 @@
 #include "Vec2D.h"
 #include "Rect.h"
 #include "Random.h"
+#include "Input.h"
+#include "Sound.h"
 
 #endif //PCH_H

@@ -42,16 +42,22 @@ V2d_d AP22::min_vec(std::vector<V2d_d>& list, V2d_d start)
 	return (p.polar(norm, orientation) * scale + position);
 }
 
- void Shape_x::draw()
+ void Shape_x::draw(Camera& cam)
 {
 	if (points.empty()) return;
+	V2d_i p1, p2;
 
 	for (auto it = points.begin() + 1; it != points.end(); it++)
 	{
-		draw_line((V2d_i)find_point(*(it - 1)), (V2d_i)find_point(*it));
+		p1 = cam.find(find_point(*std::prev(it)));
+		p2 = cam.find(find_point(*it));
+		draw_line(p1, p2);
 	}
 
-	draw_line((V2d_i)find_point(points.front()), (V2d_i)find_point(points.back()));
+	p1 = cam.find(find_point(points.front()));
+	p2 = cam.find(find_point(points.back()));
+
+	draw_line(p1, p2);
 
 	//draw_circle(support(-getAngleTowardPoint(position, mouse_position()) + (0.5 * M_PI)), 10);
 	//draw_circle(support_op(-getAngleTowardPoint(position, mouse_position()) + (0.5 * M_PI)), 10);

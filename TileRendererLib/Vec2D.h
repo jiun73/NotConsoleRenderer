@@ -40,7 +40,10 @@ struct Vector2D
 	friend bool operator==(const Vector2D& v1, const Vector2D& v2) { return (v1.x == v2.x && v1.y == v2.y); }
 	friend bool operator!=(const Vector2D& v1, const Vector2D& v2) { return !(v1 == v2); }
 
-	template<class C> operator Vector2D<C>() { return { static_cast<C>(x), static_cast<C>(y) }; }
+	template<class C> operator Vector2D<C>() 
+	{ 
+		return Vector2D<C>(static_cast<C>(x), static_cast<C>(y));
+	}
 
 	Vector2D xi() { return { x,T(0) }; }
 	Vector2D yj() { return { T(0),y }; }

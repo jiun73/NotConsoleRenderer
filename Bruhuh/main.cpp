@@ -4,6 +4,8 @@
 #include "Shape_x.h"
 #include "Utility.h"
 #include <functional>
+#include "WeaponParser.h"
+#include "BulletTypes.h"
 
 struct AI_x
 {
@@ -16,12 +18,18 @@ struct AI_x
 	int random = 0;
 };
 
+struct Shooter_x 
+{
+	WeaponComputer computer;
+};
+
 #include "BasicComponents.h"
 #include "CollisionSystem.h"
 
 ComponentXAdder<Shape_x> shape_adder;
 ComponentXAdder<Collider_x> collider_adder;
 ComponentXAdder<AI_x> ai_adder;
+ComponentXAdder<Shooter_x> shooter_adder;
 
 #include "BasicSystems.h"
 #include "GameGlobalData.h"
@@ -167,6 +175,46 @@ struct AI_system
 	}
 };
 
+struct Shooter_system
+{
+	WeaponParser parser;
+
+	void update(Shooter_x* shooter, Position_x* position, Angle_x* angle)
+	{
+		angle->angle = -getAngleTowardPoint(position->position, game_mouse_position()) + (0.5 * M_PI);
+
+		if (mouse_left_held())
+		{
+			parser.load(shooter->computer);
+			EntX::get()->add_callback_current([shooter](EntityID eid) {
+				shooter->computer.tick(eid);
+				}
+			);
+		}
+
+		if (mouse_right_pressed())
+		{
+			parser.load(shooter->computer);
+			shooter->computer.clockLast = SDL_GetTicks() - shooter->computer.settings.clockSpeed * 2 - shooter->computer.settings.bootSpeed;
+			
+
+			EntX::get()->add_callback_current([shooter](EntityID eid) {
+					shooter->computer.tick(eid);
+				}
+			);
+		}
+
+		/*if (mouse().pressed(1))
+		{
+			EntX::get()->add_callback_current([position, angle](EntityID) {
+				
+				}
+			);
+		}*/
+
+	}
+};
+
 SystemXAdder<0, Shape_system, Position_x, Angle_x, Shape_x> shape_system_adder;
 SystemXAdder<0, GFX_system, GFX_x, Shape_x> polygon_gfx_system_adder;
 SystemXAdder<0, Controller_system, Position_x, Controller_x> controller_system_adder;
@@ -179,8 +227,6 @@ SystemXAdder<1, Distorter_system, Distorter_x, Shape_x> distorter_system_adder;
 SystemXAdder<1, AI_system, AI_x, Angle_x, Position_x, Physics_x> ai_system_adder;
 SystemXAdder<1, Health_system, Health_x> health_system_adder;
 SystemXManagerAdder<0, Collision_system, Shape_x, Collider_x, Position_x> collision_system_adder;
-
-#include "WeaponParser.h"
 
 inline const int margin = 200;
 inline const int window = 800;
@@ -215,11 +261,11 @@ void change_line(const WeaponParser& parser, int& current_line, int n)
 {
 	current_line = n;
 	current_line = std::max(current_line, 0);
-	current_line = std::min(current_line, parser.computer->storage - 1);
+	current_line = std::min(current_line, parser.computer->settings.storage - 1);
 	keyboard().getTextInput() = parser.source.at(current_line);
 }
 
-void render_registers(const WeaponParser& parser)
+void render_registers(const WeaponParser& parser, const Font& font)
 {
 	for (size_t i = 0; i < parser.computer->registers.size(); i++)
 	{
@@ -229,7 +275,15 @@ void render_registers(const WeaponParser& parser)
 		s.at(0) = c;
 
 		string ss = "" + s + ": " + std::to_string(parser.computer->registers.at(i).value);
-		draw_text(ss, 800, { 0,300 + (int)i * 24 }, get_font(0));
+		draw_text(ss, window, { 0,window / 2 + (int)i * font.height }, font);
+	}
+
+	size_t i = 0;
+	for (auto& reg_pair : parser.computer->bulletType.registers)
+	{
+		string s = reg_pair.first + ":  " + std::to_string(reg_pair.second.value);
+		draw_text(s, window, { left_border.sz.x / 2,window / 2 + (int)i * font.height }, font);
+		i++;
 	}
 }
 
@@ -246,7 +300,7 @@ void set_collision_pairs()
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_TESTOBJ, TAG_PLAYER_ | TAG_TESTOBJ | TAG_ENEMY__, CTYPE_PUSH);
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_TESTOBJ, TAG_PBULLET | TAG_EBULLET, CTYPE_DESTROY);
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_PBULLET, TAG_ENEMY__, CTYPE_HURT);
-	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_EBULLET, TAG_PLAYER_, CTYPE_HURT);
+//	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_EBULLET, TAG_PLAYER_, CTYPE_HURT);
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_ENEMY__, TAG_PBULLET, CTYPE_DESTROY);
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_ENEMY__, TAG_ENEMY__, CTYPE_PUSH);
 	EntX::get()->get_system<Collision_system>()->add_pairing(TAG_PLAYER_, TAG_EBULLET, CTYPE_DESTROY);
@@ -329,7 +383,7 @@ void handle_new_line_insert(WeaponParser& parser, const int& selected_line)
 		size_t i = selected_line + 1;
 		for (auto it = parser.source.begin() + selected_line + 1; it != parser.source.end(); it++) //ensure that data intruction don't change addresses
 		{
-			if (i >= parser.computer->storage) break;
+			if (i >= parser.computer->settings.storage) break;
 			if (parser.computer->instructions.at(i - 1).data)
 				std::swap(parser.source.at(i), parser.source.at(i - 1));
 			i++;
@@ -421,13 +475,16 @@ int main()
 		{ 0 }, {}, ENTITY_ENEMY
 	); };
 
-	WeaponComputer computer;
-	computer.bulletType.bulletCreationFunction = []() {std::cout << "pew!" << std::endl;};
-	computer.storage = 25;
-	computer.clockSpeed = 50;
+	spawn();
+
+	WeaponComputer& computer = player.component<Shooter_x>()->computer;
+	computer.bulletType = get_bullet_from_type(BULLET_SIZABLE);
+	computer.settings.storage = 25;
+	computer.settings.clockSpeed = 50;
 	computer.registers.resize(3);
 
-	WeaponParser parser;
+	GFX_system* gfx_sys = EntX::get()->get_system<GFX_system>();
+	WeaponParser& parser = EntX::get()->get_system<Shooter_system>()->parser;
 	parser.load(computer);
 	
 	bool edit = true;
@@ -437,9 +494,12 @@ int main()
 	const Font& pixel_font = get_font(FONT_PIXEL);
 
 	keyboard().lockInputsInTextmode = false;
+	keyboard().convInputUpper = true;
 
 	while (run())
 	{
+		//global_drawing_offset() = 0;
+
 		pencil(COLOR_CYAN);
 		draw_clear();
 
@@ -449,7 +509,20 @@ int main()
 
 		render_program_counter(parser, pixel_font);
 		render_intructions(parser, pixel_font, edit);
-		render_registers(parser);
+		render_registers(parser, pixel_font);
+
+		string status_text;
+		string temp_text = std::to_string(computer.temperature * 10.0 + 22.0) + " C";
+
+		if (computer.overheat)
+			status_text = "Overheating!";
+		else if (computer.booting)
+			status_text = "Status: booting";
+		else
+			status_text = "Status: working";
+
+		draw_text(temp_text, 800, left_border.pos + V2d_i(0, 200), pixel_font);
+		draw_text(status_text, 800, left_border.pos + V2d_i(0, 200 + pixel_font.height), pixel_font);
 
 		if (edit)
 		{
@@ -468,18 +541,7 @@ int main()
 			edit = true;
 		}
 
-		if (mouse_left_held())
-		{
-			parser.load(computer);
-			computer.tick();
-		}
-
-		if (mouse_right_pressed())
-		{
-			parser.load(computer);		
-			computer.clockLast = SDL_GetTicks() - computer.clockSpeed * 2;
-			computer.tick();
-		}
+		camera().offset = player.component<Position_x>()->position - get_window_size() / 2;
 	}
 
 	return 0;

@@ -7,6 +7,7 @@
 #include "Rect.h"
 #include "Sound.h"
 #include "Fonts.h"
+#include "Camera.h"
 
 #undef main	
 
@@ -79,7 +80,17 @@ bool mouse_right_released();
 //Retourne la position de la souris prenant en compte l'aggrandissement de la fenêtre
 V2d_d mouse_position();
 
+V2d_d game_mouse_position();
+
 //----------------------------------------------------------DESSIN----------------------------------------------------------------------------
+
+namespace hidden { extern Camera _camera; }
+
+Camera& camera();
+template<typename T>
+inline Vector2D<T> to_game(const Vector2D<T>& position){return hidden::_camera.find(position);}
+template<typename T>
+inline Rectangle<T> to_game(const Rectangle<T>& rect) { return hidden::_camera.find(rect); }
 
 //Retourne une couleur rgb
 Color rgb(int red, int green, int blue);
@@ -110,7 +121,7 @@ void draw_image(const string& path, Rect destination);
 //Comme draw_image, sauf que ca permet de dessiner seulement une partie de l'image
 //La 'source' est les coordonnés ou va etre pris la partie de l'image a dessiner
 //Faut essayer pour comprendre vraiment, c'est difficile a expliquer comme ca
-void draw_image_form_source(const string& path, Rect source, Rect destination);
+void draw_image_from_source(const string& path, Rect source, Rect destination);
 
 //Dessine un cercle avec le millieu à la position 'pos' et au rayon 'radius'
 void draw_circle(V2d_i pos, int radius);

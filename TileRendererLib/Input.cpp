@@ -97,6 +97,8 @@ void KeyboardInput::update()
 	}
 }
 
+#include "StringManip.h"
+
 void KeyboardInput::events(SDL_Event e)
 {
 	if (textmode)
@@ -119,10 +121,14 @@ void KeyboardInput::events(SDL_Event e)
 			//Not copy or pasting
 			if (!(SDL_GetModState() & KMOD_CTRL && (e.text.text[0] == 'c' || e.text.text[0] == 'C' || e.text.text[0] == 'v' || e.text.text[0] == 'V')))
 			{
+				string new_text = e.text.text;
+				if (convInputUpper)
+					string_to_upper(new_text);
+
 				//Append character
 				if (!numberInputOnly)
 				{
-					text_in += e.text.text;
+					text_in += new_text;
 				}
 				else
 				{

@@ -6,7 +6,8 @@ enum InstructionArgTypes
 	ARG_REGISTER,
 	ARG_VALUE,
 	ARG_ADDRESS,
-	ARG_DATA
+	ARG_DATA,
+	ARG_SPECIAL_REGISTER
 };
 
 struct Instruction
@@ -22,8 +23,14 @@ inline Instruction get_instruction(ComputerInstructionSet type)
 	case LOAD:
 		return { [](WeaponComputer& computer, WeaponInstruction& data)
 			{
-				computer.registers.at(data[2]).value = data[1];
-			}, {ARG_VALUE, ARG_REGISTER} };
+				if(data.special(2).empty())
+					computer.registers.at(data[2]).value = data[1];
+				else //is special register
+				{
+					WeaponRegister& sp = computer.bulletType.registers.at(data.special(2));
+					sp.value = data[1];
+				}
+			}, {ARG_VALUE, ARG_SPECIAL_REGISTER} };
 	case JUMP:
 		return { [](WeaponComputer& computer, WeaponInstruction& data)
 			{
@@ -87,7 +94,8 @@ inline Instruction get_instruction(ComputerInstructionSet type)
 				val.data = true;
 
 				computer.instructions.at(data[2]) = val;
-				computer.source->at(data[2]) = "VALUE " + std::to_string(data[1]);
+				if(computer.source)
+					computer.source->at(data[2]) = "VALUE " + std::to_string(data[1]);
 			}, { ARG_VALUE, ARG_ADDRESS} };
 	case READ:
 		return { [](WeaponComputer& computer, WeaponInstruction& data)
