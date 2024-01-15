@@ -35,3 +35,8 @@ inline int destringify(const string& str, int& target)
 	target = std::stoi(str);
 	return true;
 }
+
+inline void string_to_upper(string& str) 
+{
+	for (auto& c : str) c = std::toupper(c);
+}

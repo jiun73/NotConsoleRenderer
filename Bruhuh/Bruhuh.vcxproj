@@ -140,6 +140,7 @@
   <ItemGroup>
     <ClInclude Include="BasicComponents.h" />
     <ClInclude Include="BasicSystems.h" />
+    <ClInclude Include="BulletTypes.h" />
     <ClInclude Include="CollisionComponent.h" />
     <ClInclude Include="CollisionSystem.h" />
     <ClInclude Include="GameGlobalData.h" />

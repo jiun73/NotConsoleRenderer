@@ -169,7 +169,7 @@ void draw_letter(char c, V2d_i pos, double scale = 1)
 	shape.position = pos;
 	shape.scale = scale;
 
-	shape.draw();
+	shape.draw(camera());
 }
 
 void draw_text_b(string s, V2d_i pos, double scale = 1)

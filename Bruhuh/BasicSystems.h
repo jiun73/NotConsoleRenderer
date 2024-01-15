@@ -16,10 +16,12 @@ struct Shape_system
 
 struct GFX_system
 {
+	V2d_i offset = 0;
+
 	void update(GFX_x* gfx, Shape_x* shape)
 	{
 		pencil(gfx->col);
-		shape->draw();
+		shape->draw(camera());
 	}
 };
 
@@ -40,35 +42,6 @@ struct Physics_system
 		position->position += physics->velocity;
 		physics->velocity += physics->acceleration;
 		angle->angle += physics->angular_velocity;
-	}
-};
-
-struct Shooter_system
-{
-	void update(Shooter_x* shooter, Position_x* position, Angle_x* angle)
-	{
-		angle->angle = -getAngleTowardPoint(position->position, mouse_position()) + (0.5 * M_PI);
-
-		if (mouse().pressed(1))
-		{
-			EntX::get()->add_callback_current([position, angle](EntityID) {
-				EntityX<Position_x, Angle_x, GFX_x, Shape_x, Physics_x, Lifetime_x, Collider_x> bullet;
-
-				bullet.create(
-					*position,
-					{ random().frange(-2 * M_PI, 2 * M_PI) },
-					{ COLOR_WHITE },
-					{ { {-5,5},{10,0}, -5 } },
-					{ V2d_d().polar(5, angle->angle), 0, 0 },
-					{ 100 },
-					{ TAG_PBULLET }
-				);
-
-				sound().playSound("Sounds/shoot_sfx" + std::to_string(random().range(1, 4)) + ".wav");
-				}
-			);
-		}
-		
 	}
 };
 
@@ -115,7 +88,7 @@ struct Particle_system
 		for (auto& p : emitter->particles)
 		{
 			pencil(rainbow(1000));
-			draw_circle(p.pos, p.life / 3);
+			draw_circle(to_game(p.pos), p.life / 3);
 		}
 	}
 };

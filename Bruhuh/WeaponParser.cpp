@@ -65,7 +65,17 @@ inline WeaponError WeaponParser::load_intruction(const string& line, size_t i)
 			}
 			break;
 		}
-
+		case ARG_SPECIAL_REGISTER:
+			if (arg.size() > 1 && arg.at(0) == '#')
+			{
+				string sp_reg_name = arg.substr(1);
+				if (!computer->bulletType.registers.count(sp_reg_name)) return { get_true_offset(args, i) , ERROR_NOT_A_REGISTER, ERROR_NONE };
+				string& sp_input = new_intruction.specialInputs.at(i - 1);
+				sp_input = sp_reg_name;
+				break;
+			}
+			if (arg.size() == 1 && arg.at(0) == '#') return { get_true_offset(args, i), ERROR_INVALID_ARGUMENT, ERROR_EXPECTING_SPECIAL_REGISTER };
+			[[fallthrough]];
 		case ARG_REGISTER:
 			if (!all_of(arg.begin(), arg.end(), isupper)) return { get_true_offset(args, i), ERROR_INVALID_ARGUMENT, ERROR_EXPECTING_REGISTER };
 			if (arg.size() != 1) return { get_true_offset(args, i), ERROR_INVALID_ARGUMENT, ERROR_EXPECTING_REGISTER };
@@ -106,8 +116,8 @@ inline WeaponError WeaponParser::load_intruction(const string& line, size_t i)
 vector<WeaponError> WeaponParser::load(WeaponComputer& computer)
 {
 	computer.instructions.clear();
-	computer.instructions.resize(computer.storage);
-	source.resize(computer.storage);
+	computer.instructions.resize(computer.settings.storage);
+	source.resize(computer.settings.storage);
 	computer.source = &source;
 
 	this->computer = &computer;

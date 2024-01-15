@@ -7,11 +7,9 @@ bool WeaponComputer::next_instr()
 	while (instructions.at(programCounter).empty)
 	{
 		programCounter++;
-
-		if (programCounter > instructions.size() - 1) programCounter = 0;
-
+		if (programCounter > instructions.size() - 1) return false;
 		emptyCnt++;
-		if (emptyCnt == storage) { emptyCnt = 0; return false; }
+		if (emptyCnt == instructions.size()) { emptyCnt = 0; return false; }
 	}
 	emptyCnt = 0;
 	return true;
@@ -19,41 +17,28 @@ bool WeaponComputer::next_instr()
 
 void WeaponComputer::set_register_values()
 {
-	for (auto& reg : registers)
-	{
-		int bits = reg.bit - reg._signed_;
-
-		int max = 0;
-		for (size_t i = 0; i < bits; i++) max |= 1 << i;
-
-		if (!reg._signed_)
-		{
-			if (reg.value < 0) reg.value = max - (-reg.value % (max + 1));
-			if (reg.value > max) reg.value = reg.value % (max + 1);
-		}
-		else
-		{
-			if (reg.value > max) reg.value = -max + (reg.value % (max + 1));
-			if (reg.value < -max) reg.value = max - (-reg.value % (max + 1));
-		}
-	}
+	for (auto& reg : registers)reg.clamp_value();
+	for (auto& reg : bulletType.registers) reg.second.clamp_value();
 }
 
 void WeaponComputer::skip()
 {
 	skipCnt++;
-	if (skipCnt > storage)
+	if (skipCnt > instructions.size())
 	{
 		skipCnt = 0;
 		return;
 	}
-	next_instr();
-	cycle();
+	if (next_instr())
+		cycle();
+	else
+		end();
 	skipCnt = 0;
 }
 
 void WeaponComputer::cycle()
 {
+	if (programCounter >= instructions.size()) programCounter = 0;
 	WeaponInstruction& instruction = instructions.at(programCounter);
 
 	if (instruction.empty) return;
@@ -74,6 +59,8 @@ void WeaponComputer::cycle()
 		}
 	}
 
+	temperature += settings.heating;
+
 	instruction.instructionFunction(*this, instruction);
 
 	if (!skipCounterIncr)
@@ -82,15 +69,50 @@ void WeaponComputer::cycle()
 		skipCounterIncr = false;
 }
 
-void WeaponComputer::tick()
+void WeaponComputer::tick(size_t entityid)
 {
-	uint32_t timeSinceLast = SDL_GetTicks() - clockLast;
+	entity_id = entityid;
+	int64_t timeSinceLast = (int64_t)(SDL_GetTicks() - clockLast) - (int64_t)delay;
 
-	if (timeSinceLast > clockSpeed)
+	if (timeSinceLast > (int64_t)settings.clockSpeed)
 	{
+		delay = 0;
+		clockLast = SDL_GetTicks();
+
+		if (overheat && temperature > 0)
+		{
+			temperature = std::max(temperature - settings.cooling, 0.0);
+			temperature--;
+			return;
+		}
+		else
+			overheat = false;
+		booting = false;
 		cycle();
 		set_register_values();
-		next_instr();
-		clockLast = SDL_GetTicks();
+
+		if (temperature > settings.maxTemp) 
+		{
+			overheat = true;
+			end();
+		}
+		else if (!next_instr())
+		{
+			temperature = 0;
+			end();
+			next_instr();
+		}
+		
 	}
+}
+
+void WeaponComputer::end()
+{
+	programCounter = 0;
+	booting = true;
+	delay += settings.bootSpeed;
+	for (auto& reg : registers)
+		reg.value = 0;
+	for (auto& reg : bulletType.registers)
+		reg.second.value = 0;
 }

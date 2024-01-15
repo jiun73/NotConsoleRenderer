@@ -58,7 +58,7 @@ public:
 
 	V2d_d find_point(V2d_d p);
 
-	void draw();
+	void draw(Camera& cam);
 
 	V2d_d mean();
 
@@ -164,9 +164,9 @@ struct GJK
 		pencil(COLOR_GREEN);
 		Shape_x	mincowski_diff = shape1.get_mincowski(shape2);
 		mincowski_diff.position = 250;
-		mincowski_diff.draw();
+		//mincowski_diff.draw();
 		pencil(COLOR_WHITE);
-		simplex_shape.draw();
+		//simplex_shape.draw();
 		pencil(COLOR_CYAN);
 		draw_line(edge.first + 250, edge.second + 250);
 		pencil(COLOR_PINK);

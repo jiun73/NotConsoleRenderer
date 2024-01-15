@@ -13,7 +13,8 @@ enum ComputerErrorTypes
 	ERROR_EXPECTING_VALUE,
 	ERROR_EXPECTING_REGISTER,
 	ERROR_EXPECTING_ADDRESS,
-	ERROR_EXPECTING_ARGUMENT
+	ERROR_EXPECTING_ARGUMENT,
+	ERROR_EXPECTING_SPECIAL_REGISTER
 };
 
 struct WeaponError
@@ -34,6 +35,7 @@ inline std::string get_error_message(const WeaponError& error)
 		case ERROR_EXPECTING_REGISTER:	return "Argument invalid! expected: register";
 		case ERROR_EXPECTING_ADDRESS:	return "Argument invalid! expected: address or register";
 		case ERROR_EXPECTING_ARGUMENT:	return "Argument invalid! expected: non-empty argument";
+		case ERROR_EXPECTING_SPECIAL_REGISTER: return "Argument invalid! expected: special register";
 		default: return "Argument invalid!";
 		}
 

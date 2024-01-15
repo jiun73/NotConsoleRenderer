@@ -25,6 +25,8 @@ public:
 	bool locked = false;
 	bool numberInputOnly = false;
 	bool lockInputsInTextmode = true;
+	bool convInputUpper = false;
+	size_t inputInsertPos = 0;
 
 	KeyboardInput();
 	~KeyboardInput() 

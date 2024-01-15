@@ -6,9 +6,9 @@
 
 #include "TileRenderer.h"
 #include "SDL_image.h"
-#include "Sound.h"
 #include "EntityX.h"
 #include "Fonts.h"
+#include "Camera.h"
 
 #include <map>
 
@@ -32,6 +32,7 @@ namespace hidden {
 	SDL_Renderer* sdl_ren;
 	SDL_Window* sdl_win;
 	V2d_i window_size = { 1920,1080 };
+	Vector2D<int> draw_offset = 0;
 	SDL_WindowFlags window_flags;
 	SDL_Event sdl_event;
 
@@ -43,6 +44,8 @@ namespace hidden {
 }
 
 using namespace hidden;
+
+Camera hidden::_camera;
 
 void set_window_size(V2d_i size) { window_size = size; }
 void set_window_resizable() { window_flags = SDL_WindowFlags(window_flags | SDL_WINDOW_RESIZABLE); }
@@ -66,8 +69,15 @@ V2d_d mouse_position()
 	V2d_d mpos = mouse().position();
 	mpos += (((V2d_d)window_size * get_renderer_scale()) - get_window_size()) / 2;
 	mpos /= get_renderer_scale();
-	return mpos;
+	return mpos + V2d_d(draw_offset);
 }
+
+V2d_d game_mouse_position()
+{
+	return _camera.inverse(mouse_position());
+}
+
+Camera& camera() { return _camera; }
 
 void init() 
 {
@@ -181,8 +191,8 @@ Color rainbow(int speed)
 }
 
 void pencil(Color color) { SDL_SetRenderDrawColor(sdl_ren, color.r, color.g, color.b, color.a); }
-void draw_pix(V2d_i position) { SDL_RenderDrawPoint(sdl_ren, position.x, position.y); }
-void draw_rect(Rect rectangle) { SDL_RenderDrawRect(sdl_ren, rectangle.SDL()); }
+void draw_pix(V2d_i position) { position += draw_offset;  SDL_RenderDrawPoint(sdl_ren, position.x, position.y); }
+void draw_rect(Rect rectangle) { rectangle.pos += draw_offset; SDL_RenderDrawRect(sdl_ren, rectangle.SDL()); }
 void draw_full_rect(Rect rectangle) { SDL_RenderFillRect(sdl_ren, rectangle.SDL()); }
 void draw_line(V2d_i start_position, V2d_i end_position) { SDL_RenderDrawLine(sdl_ren, start_position.x, start_position.y, end_position.x, end_position.y); }
 void draw_clear() { SDL_RenderClear(sdl_ren); }
@@ -246,7 +256,7 @@ void draw_image(const string& path, Rect destination)
 	SDL_RenderCopy(sdl_ren, textures.at(path), NULL, destination.SDL());
 }
 
-void draw_image_form_source(const string& path, Rect source, Rect destination)
+void draw_image_from_source(const string& path, Rect source, Rect destination)
 {
 	if (!textures.count(path))
 	{
