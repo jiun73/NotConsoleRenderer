@@ -1,4 +1,5 @@
 // Débuté le 10 janvier 2024
+// Terminé le 14/01/2024
 
 
 // Note à moi-même: À chaque fois que je crée un projet, je dois ajouter tous les fichiers .dll ainsi que le dossier Font qui
