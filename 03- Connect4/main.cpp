@@ -1,25 +1,27 @@
 #include "game.h"
 
-// Débuté le 14/01/2024
-// Terminé le même jour après presque 4h de codage (c'était assez facile)
+// Débuté le 15/01/2024
+// Terminé le même jour après presque 2h de codage (c'était assez facile, étant donné que je me suis inspiré de tic-tac-toe pour le faire)
+// La version actuelle fonctionne seulement si on veut faire connecter 4 rectangles ET si on joue sur un board 7x6
 
 void show_name()
 {
 	V2d_i pos = { BEG_X_MAP + (END_X_MAP - BEG_X_MAP) * 1 / 4 + 50, BEG_Y_MAP - 50 };
 	pencil(COLOR_GREEN);
-	draw_simple_text("Tic-Tac-Toe", pos, get_font(0));
+	draw_simple_text("Connect 4", pos, get_font(0));
 }
 
 void draw_lines()
 {
 	pencil(COLOR_WHITE);
-	int squaresPerRow = 3;
 	draw_rect({ {BEG_X_MAP,BEG_Y_MAP},{END_X_MAP - BEG_X_MAP,END_Y_MAP - BEG_Y_MAP} });
-	int divisions = (END_X_MAP - BEG_X_MAP) / squaresPerRow;
+	for (int i = 1; i <= squaresPerColumn - 1; i++)
+	{
+		draw_line({ BEG_X_MAP + xy * i, BEG_Y_MAP }, { BEG_X_MAP + xy * i, END_Y_MAP });
+	}
 	for (int i = 1; i <= squaresPerRow - 1; i++)
 	{
-		draw_line({ BEG_X_MAP + divisions * i, BEG_Y_MAP }, { BEG_X_MAP + divisions * i, END_Y_MAP });
-		draw_line({ BEG_X_MAP, BEG_Y_MAP + divisions * i }, { END_X_MAP, BEG_Y_MAP + divisions * i });
+		draw_line({ BEG_X_MAP, BEG_Y_MAP + yx * i }, { END_X_MAP, BEG_Y_MAP + yx * i });
 	}
 }
 
@@ -40,10 +42,7 @@ void switch_turns(player& joueur1, player& joueur2)
 vector<V2d_i> get_squares()
 {
 	vector<V2d_i> squares;
-	int squaresPerRow = 3;
-	int squaresPerColumn = 3;
-	int xy = (END_X_MAP - BEG_X_MAP) / squaresPerColumn;
-	int yx = (END_Y_MAP - BEG_Y_MAP) / squaresPerRow;
+	
 
 	for (int i = BEG_Y_MAP; i <= END_Y_MAP - yx; i += yx)
 	{
@@ -78,11 +77,6 @@ player& notActualPlayer()
 
 int click_check(vector<V2d_i> squares, vector<int>& carresCheckes, player& joueur1, player& joueur2)
 {
-	int squaresPerRow = 3;
-	int squaresPerColumn = 3;
-	int xy = (END_X_MAP - BEG_X_MAP) / squaresPerColumn;
-	int yx = (END_Y_MAP - BEG_Y_MAP) / squaresPerRow;
-
 	for (int i = 0; i < squares.size(); i++)
 	{
 		if (mouse().position().x > squares.at(i).x && mouse().position().x < squares.at(i).x + xy &&
@@ -116,38 +110,123 @@ bool is_in(int element, vector<int> lesElements)
 	return false;
 }
 
+bool up_connect(int numero)
+{
+	if (numero <= squaresPerColumn * (connexionsAFaire - 1))
+	{
+		return false;
+	}
+	int add;
+	for (int i = 0; i < connexionsAFaire - 1; i++)
+	{
+		add = numero - (i + 1) * up_difference;
+		if (!is_in(add, actualPlayer().squaresPossessed))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+bool down_connect(int numero)
+{
+	if (numero > squaresPerColumn * (connexionsAFaire - 1))
+	{
+		return false;
+	}
+	int add = numero;
+	for (int i = 0; i < connexionsAFaire - 1; i++)
+	{
+		add += up_difference;
+		if (!is_in(add, actualPlayer().squaresPossessed))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+bool updiag_connect(int numero)
+{
+	int add = numero;
+	for (int i = 0; i < connexionsAFaire - 1; i++)
+	{
+		add -= up_diag_difference;
+		if (!is_in(add, actualPlayer().squaresPossessed))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+bool downdiag_connect(int numero)
+{
+	int add = numero;
+	for (int i = 0; i < connexionsAFaire - 1; i++)
+	{
+		add += down_diag_difference;
+		if (!is_in(add, actualPlayer().squaresPossessed))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+int get_row(int numero)
+{
+	int row = numero % squaresPerColumn;
+	if (numero % squaresPerColumn != 0)
+	{
+		row++;
+	}
+	return row;
+}
+
+bool left_connect(int numero)
+{
+	int add = numero;
+	for (int i = 0; i < connexionsAFaire - 1; i++)
+	{
+		add -= side_difference;
+		if (!is_in(add, actualPlayer().squaresPossessed))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+bool right_connect(int numero)
+{
+	int add = numero;
+	for (int i = 0; i < connexionsAFaire - 1; i++)
+	{
+		add += side_difference;
+		if (!is_in(add, actualPlayer().squaresPossessed))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
 bool win_check(player& joueur)
 {
-	if (is_in(1,joueur.squaresPossessed) && is_in(2, joueur.squaresPossessed) && is_in(3, joueur.squaresPossessed))
+	for (int i = 0; i < joueur.squaresPossessed.size(); i++)
 	{
-		return true;
-	}
-	else if (is_in(1, joueur.squaresPossessed) && is_in(4, joueur.squaresPossessed) && is_in(7, joueur.squaresPossessed))
-	{
-		return true;
-	}
-	else if (is_in(1, joueur.squaresPossessed) && is_in(5, joueur.squaresPossessed) && is_in(9, joueur.squaresPossessed))
-	{
-		return true;
-	}
-	else if (is_in(7, joueur.squaresPossessed) && is_in(8, joueur.squaresPossessed) && is_in(9, joueur.squaresPossessed))
-	{
-		return true;
-	}
-	else if (is_in(4, joueur.squaresPossessed) && is_in(5, joueur.squaresPossessed) && is_in(6, joueur.squaresPossessed))
-	{
-		return true;
-	}
-	else if (is_in(3, joueur.squaresPossessed) && is_in(5, joueur.squaresPossessed) && is_in(7, joueur.squaresPossessed))
-	{
-		return true;
-	}
-	else if (is_in(3, joueur.squaresPossessed) && is_in(6, joueur.squaresPossessed) && is_in(9, joueur.squaresPossessed))
-	{
-		return true;
+		if (up_connect(joueur.squaresPossessed.at(i)) ||
+			down_connect(joueur.squaresPossessed.at(i)) ||
+			updiag_connect(joueur.squaresPossessed.at(i)) ||
+			downdiag_connect(joueur.squaresPossessed.at(i)) ||
+			left_connect(joueur.squaresPossessed.at(i)) ||
+			right_connect(joueur.squaresPossessed.at(i)))
+		{
+			return true;
+		}
 	}
 	return false;
-
 }
 
 void anounce_winner(player gagnant)
@@ -215,25 +294,25 @@ int main()
 		draw_simple_text("Restart", { END_X_MAP + 10,END_Y_MAP + 30 }, get_font(0));
 		if (joueur1.has_turn)
 		{
-			pencil(COLOR_GREEN);
+			pencil(rgb(255,255,0));
 		}
 		else
 		{
-			pencil(COLOR_CYAN);
+			pencil(rgb(255,0,0));
 		}
 		if (mouse_left_pressed() && modifiable)
 		{
 			numeroCheck = click_check(squares, carresCheckes, joueur1, joueur2);
 			actualPlayer().squaresPossessed.push_back(numeroCheck);
 		}
-		if (carresCheckes.size() >= 5)
+		if (carresCheckes.size() >= connexionsAFaire * 2 - 1)
 		{
 			if (win_check(actualPlayer()))
 			{
 				modifiable = false;
 				anounce_winner(notActualPlayer());
 			}
-			else if (carresCheckes.size() == 9)
+			else if (carresCheckes.size() == squares.size())
 			{
 				modifiable = false;
 				announce_draw();
