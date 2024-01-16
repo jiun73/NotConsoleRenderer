@@ -1,14 +1,16 @@
 #include "game.h"
+#include "Strings.h"
 
 // Débuté le 15/01/2024
 // Terminé le même jour après presque 2h de codage (c'était assez facile, étant donné que je me suis inspiré de tic-tac-toe pour le faire)
-// La version actuelle fonctionne seulement si on veut faire connecter 4 rectangles ET si on joue sur un board 7x6
 
 void show_name()
 {
+	string num = entier_en_chaine(connexionsAFaire);
+	string phrase = "Connect " + num;
 	V2d_i pos = { BEG_X_MAP + (END_X_MAP - BEG_X_MAP) * 1 / 4 + 50, BEG_Y_MAP - 50 };
 	pencil(COLOR_GREEN);
-	draw_simple_text("Connect 4", pos, get_font(0));
+	draw_simple_text(phrase, pos, get_font(0));
 }
 
 void draw_lines()
@@ -22,6 +24,18 @@ void draw_lines()
 	for (int i = 1; i <= squaresPerRow - 1; i++)
 	{
 		draw_line({ BEG_X_MAP, BEG_Y_MAP + yx * i }, { END_X_MAP, BEG_Y_MAP + yx * i });
+	}
+}
+
+void update_modifiable(vector<V2d_i> squares, vector<bool> bouleen)
+{
+	pencil(COLOR_WHITE);
+	for (int i = 0; i < squares.size(); i++)
+	{
+		if (!bouleen.at(i))
+		{
+			draw_line({squares.at(i)}, {squares.at(i).x + xy, squares.at(i).y + yx});
+		}
 	}
 }
 
@@ -75,7 +89,13 @@ player& notActualPlayer()
 	return joueur1;
 }
 
-int click_check(vector<V2d_i> squares, vector<int>& carresCheckes, player& joueur1, player& joueur2)
+void remove_line(V2d_i pos)
+{
+	pencil(COLOR_BLACK);
+	draw_full_rect(Rect({ pos,{xy,yx} }));
+}
+
+int click_check(vector<V2d_i> squares, vector<bool>& squaresModifiable, vector<int>& carresCheckes, player& joueur1, player& joueur2)
 {
 	for (int i = 0; i < squares.size(); i++)
 	{
@@ -89,10 +109,18 @@ int click_check(vector<V2d_i> squares, vector<int>& carresCheckes, player& joueu
 					return -1;
 				}
 			}
-			switch_turns(joueur1, joueur2);
-			draw_full_rect({ squares.at(i),{xy,yx} });
-			carresCheckes.push_back(i + 1);
-			return i + 1;
+			if (squaresModifiable.at(i))
+			{
+				switch_turns(joueur1, joueur2);
+				draw_full_rect({ squares.at(i),{xy,yx} });
+				if (i > squaresPerColumn)
+				{
+					remove_line(squares.at(i - squaresPerColumn));
+					squaresModifiable.at(i - squaresPerColumn) = true;
+				}
+				carresCheckes.push_back(i + 1);
+				return i + 1;
+			}
 		}
 	}
 	return -1;
@@ -261,12 +289,29 @@ void reinitialiser_joueurs(player& joueur1, player& joueur2)
 	joueur2.squaresPossessed.clear();
 }
 
+vector<bool> squaresOccupied(vector<V2d_i> vecteur)
+{
+	vector<bool> v;
+	for (int i = 0; i < vecteur.size() - squaresPerColumn; i++)
+	{
+		v.push_back(false);
+	}
+	for (int i = 0; i < squaresPerColumn; i++)
+	{
+		v.push_back(true);
+	}
+	return v;
+}
+
 int main()
 {
 	setlocale(LC_ALL, "");
 
+	bool firstUse = true;
+
 	vector<V2d_i> squares = get_squares();
-	
+	vector<bool> squaresModifiable = squaresOccupied(squares);
+
 	joueur1.has_turn = true;
 	joueur2.has_turn = false;
 
@@ -287,6 +332,11 @@ int main()
 	
 	while (run())
 	{
+		if (firstUse)
+		{
+			update_modifiable(squares, squaresModifiable); 
+			firstUse = false;
+		}
 		show_name();
 		draw_lines();
 		draw_full_rect(Rect({ boutonRecommencer,xyRecommencer }));
@@ -302,8 +352,11 @@ int main()
 		}
 		if (mouse_left_pressed() && modifiable)
 		{
-			numeroCheck = click_check(squares, carresCheckes, joueur1, joueur2);
-			actualPlayer().squaresPossessed.push_back(numeroCheck);
+			numeroCheck = click_check(squares, squaresModifiable, carresCheckes, joueur1, joueur2);
+			if (numeroCheck > 0)
+			{
+				actualPlayer().squaresPossessed.push_back(numeroCheck);
+			}
 		}
 		if (carresCheckes.size() >= connexionsAFaire * 2 - 1)
 		{
@@ -327,7 +380,9 @@ int main()
 				draw_full_rect(Rect({ {0,0},{X_CONSOLE,Y_CONSOLE} }));
 				draw_lines();
 				reinitialiser_joueurs(joueur1, joueur2);
-				carresCheckes.clear();
+				carresCheckes.clear(); 
+				firstUse = true;
+				squaresModifiable = squaresOccupied(squares);
 			}
 		}
 	}
