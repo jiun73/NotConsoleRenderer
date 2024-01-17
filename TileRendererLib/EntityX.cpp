@@ -1,4 +1,5 @@
 #include "EntityX.h"
+#include "pch.h"
 
 void EntityManagerX::add_system(uint8_t layer, SystemX* system, SystemID id)
 {

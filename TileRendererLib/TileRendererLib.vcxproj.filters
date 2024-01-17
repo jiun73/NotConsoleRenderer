@@ -16,6 +16,12 @@
     <Filter Include="Header Files\Classes">
       <UniqueIdentifier>{05d86e4a-0daf-48ed-b8ef-721d5eab065c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Generic">
+      <UniqueIdentifier>{71bf638f-c53e-4443-abfe-f8b66b19747d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Debugging">
+      <UniqueIdentifier>{eadb03d2-ff5b-49a9-8505-2c3aa7b5af86}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -63,6 +69,21 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Typoids.h">
+      <Filter>Header Files\Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="Stringify.h">
+      <Filter>Header Files\Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="ClassFactory.h">
+      <Filter>Header Files\Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadPool.h">
+      <Filter>Header Files\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandPrompt.h">
+      <Filter>Header Files\Debugging</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TileRendererLib.cpp">
@@ -82,6 +103,12 @@
     </ClCompile>
     <ClCompile Include="File.cpp">
       <Filter>Header Files\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadPool.cpp">
+      <Filter>Header Files\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandPrompt.cpp">
+      <Filter>Header Files\Debugging</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

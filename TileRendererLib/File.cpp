@@ -1,4 +1,5 @@
 #include "File.h"
+#include "pch.h"
 
 inline void File::writeString(const std::string& s)
 {

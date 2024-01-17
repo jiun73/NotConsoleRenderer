@@ -21,6 +21,7 @@ struct AI_x
 struct Shooter_x 
 {
 	WeaponComputer computer;
+	WeaponInventory inventory;
 };
 
 #include "BasicComponents.h"
@@ -185,7 +186,7 @@ struct Shooter_system
 
 		if (mouse_left_held())
 		{
-			parser.load(shooter->computer);
+			parser.load(shooter->computer, shooter->inventory);
 			EntX::get()->add_callback_current([shooter](EntityID eid) {
 				shooter->computer.tick(eid);
 				}
@@ -194,7 +195,7 @@ struct Shooter_system
 
 		if (mouse_right_pressed())
 		{
-			parser.load(shooter->computer);
+			parser.load(shooter->computer, shooter->inventory);
 			shooter->computer.clockLast = SDL_GetTicks() - shooter->computer.settings.clockSpeed * 2 - shooter->computer.settings.bootSpeed;
 			
 
@@ -417,7 +418,7 @@ void handle_edit_mode(WeaponParser& parser, int& selected_line, const Font& font
 	if(lineMove) change_line(parser, selected_line, selected_line + lineMove);
 	inputWasEmpty = input.empty();
 
-	auto errors = parser.load(*parser.computer);
+	auto errors = parser.load(*parser.computer, *parser.inventory);
 
 	render_cursor(input, selected_line, font);
 	render_errors(errors, font);
@@ -475,17 +476,17 @@ int main()
 		{ 0 }, {}, ENTITY_ENEMY
 	); };
 
-	spawn();
-
 	WeaponComputer& computer = player.component<Shooter_x>()->computer;
+	WeaponInventory& inventory = player.component<Shooter_x>()->inventory;
 	computer.bulletType = get_bullet_from_type(BULLET_SIZABLE);
 	computer.settings.storage = 25;
 	computer.settings.clockSpeed = 50;
 	computer.registers.resize(3);
+	inventory.available_intructions = { {SHOOT, {2} },{LOAD, {2} } };
 
 	GFX_system* gfx_sys = EntX::get()->get_system<GFX_system>();
 	WeaponParser& parser = EntX::get()->get_system<Shooter_system>()->parser;
-	parser.load(computer);
+	parser.load(computer, inventory);
 	
 	bool edit = true;
 	bool inputWasEmpty = false;

@@ -22,6 +22,14 @@ inline WeaponError WeaponParser::load_intruction(const string& line, size_t i)
 	ComputerInstructionSet type = get_instruction_type(args.at(0));
 
 	if (type == INVALID) return { 0, ERROR_INVALID_INSTRUCTION };
+	if (!inventory_copy.infinite)
+	{
+		if (inventory_copy.available_intructions.count(type) && inventory_copy.available_intructions.at(type) > 0)
+		{
+			inventory_copy.available_intructions.at(type).val--;
+		}
+		else return  { 0, ERROR_NOT_IN_INVENTORY };
+	}
 
 	Instruction info = get_instruction(type);
 
@@ -56,6 +64,14 @@ inline WeaponError WeaponParser::load_intruction(const string& line, size_t i)
 			if (isConstantValue) {
 				if (arg.size() == 1 && arg.at(0) == '-') return { get_true_offset(args, i), ERROR_INVALID_ARGUMENT, ERROR_EXPECTING_VALUE };
 				input = stoi(arg);
+				if (!inventory_copy.infinite)
+				{
+					if (inventory_copy.available_constants.count(input) && inventory_copy.available_constants.at(input) > 0)
+					{
+						inventory_copy.available_constants.at(input).val--;
+					}
+					else return  { get_true_offset(args, i), ERROR_NOT_IN_INVENTORY };
+				}
 			}
 			else if (isRegisterValue)
 			{
@@ -113,13 +129,15 @@ inline WeaponError WeaponParser::load_intruction(const string& line, size_t i)
 	return {};
 }
 
-vector<WeaponError> WeaponParser::load(WeaponComputer& computer)
+vector<WeaponError> WeaponParser::load(WeaponComputer& computer, WeaponInventory& inventory)
 {
 	computer.instructions.clear();
 	computer.instructions.resize(computer.settings.storage);
 	source.resize(computer.settings.storage);
 	computer.source = &source;
+	inventory_copy = inventory;
 
+	this->inventory = &inventory;
 	this->computer = &computer;
 
 	vector<WeaponError> errors;

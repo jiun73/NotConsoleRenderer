@@ -14,5 +14,9 @@
 #include "Random.h"
 #include "Input.h"
 #include "Sound.h"
+#include "File.h"
+#include "CommandPrompt.h"
+#include "ThreadPool.h"
+#include "EntityX.h"
 
 #endif //PCH_H

@@ -40,3 +40,47 @@ inline void string_to_upper(string& str)
 {
 	for (auto& c : str) c = std::toupper(c);
 }
+
+//TODO: fix this shit function
+inline void split2(std::vector<std::string>& vec, std::string str, char delim = ' ', char d1 = '"', char d2 = '"') 
+{
+	std::string buf = str;
+
+	size_t i = buf.find_first_of(delim);
+	while (i != buf.npos)
+	{
+		if (buf.front() == d1)
+		{
+			size_t ss = buf.find_first_of(d2, 1);
+			if (ss != buf.npos)
+			{
+
+				std::string ex = buf.substr(1, ss - 1);
+
+				vec.push_back(ex);
+				if (!buf.empty())
+					buf.erase(0, ss + 1);
+
+				i = buf.find_first_of(delim);
+
+				continue;
+			}
+		}
+
+		std::string ex = buf.substr(0, i);
+
+
+		vec.push_back(ex);
+		buf.erase(0, i + 1);
+		i = buf.find_first_of(delim);
+	}
+
+	if (!buf.empty())
+		if (buf.front() == d1)
+		{
+			if (buf.back() == d2)
+				vec.push_back(buf.substr(1, buf.length() - 3));
+		}
+		else
+			vec.push_back(buf);
+}

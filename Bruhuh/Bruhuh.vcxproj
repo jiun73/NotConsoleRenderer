@@ -149,6 +149,7 @@
     <ClInclude Include="WeaponErrors.h" />
     <ClInclude Include="WeaponHelpers.h" />
     <ClInclude Include="WeaponIntructions.h" />
+    <ClInclude Include="WeaponInventory.h" />
     <ClInclude Include="WeaponParser.h" />
     <ClInclude Include="Weapons.h" />
   </ItemGroup>
