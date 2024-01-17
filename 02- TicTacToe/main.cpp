@@ -3,6 +3,13 @@
 // Débuté le 14/01/2024
 // Terminé le même jour après presque 4h de codage (c'était assez facile)
 
+void show_name()
+{
+	V2d_i pos = { BEG_X_MAP + (END_X_MAP - BEG_X_MAP) * 1 / 4 + 50, BEG_Y_MAP - 50 };
+	pencil(COLOR_GREEN);
+	draw_simple_text("Tic-Tac-Toe", pos, get_font(0));
+}
+
 void draw_lines()
 {
 	pencil(COLOR_WHITE);
@@ -201,6 +208,7 @@ int main()
 	
 	while (run())
 	{
+		show_name();
 		draw_lines();
 		draw_full_rect(Rect({ boutonRecommencer,xyRecommencer }));
 		pencil(COLOR_PINK);
