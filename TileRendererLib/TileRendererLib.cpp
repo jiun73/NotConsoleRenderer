@@ -9,6 +9,7 @@
 #include "EntityX.h"
 #include "Fonts.h"
 #include "Camera.h"
+#include "CommandPrompt.h"
 
 #include <map>
 
@@ -90,6 +91,23 @@ void init()
 		sound().init();	
 		fonts().read_hint_file(sdl_ren);
 		__init__ = true;
+
+		__NEW_COMMAND__(test, "test", [](__COMMAND_ARGS__)
+			{
+				std::cout << "You tested alright!" << std::endl;
+			});
+
+		__NEW_COMMAND__(help, "help", [](__COMMAND_ARGS__)
+			{
+				std::cout << "This is the command center!" << std::endl;
+				std::cout << "you can enter commands or define your own!" << std::endl;
+				std::cout << "This is somewhat useful if you want to peek quickly at some variables or something" << std::endl;
+				std::cout << "Or maybe you need to setup a specific situation for bug testing... ?" << std::endl;
+				std::cout << "Idk you do what you what!" << std::endl;
+				std::cout << "special: *** means that the argument can be any string" << std::endl;
+				std::cout << "special: [...] means that the argument has additionnal (and optionnal) arguments at the end" << std::endl;
+				std::cout << "special: (int) means... huh... let me check..." << std::endl;
+			});
 	}
 }
 
@@ -103,7 +121,22 @@ bool run()
 	}
 	else 
 	{
+		if (_keyboard.pressed(SDL_SCANCODE_F3))
+		{
+			if (!Commands::get()->isPolling())
+			{
+				std::cout << "Debug mode started!" << std::endl;
+				Commands::get()->startPolling();
+			}
+			else
+			{
+				std::cout << "Exiting Debug mode!" << std::endl;
+				Commands::get()->stopPolling();
+			}
+		}
+
 		EntX::get()->update();
+		Commands::get()->update();
 
 		SDL_RenderPresent(sdl_ren);
 
