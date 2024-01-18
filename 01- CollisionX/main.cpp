@@ -12,7 +12,7 @@
 void afficher_message_defaite(square& main,vector<square>& vect, bool& jouer,V2d_i& posFruit, bool& showFruit)
 {
 	pencil(COLOR_WHITE);
-	draw_simple_text("Vous avez perdu :(  Appuyez sur 'q' pour rejouer !", { X_CONSOLE / 2,Y_CONSOLE / 2 }, get_font(0));
+	draw_simple_text("Vous avez perdu :(  Appuyez sur 'q' pour rejouer !", { X_CONSOLE / 2 - 200,Y_CONSOLE / 2 }, get_font(0));
 	if (key_pressed(SDL_SCANCODE_Q))
 	{
 		//sound().stopMusic();
@@ -74,55 +74,64 @@ int main()
 	int score = 0;
 	const int scoreIncrease = 100;
 
+	int pause = 1;
+
 	while (run())
 	{
-		pencil(COLOR_BLACK);
-		draw_clear();
-		pencil(COLOR_GREEN);
-		for (int i = 0; i < vect.size(); i++)
+		if (key_pressed(SDL_SCANCODE_SPACE))
 		{
-			vect.at(i).create();
+			pause *= -1;
 		}
-		if (mouse_left_pressed())
+		if (pause == 1)
 		{
-			vect.push_back(square());
-		}
-		for (int i = 0; i < vect.size(); i++)
-		{
-			vect.at(i).boink(vect);
-		}
-		pencil(COLOR_WHITE);
-		if (!main.main_touched)
-		{
-			main.create();
-			main.show_coordinates();
-			main.boink(vect);
-		}
-		else
-		{
-			showFruit = false;
-			bool jouer = false;
-			if (!jouer)
+			pencil(COLOR_BLACK);
+			draw_clear();
+			pencil(COLOR_GREEN);
+			for (int i = 0; i < vect.size(); i++)
 			{
-				afficher_message_defaite(main, vect,jouer,posFruit,showFruit);
-				score = 0;
+				vect.at(i).create();
 			}
-		}
-		if (showFruit)
-		{
-			show_fruit(posFruit);
-			show_score(score);
-			if (main.get_pos().x < posFruit.x + 20 &&
-				main.get_pos().x + 20 > posFruit.x &&
-				main.get_pos().y < posFruit.y + 20 &&
-				main.get_pos().y + 20 > posFruit.y)
+			if (mouse_left_pressed())
 			{
-				posFruit.x = random().range(0, X_CONSOLE - 20);
-				posFruit.y = random().range(0, Y_CONSOLE - 20);
-				sound().stopMusic();
-				sound().playSound("eatfruit.wav");
 				vect.push_back(square());
-				score += scoreIncrease;
+			}
+			for (int i = 0; i < vect.size(); i++)
+			{
+				vect.at(i).boink(vect);
+			}
+			pencil(COLOR_WHITE);
+			if (!main.main_touched)
+			{
+				main.create();
+				main.show_coordinates();
+				main.boink(vect);
+			}
+			else
+			{
+				showFruit = false;
+				bool jouer = false;
+				if (!jouer)
+				{
+					afficher_message_defaite(main, vect, jouer, posFruit, showFruit);
+					score = 0;
+				}
+			}
+			if (showFruit)
+			{
+				show_fruit(posFruit);
+				show_score(score);
+				if (main.get_pos().x < posFruit.x + 20 &&
+					main.get_pos().x + 20 > posFruit.x &&
+					main.get_pos().y < posFruit.y + 20 &&
+					main.get_pos().y + 20 > posFruit.y)
+				{
+					posFruit.x = random().range(0, X_CONSOLE - 20);
+					posFruit.y = random().range(0, Y_CONSOLE - 20);
+					sound().stopMusic();
+					sound().playSound("eatfruit.wav");
+					vect.push_back(square());
+					score += scoreIncrease;
+				}
 			}
 		}
 	}

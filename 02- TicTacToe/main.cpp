@@ -55,6 +55,8 @@ vector<V2d_i> get_squares()
 	return squares;
 }
 
+player bot;
+bool botPlay = true;
 player joueur1;
 player joueur2;
 

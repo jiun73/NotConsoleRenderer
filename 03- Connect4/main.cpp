@@ -113,7 +113,7 @@ int click_check(vector<V2d_i> squares, vector<bool>& squaresModifiable, vector<i
 			{
 				switch_turns(joueur1, joueur2);
 				draw_full_rect({ squares.at(i),{xy,yx} });
-				if (i > squaresPerColumn)
+				if (i >= squaresPerColumn)
 				{
 					remove_line(squares.at(i - squaresPerColumn));
 					squaresModifiable.at(i - squaresPerColumn) = true;
@@ -315,8 +315,8 @@ int main()
 	joueur1.has_turn = true;
 	joueur2.has_turn = false;
 
-	joueur1.name = "Joueur1";
-	joueur2.name = "Joueur2";
+	joueur1.name = "jaune";
+	joueur2.name = "rouge";
 
 	bool modifiable = true;
 

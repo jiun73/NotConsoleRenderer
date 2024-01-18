@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "02- TicTacToe", "02- TicTac
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "03- Connect4", "03- Connect4\03- Connect4.vcxproj", "{ABDA5674-6EAA-4DD8-8324-2F47D1BFD920}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "04- BounceX", "04- BounceX\04- BounceX.vcxproj", "{EC91E2CA-7CF2-4652-B8BF-B5B43CF6DB17}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -71,6 +73,14 @@ Global
 		{ABDA5674-6EAA-4DD8-8324-2F47D1BFD920}.Release|x64.Build.0 = Release|x64
 		{ABDA5674-6EAA-4DD8-8324-2F47D1BFD920}.Release|x86.ActiveCfg = Release|Win32
 		{ABDA5674-6EAA-4DD8-8324-2F47D1BFD920}.Release|x86.Build.0 = Release|Win32
+		{EC91E2CA-7CF2-4652-B8BF-B5B43CF6DB17}.Debug|x64.ActiveCfg = Debug|x64
+		{EC91E2CA-7CF2-4652-B8BF-B5B43CF6DB17}.Debug|x64.Build.0 = Debug|x64
+		{EC91E2CA-7CF2-4652-B8BF-B5B43CF6DB17}.Debug|x86.ActiveCfg = Debug|Win32
+		{EC91E2CA-7CF2-4652-B8BF-B5B43CF6DB17}.Debug|x86.Build.0 = Debug|Win32
+		{EC91E2CA-7CF2-4652-B8BF-B5B43CF6DB17}.Release|x64.ActiveCfg = Release|x64
+		{EC91E2CA-7CF2-4652-B8BF-B5B43CF6DB17}.Release|x64.Build.0 = Release|x64
+		{EC91E2CA-7CF2-4652-B8BF-B5B43CF6DB17}.Release|x86.ActiveCfg = Release|Win32
+		{EC91E2CA-7CF2-4652-B8BF-B5B43CF6DB17}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

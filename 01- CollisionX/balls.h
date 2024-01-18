@@ -176,12 +176,14 @@ private:
 		{
 			velocite = { 0,1 };
 		}
-		pos += velocite;
+		pos.x += velocite.x * acceleration;
+		pos.y += velocite.y * acceleration;
 	}
 public:
 	bool begin = false;
 	V2d_i velocite = { choose(),choose() };
 	bool is_main = false;
+	int acceleration = 2;
 	V2d_i create()
 	{
 		rect(pos, xy, velocite);
