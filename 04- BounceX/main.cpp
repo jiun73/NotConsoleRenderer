@@ -48,29 +48,59 @@ void projectile_horizontal(square& main, double time)
 	}
 }
 
-void projectile_oblique(square& main, double time)
+void projectile_oblique(square& main, double time, int& angle)
 {
-	double Vi = 100;
+	double Vi = 50.0;
 	int Xi = 30;
 	int coefficient = 10;
 	if (main.get_pos().y + 20 < Y_CONSOLE)
 	{
-		main.get_pos().x = Vi * time + Xi;
-		main.get_pos().y = coefficient * time * time * 9.8 / 2;
+		main.get_pos().x = Vi * time + 30;
+		double trajectoire = Vi * sin(angle);
+		main.get_pos().y = trajectoire + Y_CONSOLE / 2;
+		if (angle == 360)
+		{
+			angle = 0;
+		}
+		else
+		{
+			angle++;
+		}
 	}
 }
 
-void cercle(V2d_i pos, double radius)
+void circle_on_axis(square& main, V2d_i axisPosition, double radius, int& angle)
 {
+	double newAngle = static_cast<double>(angle);
+	double angleInRad = newAngle * 3.14159265 / 180.0000000;
+	double sinus = sin(angleInRad);
+	double cosinus = cos(angleInRad);
+	int x = cosinus * radius + axisPosition.x;
+	int y = sinus * radius + axisPosition.y;
+	main.get_pos().x = x;
+	main.get_pos().y = y;
+	angle++;
+}
+
+void make_main_rotate(V2d_i& pos, int& angle)
+{
+	double newAngle = static_cast<double>(angle);
+	double angleInRad = newAngle * 3.14159265 / 180.0000000;
+	double sinus = sin(angleInRad);
+	double cosinus = cos(angleInRad);
+	pos.x += cosinus * pos.x;
+	pos.y += sinus * pos.y;
 	pencil(COLOR_WHITE);
-	for (int i = 0; i <= 380; i++)
+	draw_pix(pos);
+}
+
+void rotate(vector<V2d_i>& vect, int& angle)
+{
+	for (int i = 0; i < vect.size(); i++)
 	{
-		double sinus = sin(i);
-		double cosinus = cos(i);
-		int x = cosinus * radius;
-		int y = sinus * radius;
-		draw_pix({ pos.x + x, pos.y + y});
+		make_main_rotate(vect.at(i), angle);
 	}
+	angle++;
 }
 
 int main()
@@ -80,25 +110,34 @@ int main()
 	set_window_resizable();
 
 	square main;
+	main.get_pos() = { X_CONSOLE  / 2,Y_CONSOLE / 2 };
 	main.is_main = true;
 	main.velocite = 0;
-	int Yi = Y_CONSOLE / 2;
-	main.get_pos() = { 30,Yi };
 
 	double time = 0;
 	int vi = 0;
 	bool touchGround = false;
+	int angle = 0;
+	V2d_i axis = { X_CONSOLE / 2, Y_CONSOLE / 2 };
+	int allow = 0;
+	int max = 3;
 	while (run())
 	{
-		//time = get_time(time);
-		//pencil(COLOR_BLACK);
-		//draw_clear();
-		////chute_libre(main,time, vi, touchGround);
-		////projectile_horizontal(main, time);
-		projectile_oblique(main, time);
-		main.create();
+		allow++;
+		time = get_time(time);
+		pencil(COLOR_BLACK);
+		draw_clear();
+		//chute_libre(main,time, vi, touchGround);
+		//projectile_horizontal(main, time);
+		//projectile_oblique(main, time, angle);
+		/*if (allow == max)
+		{
+			circle_on_axis(main, axis, 350, angle);
+			allow = 0;
+		}*/
+		rotate(main.get_points(), angle);
+		//main.create();
 		main.show_coordinates();
-		//show_time(time);
-		cercle({750,300},30.0000);
+		show_time(time);
 	}
 }

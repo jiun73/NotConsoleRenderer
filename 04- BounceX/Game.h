@@ -9,6 +9,45 @@ const int Y_CONSOLE = 750;
 
 const double frame_rate = 120.0;
 
+struct chrono 
+{
+private:
+	double time = 0;
+	double aug = 1.0 / 120.0;
+	bool stop = false;
+
+	double increase()
+	{
+		if (!stop)
+		{
+			time += aug;
+			return time;
+		}
+	}
+public:
+	void start()
+	{
+		increase();
+	}
+	void reset()
+	{
+		time = 0;
+	}
+	void pause()
+	{
+		stop = true;
+	}
+	void restart()
+	{
+		stop = false;
+		increase();
+	}
+	double actual()
+	{
+		return time;
+	}
+};
+
 struct square
 {
 private:
@@ -18,11 +57,6 @@ private:
 		if (is_main)
 		{
 			pencil(COLOR_WHITE);
-			if (!begin)
-			{
-				pos = { 30,30 };
-				begin = true;
-			}
 		}
 		draw_rect(Rect({ pos, xy }));
 		pos += velocite;
@@ -39,6 +73,7 @@ private:
 	}
 	V2d_i pos = { random().range(xy.x * 2,X_CONSOLE - xy.x),random().range(xy.y * 2,Y_CONSOLE - xy.y) };
 	V2d_i xy = { 20,20 };
+	vector<V2d_i> points;
 
 	void change_velocity(V2d_i pos, V2d_i xy, V2d_i& velocite)
 	{
@@ -123,5 +158,16 @@ public:
 	V2d_i get_xy()
 	{
 		return xy;
+	}
+	vector<V2d_i>& get_points()
+	{
+		for (int n = pos.x; n <= pos.x + xy.x; n++)
+		{
+			for (int i = pos.y; i <= pos.y + xy.y; i++)
+			{
+				points.push_back({ n,i });
+			}
+		}
+		return points;
 	}
 };
