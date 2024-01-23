@@ -4,10 +4,13 @@
 #include "File.h"
 
 #include <array>
+#include <functional>
+#include <map>
 #include <vector>
 #include <unordered_map>
 
 using std::array;
+using std::map;
 using std::unordered_map;
 using std::string;
 using std::vector;
@@ -192,10 +195,42 @@ public:
 
 typedef size_t FontID;
 
+class TextDrawCounter
+{
+private:
+	const Font* font;
+	V2d_i base;
+
+public:
+	V2d_i pos = 0;
+
+	TextDrawCounter(const Font& font, V2d_i base) : font(&font), base(base), pos(base) {}
+	~TextDrawCounter() {}
+
+	void addx(char c) { pos.x += font->get(c).advance; }
+	void addx(int x) { pos.x += x; }
+	void linebreak_if(char c, int max) 
+	{
+		int advance = font->get(c).advance;
+		if (pos.x + advance > base.x + max)
+		{
+			linebreak();
+		}
+	}
+	void addy() { pos.y += font->lineskip; }
+	void linebreak() { pos.x = base.x; addy(); }
+};
+
+#define __FontEffectArgs__ const string& command, const Font& font, TextDrawCounter& counter
+typedef std::function<void(__FontEffectArgs__)> FontEffect_f;
+typedef std::function<void(SDL_Rect&)> GlyphEffect_f;
+
 class FontsManager 
 {
 private:
 	vector<Font> fonts;
+	map<string, FontEffect_f> effects;
+	vector< GlyphEffect_f> glyph_effects;
 
 public:
 	FontID add_font(SDL_Renderer* renderer, const string& path, int size = 64)
@@ -232,5 +267,43 @@ public:
 		}
 
 		std::cout << sz << " fonts loaded from hint file" << std::endl;
+	}
+
+	void add_effect(const string& name, FontEffect_f callback)
+	{
+		effects.emplace(name, callback);
+	}
+
+	void remove_glyph_effect()
+	{
+		glyph_effects.clear();
+	}
+
+	void set_glyph_effect(GlyphEffect_f effect)
+	{
+		glyph_effects.push_back(effect);
+	}
+
+	void set_font_effect(const Font& font, const string& command, TextDrawCounter& counter)
+	{
+		vector<string> args = split(command, '|');
+
+		if (args.size() == 0) return;
+		if (args.size() > 2) return;
+
+		args.at(0).pop_back(); //removes the . at the end
+		
+		if(args.size() == 1)
+			effects.at(args.at(0))("", font, counter);
+		else
+			effects.at(args.at(0))(args.at(1), font, counter);
+	}
+
+	void apply_effect(SDL_Rect& dest)
+	{
+		for (auto& func : glyph_effects)
+		{
+			func(dest);
+		}
 	}
 };

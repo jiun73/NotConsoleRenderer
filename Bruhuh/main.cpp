@@ -347,11 +347,11 @@ void render_line_selection(const WeaponParser& parser, const Font& font)
 		dest.sz = { margin, font.height };
 
 		if (point_in_rectangle(mouse_position(), dest))
+		{
 			pencil(COLOR_WHITE);
-		else
-			pencil(COLOR_BLACK);
-
-		draw_rect(dest);
+			draw_rect(dest);
+		}
+		
 	}
 }
 
@@ -541,6 +541,8 @@ int main()
 			std::cout << "enter edit mode" << std::endl;
 			edit = true;
 		}
+
+		draw_special_text("bru\\wave.\\rainbow.uuuuuuuuhhhhh", 200, 100, pixel_font);
 
 		camera().offset = player.component<Position_x>()->position - get_window_size() / 2;
 	}

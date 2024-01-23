@@ -86,17 +86,19 @@ V2d_d game_mouse_position();
 
 namespace hidden { extern Camera _camera; }
 
+//Permet de modifier ou les objects apparaissent sur l'ecran
+//À utiliser en tandem avec to_game
 Camera& camera();
-template<typename T>
-inline Vector2D<T> to_game(const Vector2D<T>& position){return hidden::_camera.find(position);}
-template<typename T>
-inline Rectangle<T> to_game(const Rectangle<T>& rect) { return hidden::_camera.find(rect); }
+
+//Convertit des positions absolue vers des positions relatives à la camera
+template<typename T> inline Vector2D<T> to_game(const Vector2D<T>& position){return hidden::_camera.find(position);}
+template<typename T> inline Rectangle<T> to_game(const Rectangle<T>& rect) { return hidden::_camera.find(rect); }
 
 //Retourne une couleur rgb
 Color rgb(int red, int green, int blue);
 
 //retourne une couleur arc-en-ciel qui change selon le temps
-Color rainbow(int speed );
+Color rainbow(int speed, int delay = 0);
 
 //Change la couleur de dessin
 void pencil(Color color);
@@ -137,6 +139,7 @@ V2d_i get_image_size(const string& path);
 //----------------------------------------------------------TEXTE-----------------------------------------------------------------------------
 
 FontsManager& fonts(); 
+void add_font_effect(const string& name, FontEffect_f effect);
 
 /*
 * Charge une police d'ecriture à partir d'un chemin
@@ -166,18 +169,58 @@ int draw_glyph(const char& character, const V2d_i& pos, const Font& font, int ke
 */
 void draw_simple_text(const string& text, const V2d_i& pos, const Font& font);
 
+/*
+* Dessine du texte aligné vers la gauche. Fait un retour de ligne automatiquement quand 
+* la taille maximale est atteint (par contre, ca le fait en verifiant la taille des lettres et non des mots, donc ceu-ci peuvetn etre brisé)
+* \param 'text' texte à dessiner
+* \param 'max_width' largeur maximale du champ de texte
+* \param 'pos' est le coin en haut à gauche du texte
+* \param 'font' est une police d'écriture obtenu avec get_font()
+*/
 void draw_text(const string& text, const int& max_width, const V2d_i& pos, const Font& font);
+void draw_special_text(const string& text, const int& max_width, const V2d_i& pos, const Font& font);
 
+/*
+* Dessine du simple texte aligné vers la gauche. supporte pas les retours de ligne 
+* \param 'font' est une police d'écriture obtenu avec get_font()
+* \param 'pos' est le coin en haut à gauche du texte
+*/
 void draw_line(const string& text, const V2d_i& pos, const Font& font);
 
+/*
+* Retourne la taille que prendrait le texte si il est dessiné sur une ligne continue
+*/
 int get_text_draw_size(const string& text, const Font& font);
+
+typedef pair<string::const_iterator, string::const_iterator> string_range;
+#include <functional>
 
 namespace hidden 
 {
+
+	template<typename... Ts>
+    inline vector<string_range> all_ranges(string_range range, string_range(range_func)(string_range, Ts...), Ts... extras) 
+	{
+		vector<string_range> ret;
+
+		auto current = range.first;
+		while (current != range.second)
+		{
+			auto sub_range = range_func({current, range.second}, extras...);
+
+			ret.push_back(sub_range);
+			
+			current = sub_range.second;
+		}
+
+		return ret;
+	}
+
 	int get_text_draw_size(string::const_iterator begin, string::const_iterator end, const Font& font);
-	pair<string::const_iterator, string::const_iterator> get_text_range_max_size(int max_size, string::const_iterator begin, string::const_iterator end, const Font& font);
-	pair<string::const_iterator, string::const_iterator> get_text_range_linebreak(string::const_iterator begin, string::const_iterator end);
-	void draw_line_range(string::const_iterator begin, string::const_iterator end, const V2d_i& pos, const Font& font);
+	string_range get_text_range_max_size(string_range range, int max_size, const Font& font);
+	string_range get_text_range_until(string_range range, char c);
+	string_range get_text_range_special(string_range range, vector<bool>& is_special);
+	void draw_line_range(string::const_iterator begin, string::const_iterator end, TextDrawCounter& counter, const Font& font);
 }
 
 //----------------------------------------------------------ALEATOIRE-------------------------------------------------------------------------

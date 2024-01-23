@@ -108,6 +108,35 @@ void init()
 				std::cout << "special: [...] means that the argument has additionnal (and optionnal) arguments at the end" << std::endl;
 				std::cout << "special: (int) means... huh... let me check..." << std::endl;
 			});
+
+		add_font_effect("end", [](__FontEffectArgs__)
+			{
+				_fonts.remove_glyph_effect();
+			});
+
+		add_font_effect("wave", [](__FontEffectArgs__)
+			{
+				_fonts.set_glyph_effect([](SDL_Rect& dest)
+					{
+						int xdis = sin((SDL_GetTicks() / 100.0) + dest.x * 5) * 5;
+						int ydis = cos((SDL_GetTicks() / 100.0) + dest.x * 5) * 5;
+						dest.x += xdis;
+						dest.y += ydis;
+					});
+			});
+
+		add_font_effect("rainbow", [](__FontEffectArgs__)
+			{
+				_fonts.set_glyph_effect([&](SDL_Rect& dest)
+					{
+						font.set_color(rainbow(1000, dest.x * 2));
+					});
+			});
+
+		add_font_effect("color", [](__FontEffectArgs__)
+			{
+
+			});
 	}
 }
 
@@ -198,9 +227,10 @@ SoundManager& sound() { return _sound; }
 //les valeurs vont de 0 à 255
 Color rgb(int red, int green, int blue) {return { (uint8_t)red,(uint8_t)green,(uint8_t)blue,255 };}
 
-Color rainbow(int speed)
+Color rainbow(int speed, int delay)
 {
-	double ratio = ((int)SDL_GetTicks() % (int)speed) / (double)speed;
+	double ratio = (((int)SDL_GetTicks() + delay) % (int)speed) / (double)speed;
+
 	//we want to normalize ratio so that it fits in to 6 regions
 	//where each region is 256 units long
 	int normalized = int(ratio * 256 * 6);
@@ -345,6 +375,11 @@ FontsManager& fonts()
 	return _fonts;
 }
 
+void add_font_effect(const string& name, FontEffect_f effect)
+{
+	_fonts.add_effect(name, effect);
+}
+
 FontID load_font(const string& path)
 {
 	return _fonts.add_font(sdl_ren, path);
@@ -366,71 +401,99 @@ int draw_glyph(const char& character, const V2d_i& pos, const Font& font, int ke
 	SDL_Rect dest = glyph.sdl_dest;
 	dest.x += pos.x + kerning;
 	dest.y += pos.y;
+	_fonts.apply_effect(dest);
 	SDL_RenderCopy(sdl_ren, font.atlas, &glyph.sdl_src, &dest);
 	return glyph.advance;
 }
 
 void draw_simple_text(const string& text, const V2d_i& pos, const Font& font)
 {
-	int xcounter = pos.x;
-	int ycounter = pos.y;
+	TextDrawCounter counter(font, pos);
 	for (auto& c : text)
 	{
 		if (c == '\n')
 		{
-			xcounter = pos.x;
-			ycounter += font.lineskip;
+			//xcounter = pos.x;
+			//ycounter += font.lineskip;
+			counter.linebreak();
 			continue;
 		}
-		xcounter += draw_glyph(c, { xcounter, ycounter }, font);
+		//xcounter += draw_glyph(c, { xcounter, ycounter }, font);
+
+		counter.addx(draw_glyph(c, counter.pos, font));
 	}
 }
 
 void draw_text(const string& text, const int& max_width, const V2d_i& pos, const Font& font)
 {
-	string::const_iterator current = text.cbegin();
+	string_range range = { text.cbegin(), text.cend() };
 
-	int ycounter = 0;
-	while (current != text.cend())
+	TextDrawCounter counter(font, pos);
+
+	for (auto lines : all_ranges(range, get_text_range_until, '\n'))
 	{
-		auto lineskip_range = get_text_range_linebreak(current, text.cend());
-		auto current_in_range = lineskip_range.first;
-
-		while (current_in_range != lineskip_range.second)
+		for (auto max : all_ranges<int, const Font&>(lines, get_text_range_max_size, max_width, font))
 		{
-			auto size_range = get_text_range_max_size(max_width, current_in_range, lineskip_range.second, font);
-
-			draw_line_range(size_range.first, size_range.second, pos + V2d_i(0, ycounter), font);
-			ycounter += font.lineskip;
-
-			current_in_range = size_range.second;
+			draw_line_range(max.first, max.second, counter, font);
+			counter.linebreak();
 		}
-		
-		
-
-		current = lineskip_range.second;
 	}
 }
 
-void hidden::draw_line_range(string::const_iterator begin, string::const_iterator end, const V2d_i& pos, const Font& font)
+void draw_special_text(const string& text, const int& max_width, const V2d_i& pos, const Font& font)
 {
-	V2d_i counter = pos;
-	char prev = 0;
+	string_range range = { text.cbegin(), text.cend() };
+
+	TextDrawCounter counter(font, pos);
+
+	for (auto lines : all_ranges(range, get_text_range_until, '\n'))
+	{
+		std::vector<bool> isSpecial;
+		size_t i = 0;
+		for (auto special : all_ranges<std::vector<bool>&>(lines, get_text_range_special, isSpecial))
+		{
+			if (special.first == special.second) { i++; continue; }
+
+			if (isSpecial.at(i))
+			{
+				std::string cmd(special.first, special.second);
+				_fonts.set_font_effect(font, cmd, counter);
+			}
+			else
+			{
+				for (auto max = special.first; max != special.second; max++)
+				{
+					counter.linebreak_if(*max, max_width);
+					counter.addx(draw_glyph(*max, counter.pos, font, 0));
+				}	
+			}
+			i++;
+		}
+		
+	}
+
+	_fonts.remove_glyph_effect();
+}
+
+void hidden::draw_line_range(string::const_iterator begin, string::const_iterator end, TextDrawCounter& counter, const Font& font)
+{
+	/*char prev = 0;*/
 	for (auto it = begin; it != end; it++) 
 	{
-		int kerning = 0;
-		if (prev != 0)
-		{
-			kerning = font.get_kerning((Uint16)prev, (Uint16)*it);
-		}
-		counter.x += draw_glyph(*it, counter, font);
-		prev = *it;
+		counter.addx(draw_glyph(*it, counter.pos, font));
+		//int kerning = 0;
+		///*if (prev != 0)
+		//{
+		//	kerning = font.get_kerning((Uint16)prev, (Uint16)*it); TODO: kerning?
+		//}*/
+		//prev = *it;
 	}
 }
 
 void draw_line(const string& text, const V2d_i& pos, const Font& font)
 {
-	draw_line_range(text.cbegin(), text.cend(), pos, font);
+	TextDrawCounter counter(font, pos);
+	draw_line_range(text.cbegin(), text.cend(), counter, font);
 }
 
 int hidden::get_text_draw_size(string::const_iterator begin, string::const_iterator end, const Font& font)
@@ -444,29 +507,70 @@ int hidden::get_text_draw_size(string::const_iterator begin, string::const_itera
 	return counter;
 }
 
-pair<string::const_iterator, string::const_iterator> hidden::get_text_range_max_size(int max_size, string::const_iterator begin, string::const_iterator end, const Font& font)
+string_range hidden::get_text_range_max_size(string_range range, int max_size, const Font& font)
 {
 	int counter = 0;
-	for (auto it = begin; it != end; it++)
+	for (auto it = range.first; it != range.second; it++)
 	{
 		const Glyph& glyph = font.get(*it);
 		counter += glyph.advance;
 
 		if (counter > max_size)
-			return { begin, it };
+			return { range.first, it };
 	}
 
-	return {begin, end};
+	return range;
 }
 
-pair<string::const_iterator, string::const_iterator> hidden::get_text_range_linebreak(string::const_iterator begin, string::const_iterator end)
+string_range hidden::get_text_range_until(string_range range, char c)
 {
-	for (auto it = begin; it != end; it++)
+	for (auto it = range.first; it != range.second; it++)
 	{
-		if (*it == '\n')
-			return { begin, it + 1 };
+		if (*it == c)
+			return { range.first, it + 1 };
 	}
-	return { begin, end };
+	return range;
+}
+
+string_range hidden::get_text_range_special(string_range range, vector<bool>& is_special)
+{
+	const char sp_char = '\\';
+	const char end_char = '.';
+
+	if (range.first == range.second) 
+	{
+		is_special.push_back(0);
+		return range; 
+	}
+
+	if (*range.first == sp_char)
+	{
+		for (auto it = std::next(range.first); it != range.second; it++)
+		{
+
+
+			if (*it == end_char)
+			{
+				is_special.push_back(1);
+				return { std::next(range.first), std::next(it) };
+			}
+		}
+
+		is_special.push_back(0);
+
+		return range;
+	}
+
+	for (auto it = range.first; it != range.second; it++)
+	{
+		if (it != range.first && *it == sp_char && std::next(it) != range.second)
+		{
+			is_special.push_back(0);
+			return { range.first, it };
+		}
+	}
+	is_special.push_back(0);
+	return range;
 }
 
 int get_text_draw_size(const string& text, const Font& font)
