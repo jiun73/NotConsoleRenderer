@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "TileRenderer.h"
 #include "Strings.h"
@@ -77,7 +77,7 @@ private:
 
 	void change_velocity(V2d_i pos, V2d_i xy, V2d_i& velocite)
 	{
-		string son = "doing.wav"; //../TileRenderer/Sounds/rizz.wav
+		string son = "doing.wav"; //"../TileRenderer/Sounds/rizz.wav";
 		if (pos.y == 0)
 		{
 			velocite.y = 1;
@@ -169,5 +169,110 @@ public:
 			}
 		}
 		return points;
+	}
+};
+
+struct shape
+{
+private:
+	V2d_i xy = { 200,200 };
+	V2d_i pos = {X_CONSOLE / 2, Y_CONSOLE / 2};
+	V2d_i topright = { pos.x + xy.x,pos.y };
+	V2d_i bottomleft = { pos.x, pos.y + xy.y};
+	V2d_i bottomright = {pos.x + xy.x, pos.y + xy.y};
+	V2d_i centre = { pos.x + (topright.x - pos.x) / 2, pos.y + (bottomright.y - pos.y) / 2 };
+	double convertir_en_radians(int angle)
+	{
+		double newAngle = static_cast<double>(angle);
+		double angleInRad = newAngle * 3.14159265 / 180.0000000;
+		return angleInRad;
+	}
+public:
+	void create()
+	{
+		pencil(COLOR_PINK);
+		draw_line(pos, topright);
+		draw_line(pos, bottomleft);
+		draw_line(bottomleft, bottomright);
+		draw_line(topright, bottomright);
+	}
+	void move()
+	{
+		if (key_held(SDL_SCANCODE_W))
+		{
+			pos.y--;
+			topright.y--;
+			bottomright.y--;
+			bottomleft.y--;
+		}
+		if (key_held(SDL_SCANCODE_S))
+		{
+			pos.y++;
+			topright.y++;
+			bottomright.y++;
+			bottomleft.y++;
+		}
+		if (key_held(SDL_SCANCODE_A))
+		{
+			pos.x--;
+			topright.x--;
+			bottomright.x--;
+			bottomleft.x--;
+		}
+		if (key_held(SDL_SCANCODE_D))
+		{
+			pos.x++;
+			topright.x++;
+			bottomright.x++;
+			bottomleft.x++;
+		}
+	}
+	void rotate_on_pos(int& angle)
+	{
+		if (key_held(SDL_SCANCODE_SPACE))
+		{
+			double angleEnRadians = convertir_en_radians(angle);
+			double x = cos(angleEnRadians);
+			double y = sin(angleEnRadians);
+			/*int x = cosinus * radius + axisPosition.x;
+			  int y = sinus * radius + axisPosition.y;*/
+			//xcosθ−ysinθ, xsinθ + ycosθ;
+			/*pos.x = pos.x * x - pos.y * y;
+			pos.y = pos.x * y - pos.y * x;*/
+			topright.x = xy.x * cos(convertir_en_radians(angle)) + pos.x;
+			topright.y = xy.y * sin(convertir_en_radians(angle)) + pos.y;
+			bottomright.x = sqrt(xy.x * xy.x + xy.y * xy.y) * cos(convertir_en_radians(angle - 315)) + pos.x;
+			bottomright.y = sqrt(xy.x * xy.x + xy.y * xy.y) * sin(convertir_en_radians(angle - 315)) + pos.y;
+			bottomleft.x = xy.x * cos(convertir_en_radians(angle - 270)) + pos.x;
+			bottomleft.y = xy.y * sin(convertir_en_radians(angle - 270)) + pos.y;
+			angle++;
+		}
+	}
+	void rotate_on_center(int& angle)
+	{
+		// centre du rectangle = {pos.x + (topright.x - pos.x) / 2, pos.y + (bottomright.y - pos.y) / 2}
+		if (key_held(SDL_SCANCODE_Q))
+		{
+			pos.x = sqrt(pow((xy.x / 2),2) + pow((xy.y / 2),2)) * cos(convertir_en_radians(angle - 135)) + centre.x;
+			pos.y = sqrt(pow((xy.x / 2), 2) + pow((xy.y / 2), 2)) * sin(convertir_en_radians(angle - 135)) + centre.y;
+			topright.x = sqrt(pow((xy.x / 2), 2) + pow((xy.y / 2), 2)) * cos(convertir_en_radians(angle - 45)) + centre.x;
+			topright.y = sqrt(pow((xy.x / 2), 2) + pow((xy.y / 2), 2)) * sin(convertir_en_radians(angle - 45)) + centre.y;
+			bottomright.x = sqrt(pow((xy.x / 2), 2) + pow((xy.y / 2), 2)) * cos(convertir_en_radians(angle - 315)) + centre.x;
+			bottomright.y = sqrt(pow((xy.x / 2), 2) + pow((xy.y / 2), 2)) * sin(convertir_en_radians(angle - 315)) + centre.y;
+			bottomleft.x = sqrt(pow((xy.x / 2), 2) + pow((xy.y / 2), 2)) * cos(convertir_en_radians(angle - 225)) + centre.x;
+			bottomleft.y = sqrt(pow((xy.x / 2), 2) + pow((xy.y / 2), 2)) * sin(convertir_en_radians(angle - 225)) + centre.y;
+			angle++;
+		}
+	}
+	void show_coordinates()
+	{
+		pencil(COLOR_WHITE);
+		setlocale(LC_ALL, "");
+		string texte = "Vos coordonnees sont: {";
+		string x = entier_en_chaine(pos.x);
+		string y = entier_en_chaine(pos.y);
+		texte += x;
+		texte += ":" + y + "}";
+		draw_simple_text(texte, { 100,10 }, get_font(0));
 	}
 };

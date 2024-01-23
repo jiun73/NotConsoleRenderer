@@ -352,6 +352,10 @@ int main()
 		}
 		if (mouse_left_pressed() && modifiable)
 		{
+			if (carresCheckes.size() == 15)
+			{
+				std::cout << "skvn";
+			}
 			numeroCheck = click_check(squares, squaresModifiable, carresCheckes, joueur1, joueur2);
 			if (numeroCheck > 0)
 			{

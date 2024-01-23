@@ -69,6 +69,13 @@ void projectile_oblique(square& main, double time, int& angle)
 	}
 }
 
+double convertir_en_radians(int angle)
+{
+	double newAngle = static_cast<double>(angle);
+	double angleInRad = newAngle * 3.14159265 / 180.0000000;
+	return angleInRad;
+}
+
 void circle_on_axis(square& main, V2d_i axisPosition, double radius, int& angle)
 {
 	double newAngle = static_cast<double>(angle);
@@ -88,8 +95,8 @@ void make_main_rotate(V2d_i& pos, int& angle)
 	double angleInRad = newAngle * 3.14159265 / 180.0000000;
 	double sinus = sin(angleInRad);
 	double cosinus = cos(angleInRad);
-	pos.x += cosinus * pos.x;
-	pos.y += sinus * pos.y;
+	pos.x = cosinus * pos.x;
+	pos.y = sinus * pos.y;
 	pencil(COLOR_WHITE);
 	draw_pix(pos);
 }
@@ -114,19 +121,22 @@ int main()
 	main.is_main = true;
 	main.velocite = 0;
 
+	shape carre;
+
 	double time = 0;
 	int vi = 0;
 	bool touchGround = false;
 	int angle = 0;
+	int angle2 = 0;
 	V2d_i axis = { X_CONSOLE / 2, Y_CONSOLE / 2 };
 	int allow = 0;
 	int max = 3;
 	while (run())
 	{
-		allow++;
-		time = get_time(time);
 		pencil(COLOR_BLACK);
 		draw_clear();
+		allow++;
+		time = get_time(time);
 		//chute_libre(main,time, vi, touchGround);
 		//projectile_horizontal(main, time);
 		//projectile_oblique(main, time, angle);
@@ -135,7 +145,12 @@ int main()
 			circle_on_axis(main, axis, 350, angle);
 			allow = 0;
 		}*/
-		rotate(main.get_points(), angle);
+		//rotate(main.get_points(), angle);
+		carre.create();
+		carre.move();
+		carre.rotate_on_pos(angle);
+		carre.rotate_on_center(angle2);
+		carre.show_coordinates();
 		//main.create();
 		main.show_coordinates();
 		show_time(time);
