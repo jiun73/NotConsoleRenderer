@@ -176,16 +176,20 @@ struct shape
 {
 private:
 	V2d_i xy = { 200,200 };
-	V2d_i pos = {X_CONSOLE / 2, Y_CONSOLE / 2};
+	V2d_i pos = {X_CONSOLE / 2 - xy.x / 2, Y_CONSOLE / 2 - xy.y / 2};
 	V2d_i topright = { pos.x + xy.x,pos.y };
 	V2d_i bottomleft = { pos.x, pos.y + xy.y};
 	V2d_i bottomright = {pos.x + xy.x, pos.y + xy.y};
-	V2d_i centre = { pos.x + (topright.x - pos.x) / 2, pos.y + (bottomright.y - pos.y) / 2 };
+	V2d_i centre = { pos.x + (topright.x - pos.x) / 2, pos.y + (bottomleft.y - pos.y) / 2 };
 	double convertir_en_radians(int angle)
 	{
 		double newAngle = static_cast<double>(angle);
 		double angleInRad = newAngle * 3.14159265 / 180.0000000;
 		return angleInRad;
+	}
+	void update_centre()
+	{
+		centre = { pos.x + (topright.x - pos.x) / 2, pos.y + (bottomleft.y - pos.y) / 2 };
 	}
 public:
 	void create()
@@ -231,14 +235,8 @@ public:
 	{
 		if (key_held(SDL_SCANCODE_SPACE))
 		{
-			double angleEnRadians = convertir_en_radians(angle);
-			double x = cos(angleEnRadians);
-			double y = sin(angleEnRadians);
-			/*int x = cosinus * radius + axisPosition.x;
-			  int y = sinus * radius + axisPosition.y;*/
-			//xcosθ−ysinθ, xsinθ + ycosθ;
-			/*pos.x = pos.x * x - pos.y * y;
-			pos.y = pos.x * y - pos.y * x;*/
+			/*int x = cos(angleEnRadians) * rayon + centreDeRotation.x;
+			  int y = sin(angleEnRadians) * rayon + centreDeRotation.y;*/
 			topright.x = xy.x * cos(convertir_en_radians(angle)) + pos.x;
 			topright.y = xy.y * sin(convertir_en_radians(angle)) + pos.y;
 			bottomright.x = sqrt(xy.x * xy.x + xy.y * xy.y) * cos(convertir_en_radians(angle - 315)) + pos.x;
@@ -250,17 +248,23 @@ public:
 	}
 	void rotate_on_center(int& angle)
 	{
-		// centre du rectangle = {pos.x + (topright.x - pos.x) / 2, pos.y + (bottomright.y - pos.y) / 2}
+		// centre du rectangle = {pos.x + (topright.x - pos.x) / 2, pos.y + (bottomleft.y - pos.y) / 2}
 		if (key_held(SDL_SCANCODE_Q))
 		{
-			pos.x = sqrt(pow((xy.x / 2),2) + pow((xy.y / 2),2)) * cos(convertir_en_radians(angle - 135)) + centre.x;
-			pos.y = sqrt(pow((xy.x / 2), 2) + pow((xy.y / 2), 2)) * sin(convertir_en_radians(angle - 135)) + centre.y;
-			topright.x = sqrt(pow((xy.x / 2), 2) + pow((xy.y / 2), 2)) * cos(convertir_en_radians(angle - 45)) + centre.x;
-			topright.y = sqrt(pow((xy.x / 2), 2) + pow((xy.y / 2), 2)) * sin(convertir_en_radians(angle - 45)) + centre.y;
-			bottomright.x = sqrt(pow((xy.x / 2), 2) + pow((xy.y / 2), 2)) * cos(convertir_en_radians(angle - 315)) + centre.x;
-			bottomright.y = sqrt(pow((xy.x / 2), 2) + pow((xy.y / 2), 2)) * sin(convertir_en_radians(angle - 315)) + centre.y;
-			bottomleft.x = sqrt(pow((xy.x / 2), 2) + pow((xy.y / 2), 2)) * cos(convertir_en_radians(angle - 225)) + centre.x;
-			bottomleft.y = sqrt(pow((xy.x / 2), 2) + pow((xy.y / 2), 2)) * sin(convertir_en_radians(angle - 225)) + centre.y;
+			if (key_held(SDL_SCANCODE_J))
+			{
+				std::cout << "allo";
+			}
+			double rayon = sqrt(20000); //sqrt(pow((xy.x / 2), 2) + pow((xy.y / 2), 2));
+			//update_centre();
+			pos.x = rayon * cos(convertir_en_radians(angle - 135)) + centre.x;
+			pos.y = rayon * sin(convertir_en_radians(angle - 135)) + centre.y;
+			topright.x = rayon * cos(convertir_en_radians(angle - 45)) + centre.x;
+			topright.y = rayon * sin(convertir_en_radians(angle - 45)) + centre.y;
+			bottomright.x = rayon * cos(convertir_en_radians(angle - 315)) + centre.x;
+			bottomright.y = rayon * sin(convertir_en_radians(angle - 315)) + centre.y;
+			bottomleft.x = rayon * cos(convertir_en_radians(angle - 225)) + centre.x;
+			bottomleft.y = rayon * sin(convertir_en_radians(angle - 225)) + centre.y;
 			angle++;
 		}
 	}

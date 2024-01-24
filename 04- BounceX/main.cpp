@@ -127,7 +127,6 @@ int main()
 	int vi = 0;
 	bool touchGround = false;
 	int angle = 0;
-	int angle2 = 0;
 	V2d_i axis = { X_CONSOLE / 2, Y_CONSOLE / 2 };
 	int allow = 0;
 	int max = 3;
@@ -149,10 +148,10 @@ int main()
 		carre.create();
 		carre.move();
 		carre.rotate_on_pos(angle);
-		carre.rotate_on_center(angle2);
+		carre.rotate_on_center(angle); // bug: quand on se déplace puis on spin, la carré revient à sa position initiale. Quand j'essaie de fixer cela, la carré sort complètement de l'écran
 		carre.show_coordinates();
-		//main.create();
-		main.show_coordinates();
+		main.create();
+		//main.show_coordinates();
 		show_time(time);
 	}
 }
