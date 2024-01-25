@@ -160,21 +160,22 @@ private:
 	}
 	void move_main(V2d_i& pos, V2d_i xy, V2d_i velocite)
 	{
+		velocite = 0;
 		if (key_held(SDL_SCANCODE_A) && pos.x > 0)
 		{
-			velocite = { -1,0 };
+			velocite.x = -1;
 		}
 		if (key_held(SDL_SCANCODE_D) && pos.x + xy.x < X_CONSOLE)
 		{
-			velocite = { 1,0 };
+			velocite.x = 1;
 		}
-		else if (key_held(SDL_SCANCODE_W) && pos.y > 0)
+		if (key_held(SDL_SCANCODE_W) && pos.y > 0)
 		{
-			velocite = { 0,-1 };
+			velocite.y = -1 ;
 		}
 		if (key_held(SDL_SCANCODE_S) && pos.y + xy.y < Y_CONSOLE)
 		{
-			velocite = { 0,1 };
+			velocite.y = 1 ;
 		}
 		pos.x += velocite.x * acceleration;
 		pos.y += velocite.y * acceleration;

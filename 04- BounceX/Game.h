@@ -13,7 +13,7 @@ struct chrono
 {
 private:
 	double time = 0;
-	double aug = 1.0 / 120.0;
+	double aug = 1.0 / frame_rate;
 	bool stop = false;
 
 	double increase()

@@ -150,7 +150,7 @@ int main()
 		carre.rotate_on_pos(angle);
 		carre.rotate_on_center(angle); // bug: quand on se déplace puis on spin, la carré revient à sa position initiale. Quand j'essaie de fixer cela, la carré sort complètement de l'écran
 		carre.show_coordinates();
-		main.create();
+		//main.create();
 		//main.show_coordinates();
 		show_time(time);
 	}
