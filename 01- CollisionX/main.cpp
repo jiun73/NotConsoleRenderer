@@ -33,7 +33,7 @@ void afficher_message_defaite(square& main,vector<square>& vect, bool& jouer,V2d
 
 void show_fruit(V2d_i posFruit)
 {
-	draw_image("fruit.jpg", { posFruit,{20,20} });
+	draw_image("alexandre.png", { posFruit,{20,20} });
 }
 
 void show_score(int score)

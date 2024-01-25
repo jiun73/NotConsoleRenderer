@@ -187,10 +187,6 @@ private:
 		double angleInRad = newAngle * 3.14159265 / 180.0000000;
 		return angleInRad;
 	}
-	void update_centre()
-	{
-		centre = { pos.x + (topright.x - pos.x) / 2, pos.y + (bottomleft.y - pos.y) / 2 };
-	}
 public:
 	void create()
 	{
@@ -230,6 +226,7 @@ public:
 			bottomright.x++;
 			bottomleft.x++;
 		}
+		centre = { pos.x + (topright.x - pos.x) / 2, pos.y + (bottomleft.y - pos.y) / 2 };
 	}
 	void rotate_on_pos(int& angle)
 	{
@@ -256,7 +253,6 @@ public:
 				std::cout << "allo";
 			}
 			double rayon = sqrt(20000); //sqrt(pow((xy.x / 2), 2) + pow((xy.y / 2), 2));
-			//update_centre();
 			pos.x = rayon * cos(convertir_en_radians(angle - 135)) + centre.x;
 			pos.y = rayon * sin(convertir_en_radians(angle - 135)) + centre.y;
 			topright.x = rayon * cos(convertir_en_radians(angle - 45)) + centre.x;
