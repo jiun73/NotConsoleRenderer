@@ -87,6 +87,9 @@
     <ClInclude Include="Generics.h">
       <Filter>Header Files\Generic</Filter>
     </ClInclude>
+    <ClInclude Include="FunctionGenerics.h">
+      <Filter>Header Files\Generic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TileRendererLib.cpp">

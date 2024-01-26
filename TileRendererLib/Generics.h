@@ -6,6 +6,9 @@
 
 using std::string;
 using std::shared_ptr;
+using std::make_shared;
+using std::is_pointer_v;
+using std::remove_pointer_t;
 
 struct Generic;
 
@@ -19,11 +22,16 @@ struct Generic
 	virtual char* raw_bytes() = 0;
 	virtual const type_info& type() = 0;
 	virtual void set(shared_generic value) = 0;
+	virtual size_t size() = 0;
 
 	virtual string stringify() = 0;
 	virtual void destringify(const string& str) = 0;
 
 	virtual shared_generic dereference() = 0;
+	virtual shared_generic make() = 0;
+
+	virtual bool is_function() = 0;
+	virtual char* function_bytes() = 0;
 };
 
 template<typename T>
@@ -41,12 +49,14 @@ public:
 	~GenericRef() {}
 
 	char* raw_bytes() override { return (char*)(&(*_object_)); }
+	bool is_function() override { return true; }
+	char* function_bytes() override { return nullptr; }
 	const type_info& type() override { return typeid(T); }
+	size_t size() override { return sizeof(T); }
 
 	void set(shared_generic value)
 	{
 		if (value->type() != type()) { std::cout << "{set: types do not match}"; return; }
-
 		*_object_ = *(T*)(value->raw_bytes());
 	}
 
@@ -54,6 +64,7 @@ public:
 	void destringify(const string& str) override { strings::destringify(*_object_, str); }
 
 	shared_generic dereference() override;
+	shared_generic make() override;
 };
 
 template<typename T>
@@ -68,12 +79,14 @@ public:
 	~GenericType() {}
 
 	char* raw_bytes() override { return (char*)(&_object_); }
+	bool is_function() override { return true; }
+	char* function_bytes() override { return nullptr; }
 	const type_info& type() override { return typeid(T); }
+	size_t size() override { return sizeof(T); }
 
 	void set(shared_generic value) 
 	{
 		if (value->type() != type()) return;
-
 		_object_ = *(T*)(value->raw_bytes());
 	}
 
@@ -82,17 +95,22 @@ public:
 
 	shared_generic dereference() override 
 	{
-		if constexpr (std::is_pointer_v<T>) return std::make_shared < GenericRef<std::remove_pointer_t<T>>>(*_object_);
-		else return std::make_shared<GenericType<T>>(*this);
+		if constexpr (is_pointer_v<T>) return make_shared < GenericRef<remove_pointer_t<T>>>(*_object_);
+		else return make_shared<GenericType<T>>(*this);
 	}
+
+	shared_generic make() override { return make_shared<GenericType<T>>(); }
 };
 
 template<typename T>
-inline std::shared_ptr<GenericType<T>> make_generic(const T& t) { return std::make_shared< GenericType<T>>(t); }
+inline std::shared_ptr<GenericType<T>> make_generic(const T& t) { return make_shared< GenericType<T>>(t); }
 
 template<typename T>
 inline shared_generic GenericRef<T>::dereference()
 {
-	if constexpr (std::is_pointer_v<T>) return std::make_shared < GenericRef<std::remove_pointer_t<T>>>(*this);
-	else return std::make_shared<GenericType<T>>(*_object_);
+	if constexpr (is_pointer_v<T>) return make_shared < GenericRef<remove_pointer_t<T>>>(*this);
+	else return make_shared<GenericType<T>>(*_object_);
 }
+
+template<typename T>
+inline shared_generic GenericRef<T>::make() { return make_shared<GenericType<T>>(); }

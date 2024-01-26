@@ -154,6 +154,7 @@
     <ClInclude Include="File.h" />
     <ClInclude Include="Fonts.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="FunctionGenerics.h" />
     <ClInclude Include="Generics.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="pch.h" />
