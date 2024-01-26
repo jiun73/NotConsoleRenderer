@@ -1,11 +1,16 @@
 #include "TileRenderer.h"
 #include "Generics.h"
+#include "ObjectGenerics.h"
+#include "FunctionGenerics.h"
+
+void func() { std::cout << "Allo!"; }
 
 int main()
 {
 	int i = 69;
 	GenericType<int> int_g(100);
 	GenericType<int*> int_pg(&i);
+	GenericFunctionType<std::function<void()>> func_g(func);
 
 	std::cout << int_g.stringify() << std::endl;
 	std::cout << int_pg.stringify() << std::endl;

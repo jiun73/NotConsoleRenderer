@@ -157,6 +157,7 @@
     <ClInclude Include="FunctionGenerics.h" />
     <ClInclude Include="Generics.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="ObjectGenerics.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Rect.h" />
