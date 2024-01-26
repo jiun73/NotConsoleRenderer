@@ -5,8 +5,13 @@ int main()
 	set_window_size(window);
 	set_window_resizable();
 
+	player joueur;
+
 	while (run())
 	{
-		std::cout << "Boucle Infinie";
+		pencil(COLOR_BLACK);
+		draw_clear();
+		joueur.show();
+		joueur.move();
 	}
 }
