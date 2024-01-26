@@ -1,0 +1,48 @@
+@0
+
+
+@1
+MOV UP ACC
+NEG
+ADD 2
+MOV ACC DOWN
+
+@2
+
+
+@3
+
+
+@4
+JMP B
+
+
+
+
+
+
+
+B:JRO UP
+
+JRO UP
+
+JRO UP
+
+MOV 1 DOWN
+
+@5
+
+
+@6
+
+
+@7
+
+
+@8
+
+
+@9
+
+
+@10

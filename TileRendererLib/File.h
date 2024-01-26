@@ -184,3 +184,8 @@ inline void File::readContainer(T& container, const std::string& name)
 	moveCursorTo(header.at(name)); //Go to index
 	readContainerFile<T>(container);
 }
+
+using std::string;
+using std::vector;
+
+vector<string> get_all_files_names_within_folder(string folder); 

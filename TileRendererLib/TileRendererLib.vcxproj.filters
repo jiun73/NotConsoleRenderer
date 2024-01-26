@@ -84,6 +84,9 @@
     <ClInclude Include="CommandPrompt.h">
       <Filter>Header Files\Debugging</Filter>
     </ClInclude>
+    <ClInclude Include="Generics.h">
+      <Filter>Header Files\Generic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TileRendererLib.cpp">

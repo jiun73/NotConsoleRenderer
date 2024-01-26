@@ -16,9 +16,7 @@ namespace strings_hidden //This is used by stringify to try and use the '<<' ope
 	template<typename T>
 	std::ostream& operator<<(std::ostream& o, const T&)
 	{
-		std::string s = "{Could not translate ";
-		s += typeid(T).name();
-		s += " to string}";
+		std::string s = "{N/A}";
 
 		for (auto c : s)
 			o.put(c);
@@ -35,8 +33,8 @@ namespace strings
 
 		std::ostringstream ss;
 
-		strings_hidden::operator<<(ss, x);
-		//	ss << x;
+		//strings_hidden::operator<<(ss, x);
+		ss << x;
 
 		return ss.str();
 	}
@@ -274,6 +272,16 @@ namespace strings
 			ss << stringify(p);
 		}
 		ss << "}";
+
+		return ss.str();
+	}
+
+	template<typename T>
+	inline std::string stringify(T* x)
+	{
+		std::stringstream ss;
+
+		ss << x;
 
 		return ss.str();
 	}

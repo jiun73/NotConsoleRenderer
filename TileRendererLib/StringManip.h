@@ -25,6 +25,21 @@ inline vector<string> split(const string& str, const char delim)
 	}
 }
 
+/*
+* Remove all characters 'c' from the start and end of a string
+*/
+inline void trim(std::string& str, const char c)
+{
+	if (str.empty())
+		return;
+
+	while (!str.empty() && str.back() == c)
+		str.pop_back();
+
+	while (!str.empty() && str.front() == c)
+		str.erase(str.begin());
+}
+
 #include <regex>
 
 inline bool isNum(const std::string& s) { return std::regex_match(s, std::regex("-?[0-9]+")); }
