@@ -39,18 +39,21 @@ private:
 			shared_generic current = arg.at(I);
 
 			if (current == nullptr) //ignore null typoids;
-				return set_args<I + 1>(arg);
+			{
+				set_args<I + 1>(arg)
+				return;
+			}
 
 			if (current->type() != typeid(typename std::tuple_element_t<I, tuple<Args...>>) && typeid(typename std::tuple_element_t<I, tuple<Args...>>) != typeid(shared_generic)) //if arg is shared Typoid, then set it regardless of type inside current
 			{
 				std::cout << "{arg invalid (should be " << typeid(typename tuple_element_t<I, tuple<Args...>>).name() << ")}";
-				return { I,TYPOID_INVALID_INPUT };
+				//return { I,TYPOID_INVALID_INPUT };
 			}
 
 			arguments.at(I) = arg.at(I);
-			return set_args<I + 1>(arg);
+			//return set_args<I + 1>(arg);
 		}
-		return { I,TYPOID_SUCCESS };
+		//return { I,TYPOID_SUCCESS };
 	}
 
 public:
