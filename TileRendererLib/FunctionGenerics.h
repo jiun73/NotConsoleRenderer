@@ -3,10 +3,12 @@
 #include <functional>
 
 using std::function;
+using std::vector;
 using std::tuple;
 using std::conditional_t;
 using std::is_same_v;
 using std::remove_reference_t;
+using std::tuple;
 
 struct GenericFunction : public Generic
 {
@@ -28,6 +30,28 @@ private:
 	class monostate {};
 	conditional_t<is_same_v<R, void> == false, shared_generic, monostate> _return_; //Optionnal return type 
 	bool args_was_set = false;
+
+	template<size_t I = 0>
+	inline void set_args(const vector<shared_generic>& arg)
+	{
+		if constexpr (I < sizeof...(Args))
+		{
+			shared_generic current = arg.at(I);
+
+			if (current == nullptr) //ignore null typoids;
+				return set_args<I + 1>(arg);
+
+			if (current->type() != typeid(typename std::tuple_element_t<I, tuple<Args...>>) && typeid(typename std::tuple_element_t<I, tuple<Args...>>) != typeid(shared_generic)) //if arg is shared Typoid, then set it regardless of type inside current
+			{
+				std::cout << "{arg invalid (should be " << typeid(typename tuple_element_t<I, tuple<Args...>>).name() << ")}";
+				return { I,TYPOID_INVALID_INPUT };
+			}
+
+			arguments.at(I) = arg.at(I);
+			return set_args<I + 1>(arg);
+		}
+		return { I,TYPOID_SUCCESS };
+	}
 
 public:
 	GenericFunctionType(function<R(Args...)> function) : _callback_(function) {}
@@ -55,6 +79,10 @@ public:
 
 	shared_generic make() override { return make_shared<GenericFunctionType<function<R(Args...)>>>(*this); }
 
-	void call() override {}
+	shared_generic call() override {}
+	void args(const vector<shared_generic>& values) override 
+	{
+
+	}
 	char* function_bytes() override { return (char*)(&(_callback_)); }
 };
