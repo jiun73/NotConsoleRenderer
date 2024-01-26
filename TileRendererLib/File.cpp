@@ -1,6 +1,35 @@
 #include "File.h"
 #include "pch.h"
 
+#include <WinSock2.h>
+#define no_init_all deprecated
+#include <Windows.h>
+
+vector<string> get_all_files_names_within_folder(string folder)
+{
+	vector<std::wstring> wide_names;
+	vector<std::string> names;
+	std::wstring folder_wide(folder.begin(), folder.end());
+	std::wstring search_path = folder_wide + L"/*.*";
+	WIN32_FIND_DATA fd;
+	HANDLE hFind = ::FindFirstFile(search_path.c_str(), &fd);
+	if (hFind != INVALID_HANDLE_VALUE) {
+		do {
+			// read all (real) files in current folder
+			// , delete '!' read other 2 default folder . and ..
+			if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+				wide_names.push_back(fd.cFileName);
+			}
+		} while (::FindNextFile(hFind, &fd));
+		::FindClose(hFind);
+	}
+	for (auto n : wide_names)
+	{
+		names.push_back(string(n.begin(), n.end()));
+	}
+	return names;
+}
+
 inline void File::writeString(const std::string& s)
 {
 	size_t sz = s.length(); //write the size of the string

@@ -1,0 +1,46 @@
+@0
+
+
+@1
+
+
+@2
+
+
+@3
+
+
+@4
+
+
+@5
+ADD 1
+JGZ A
+MOV ACC DOWN
+JMP END
+A:MOV 3 DOWN
+MOV -1 ACC
+END:
+
+@6
+
+
+@7
+
+
+@8
+MOV ACC RIGHT
+ADD 1
+
+@9
+MOV 31 ACC
+MOV 0 DOWN
+MOV LEFT DOWN
+LOOP:MOV UP DOWN
+SUB 1
+JEZ A
+JMP LOOP
+A:
+MOV -1 DOWN
+
+@10

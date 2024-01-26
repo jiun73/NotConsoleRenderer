@@ -19,6 +19,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "04- BounceX", "04- BounceX\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "05- USA-Simulator", "05- USA-Simulator\05- USA-Simulator.vcxproj", "{61700E3F-1673-48EA-8E7B-486FEA514101}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TIS-100 solver", "TIS-100 solver\TIS-100 solver.vcxproj", "{41981EDA-44C5-4BA7-87E8-2D07FA797D37}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UntitledFightingGame", "UntitledFightingGame\UntitledFightingGame.vcxproj", "{FF41FA42-0CCD-405A-9F48-14AE08EC679D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -91,6 +95,22 @@ Global
 		{61700E3F-1673-48EA-8E7B-486FEA514101}.Release|x64.Build.0 = Release|x64
 		{61700E3F-1673-48EA-8E7B-486FEA514101}.Release|x86.ActiveCfg = Release|Win32
 		{61700E3F-1673-48EA-8E7B-486FEA514101}.Release|x86.Build.0 = Release|Win32
+		{41981EDA-44C5-4BA7-87E8-2D07FA797D37}.Debug|x64.ActiveCfg = Debug|x64
+		{41981EDA-44C5-4BA7-87E8-2D07FA797D37}.Debug|x64.Build.0 = Debug|x64
+		{41981EDA-44C5-4BA7-87E8-2D07FA797D37}.Debug|x86.ActiveCfg = Debug|Win32
+		{41981EDA-44C5-4BA7-87E8-2D07FA797D37}.Debug|x86.Build.0 = Debug|Win32
+		{41981EDA-44C5-4BA7-87E8-2D07FA797D37}.Release|x64.ActiveCfg = Release|x64
+		{41981EDA-44C5-4BA7-87E8-2D07FA797D37}.Release|x64.Build.0 = Release|x64
+		{41981EDA-44C5-4BA7-87E8-2D07FA797D37}.Release|x86.ActiveCfg = Release|Win32
+		{41981EDA-44C5-4BA7-87E8-2D07FA797D37}.Release|x86.Build.0 = Release|Win32
+		{FF41FA42-0CCD-405A-9F48-14AE08EC679D}.Debug|x64.ActiveCfg = Debug|x64
+		{FF41FA42-0CCD-405A-9F48-14AE08EC679D}.Debug|x64.Build.0 = Debug|x64
+		{FF41FA42-0CCD-405A-9F48-14AE08EC679D}.Debug|x86.ActiveCfg = Debug|Win32
+		{FF41FA42-0CCD-405A-9F48-14AE08EC679D}.Debug|x86.Build.0 = Debug|Win32
+		{FF41FA42-0CCD-405A-9F48-14AE08EC679D}.Release|x64.ActiveCfg = Release|x64
+		{FF41FA42-0CCD-405A-9F48-14AE08EC679D}.Release|x64.Build.0 = Release|x64
+		{FF41FA42-0CCD-405A-9F48-14AE08EC679D}.Release|x86.ActiveCfg = Release|Win32
+		{FF41FA42-0CCD-405A-9F48-14AE08EC679D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

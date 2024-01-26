@@ -69,5 +69,4 @@ public:
 	{
 		pos = posInitiale;
 	}
-
 };

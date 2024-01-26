@@ -160,24 +160,32 @@ private:
 	}
 	void move_main(V2d_i& pos, V2d_i xy, V2d_i velocite)
 	{
+		velocite = 0;
 		if (key_held(SDL_SCANCODE_A) && pos.x > 0)
 		{
-			velocite = { -1,0 };
+			velocite.x = -1;
 		}
 		if (key_held(SDL_SCANCODE_D) && pos.x + xy.x < X_CONSOLE)
 		{
-			velocite = { 1,0 };
+			velocite.x = 1;
 		}
-		else if (key_held(SDL_SCANCODE_W) && pos.y > 0)
+		if (key_held(SDL_SCANCODE_W) && pos.y > 0)
 		{
-			velocite = { 0,-1 };
+			velocite.y = -1 ;
 		}
 		if (key_held(SDL_SCANCODE_S) && pos.y + xy.y < Y_CONSOLE)
 		{
-			velocite = { 0,1 };
+			velocite.y = 1 ;
 		}
 		pos.x += velocite.x * acceleration;
 		pos.y += velocite.y * acceleration;
+	}
+	bool still_in_collision(square carre)
+	{
+		return pos.x < carre.get_pos().x + carre.get_xy().x &&
+			pos.x + xy.x > carre.get_pos().x &&
+			pos.y < carre.get_pos().y + carre.get_xy().y &&
+			pos.y + xy.y > carre.get_pos().y;
 	}
 public:
 	bool begin = false;
@@ -228,10 +236,16 @@ public:
 					if (zone == "horizontal")
 					{
 						velocite.y *= -1;
+						vect.at(i).velocite.y *= -1;
 					}
 					if (zone == "vertical")
 					{
 						velocite.x *= -1;
+						vect.at(i).velocite.x *= -1;
+					}
+					while (still_in_collision(carre))
+					{
+						pos += velocite;
 					}
 				}
 			}

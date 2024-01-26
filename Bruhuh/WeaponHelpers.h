@@ -2,10 +2,12 @@
 #include <functional>
 #include <array>
 #include <map>
+#include <string>
 
 using std::function;
 using std::array;
 using std::map;
+using std::string;
 
 enum ComputerInstructionSet
 {

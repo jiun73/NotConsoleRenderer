@@ -84,6 +84,15 @@
     <ClInclude Include="CommandPrompt.h">
       <Filter>Header Files\Debugging</Filter>
     </ClInclude>
+    <ClInclude Include="Generics.h">
+      <Filter>Header Files\Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="FunctionGenerics.h">
+      <Filter>Header Files\Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectGenerics.h">
+      <Filter>Header Files\Generic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TileRendererLib.cpp">
