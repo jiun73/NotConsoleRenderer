@@ -6,6 +6,7 @@
 #include <functional>
 #include "WeaponParser.h"
 #include "BulletTypes.h"
+#include "CommandDictionnary.h"
 
 struct AI_x
 {
@@ -545,6 +546,8 @@ int main()
 		draw_special_text("bru\\wave.\\rainbow.uuuuuuuuhhhhh", 200, 100, pixel_font);
 
 		camera().offset = player.component<Position_x>()->position - get_window_size() / 2;
+
+		track_variable(selected_line, "line");
 	}
 
 	return 0;

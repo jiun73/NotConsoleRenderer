@@ -28,11 +28,11 @@ public:
 	void set(shared_generic value)
 	{
 		if (value->type() != type()) { std::cout << "{set: types do not match}"; return; }
-		*_object_ = *(T*)(value->raw_bytes());
+		if constexpr (std::is_nothrow_copy_assignable_v<T>) *_object_ = *(T*)(value->raw_bytes());
 	}
 
 	string stringify() override { return strings::stringify(*_object_); };
-	void destringify(const string& str) override { strings::destringify(*_object_, str); }
+	int destringify(const string& str) override { return strings::destringify(*_object_, str); }
 
 	shared_generic dereference() override;
 	shared_generic make() override;
@@ -57,11 +57,11 @@ public:
 	void set(shared_generic value)
 	{
 		if (value->type() != type()) return;
-		_object_ = *(T*)(value->raw_bytes());
+		if constexpr (std::is_nothrow_copy_assignable_v<T>) _object_ = *(T*)(value->raw_bytes());
 	}
 
 	string stringify() override { return strings::stringify(_object_); };
-	void destringify(const string& str) override { strings::destringify(_object_, str); }
+	int destringify(const string& str) override { return strings::destringify(_object_, str); }
 
 	shared_generic dereference() override
 	{
@@ -73,7 +73,18 @@ public:
 };
 
 template<typename T>
+inline shared_ptr<GenericType<T>> make_generic() { return make_shared< GenericType<T>>(); }
+
+template<typename T>
 inline shared_ptr<GenericType<T>> make_generic(const T& t) { return make_shared< GenericType<T>>(t); }
+
+template<typename T>
+inline shared_ptr<GenericType<T>> make_generic_from_string(const string& t) 
+{ 
+	shared_ptr<GenericType<T>> ptr = make_generic<T>();
+	ptr->destringify(t);
+	return ptr; 
+}
 
 template<typename T>
 inline shared_generic GenericRef<T>::dereference()

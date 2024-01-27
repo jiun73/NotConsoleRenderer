@@ -22,6 +22,8 @@ int main()
 	* juste plus rapide et meilleur
 	*/
 
+	int test_variable = 0;
+
 	while (run()) //boucle principale
 	{
 		pencil(COLOR_BLACK); //Permet d'enlever tout ce qui reste de la derniere frame
@@ -63,7 +65,12 @@ int main()
 		
 		int pos = (int)(sin((SDL_GetTicks() % 1000) / 1000.0)  * 100) - 50;
 		draw_simple_text("You have no bitches", { pos,60 }, get_font(1)); //get_font(1) voir 'Fonts/fonts.hint'
-		draw_simple_text("You have no bitches", {0,120}, get_font(0)); //get_font(0) voir 'Fonts/fonts.hint'
+		draw_simple_text("You have " + strings::stringify(test_variable) + " bitches", {0,120}, get_font(0)); //get_font(0) voir 'Fonts/fonts.hint'
+
+		//Nouvelle fonctionnalité !
+		//Entrer la commande 'list all' :)
+		track_variable(pos, "pos");
+		track_variable(test_variable, "test");
 	}
 
 	return 0;

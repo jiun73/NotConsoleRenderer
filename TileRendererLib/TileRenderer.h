@@ -8,6 +8,8 @@
 #include "Sound.h"
 #include "Fonts.h"
 #include "Camera.h"
+#include "CommandDictionnary.h"
+#include "Stringify.h"
 
 #undef main	
 

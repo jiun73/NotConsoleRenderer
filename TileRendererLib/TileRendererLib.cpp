@@ -80,6 +80,8 @@ V2d_d game_mouse_position()
 
 Camera& camera() { return _camera; }
 
+#include <Windows.h>
+
 void init() 
 {
 	if (!__init__)
@@ -107,6 +109,80 @@ void init()
 				std::cout << "special: *** means that the argument can be any string" << std::endl;
 				std::cout << "special: [...] means that the argument has additionnal (and optionnal) arguments at the end" << std::endl;
 				std::cout << "special: (int) means... huh... let me check..." << std::endl;
+			});
+
+		__NEW_COMMAND__(list_entries, "list all", [](__COMMAND_ARGS__)
+			{
+				for (auto& reg : variable_dictionnary()->all())
+					for (auto& e : reg->all())
+						std::cout << e.second->type().name() << " " << e.first << " = " << e.second->stringify() << std::endl;
+			});
+
+		__NEW_COMMAND__(ff3, "! *** = ***", [&](__COMMAND_ARGS__)
+			{
+				std::cout << variable_dictionnary()->get(args[1])->destringify(args[3]) << std::endl;
+				std::cout << variable_dictionnary()->get(args[1])->stringify() << std::endl;
+
+			});
+
+		DefineCommand _ff_cmd("open watch", [&](CommandArguments& args)
+			{
+				PROCESS_INFORMATION processInformation;
+				STARTUPINFO         startupInfo;
+				//wchar_t  lpAppName =;
+
+				ZeroMemory(&startupInfo, sizeof(startupInfo));
+				startupInfo.cb = sizeof(startupInfo);
+
+				BOOL creationResult = CreateProcess(
+					L"c:\\windows\\system32\\cmd.exe",                   // No module name (use command line)
+					NULL,                // Command line
+					NULL,                   // Process handle not inheritable
+					NULL,                   // Thread handle not inheritable
+					FALSE,                  // Set handle inheritance to FALSE
+					CREATE_NEW_CONSOLE , // creation flags
+					NULL,                   // Use parent's environment block
+					NULL,                   // Use parent's starting directory 
+					&startupInfo,           // Pointer to STARTUPINFO structure
+					&processInformation);   // Pointer to PROCESS_INFORMATION structure
+
+				//assert(false);
+				std::cout << creationResult << std::endl;
+
+				string* name = new string("pos");
+
+				__NEW_COMMAND__(ff1, "watch ***", [name](__COMMAND_ARGS__)
+					{
+						*name = args[1];
+					});
+
+				__NEW_COMMAND__(ff2, "close", [name](__COMMAND_ARGS__)
+					{
+						*name = "close"; //\n\n\n
+					});
+
+				Commands::get()->pool.queueJob([name](int)
+					{
+						
+						while (*name != "close")
+						{
+							COORD pos = { 0, 0 };
+							HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
+							SetConsoleCursorPosition(output, pos);
+							std::cout << "Watching " << *name << std::endl;
+							shared_generic ptr = variable_dictionnary()->get(*name);
+							if (ptr == nullptr)
+								return;
+							SetConsoleTextAttribute(output, BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
+							std::cout << ptr->stringify() << std::endl;
+							SetConsoleTextAttribute(output, 15);
+							CONSOLE_CURSOR_INFO     cursorInfo;
+
+							GetConsoleCursorInfo(output, &cursorInfo);
+							cursorInfo.bVisible = false; // set the cursor visibility
+							SetConsoleCursorInfo(output, &cursorInfo);
+						}
+					});
 			});
 
 		add_font_effect("end", [](__FontEffectArgs__)

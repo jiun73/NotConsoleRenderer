@@ -9,6 +9,13 @@
 #include "StringManip.h"
 #include "Color.h"
 
+enum Destringify_errors
+{
+	STRINGS_NO_TRANSLATION = -1,
+	STRINGS_TRANSLATION_FAILED = 0,
+	STRINGS_TRANSLATION_SUCCESS = 1
+};
+
 namespace strings_hidden //This is used by stringify to try and use the '<<' operator to convert to string
 {
 	template<typename T> std::ostream& operator<< (std::ostream&, const T&); //only defined within the namespace, it obviously would be bad if it wasn't

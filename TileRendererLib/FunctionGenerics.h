@@ -1,5 +1,6 @@
 #pragma once
 #include "Generics.h"
+#include "ObjectGenerics.h"
 #include <functional>
 
 using std::function;
@@ -10,10 +11,41 @@ using std::is_same_v;
 using std::remove_reference_t;
 using std::tuple;
 
+template<int ...> struct seq {};
+
+template<int N, int ...S> struct gens : gens<N - 1, N - 1, S...> { };
+
+template<int ...S> struct gens<0, S...> { typedef seq<S...> type; };
+
+template <typename R, typename ...Args>
+struct save_it_for_later
+{
+	tuple<typename std::remove_reference<Args>::type*...> params;
+	function<R(Args...)> func;
+
+	R delayed_dispatch() { return call_func(typename gens<sizeof...(Args)>::type()); }
+
+	template<int ...S>
+	R call_func(seq<S...>) { return func((*std::get<S>(params)) ...); }
+};
+
+struct GenericArgument 
+{
+	bool is_string = false;
+	shared_generic value = nullptr;
+	string str;
+
+	GenericArgument(shared_generic value) : value(value), is_string(false) {}
+	template<typename T>
+	GenericArgument(shared_ptr<GenericType<T>> value) : value(value), is_string(false) {}
+	GenericArgument(string string) : str(string), is_string(true) {}
+	~GenericArgument() {}
+};
+
 struct GenericFunction : public Generic
 {
 	virtual shared_generic call() = 0;
-	virtual void args(const vector<shared_generic>& values) = 0;
+	virtual void args(const vector<GenericArgument>& values) = 0;
 	virtual char* function_bytes() = 0;
 };
 
@@ -31,27 +63,58 @@ private:
 	conditional_t<is_same_v<R, void> == false, shared_generic, monostate> _return_; //Optionnal return type 
 	bool args_was_set = false;
 
-	template<size_t I = 0>
-	inline void set_args(const vector<shared_generic>& arg)
+	template<size_t I, typename T>
+	T* get_tuple() //Returns the the Ith element of a tuple and casts it to T
+	{
+		return (T*)(arguments.at(I)->raw_bytes());
+	} 
+
+	template <size_t I = 0> //Set ptr forms to point to the objects in Typoids of arguments
+	inline void set_tuple()
 	{
 		if constexpr (I < sizeof...(Args))
 		{
-			shared_generic current = arg.at(I);
+			using tuple_type = std::tuple<typename std::remove_reference<Args>::type...>;
+
+			if constexpr (std::is_same_v<std::tuple_element_t<I, tuple_type>, shared_generic>)//if arg is shared ptr, return the ptr 
+			{
+				std::get<I>(tuple) = &arguments.at(I);
+			}
+			else //otherwise return the value inside the ptr
+			{
+				std::get<I>(tuple) = get_tuple<I, std::tuple_element_t<I, tuple_type>>();
+			}
+			set_tuple<I + 1>();
+		}
+	}
+
+	template<size_t I = 0>
+	inline void set_args(const vector<GenericArgument>& arg)
+	{
+		if constexpr (I < sizeof...(Args))
+		{
+			shared_generic current;
+			if (arg.at(I).is_string)
+				current = make_generic_from_string<std::tuple_element_t<I, std::tuple<std::remove_reference<Args>::type...>>>(arg.at(I).str);
+			else
+				current = arg.at(I).value;
 
 			if (current == nullptr) //ignore null typoids;
 			{
-				set_args<I + 1>(arg)
+				set_args<I + 1>(arg);
 				return;
 			}
 
-			if (current->type() != typeid(typename std::tuple_element_t<I, tuple<Args...>>) && typeid(typename std::tuple_element_t<I, tuple<Args...>>) != typeid(shared_generic)) //if arg is shared Typoid, then set it regardless of type inside current
+			const type_info& info = typeid(typename std::tuple_element_t<I, std::tuple<Args...>>);
+
+			if (current->type() != info && info != typeid(shared_generic)) //if arg is shared Typoid, then set it regardless of type inside current
 			{
-				std::cout << "{arg invalid (should be " << typeid(typename tuple_element_t<I, tuple<Args...>>).name() << ")}";
+				std::cout << "{arg invalid (should be " << info.name() << ")}";
 				//return { I,TYPOID_INVALID_INPUT };
 			}
 
-			arguments.at(I) = arg.at(I);
-			//return set_args<I + 1>(arg);
+			arguments.at(I) = current;
+			set_args<I + 1>(arg);
 		}
 		//return { I,TYPOID_SUCCESS };
 	}
@@ -78,14 +141,37 @@ public:
 	}
 
 	string stringify() override { return ""; };
-	void destringify(const string& str) override {  }
+	int destringify(const string& str) override { return -2; }
 
 	shared_generic make() override { return make_shared<GenericFunctionType<function<R(Args...)>>>(*this); }
 
-	shared_generic call() override {}
-	void args(const vector<shared_generic>& values) override 
+	shared_generic call() override 
 	{
+		set_tuple<0>();
 
+		save_it_for_later<R, Args...> saved = { tuple, _callback_ };
+
+		if constexpr (is_same_v<R, void> == true)
+		{
+			saved.delayed_dispatch();
+			return nullptr;
+		}
+		else
+		{
+			if constexpr (is_same_v<shared_generic, R>)
+				_return_ = saved.delayed_dispatch();
+			else
+				_return_ = std::make_shared<GenericType<R>>(saved.delayed_dispatch());
+			return _return_;
+		}
+
+		return nullptr;
 	}
+
+	void args(const vector<GenericArgument>& values) override
+	{
+		set_args(values);
+	}
+
 	char* function_bytes() override { return (char*)(&(_callback_)); }
 };

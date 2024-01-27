@@ -26,7 +26,7 @@ struct Generic
 	virtual size_t size() = 0;
 
 	virtual string stringify() = 0;
-	virtual void destringify(const string& str) = 0;
+	virtual int destringify(const string& str) = 0;
 
 	virtual shared_generic make() = 0;
 };

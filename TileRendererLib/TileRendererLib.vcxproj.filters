@@ -69,9 +69,6 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Typoids.h">
-      <Filter>Header Files\Generic</Filter>
-    </ClInclude>
     <ClInclude Include="Stringify.h">
       <Filter>Header Files\Generic</Filter>
     </ClInclude>
@@ -92,6 +89,12 @@
     </ClInclude>
     <ClInclude Include="ObjectGenerics.h">
       <Filter>Header Files\Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="ContainerGenerics.h">
+      <Filter>Header Files\Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandDictionnary.h">
+      <Filter>Header Files\Debugging</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

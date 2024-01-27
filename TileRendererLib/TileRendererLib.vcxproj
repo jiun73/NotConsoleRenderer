@@ -150,7 +150,9 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ClassFactory.h" />
     <ClInclude Include="Color.h" />
+    <ClInclude Include="CommandDictionnary.h" />
     <ClInclude Include="CommandPrompt.h" />
+    <ClInclude Include="ContainerGenerics.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Fonts.h" />
     <ClInclude Include="framework.h" />
@@ -167,7 +169,6 @@
     <ClInclude Include="StringManip.h" />
     <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="TileRenderer.h" />
-    <ClInclude Include="Typoids.h" />
     <ClInclude Include="Vec2D.h" />
     <ClInclude Include="Vec3D.h" />
   </ItemGroup>

@@ -29,12 +29,15 @@ void CommandPrompt::stopPolling()
 void CommandPrompt::startPolling()
 {
 	poll = true;
-	pool.start(1);
+	pool.start(2);
 	pool.queueJob([&](int)
 		{
 			while (poll)
 			{
-
+				if (callback != nullptr)
+				{
+					callback();
+				}
 
 				string in;
 				std::getline(std::cin, in);

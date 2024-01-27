@@ -6,8 +6,9 @@
 #include <map>
 #include <string>
 #include <functional>
+#include "Stringify.h"
 
-#include "Typoids.h"
+//#include "Typoids.h"
 
 using std::vector;
 using std::string;
@@ -98,8 +99,7 @@ class CommandPrompt
 {
 private:
 	CommandTree tree;
-	ThreadPool pool;
-
+	
 	std::mutex mutex;
 	bool poll = false;
 	std::list<string> input;
@@ -107,6 +107,10 @@ private:
 	//std::map<string, Typoid*> dictionnary;
 
 public:
+	std::function<void()> callback = nullptr;
+	ThreadPool pool;
+
+
 	CommandPrompt();
 	~CommandPrompt() { if(poll)stopPolling(); }
 
