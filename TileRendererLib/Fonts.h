@@ -4,6 +4,7 @@
 #include "File.h"
 
 #include <array>
+#include <algorithm>
 #include <functional>
 #include <map>
 #include <vector>
@@ -141,7 +142,7 @@ public:
 
 
 				current_dest.sz = { glyph_sur->w, glyph_sur->h };
-				maxy = std::max(maxy, current_dest.sz.y);
+				maxy = (std::max)(maxy, current_dest.sz.y);
 
 				if (current_dest.pos.x + current_dest.sz.x >= surface_size.x)
 				{

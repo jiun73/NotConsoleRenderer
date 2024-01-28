@@ -34,10 +34,7 @@ void CommandPrompt::startPolling()
 		{
 			while (poll)
 			{
-				if (callback != nullptr)
-				{
-					callback();
-				}
+				
 
 				string in;
 				std::getline(std::cin, in);
@@ -89,6 +86,11 @@ void CommandPrompt::update()
 				}
 			}
 		}
+	}
+
+	if (callback != nullptr)
+	{
+		callback();
 	}
 }
 

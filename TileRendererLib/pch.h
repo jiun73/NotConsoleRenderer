@@ -18,5 +18,9 @@
 #include "CommandPrompt.h"
 #include "ThreadPool.h"
 #include "EntityX.h"
+#include "Camera.h"
+#include "Generics.h"
+
+#include "ConsoleRenderer.h"
 
 #endif //PCH_H

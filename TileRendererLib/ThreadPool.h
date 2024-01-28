@@ -18,6 +18,8 @@ public:
 	void join();
 	size_t size() { return threads.size(); }
 
+	std::thread& get(int id) { return threads.at(id); }
+
 private:
 	void ThreadLoop(int);
 

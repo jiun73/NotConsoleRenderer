@@ -11,6 +11,10 @@
 #include "Camera.h"
 #include "CommandPrompt.h"
 
+#define _WINSOCKAPI_
+
+//#include "ConsoleRenderer.h"
+
 #include <map>
 
 using std::map;
@@ -42,6 +46,9 @@ namespace hidden {
 
 	FontsManager _fonts;
 	map<string, SDL_Texture* > textures;
+
+
+	ConsoleApp cApp; //lol
 }
 
 using namespace hidden;
@@ -127,62 +134,78 @@ void init()
 
 		DefineCommand _ff_cmd("open watch", [&](CommandArguments& args)
 			{
-				PROCESS_INFORMATION processInformation;
-				STARTUPINFO         startupInfo;
-				//wchar_t  lpAppName =;
+				//PROCESS_INFORMATION processInformation;
+				//STARTUPINFO         startupInfo;
+				////wchar_t  lpAppName =;
 
-				ZeroMemory(&startupInfo, sizeof(startupInfo));
-				startupInfo.cb = sizeof(startupInfo);
+				//ZeroMemory(&startupInfo, sizeof(startupInfo));
+				//startupInfo.cb = sizeof(startupInfo);
 
-				BOOL creationResult = CreateProcess(
-					L"c:\\windows\\system32\\cmd.exe",                   // No module name (use command line)
-					NULL,                // Command line
-					NULL,                   // Process handle not inheritable
-					NULL,                   // Thread handle not inheritable
-					FALSE,                  // Set handle inheritance to FALSE
-					CREATE_NEW_CONSOLE , // creation flags
-					NULL,                   // Use parent's environment block
-					NULL,                   // Use parent's starting directory 
-					&startupInfo,           // Pointer to STARTUPINFO structure
-					&processInformation);   // Pointer to PROCESS_INFORMATION structure
+				//BOOL creationResult = CreateProcess(
+				//	L"c:\\windows\\system32\\cmd.exe",                   // No module name (use command line)
+				//	NULL,                // Command line
+				//	NULL,                   // Process handle not inheritable
+				//	NULL,                   // Thread handle not inheritable
+				//	FALSE,                  // Set handle inheritance to FALSE
+				//	CREATE_NEW_CONSOLE , // creation flags
+				//	NULL,                   // Use parent's environment block
+				//	NULL,                   // Use parent's starting directory 
+				//	&startupInfo,           // Pointer to STARTUPINFO structure
+				//	&processInformation);   // Pointer to PROCESS_INFORMATION structure
+
+				//FreeConsole();
+				//AttachConsole(processInformation.dwProcessId);
 
 				//assert(false);
-				std::cout << creationResult << std::endl;
+				//std::cout << creationResult << std::endl;
 
-				string* name = new string("pos");
+				vector<std::pair<string, shared_generic>>* watching = new vector<std::pair<string, shared_generic>>();
 
-				__NEW_COMMAND__(ff1, "watch ***", [name](__COMMAND_ARGS__)
+				__NEW_COMMAND__(ff1, "watch ***", [watching](__COMMAND_ARGS__)
 					{
-						*name = args[1];
+						string name = args[1];
+						shared_generic ptr = variable_dictionnary()->get(name);
+						if (ptr != nullptr)
+							watching->push_back({ name,ptr });
+						else
+							std::cout << "couldn't find the variable lol" << std::endl;
 					});
 
-				__NEW_COMMAND__(ff2, "close", [name](__COMMAND_ARGS__)
+				__NEW_COMMAND__(ff2, "close", [](__COMMAND_ARGS__)
 					{
-						*name = "close"; //\n\n\n
+						Commands::get()->callback = nullptr;
 					});
 
-				Commands::get()->pool.queueJob([name](int)
+				Commands::get()->callback = [watching]()
 					{
-						
-						while (*name != "close")
+						std::string output;
+
+						if (watching->size() == 0) 
 						{
-							COORD pos = { 0, 0 };
-							HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
-							SetConsoleCursorPosition(output, pos);
-							std::cout << "Watching " << *name << std::endl;
-							shared_generic ptr = variable_dictionnary()->get(*name);
-							if (ptr == nullptr)
-								return;
-							SetConsoleTextAttribute(output, BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
-							std::cout << ptr->stringify() << std::endl;
-							SetConsoleTextAttribute(output, 15);
-							CONSOLE_CURSOR_INFO     cursorInfo;
-
-							GetConsoleCursorInfo(output, &cursorInfo);
-							cursorInfo.bVisible = false; // set the cursor visibility
-							SetConsoleCursorInfo(output, &cursorInfo);
+							output = "Nothing to watch :(\n";
 						}
-					});
+						else
+						{
+							output = "Watching \\/ \n";
+						}
+
+						for (auto& w : *watching)
+						{
+							output += w.first + " = " + w.second->stringify() + "\n";
+						}
+
+						
+
+						V2d_i old = cApp.getCursor();
+						cApp.pencil(BLACK, BG_WHITE, '#');
+						cApp.text(output, {50,0});
+						cApp.color(WHITE, BG_BLACK);
+						cApp.present();
+						cApp.color(WHITE, BG_BLACK);
+
+						cApp.setCursor(old.xi());
+						
+					};
 			});
 
 		add_font_effect("end", [](__FontEffectArgs__)

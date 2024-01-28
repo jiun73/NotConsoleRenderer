@@ -152,6 +152,7 @@
     <ClInclude Include="Color.h" />
     <ClInclude Include="CommandDictionnary.h" />
     <ClInclude Include="CommandPrompt.h" />
+    <ClInclude Include="ConsoleRenderer.h" />
     <ClInclude Include="ContainerGenerics.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Fonts.h" />
@@ -174,6 +175,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CommandPrompt.cpp" />
+    <ClCompile Include="ConsoleRenderer.cpp" />
     <ClCompile Include="EntityX.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Input.cpp" />
