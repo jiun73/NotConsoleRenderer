@@ -11,6 +11,14 @@ struct Shape_system
 	{
 		shape->angle = angle->angle;
 		shape->position = pos->position;
+		EntX::get()->add_callback([shape, angle, pos](EntityID)
+			{
+				std::cout << "shape" << shape->position;
+				std::cout << "shape" << pos->position << std::endl;
+				shape->angle = angle->angle;
+				shape->position = pos->position;
+			}, 0);
+		
 	}
 };
 
@@ -20,8 +28,14 @@ struct GFX_system
 
 	void update(GFX_x* gfx, Shape_x* shape)
 	{
+		
 		pencil(gfx->col);
-		shape->draw(camera());
+		EntX::get()->add_callback([shape](EntityID)
+			{
+				std::cout << "gfx " << std::endl;
+				shape->draw(camera());
+			}, 0);
+		
 	}
 };
 
@@ -29,9 +43,11 @@ struct Controller_system
 {
 	void update(Position_x* position, Controller_x* controller)
 	{
+		std::cout << "controls" << std::endl;
 		V2d_d old = position->position;
 		keyboard().quickKeyboardControlWASD(position->position, controller->force);
 		controller->displacement_vector = old - position->position;
+		std::cout << old << position->position << std::endl;
 	}
 };
 
@@ -39,6 +55,7 @@ struct Physics_system
 {
 	void update(Physics_x* physics, Position_x* position, Angle_x* angle)
 	{
+		std::cout << "physics" << std::endl;
 		position->position += physics->velocity;
 		physics->velocity += physics->acceleration;
 		angle->angle += physics->angular_velocity;

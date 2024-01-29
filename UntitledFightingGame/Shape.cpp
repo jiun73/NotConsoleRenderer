@@ -49,13 +49,13 @@ void Shape_x::draw(Camera& cam)
 
 	for (auto it = points.begin() + 1; it != points.end(); it++)
 	{
-		p1 = cam.find(find_point(*std::prev(it)));
-		p2 = cam.find(find_point(*it));
+		p1 = cam.find(find_point(*std::prev(it)).floor());
+		p2 = cam.find(find_point(*it).floor());
 		draw_line(p1, p2);
 	}
 
-	p1 = cam.find(find_point(points.front()));
-	p2 = cam.find(find_point(points.back()));
+	p1 = cam.find(find_point(points.front()).floor());
+	p2 = cam.find(find_point(points.back()).floor());
 
 	draw_line(p1, p2);
 
