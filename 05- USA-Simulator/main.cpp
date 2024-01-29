@@ -16,6 +16,9 @@ int main()
 		ballons.push_back(balls());
 	}
 
+	bool down;
+	int determinant;
+
 	while (run())
 	{
 		pencil(COLOR_BLACK);
@@ -39,7 +42,7 @@ int main()
 		for (int i = 0; i < ballons.size(); i++)
 		{
 			ballons.at(i).show();
-			ballons.at(i).move();
+			ballons.at(i).move(down, determinant);
 			ballons.at(i).show_number();
 			ballons.at(i).boom(i,balles,ballons);
 		}

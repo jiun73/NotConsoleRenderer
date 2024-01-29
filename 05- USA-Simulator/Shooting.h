@@ -37,9 +37,7 @@ private:
 	V2d_i pos = { X_CONSOLE / 2 - xy.x / 2, Y_CONSOLE - xy.y };
 	Color couleur = COLOR_GREEN;
 	int rayon = 15;
-	V2d_i centerLeftCircle;
-	V2d_i centerRightCircle;
-	V2d_i posRectangle;
+	int speedAmplifier = 3;
 
 public:
 	void show()
@@ -53,11 +51,11 @@ public:
 	{
 		if (key_held(SDL_SCANCODE_D) && pos.x + xy.x + rayon * 2 < X_CONSOLE)
 		{
-			pos.x++;
+			pos.x+= speedAmplifier;
 		}
 		if (key_held(SDL_SCANCODE_A) && pos.x - rayon * 2 > 0)
 		{
-			pos.x--;
+			pos.x-= speedAmplifier;
 		}
 	}
 	V2d_i get_pos()
@@ -89,6 +87,7 @@ private:
 	V2d_i xy = {3, longueur};
 	bool firstShot = true;
 	vector<V2d_i> points;
+	int speedAmplifier = 10;
 
 	void show()
 	{
@@ -105,7 +104,7 @@ public:
 		}
 		pencil(rgb(255, 0, 0));
 		draw_full_rect(Rect({ pos,xy }));
-		pos.y--;
+		pos.y-= speedAmplifier;
 	}
 	V2d_i get_xy()
 	{
@@ -140,10 +139,10 @@ public:
 class balls
 {
 private:
+	int rayon = 25;
 	V2d_i pos = generate();
 	V2d_i velocite = { 0,0 };
 	vector<V2d_i> points;
-	int rayon = 25;
 	int acceleration = 2;
 	int numero = rayon;
 
@@ -175,27 +174,25 @@ public:
 		string x = entier_en_chaine(numero);
 		draw_simple_text(x, pos, get_font(0));
 	}
-	void move()
+	void move(bool& down, int& determinant)
 	{
-		/*velocite = 0;
-		if (key_held(SDL_SCANCODE_A) && pos.x - rayon > 0)
+		if (pos.y + rayon >= Y_CONSOLE)
 		{
-			velocite.x = -1;
+			down = false;
 		}
-		if (key_held(SDL_SCANCODE_D) && pos.x + rayon < X_CONSOLE)
+		else if (pos.y - rayon <= 0)
 		{
-			velocite.x = 1;
+			down = true;
 		}
-		if (key_held(SDL_SCANCODE_W) && pos.y - rayon > 0)
+		if (down)
 		{
-			velocite.y = -1;
+			determinant = 1;
 		}
-		if (key_held(SDL_SCANCODE_S) && pos.y + rayon < Y_CONSOLE)
+		else
 		{
-			velocite.y = 1;
+			determinant = -1;
 		}
-		pos.x += velocite.x * acceleration;
-		pos.y += velocite.y * acceleration;*/
+		pos.y += determinant;
 	}
 	vector<V2d_i> get_points()
 	{
