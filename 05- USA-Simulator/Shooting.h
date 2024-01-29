@@ -147,9 +147,9 @@ private:
 	int acceleration = 2;
 	int numero = rayon;
 
-	void destroy()
+	void destroy(int i, vector<balls>& vect)
 	{
-		pos = { 100000000,100000000 };
+		vect.erase(vect.begin() + i);
 	}
 
 	V2d_i generate()
@@ -207,7 +207,7 @@ public:
 		}
 		return points;
 	}
-	void boom(vector<bullets>& balles)
+	void boom(int thiss,vector<bullets>& balles, vector<balls>& ballons)
 	{
 		for (int i = 0; i < balles.size(); i++)
 		{
@@ -220,7 +220,7 @@ public:
 				if (numero == 0)
 				{
 					sound().playSound("boom.wav");
-					destroy();
+					destroy(thiss, ballons);
 				}
 				else
 				{

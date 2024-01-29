@@ -33,7 +33,7 @@ void afficher_message_defaite(square& main,vector<square>& vect, bool& jouer,V2d
 
 void show_fruit(V2d_i posFruit)
 {
-	draw_image("alexandre.png", { posFruit,{20,20} });
+	draw_image("alexandre.png", { posFruit,{30,30} });
 }
 
 void show_score(int score)
@@ -120,10 +120,10 @@ int main()
 			{
 				show_fruit(posFruit);
 				show_score(score);
-				if (main.get_pos().x < posFruit.x + 20 &&
-					main.get_pos().x + 20 > posFruit.x &&
-					main.get_pos().y < posFruit.y + 20 &&
-					main.get_pos().y + 20 > posFruit.y)
+				if (main.get_pos().x < posFruit.x + 30 &&
+					main.get_pos().x + 30 > posFruit.x &&
+					main.get_pos().y < posFruit.y + 30 &&
+					main.get_pos().y + 30 > posFruit.y)
 				{
 					posFruit.x = random().range(0, X_CONSOLE - 20);
 					posFruit.y = random().range(0, Y_CONSOLE - 20);

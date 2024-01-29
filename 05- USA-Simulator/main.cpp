@@ -38,11 +38,10 @@ int main()
 		}
 		for (int i = 0; i < ballons.size(); i++)
 		{
-			ballons.at(i).boom(balles);
 			ballons.at(i).show();
 			ballons.at(i).move();
 			ballons.at(i).show_number();
+			ballons.at(i).boom(i,balles,ballons);
 		}
-		
 	}
 }

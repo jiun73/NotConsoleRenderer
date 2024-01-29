@@ -15,19 +15,18 @@ void show_time(double time)
 	draw_simple_text(temps, { 500,500 }, get_font(0));
 }
 
-void chute_libre(square& main, double& time, int& vi, bool& touchGound)
+void chute_libre(square& main, double& time, int& vf, bool& touchGound)
 {
 	int energyLoss = 0.5;
+	double acceleration = 50;
+	vf = 0 /*vitesse initiale*/ + acceleration * time;
 	if (main.get_pos().y + main.get_xy().y < Y_CONSOLE && !touchGound)
 	{
-		main.get_pos().y = (9.8 * time * time) / 2;
+		main.get_pos().y = (acceleration * time * time) / 2;
 	}
 	else if (touchGound)
 	{
-		if (-119.7 / 2 * time + (-9.8 * time * time) / 2 + 730 > 0)
-		{
-			main.get_pos().y = -119.7 / 2 * time + -9.8 * time * time / 2 + 730;
-		}
+		main.get_pos().y = -vf * time + -acceleration * time * time / 2 + (Y_CONSOLE - 20);
 	}
 	else
 	{
@@ -136,7 +135,7 @@ int main()
 		draw_clear();
 		allow++;
 		time = get_time(time);
-		//chute_libre(main,time, vi, touchGround);
+		chute_libre(main,time, vi, touchGround);
 		//projectile_horizontal(main, time);
 		//projectile_oblique(main, time, angle);
 		/*if (allow == max)
@@ -145,13 +144,13 @@ int main()
 			allow = 0;
 		}*/
 		//rotate(main.get_points(), angle);
-		carre.create();
-		carre.move();
-		carre.rotate_on_pos(angle);
-		carre.rotate_on_center(angle); // bug: quand on se déplace puis on spin, la carré revient à sa position initiale. Quand j'essaie de fixer cela, la carré sort complètement de l'écran
-		carre.show_coordinates();
-		//main.create();
-		//main.show_coordinates();
+		//carre.create();
+		//carre.move();
+		//carre.rotate_on_pos(angle);
+		//carre.rotate_on_center(angle); // bug: quand on se déplace puis on spin, la carré revient à sa position initiale. Quand j'essaie de fixer cela, la carré sort complètement de l'écran
+		//carre.show_coordinates();
+		main.create();
+		main.show_coordinates();
 		show_time(time);
 	}
 }
