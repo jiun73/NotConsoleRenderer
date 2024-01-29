@@ -140,7 +140,7 @@ public:
 class balls
 {
 private:
-	V2d_i pos = { 500,500 };
+	V2d_i pos = generate();
 	V2d_i velocite = { 0,0 };
 	vector<V2d_i> points;
 	int rayon = 25;
@@ -150,6 +150,13 @@ private:
 	void destroy()
 	{
 		pos = { 100000000,100000000 };
+	}
+
+	V2d_i generate()
+	{
+		int y = Y_CONSOLE * 1 / 4;
+		int x = random().range(rayon, X_CONSOLE - rayon);
+		return { x,y };
 	}
 
 public:
@@ -170,7 +177,7 @@ public:
 	}
 	void move()
 	{
-		velocite = 0;
+		/*velocite = 0;
 		if (key_held(SDL_SCANCODE_A) && pos.x - rayon > 0)
 		{
 			velocite.x = -1;
@@ -188,7 +195,7 @@ public:
 			velocite.y = 1;
 		}
 		pos.x += velocite.x * acceleration;
-		pos.y += velocite.y * acceleration;
+		pos.y += velocite.y * acceleration;*/
 	}
 	vector<V2d_i> get_points()
 	{

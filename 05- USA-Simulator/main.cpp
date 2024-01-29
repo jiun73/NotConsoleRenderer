@@ -9,7 +9,12 @@ int main()
 
 	player joueur;
 	vector<bullets> balles;
-	balls ballons;
+	vector<balls> ballons;
+	int ballNum = 5;
+	for (int i = 0; i < ballNum; i++)
+	{
+		ballons.push_back(balls());
+	}
 
 	while (run())
 	{
@@ -31,9 +36,13 @@ int main()
 			}
 			balles.at(i).shoot({ joueur.get_pos().x + (joueur.get_xy().x / 2), joueur.get_pos().y - balles.at(i).get_xy().y});
 		}
-		ballons.boom(balles);
-		ballons.show();
-		ballons.move();
-		ballons.show_number();
+		for (int i = 0; i < ballons.size(); i++)
+		{
+			ballons.at(i).boom(balles);
+			ballons.at(i).show();
+			ballons.at(i).move();
+			ballons.at(i).show_number();
+		}
+		
 	}
 }
