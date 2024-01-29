@@ -3,6 +3,7 @@
 #include "ObjectGenerics.h"
 #include "FunctionGenerics.h"
 #include "ContainerGenerics.h"
+#include "CstarParser.h"
 
 void func() { std::cout << "Allo!" << std::endl; }
 int number() { return 618; }
@@ -57,4 +58,10 @@ int main()
 
 	std::cout << map_g.at(2)->stringify() << std::endl;
 	std::cout << map_g.at(2)->type().name() << std::endl;
+
+	CstarParser parser;
+
+	File f("file.txt", FILE_READING_STRING);
+	string source = f.getString();
+	parser.parse(source);
 }
