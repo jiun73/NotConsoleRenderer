@@ -98,6 +98,13 @@ public:
 		{
 			const string& current = keywords.at(i);
 
+			if (current == "SIZE")
+			{
+				if (i == keywords.size() - 1) return CstarRows(); //error
+				const string& next = keywords.at(i + 1);
+
+				i++;
+			}
 		}
 	}
 
@@ -139,3 +146,5 @@ public:
 		}
 	}
 };
+
+//typedef CstartGlobalParser;

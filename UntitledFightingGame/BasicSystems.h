@@ -1,29 +1,29 @@
 #pragma once
 
 #include "BasicComponents.h"
-//#include "Shape_x.h"
+#include "Shape.h"
 //#include "CollisionSystem.h"
 //#include "Utility.h"
 
-//struct Shape_system
-//{
-//	void update(Position_x* pos, Angle_x* angle, Shape_x* shape)
-//	{
-//		shape->angle = angle->angle;
-//		shape->position = pos->position;
-//	}
-//};
+struct Shape_system
+{
+	void update(Position_x* pos, Angle_x* angle, Shape_x* shape)
+	{
+		shape->angle = angle->angle;
+		shape->position = pos->position;
+	}
+};
 
-//struct GFX_system
-//{
-//	V2d_i offset = 0;
-//
-//	void update(GFX_x* gfx, Shape_x* shape)
-//	{
-//		pencil(gfx->col);
-//		shape->draw(camera());
-//	}
-//};
+struct GFX_system
+{
+	V2d_i offset = 0;
+
+	void update(GFX_x* gfx, Shape_x* shape)
+	{
+		pencil(gfx->col);
+		shape->draw(camera());
+	}
+};
 
 struct Controller_system
 {
