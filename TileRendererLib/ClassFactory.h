@@ -2,7 +2,7 @@
 #include <map>
 #include <string>
 #include "Singleton.h"
-#include "Typoids.h"
+#include "Generics.h"
 #include "Stringify.h"
 
 using std::map;
@@ -17,10 +17,10 @@ using std::string;
 class FactoryManager
 {
 private:
-	map<string, Typoid*> factories;
+	map<string, shared_generic> factories;
 
 public:
-	FactoryManager();
+	FactoryManager() {}
 	~FactoryManager() {}
 
 	template<typename T>
@@ -28,12 +28,12 @@ public:
 	{
 		if (!has(name))
 		{
-			factories.emplace(name, new FactoryTypoid<T>());
+			factories.emplace(name, new GenericType<T>());
 		}
 	}
-	Typoid* factory(const string& name) { return factories.at(name); }
-	shared_ptr<Typoid>	make(const string& name) { if (has(name)) return factory(name)->make(); return nullptr; }
-	bool				has(const string& name) { return factories.count(name); }
+	shared_generic factory(const string& name) { return factories.at(name); }
+	shared_generic	make(const string& name) { if (has(name)) return factory(name)->make(); return nullptr; }
+	bool has(const string& name) { return factories.count(name); }
 };
 
 typedef Singleton<FactoryManager> ClassFactory;

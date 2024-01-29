@@ -154,6 +154,7 @@
     <ClInclude Include="CommandPrompt.h" />
     <ClInclude Include="ConsoleRenderer.h" />
     <ClInclude Include="ContainerGenerics.h" />
+    <ClInclude Include="CstarParser.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Fonts.h" />
     <ClInclude Include="framework.h" />
@@ -168,6 +169,7 @@
     <ClInclude Include="Sound.h" />
     <ClInclude Include="Stringify.h" />
     <ClInclude Include="StringManip.h" />
+    <ClInclude Include="StringRanges.h" />
     <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="TileRenderer.h" />
     <ClInclude Include="Vec2D.h" />

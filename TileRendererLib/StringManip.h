@@ -5,6 +5,46 @@
 using std::string;
 using std::vector;
 
+inline void remove_ws2(std::string& str)
+{
+	str.erase(std::remove_if(str.begin(), str.end(), [](int n)
+		{
+			return (n == '\n') || (n == '\t') || (n == '\v') || (n == '\f') || (n == '\r');
+		}), str.end());
+}
+
+inline void change_whitespace_to_space(std::string& str)
+{
+	for (auto& c : str)
+	{
+		switch (c)
+		{
+		case '\n':
+		case '\t':
+		case '\v':
+		case '\f':
+		case '\r':
+			c = ' ';
+		default:
+			break;
+		}
+	}
+}
+
+inline void remove_all_range(string& str, string sdelim, string edelim, bool remove_end)
+{
+	while (true)
+	{
+		size_t start = str.find(sdelim);
+
+		if (start == str.npos)
+			break;
+
+		size_t end = str.find(edelim, start); //find the first endline after the comment
+		str.erase(start, end - start + (remove_end * edelim.size())); //erase it
+	}
+}
+
 inline vector<string> split(const string& str, const char delim)
 {
 	if (str.empty()) return {};

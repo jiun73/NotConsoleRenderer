@@ -3,6 +3,7 @@
 #include "FunctionGenerics.h"
 #include "ContainerGenerics.h"
 #include "Singleton.h"
+#include "ClassFactory.h"
 #include <map>
 #include <set>
 
@@ -24,6 +25,13 @@ public:
 	void add(shared_generic ptr, const string& name) { entries.emplace(name, ptr); }
 	shared_generic get(const string& name) { return entries.at(name); }
 	bool has(const string& name) { return entries.count(name); }
+
+	bool make(const string& str, const string& type)
+	{
+		if (!ClassFactory::get()->has(type)) return false;
+		add(ClassFactory::get()->make(type), name);
+		return true;
+	}
 
 	map<string, shared_generic>& all() { return entries; }
 

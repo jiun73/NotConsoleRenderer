@@ -1,0 +1,64 @@
+new vector<string> container
+new string object
+new int test = 100
+
+new function front = 
+<
+	#1 :is "container";
+	
+	#1 :at 0
+>
+
+<
+	container :push object;
+	:push container object;
+	
+	:foreach "n" container
+	<
+		n := "hi!"
+	>;
+	
+	container :front;
+	
+	:if test :== 1
+	<
+		
+	>
+>
+
+result : <
+	test; //when a instruction has a return that isn't used, it's that functions' return
+	test :+ 1;
+	test :+ 2;
+> //this will output the string : "result : 100101102"
+
+ROW SIZE 2{ //row 1
+	|button 
+	[
+		text: hello!;
+		expr: <test := 200>
+	]
+	
+	|COL SIZE 3
+	{
+		|text 
+		[
+			: bruh1
+		]
+	}
+	
+	{
+		
+	}
+
+	|COL SIZE 3
+}
+
+ROW IF <test :== 1> {
+	|dropbox SIZE 2 
+	[
+		
+	]
+	
+	
+}

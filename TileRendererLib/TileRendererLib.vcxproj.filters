@@ -25,6 +25,12 @@
     <Filter Include="Source Files\ConsoleRenderer">
       <UniqueIdentifier>{5655e238-feea-4bc5-94c1-f472d1053769}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Generic\Cstar">
+      <UniqueIdentifier>{02f3a915-e810-471f-b500-a3c63c76f16b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Strings">
+      <UniqueIdentifier>{c28468d1-f5f9-4c2f-a200-9bf9d8bfaa60}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -66,14 +72,8 @@
     <ClInclude Include="File.h">
       <Filter>Header Files\Classes</Filter>
     </ClInclude>
-    <ClInclude Include="StringManip.h">
-      <Filter>Header Files\Classes</Filter>
-    </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Stringify.h">
-      <Filter>Header Files\Generic</Filter>
     </ClInclude>
     <ClInclude Include="ClassFactory.h">
       <Filter>Header Files\Generic</Filter>
@@ -101,6 +101,18 @@
     </ClInclude>
     <ClInclude Include="ConsoleRenderer.h">
       <Filter>Source Files\ConsoleRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="CstarParser.h">
+      <Filter>Header Files\Generic\Cstar</Filter>
+    </ClInclude>
+    <ClInclude Include="StringManip.h">
+      <Filter>Header Files\Strings</Filter>
+    </ClInclude>
+    <ClInclude Include="Stringify.h">
+      <Filter>Header Files\Strings</Filter>
+    </ClInclude>
+    <ClInclude Include="StringRanges.h">
+      <Filter>Header Files\Strings</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
