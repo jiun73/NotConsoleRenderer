@@ -20,6 +20,8 @@ new function front =
 	
 	container :front;
 	
+	rows
+	
 	:if test :== 1
 	<
 		

@@ -117,6 +117,7 @@ public:
 		current_scope = variable_dictionnary()->global();
 		current_row = &base_row;
 		string row_keyword = "ROW";
+		str += '\n';
 		remove_all_range(str, "//", "\n", false);
 		remove_all_range(str, "/*", "*/", true);
 		change_whitespace_to_space(str);
