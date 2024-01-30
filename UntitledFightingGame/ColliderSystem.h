@@ -57,7 +57,6 @@ struct Collision_system
 
 	void update(vector<Shape_x*>& shapes, vector<Collider_x*>& colliders, vector<Position_x*>& positions, vector<EntityID>& ids)
 	{
-		std::cout << "coll" << std::endl;
 		size_t i = 0;
 		for (auto it1 = shapes.begin(); it1 != shapes.end(); it1++) //TODO: shitty way to do this
 		{
@@ -80,11 +79,22 @@ struct Collision_system
 						case CTYPE_CUSTOM:
 							break;
 						case CTYPE_PUSH: 
-							std::cout << positions.at(y)->position;
-							positions.at(y)->position += gjk.EPA(**it1, **it2);
-							//positions.at(y)->position.floor();
-							EntX::get()->get_entity_component < Physics_x>(ids.at(y))->velocity.y = 0;
-							std::cout << positions.at(y)->position << std::endl;
+						{
+							V2d_d dis = gjk.EPA(**it1, **it2);
+							positions.at(y)->position += dis;
+
+							size_t id = ids.at(y);
+
+							if (EntX::get()->entity_has_component<Physics_x>(id))
+							{
+								Physics_x* physics = EntX::get()->get_entity_component < Physics_x>(id);
+
+								if (dis.y < 0 && physics->velocity.y > 0) { physics->velocity.y = 0; }
+								if (dis.y > 0 && physics->velocity.y < 0) { physics->velocity.y = 0; }
+								if (dis.x < 0 && physics->velocity.x > 0) { physics->velocity.x = 0; }
+								if (dis.x > 0 && physics->velocity.x < 0) { physics->velocity.x = 0; }
+							}
+						}
 							break;
 						case CTYPE_DESTROY:
 							EntX::get()->destroy_this(ids.at(y));

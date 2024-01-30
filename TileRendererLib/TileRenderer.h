@@ -10,6 +10,7 @@
 #include "Camera.h"
 #include "CommandDictionnary.h"
 #include "Stringify.h"
+#include "Controls.h"
 
 #undef main	
 
@@ -63,6 +64,7 @@ bool run();
 
 //----------------------------------------------------------CONTROLES-------------------------------------------------------------------------
 
+MultiInput& inputs();
 KeyboardInput& keyboard();
 MouseInput& mouse();
 JoystickInput& joystick(); //Oui, tu peut utiliser une manette pour controller, par contre j'ai la flemme de faire des fonction pour
@@ -78,6 +80,9 @@ bool mouse_left_released();
 bool mouse_right_pressed();
 bool mouse_right_held();
 bool mouse_right_released();
+
+bool input(const string& str);
+
 
 //Retourne la position de la souris prenant en compte l'aggrandissement de la fenêtre
 V2d_d mouse_position();

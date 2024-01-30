@@ -45,6 +45,7 @@ public:
 
 	Shape_x() {}
 	Shape_x(const vector<V2d_d>& points) : points(points) {}
+	Shape_x(const Rect_d& rect) : points({rect.pos, rect.pos + rect.sz.xi(), rect.pos + rect.sz, rect.pos + rect.sz.yj()}) {}
 	~Shape_x() {}
 
 	vector<V2d_d>& get_points()

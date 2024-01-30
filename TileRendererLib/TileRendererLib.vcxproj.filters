@@ -114,6 +114,9 @@
     <ClInclude Include="StringRanges.h">
       <Filter>Header Files\Strings</Filter>
     </ClInclude>
+    <ClInclude Include="Controls.h">
+      <Filter>Header Files\Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TileRendererLib.cpp">
@@ -142,6 +145,9 @@
     </ClCompile>
     <ClCompile Include="ConsoleRenderer.cpp">
       <Filter>Source Files\ConsoleRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls.cpp">
+      <Filter>Header Files\Classes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

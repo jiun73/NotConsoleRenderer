@@ -154,6 +154,7 @@
     <ClInclude Include="CommandPrompt.h" />
     <ClInclude Include="ConsoleRenderer.h" />
     <ClInclude Include="ContainerGenerics.h" />
+    <ClInclude Include="Controls.h" />
     <ClInclude Include="CstarParser.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Fonts.h" />
@@ -178,6 +179,7 @@
   <ItemGroup>
     <ClCompile Include="CommandPrompt.cpp" />
     <ClCompile Include="ConsoleRenderer.cpp" />
+    <ClCompile Include="Controls.cpp" />
     <ClCompile Include="EntityX.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Input.cpp" />

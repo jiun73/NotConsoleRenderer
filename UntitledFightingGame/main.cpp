@@ -42,13 +42,16 @@ int main()
 	TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Controller_x, Collider_x, Physics_x> player;
 	TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Collider_x> floor;
 
-	player.create({ 25 }, { 0 }, { rgb(100,100,100) }, { {-5, {5,-5}, 5, {-5,5}} }, {}, { SOLID }, { 0,{0,0.03} });
+	Rect_d player_square = { -5,5 };
+	player.create({ 25 }, { 0 }, { rgb(100,100,100) }, { player_square }, {}, { SOLID }, { 0,{0,0.03} });
 
 	floor.create({ {0,95}, }, { 0 }, { rgb(100,100,100) }, { {0, {100,0}, {100,-5}, {0,-5}} }, { PLAYER });
 
+
+
 	entitity_system<Collision_system>()->add_pairing(PLAYER, SOLID, CTYPE_PUSH);
 
-	set_window_size(100);
+	set_window_size({ 192 ,108 });
 	set_window_resizable();
 
 	track_variable(player.component<Position_x>()->position, "pos");

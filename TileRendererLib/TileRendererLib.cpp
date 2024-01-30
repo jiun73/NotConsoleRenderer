@@ -10,6 +10,7 @@
 #include "Fonts.h"
 #include "Camera.h"
 #include "CommandPrompt.h"
+#include "Controls.h"
 
 #define _WINSOCKAPI_
 
@@ -30,9 +31,10 @@ namespace hidden {
 	Uint32 frameTime = 0;
 	Uint32 frameDelay = (Uint32)(1000.0 / fps);
 
-	KeyboardInput _keyboard;
-	MouseInput _mouse;
-	JoystickInput _joystick;
+	//KeyboardInput _keyboard;
+	//MouseInput _mouse;
+	//JoystickInput _joystick;
+	MultiInput _inputs;
 
 	SDL_Renderer* sdl_ren;
 	SDL_Window* sdl_win;
@@ -280,7 +282,7 @@ bool run()
 	}
 	else 
 	{
-		if (_keyboard.pressed(SDL_SCANCODE_F3))
+		if (_inputs.keyboard.pressed(SDL_SCANCODE_F3))
 		{
 			if (!Commands::get()->isPolling())
 			{
@@ -304,7 +306,7 @@ bool run()
 		if (frameDelay > frameTime)
 			SDL_Delay(frameDelay - frameTime);
 
-		_keyboard.update();
+		_inputs.keyboard.update();
 	}
 
 	if (!__run__)
@@ -315,17 +317,17 @@ bool run()
 
 	while (SDL_PollEvent(&sdl_event)) 
 	{
-		if (sdl_event.type == SDL_QUIT)
-			return false;
+		if (sdl_event.type == SDL_QUIT) return false;
 
-		_keyboard.events(sdl_event);
-		_mouse.events(sdl_event);
-		_joystick.events(sdl_event);
+		_inputs.events(sdl_event);
+
+		//_keyboard.events(sdl_event);
+		//_mouse.events(sdl_event);
+		//_joystick.events(sdl_event);
 	}
 
 	
-	_mouse.update();
-	_joystick.update();
+	_inputs.update();
 
 	frameStart = SDL_GetTicks();
 
@@ -334,9 +336,14 @@ bool run()
 
 void close() { __run__ = false; }
 
-KeyboardInput&	keyboard()	{ return _keyboard; }
-MouseInput&		mouse()		{ return _mouse; }
-JoystickInput&	joystick()	{ return _joystick; }
+MultiInput& inputs()
+{
+	return _inputs;
+}
+
+KeyboardInput&	keyboard()	{ return _inputs.keyboard; }
+MouseInput&		mouse()		{ return _inputs.mouse; }
+JoystickInput&	joystick()	{ return _inputs.joystick; }
 
 bool key_pressed(SDL_Scancode code) { return keyboard().pressed(code); }
 bool key_held(SDL_Scancode code) { return keyboard().held(code); }
@@ -347,6 +354,8 @@ bool mouse_left_released() { return mouse().released(SDL_BUTTON_LEFT); }
 bool mouse_right_pressed() { return mouse().pressed(SDL_BUTTON_RIGHT); }
 bool mouse_right_held() { return mouse().held(SDL_BUTTON_RIGHT); }
 bool mouse_right_released() { return mouse().released(SDL_BUTTON_RIGHT); }
+
+bool input(const string& str) { return _inputs.check(str); }
 
 //j'ai la flemme de faire des meilleures fonctions, mais tu peut regarder dans Sound.h si tu veut jouer des sons 
 //C'est pas suuuper compliqué

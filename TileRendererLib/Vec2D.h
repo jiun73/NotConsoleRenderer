@@ -45,8 +45,8 @@ struct Vector2D
 		return Vector2D<C>(static_cast<C>(x), static_cast<C>(y));
 	}
 
-	Vector2D xi() { return { x,T(0) }; }
-	Vector2D yj() { return { T(0),y }; }
+	Vector2D xi() const { return { x,T(0) }; }
+	Vector2D yj() const { return { T(0),y }; }
 
 	Vector2D& floor() { x = std::floor(x); y = std::floor(y); return *this; };
 	Vector2D& ceil() { x = std::ceil(x); y = std::ceil(y);  return *this; };
