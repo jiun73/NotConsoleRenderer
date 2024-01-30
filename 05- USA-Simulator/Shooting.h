@@ -30,6 +30,12 @@ double convertir_en_radians(int angle)
 //	}
 //}
 
+struct physics
+{
+	V2d_d acceleration = { 0,0.01 };
+	V2d_d velocite = 0;
+};
+
 class player
 {
 private:
@@ -145,6 +151,7 @@ private:
 	vector<V2d_i> points;
 	int acceleration = 2;
 	int numero = rayon;
+	physics physique;
 
 	void destroy(int i, vector<balls>& vect)
 	{
@@ -192,7 +199,8 @@ public:
 		{
 			determinant = -1;
 		}
-		pos.y += determinant;
+		pos += physique.velocite * determinant;
+		physique.velocite += physique.acceleration;
 	}
 	vector<V2d_i> get_points()
 	{
