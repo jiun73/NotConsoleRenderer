@@ -1,7 +1,7 @@
 #include "Controls.h"
+#include "pch.h"
 
 MultiInput* Controls::min;
-
 
 void MultiInput::handleMouseMap(MappedInput& key, bool& found)
 {

@@ -15,7 +15,7 @@ static ComponentXAdder<Collider_x> coll_adder;
 
 SystemXAdder<8, Shape_system, Position_x, Angle_x, Shape_x> shape_system_adder;
 SystemXAdder<9, GFX_system, GFX_x, Shape_x> polygon_gfx_system_adder;
-SystemXAdder<0, Controller_system, Position_x, Controller_x> controller_system_adder;
+SystemXAdder<0, Controller_system, Position_x, Controller_x, Physics_x> controller_system_adder;
 //SystemXAdder<1, Shooter_system, Shooter_x, Position_x, Angle_x> shooter_system_adder;
 SystemXAdder<7, Physics_system, Physics_x, Position_x, Angle_x> physics_system_adder;
 SystemXAdder<0, Lifetime_system, Lifetime_x> lifetime_system_adder;
@@ -43,11 +43,14 @@ int main()
 	TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Collider_x> floor;
 
 	Rect_d player_square = { -5,5 };
-	player.create({ 25 }, { 0 }, { rgb(100,100,100) }, { player_square }, {}, { SOLID }, { 0,{0,0.03} });
+	player.create({ 25 }, { 0 }, { rgb(100,100,100) }, { player_square }, {}, { SOLID }, { 0,0,{0,0.03} });
+
 
 	floor.create({ {0,95}, }, { 0 }, { rgb(100,100,100) }, { {0, {100,0}, {100,-5}, {0,-5}} }, { PLAYER });
 
-
+	inputs().map("left", { KEYBOARD_INPUT, INPUT_HELD, SDL_SCANCODE_A });
+	inputs().map("right", { KEYBOARD_INPUT, INPUT_HELD, SDL_SCANCODE_D });
+	inputs().map("jump", { KEYBOARD_INPUT, INPUT_HELD, SDL_SCANCODE_W});
 
 	entitity_system<Collision_system>()->add_pairing(PLAYER, SOLID, CTYPE_PUSH);
 

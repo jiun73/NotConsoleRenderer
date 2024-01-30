@@ -14,8 +14,19 @@ using std::function;
 
 struct Physics_x
 {
+private:
+	vector<V2d_d> forces;
+
+public:
+	Physics_x() {}
+	Physics_x(const V2d_d& vel, const V2d_d& acc, const V2d_d& grav = 0) : velocity(vel), acceleration(acc), gravity(grav){}
+	~Physics_x() {}
+
 	V2d_d velocity;
 	V2d_d acceleration;
+	V2d_d gravity;
+
+	V2d_d top_speed = 100;
 
 	double angular_velocity = 0;
 };

@@ -20,6 +20,7 @@
 #include "EntityX.h"
 #include "Camera.h"
 #include "Generics.h"
+#include "Controls.h"
 
 #include "ConsoleRenderer.h"
 

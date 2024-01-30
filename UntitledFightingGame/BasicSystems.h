@@ -38,11 +38,29 @@ struct GFX_system
 
 struct Controller_system
 {
-	void update(Position_x* position, Controller_x* controller)
+	void update(Position_x* position, Controller_x* controller, Physics_x* phys)
 	{
 		V2d_d old = position->position;
-		keyboard().quickKeyboardControlWASD(position->position, controller->force);
+		//keyboard().quickKeyboardControlWASD(position->position, controller->force);
+
 		controller->displacement_vector = old - position->position;
+
+		if (input("left"))
+		{
+			phys->acceleration.x = -0.01;
+		}
+
+		else if (input("right"))
+		{
+			phys->acceleration.x = 0.01;
+		}
+		else
+			phys->acceleration.x = 0;
+
+		if (input("jump"))
+		{
+			phys->acceleration.y = -0.01;
+		}
 	}
 };
 
@@ -51,7 +69,7 @@ struct Physics_system
 	void update(Physics_x* physics, Position_x* position, Angle_x* angle)
 	{
 		position->position += physics->velocity;
-		physics->velocity += physics->acceleration;
+		physics->velocity += physics->acceleration + physics->gravity;
 		angle->angle += physics->angular_velocity;
 	}
 };
