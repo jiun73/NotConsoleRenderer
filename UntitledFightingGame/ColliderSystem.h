@@ -82,7 +82,7 @@ struct Collision_system
 						case CTYPE_PUSH: 
 							std::cout << positions.at(y)->position;
 							positions.at(y)->position += gjk.EPA(**it1, **it2);
-							positions.at(y)->position.floor();
+							//positions.at(y)->position.floor();
 							EntX::get()->get_entity_component < Physics_x>(ids.at(y))->velocity.y = 0;
 							std::cout << positions.at(y)->position << std::endl;
 							break;

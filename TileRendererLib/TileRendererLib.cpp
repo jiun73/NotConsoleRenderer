@@ -132,6 +132,18 @@ void init()
 
 			});
 
+		__NEW_COMMAND__(ff4, "pause", [&](__COMMAND_ARGS__)
+			{
+				Commands::get()->callback = []()
+					{
+						system("pause");
+					};
+				
+				//string s;
+				//std::getline(std::cin, s);
+
+			});
+
 		DefineCommand _ff_cmd("open watch", [&](CommandArguments& args)
 			{
 				//PROCESS_INFORMATION processInformation;

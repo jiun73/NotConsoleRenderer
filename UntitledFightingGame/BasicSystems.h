@@ -9,6 +9,7 @@ struct Shape_system
 {
 	void update(Position_x* pos, Angle_x* angle, Shape_x* shape)
 	{
+		std::cout << "shape" << std::endl;
 		shape->angle = angle->angle;
 		shape->position = pos->position;
 		EntX::get()->add_callback([shape, angle, pos](EntityID)
