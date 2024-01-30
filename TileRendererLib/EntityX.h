@@ -322,8 +322,22 @@ class SystemXManagerFactory : public SystemX
 	}
 };
 
+template<typename T>
+struct ComponentXAdder;
+template<size_t L, typename T, typename... Reqs>
+struct SystemXAdder;
+template<size_t L, typename T, typename... Reqs>
+struct SystemXManagerAdder;
+
 class EntityManagerX
 {
+	template<typename T>
+	friend struct ComponentXAdder;
+	template<size_t L, typename T, typename... Reqs>
+	friend struct SystemXAdder;
+	template<size_t L, typename T, typename... Reqs>
+	friend struct SystemXManagerAdder;
+
 private:
 	array<ComponentX*, MAX_COMPONENT> factories = {};
 	unordered_map<ComponentBytes, ArchetypeX> archetypes;
@@ -351,24 +365,16 @@ private:
 		entity_tags_reversed.emplace(eid, tag);
 	}
 
-public:
-	bool has_entity(EntityID eid) { return entities.count(eid); }
-	bool entity_has_component(EntityID eid, ComponentID cid);
-	template<typename T>
-	bool entity_has_component(EntityID eid) { return entity_has_component(eid, TypeId<ComponentID>::id<T>()); }
 
+	bool entity_has_component(EntityID eid, ComponentID cid);
 	ComponentData get_entity_component_data(EntityID eid, ComponentID cid);
 
-	template<typename T> T* get_entity_component(EntityID eid);
+	EntityID	add_entity(const vector<ComponentID>& list);
+	EntityID	add_entity_tagged(const vector<ComponentID>& list, EntityTag tag);
 
 	template<typename T>					void register_component_type();
 	template<typename T, typename... Reqs>	void register_system(uint8_t layer);
 	template<typename T, typename... Reqs>	void register_system_manager(uint8_t layer);
-	template<typename T>					T* get_system();
-
-	void		remove_entity(EntityID eid);
-	EntityID	add_entity(const vector<ComponentID>& list);
-	EntityID	add_entity_tagged(const vector<ComponentID>& list, EntityTag tag);
 
 	void set_entity_component(EntityID id) {}
 
@@ -385,6 +391,14 @@ public:
 		set_entity_component(id, component);
 		set_entity_component(id, rest...);
 	}
+
+	void do_callbacks();
+
+public:
+	bool has_entity(EntityID eid) { return entities.count(eid); }
+	template<typename T> bool entity_has_component(EntityID eid) { return entity_has_component(eid, TypeId<ComponentID>::id<T>()); }
+	template<typename T> T* get_entity_component(EntityID eid);
+	template<typename T> T* get_system();
 
 	template<typename... Comp>
 	EntityID	add_entity(const Comp&... components, EntityTag tag = 0) 
@@ -404,8 +418,9 @@ public:
 		return eid;
 	}
 
+	void remove_entity(EntityID eid);
+
 	auto get_entities_by_tag(EntityTag tag) { return entity_tags.equal_range(tag); }
-	
 
 	void add_callback(function<void(EntityID)> function, EntityID eid);
 	void add_callback_current(function<void(EntityID)> function)
@@ -429,8 +444,6 @@ public:
 					Singleton<EntityManagerX>::get()->remove_entity(eid);
 			}, eid);
 	}
-
-	void do_callbacks();
 
 	void update();
 };
@@ -554,7 +567,11 @@ inline void EntityManagerX::register_system_manager(uint8_t layer)
 template<typename T>
 inline T* EntityManagerX::get_system()
 {
-	SystemX* system = systems_by_id.at(TypeId<SystemX>::id<T>());
+	size_t id = TypeId<SystemX>::id<T>();
+
+	assert(systems_by_id.count(id) && "System was not registered");
+
+	SystemX* system = systems_by_id.at(id);
 
 	return reinterpret_cast<T*>(system->get_this());
 }

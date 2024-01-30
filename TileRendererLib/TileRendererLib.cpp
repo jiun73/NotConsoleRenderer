@@ -134,10 +134,29 @@ void init()
 
 		__NEW_COMMAND__(ff4, "pause", [&](__COMMAND_ARGS__)
 			{
-				Commands::get()->callback = []()
+				bool* b = new bool(true);
+
+				__NEW_COMMAND__(ff1, "", [b](__COMMAND_ARGS__)
 					{
-						system("pause");
+						*b = false;
+					});
+
+				auto call_this = [b]()
+					{
+						std::cout << "Pausing..." << std::endl;
+						auto old = Commands::get()->callback;
+						Commands::get()->callback = nullptr;
+						while (*b) 
+						{
+							
+							Commands::get()->update();
+							
+						}
+						Commands::get()->callback = old;
+						*b = true;
 					};
+
+				Commands::get()->callback = call_this;
 				
 				//string s;
 				//std::getline(std::cin, s);

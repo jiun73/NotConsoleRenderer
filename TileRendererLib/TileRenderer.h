@@ -239,3 +239,11 @@ bool point_in_rectangle(const V2d_i& point, const Rect& rectangle);
 double lerp(double a, double b, double t); //Linear interpolation formula
 double distance_square(const V2d_d& pos1, const V2d_d& pos2); //square of the distance between two points (to avoid using expensive sqrt)
 double distance(const V2d_d& pos1, const V2d_d& pos2); //real distance between points
+
+//----------------------------------------------------------ENTITYX---------------------------------------------------------------------------
+#include "EntityX.h"
+
+inline EntityManagerX* entities() { return EntX::get(); }
+
+template<typename T>
+inline T* entitity_system() { return EntX::get()->get_system<T>(); }
