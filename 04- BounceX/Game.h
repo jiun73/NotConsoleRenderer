@@ -9,6 +9,12 @@ const int Y_CONSOLE = 750;
 
 const double frame_rate = 120.0;
 
+struct physics
+{
+	V2d_d acceleration = { 0,0.01 };
+	V2d_d velocite = { 0 };
+};
+
 struct chrono 
 {
 private:
@@ -126,6 +132,7 @@ public:
 	V2d_i velocite = { choose(),choose() };
 	int acceleration = 5;
 	bool is_main = false;
+	physics physique;
 	V2d_i create()
 	{
 		rect(pos, xy, velocite);
@@ -276,3 +283,5 @@ public:
 		draw_simple_text(texte, { 100,10 }, get_font(0));
 	}
 };
+
+

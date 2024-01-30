@@ -17,22 +17,24 @@ void show_time(double time)
 
 void chute_libre(square& main, double& time, int& vf, bool& touchGound)
 {
-	int energyLoss = 0.5;
-	double acceleration = 50;
-	vf = 0 /*vitesse initiale*/ + acceleration * time;
-	if (main.get_pos().y + main.get_xy().y < Y_CONSOLE && !touchGound)
-	{
-		main.get_pos().y = (acceleration * time * time) / 2;
-	}
-	else if (touchGound)
-	{
-		main.get_pos().y = -vf * time + -acceleration * time * time / 2 + (Y_CONSOLE - 20);
-	}
-	else
-	{
-		touchGound = true;
-		time = 0;
-	}
+	//int energyLoss = 0.5;
+	//double acceleration = 50;
+	//vf = 0 /*vitesse initiale*/ + acceleration * time;
+	//if (main.get_pos().y + main.get_xy().y < Y_CONSOLE && !touchGound)
+	//{
+	//	main.get_pos().y = (acceleration * time * time) / 2;
+	//}
+	//else if (touchGound)
+	//{
+	//	main.get_pos().y = -vf * time + -acceleration * time * time / 2 + (Y_CONSOLE - 20);
+	//}
+	//else
+	//{
+	//	touchGound = true;
+	//	time = 0;
+	//}
+	main.get_pos() += main.physique.velocite;
+	main.physique.velocite += main.physique.acceleration;
 }
 
 void projectile_horizontal(square& main, double time)

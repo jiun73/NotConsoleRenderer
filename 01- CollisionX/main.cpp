@@ -3,7 +3,8 @@
 
 
 // Note à moi-même: À chaque fois que je crée un projet, je dois ajouter tous les fichiers .dll ainsi que le dossier Font qui
-// sont tous dans le dossier Bruhuh
+// sont tous dans le dossier Bruhuh. Pour ce qui est des settings, je dois les copier dans mon nouveau projet et changer la 
+// version de C++ (pour ce faire: Propriétés de configuration --> Généran -> Normes du languages --> C++17
 
 
 #include "balls.h"
