@@ -88,10 +88,15 @@ void CommandPrompt::update()
 		}
 	}
 
-	if (callback != nullptr)
+	for (auto& x : temp_spaces)
 	{
-		callback();
+		if (x.second.callback != nullptr)
+		{
+			x.second.callback();
+		}
 	}
+
+	
 }
 
 void CommandPrompt::add(const string& command, CommandFunc func)
@@ -109,6 +114,11 @@ vector<string> CommandTree::split(const string& command)
 void CommandTree::add(const string& command, CommandFunc func)
 {
 	root.add(split(command), func);
+}
+
+void CommandTree::remove(const string& command)
+{
+	root.remove(split(command));
 }
 
 CommandFunc* CommandTree::get(const string& command, CommandTreeNode*& last, vector<string>& args, size_t& nonvarsize)
@@ -230,6 +240,25 @@ void CommandTreeNode::add(vector<string> args, const CommandFunc& func) //add ar
 
 	args.erase(args.begin()); //we added the first arg, remove it
 	get_node_literal(arg)->add(args, func); //add the rest to the next node (note: if it is empty, it will return)
+}
+
+void CommandTreeNode::remove(vector<string> args)
+{
+	if (args.empty())
+	{
+		_func = nullptr;
+		return;
+	}
+
+	string current = args.at(0);
+	args.erase(args.begin());
+	get_node_literal(current)->remove(args);
+	for (auto it = next.begin(); it != next.end(); it++)
+		if ((*it)->_arg == current)
+		{
+			next.erase(it);
+			break;
+		}
 }
 
 CommandFunc* CommandTreeNode::get(vector<string> args, CommandTreeNode*& last, size_t& nonvarsize)

@@ -50,7 +50,7 @@ int main()
 
 	inputs().map("left", { KEYBOARD_INPUT, INPUT_HELD, SDL_SCANCODE_A });
 	inputs().map("right", { KEYBOARD_INPUT, INPUT_HELD, SDL_SCANCODE_D });
-	inputs().map("jump", { KEYBOARD_INPUT, INPUT_HELD, SDL_SCANCODE_W});
+	inputs().map("jump", { KEYBOARD_INPUT, INPUT_PRESSED, SDL_SCANCODE_W});
 
 	entitity_system<Collision_system>()->add_pairing(PLAYER, SOLID, CTYPE_PUSH);
 

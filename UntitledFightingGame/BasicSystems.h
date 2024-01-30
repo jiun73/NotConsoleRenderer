@@ -47,19 +47,19 @@ struct Controller_system
 
 		if (input("left"))
 		{
-			phys->acceleration.x = -0.01;
+			phys->acceleration.x = -100;
 		}
 
 		else if (input("right"))
 		{
-			phys->acceleration.x = 0.01;
+			phys->acceleration.x = 100;
 		}
 		else
 			phys->acceleration.x = 0;
 
 		if (input("jump"))
 		{
-			phys->acceleration.y = -0.01;
+			phys->forces.push_back({ 0,-0.8 });
 		}
 	}
 };
@@ -70,6 +70,16 @@ struct Physics_system
 	{
 		position->position += physics->velocity;
 		physics->velocity += physics->acceleration + physics->gravity;
+
+		for (auto& f : physics->forces)
+		{
+			physics->velocity += f;
+		}
+
+		physics->forces.clear();
+
+		physics->velocity.range(-physics->top_speed, physics->top_speed);
+
 		angle->angle += physics->angular_velocity;
 	}
 };

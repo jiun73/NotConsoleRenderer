@@ -134,36 +134,36 @@ void init()
 
 			});
 
-		__NEW_COMMAND__(ff4, "pause", [&](__COMMAND_ARGS__)
-			{
-				bool* b = new bool(true);
+		//__NEW_COMMAND__(ff4, "pause", [&](__COMMAND_ARGS__)
+		//	{
+		//		bool* b = new bool(true);
 
-				__NEW_COMMAND__(ff1, "", [b](__COMMAND_ARGS__)
-					{
-						*b = false;
-					});
+		//		__NEW_COMMAND__(ff1, "", [b](__COMMAND_ARGS__)
+		//			{
+		//				*b = false;
+		//			});
 
-				auto call_this = [b]()
-					{
-						std::cout << "Pausing..." << std::endl;
-						auto old = Commands::get()->callback;
-						Commands::get()->callback = nullptr;
-						while (*b) 
-						{
-							
-							Commands::get()->update();
-							
-						}
-						Commands::get()->callback = old;
-						*b = true;
-					};
+		//		auto call_this = [b]()
+		//			{
+		//				std::cout << "Pausing..." << std::endl;
+		//				auto old = Commands::get()->callback;
+		//				Commands::get()->callback = nullptr;
+		//				while (*b) 
+		//				{
+		//					
+		//					Commands::get()->update();
+		//					
+		//				}
+		//				Commands::get()->callback = old;
+		//				*b = true;
+		//			};
 
-				Commands::get()->callback = call_this;
-				
-				//string s;
-				//std::getline(std::cin, s);
+		//		Commands::get()->callback = call_this;
+		//		
+		//		//string s;
+		//		//std::getline(std::cin, s);
 
-			});
+		//	});
 
 		DefineCommand _ff_cmd("open watch", [&](CommandArguments& args)
 			{
@@ -194,7 +194,9 @@ void init()
 
 				vector<std::pair<string, shared_generic>>* watching = new vector<std::pair<string, shared_generic>>();
 
-				__NEW_COMMAND__(ff1, "watch ***", [watching](__COMMAND_ARGS__)
+				CommandSpace space;
+
+				space.temp.push_back({ "watch ***", [watching](__COMMAND_ARGS__)
 					{
 						string name = args[1];
 						shared_generic ptr = variable_dictionnary()->get(name);
@@ -202,14 +204,14 @@ void init()
 							watching->push_back({ name,ptr });
 						else
 							std::cout << "couldn't find the variable lol" << std::endl;
-					});
+					} });
 
-				__NEW_COMMAND__(ff2, "close", [](__COMMAND_ARGS__)
+				space.temp.push_back({ "close", [watching](__COMMAND_ARGS__)
 					{
-						Commands::get()->callback = nullptr;
-					});
+						Commands::get()->exit_space("watch");
+					} });
 
-				Commands::get()->callback = [watching]()
+				space.callback = [watching]()
 					{
 						std::string output;
 
@@ -239,6 +241,8 @@ void init()
 						cApp.setCursor(old.xi());
 						
 					};
+
+				Commands::get()->enter_space(space, "watch");
 			});
 
 		add_font_effect("end", [](__FontEffectArgs__)

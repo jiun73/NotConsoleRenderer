@@ -79,6 +79,7 @@ public:
 
 	void			explore(vector<string>& possibilities, bool is_first = true);
 	void			add(vector<string> args, const CommandFunc& func);
+	void			remove(vector<string> args);
 	CommandFunc* get(vector<string> args, CommandTreeNode*& last, size_t& nonvarsize);
 	CommandFunc* _get(vector<string>& args, CommandTreeNode*& last, size_t& nonvarsize);
 };
@@ -92,8 +93,19 @@ public:
 	//split commands into it's arguments
 	vector<string>	split(const string& command);
 	void			add(const string& command, CommandFunc func);
+	void remove(const string& command);
 	CommandFunc* get(const string& command, CommandTreeNode*& last, vector<string>& args, size_t& nonvarsize);
 };
+
+struct CommandSpace 
+{
+	vector<std::pair<string, CommandFunc>> temp;
+	std::function<void()> callback;
+};
+
+#include <map>
+
+using std::map;
 
 class CommandPrompt
 {
@@ -106,10 +118,31 @@ private:
 
 	//std::map<string, Typoid*> dictionnary;
 
+	map<string, CommandSpace> temp_spaces;
+
 public:
-	std::function<void()> callback = nullptr;
 	ThreadPool pool;
 
+	void enter_space(CommandSpace space, const string& name) 
+	{
+		temp_spaces.emplace(name, space);
+
+		for (auto& x : space.temp)
+		{
+			std::cout << "adding " << name + ": " + x.first << std::endl;
+			add(name + ": " + x.first, x.second);
+		}
+	}
+
+	void exit_space(const string& name)
+	{
+		CommandSpace& space = temp_spaces.at(name);
+		for (auto& x : space.temp)
+		{
+			remove(name + ": " + x.first);
+		}
+		temp_spaces.erase(name);
+	}
 
 	CommandPrompt();
 	~CommandPrompt() { if(poll)stopPolling(); }
@@ -125,6 +158,10 @@ public:
 
 	void update();
 	void add(const string& command, CommandFunc func);
+	void remove(const string& command)
+	{
+		tree.remove(command);
+	}
 
 	bool isPolling() { return poll; }
 
