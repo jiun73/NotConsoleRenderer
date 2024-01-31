@@ -50,7 +50,7 @@ void CommandPrompt::startPolling()
 		});
 }
 
-void CommandPrompt::update()
+void CommandPrompt::update(bool print)
 {
 	while (!input.empty())
 	{
@@ -88,12 +88,37 @@ void CommandPrompt::update()
 		}
 	}
 
+	if(print)
+	{
+		vector<string> all;
+		tree.get_root().explore(all);
+		for (auto& node : all)
+		{
+			std::cout << node << std::endl;
+		}
+	}
+
+	for (auto& f : call_once)
+		f();
+	call_once.clear();
+
+	vector<string> keys;
 	for (auto& x : temp_spaces)
 	{
-		if (x.second.callback != nullptr)
+		keys.push_back(x.first);
+	}
+
+	for (auto& x : keys)
+	{
+		if (temp_spaces.count(x))
 		{
-			x.second.callback();
+			if (temp_spaces.at(x).callback != nullptr)
+			{
+				temp_spaces.at(x).callback();
+			}
 		}
+
+		
 	}
 
 	
@@ -256,7 +281,8 @@ void CommandTreeNode::remove(vector<string> args)
 	for (auto it = next.begin(); it != next.end(); it++)
 		if ((*it)->_arg == current)
 		{
-			next.erase(it);
+			if((*it)->next.empty())
+				next.erase(it);
 			break;
 		}
 }

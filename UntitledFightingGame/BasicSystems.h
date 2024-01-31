@@ -55,11 +55,11 @@ struct Controller_system
 			phys->acceleration.x = 100;
 		}
 		else
-			phys->acceleration.x = 0;
+			phys->velocity.x = 0;
 
 		if (input("jump"))
 		{
-			phys->forces.push_back({ 0,-0.8 });
+			phys->forces.push_back({ 0,-1.3 });
 		}
 	}
 };

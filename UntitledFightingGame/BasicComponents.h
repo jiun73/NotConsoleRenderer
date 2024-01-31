@@ -25,7 +25,7 @@ public:
 	V2d_d acceleration;
 	V2d_d gravity;
 
-	V2d_d top_speed = { 0.2, 1000 };
+	V2d_d top_speed = { 1, 1000 };
 
 	double angular_velocity = 0;
 };

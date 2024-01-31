@@ -200,119 +200,131 @@ vector<int> translate_line(string str, const map<string, size_t>& labels, size_t
 	return n;
 }
 
+template<size_t I>
+struct rec 
+{
+
+};
+
+
+template<typename T>
+using t_ = tuple<T>;
+
+#define TEST(t) using t_##__COUNTER__
+
 int main() 
 {
-	vector<string> files = get_all_files_names_within_folder("TIS-100");
-	std::cout << "Found " << files.size() << " available save files" << std::endl;
+	//vector<string> files = get_all_files_names_within_folder("TIS-100");
+	//std::cout << "Found " << files.size() << " available save files" << std::endl;
 
-	vector<Node> collected_nodes;
-	
-	std::stringstream ss;
-	bool ffront = true;
-	for(auto& file : files)
-	{
-		Random random;
-		std::cout << "TIS-100/" << file << std::endl;
-		File ffile("TIS-100/" + file, FILE_READING_STRING);
-		string source = ffile.getString();
-		vector<string> nodes = split(source, '@');
-		std::cout << "Found " << nodes.size() - 1 << " nodes in file" << std::endl;
+	//vector<Node> collected_nodes;
+	//
+	//std::stringstream ss;
+	//bool ffront = true;
+	//for(auto& file : files)
+	//{
+	//	Random random;
+	//	std::cout << "TIS-100/" << file << std::endl;
+	//	File ffile("TIS-100/" + file, FILE_READING_STRING);
+	//	string source = ffile.getString();
+	//	vector<string> nodes = split(source, '@');
+	//	std::cout << "Found " << nodes.size() - 1 << " nodes in file" << std::endl;
 
-		size_t f = 0;
-		size_t in = 0;
-		
-		for (auto& node : nodes)
-		{
-			vector<string> lines = split(node, '\n');
-			if (lines.size() < 10) continue;
+	//	size_t f = 0;
+	//	size_t in = 0;
+	//	
+	//	for (auto& node : nodes)
+	//	{
+	//		vector<string> lines = split(node, '\n');
+	//		if (lines.size() < 10) continue;
 
-			map<string, size_t> labels;
+	//		map<string, size_t> labels;
 
-			size_t i = 0;
-			for (auto& line : lines)
-			{
-				get_labels(line, labels, i);
-				i++;
-			}
+	//		size_t i = 0;
+	//		for (auto& line : lines)
+	//		{
+	//			get_labels(line, labels, i);
+	//			i++;
+	//		}
 
-			if (!labels.empty())
-			{
-				std::cout << labels.size() <<" labels found" << std::endl;
-			}
+	//		if (!labels.empty())
+	//		{
+	//			std::cout << labels.size() <<" labels found" << std::endl;
+	//		}
 
-			Node ret;
-			i = 0;
-			for (auto& line : lines)
-			{
-				vector<int> translated = translate_line(line, labels, i);
+	//		Node ret;
+	//		i = 0;
+	//		for (auto& line : lines)
+	//		{
+	//			vector<int> translated = translate_line(line, labels, i);
 
-				if (!translated.empty())
-					ret.instructions.push_back(translated);
-				in++;
-				i++;
-			}
+	//			if (!translated.empty())
+	//				ret.instructions.push_back(translated);
+	//			in++;
+	//			i++;
+	//		}
 
-			
-			if (ret.instructions.size() != 0)
-			{
-				if (!ffront)
-					ss << ",";
-				else
-					ffront = false;
-				ss << "{";
-				bool fffront = true;
-				for (auto& ins : ret.instructions)
-				{
-					if (!fffront)
-						ss << ",";
-					else
-						fffront = false;
-					ss << "{";
-					bool front = true;
-					for (auto& a : ins)
-					{
-						if (!front)
-							ss << ",";
-						else
-							front = false;
-						ss << a;
-					}
-					ss << "}";
-				}
-				ss << "}";
-				collected_nodes.push_back(ret);
-				f++;
-			}
-		}	
-		
+	//		
+	//		if (ret.instructions.size() != 0)
+	//		{
+	//			if (!ffront)
+	//				ss << ",";
+	//			else
+	//				ffront = false;
+	//			ss << "{";
+	//			bool fffront = true;
+	//			for (auto& ins : ret.instructions)
+	//			{
+	//				if (!fffront)
+	//					ss << ",";
+	//				else
+	//					fffront = false;
+	//				ss << "{";
+	//				bool front = true;
+	//				for (auto& a : ins)
+	//				{
+	//					if (!front)
+	//						ss << ",";
+	//					else
+	//						front = false;
+	//					ss << a;
+	//				}
+	//				ss << "}";
+	//			}
+	//			ss << "}";
+	//			collected_nodes.push_back(ret);
+	//			f++;
+	//		}
+	//	}	
+	//	
 
-		std::cout << in << " Instructions translated" << std::endl;
-		std::cout << f << " Nodes translated" << std::endl;
+	//	std::cout << in << " Instructions translated" << std::endl;
+	//	std::cout << f << " Nodes translated" << std::endl;
 
-		/*string buff;
-		std::getline(std::cin, buff);*/
-	} 
+	//	/*string buff;
+	//	std::getline(std::cin, buff);*/
+	//} 
 
-	std::cout << "Translating done! errors: " << errors << std::endl;
-	std::cout << "Generating inputs... " << std::endl;
+	//std::cout << "Translating done! errors: " << errors << std::endl;
+	//std::cout << "Generating inputs... " << std::endl;
 
-	std::stringstream ss2;
+	//std::stringstream ss2;
 
-	ss2 << std::endl << std::endl;
-	ss2 << "{";
-
-
-
-	for (auto& n : collected_nodes)
-	{
-		NodeInfo info = get_node_info(n);
+	//ss2 << std::endl << std::endl;
+	//ss2 << "{";
 
 
-	}
 
-	ss2 << "}";
+	//for (auto& n : collected_nodes)
+	//{
+	//	NodeInfo info = get_node_info(n);
 
 
-	File write("output.txt", FILE_WRITING_STRING);
-	write.setString(ss.str());
+	//}
+
+	//ss2 << "}";
+
+
+	//File write("output.txt", FILE_WRITING_STRING);
+	//write.setString(ss.str());
 }

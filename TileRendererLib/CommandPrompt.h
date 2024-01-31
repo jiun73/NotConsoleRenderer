@@ -95,10 +95,15 @@ public:
 	void			add(const string& command, CommandFunc func);
 	void remove(const string& command);
 	CommandFunc* get(const string& command, CommandTreeNode*& last, vector<string>& args, size_t& nonvarsize);
+	CommandTreeNode& get_root() { return root; }
 };
 
 struct CommandSpace 
 {
+	CommandSpace(const string& name) : name(name) {}
+	~CommandSpace() {}
+
+	string name;
 	vector<std::pair<string, CommandFunc>> temp;
 	std::function<void()> callback;
 };
@@ -118,30 +123,33 @@ private:
 
 	//std::map<string, Typoid*> dictionnary;
 
-	map<string, CommandSpace> temp_spaces;
+	
+
 
 public:
+	vector< std::function<void()>> call_once;
+
+	map<string, CommandSpace> temp_spaces;
 	ThreadPool pool;
 
-	void enter_space(CommandSpace space, const string& name) 
+	void enter_space(const CommandSpace& space) 
 	{
-		temp_spaces.emplace(name, space);
+		temp_spaces.emplace(space.name, space);
 
 		for (auto& x : space.temp)
 		{
-			std::cout << "adding " << name + ": " + x.first << std::endl;
-			add(name + ": " + x.first, x.second);
+			add(space.name + ": " + x.first, x.second);
 		}
 	}
 
-	void exit_space(const string& name)
+	void exit_space(const CommandSpace& space)
 	{
-		CommandSpace& space = temp_spaces.at(name);
-		for (auto& x : space.temp)
+		CommandSpace& _space = temp_spaces.at(space.name);
+		for (auto& x : _space.temp)
 		{
-			remove(name + ": " + x.first);
+			remove(_space.name + ": " + x.first);
 		}
-		temp_spaces.erase(name);
+		temp_spaces.erase(_space.name);
 	}
 
 	CommandPrompt();
@@ -156,7 +164,7 @@ public:
 	//starts a new thread that waits for user input
 	void startPolling();
 
-	void update();
+	void update(bool print = false);
 	void add(const string& command, CommandFunc func);
 	void remove(const string& command)
 	{

@@ -134,36 +134,52 @@ void init()
 
 			});
 
-		//__NEW_COMMAND__(ff4, "pause", [&](__COMMAND_ARGS__)
-		//	{
-		//		bool* b = new bool(true);
+		DefineCommand ff4("pause", [](__COMMAND_ARGS__)
+			{
+				int* b = new int(0);
 
-		//		__NEW_COMMAND__(ff1, "", [b](__COMMAND_ARGS__)
-		//			{
-		//				*b = false;
-		//			});
+				CommandSpace space(":");
 
-		//		auto call_this = [b]()
-		//			{
-		//				std::cout << "Pausing..." << std::endl;
-		//				auto old = Commands::get()->callback;
-		//				Commands::get()->callback = nullptr;
-		//				while (*b) 
-		//				{
-		//					
-		//					Commands::get()->update();
-		//					
-		//				}
-		//				Commands::get()->callback = old;
-		//				*b = true;
-		//			};
+				space.temp.push_back({ "step (int)", [b](CommandArguments& args)
+					{
+						*b = args(2);
+					} });
 
-		//		Commands::get()->callback = call_this;
-		//		
-		//		//string s;
-		//		//std::getline(std::cin, s);
+				space.temp.push_back({ "close", [b, space](__COMMAND_ARGS__)
+					{
+						
+						Commands::get()->call_once.push_back([b, space]()
+							{
+								std::cout << "Unpausing..." << std::endl;
+								delete b;
+								Commands::get()->exit_space(space);
+							});
+					} });
 
-		//	});
+				space.callback = [b]()
+					{
+						std::cout << "Pausing... " << *b << std::endl;
+						auto& call_ref = Commands::get()->temp_spaces.at(":").callback;
+						auto old = call_ref;
+						call_ref = nullptr;
+						if(*b == 0)
+							Commands::get()->update(true);
+						CommandPrompt* p = Commands::get();
+						while (*b == 0) 
+						{ 
+							Commands::get()->update();
+							if (!Commands::get()->temp_spaces.count(":")) return;
+						};
+						
+						call_ref = old;
+						(*b)--;
+
+						if (*b < 0)
+							*b = 0;
+					};
+
+				Commands::get()->enter_space(space);
+			});
 
 		DefineCommand _ff_cmd("open watch", [&](CommandArguments& args)
 			{
@@ -194,7 +210,7 @@ void init()
 
 				vector<std::pair<string, shared_generic>>* watching = new vector<std::pair<string, shared_generic>>();
 
-				CommandSpace space;
+				CommandSpace space("watch");
 
 				space.temp.push_back({ "watch ***", [watching](__COMMAND_ARGS__)
 					{
@@ -206,9 +222,13 @@ void init()
 							std::cout << "couldn't find the variable lol" << std::endl;
 					} });
 
-				space.temp.push_back({ "close", [watching](__COMMAND_ARGS__)
+				space.temp.push_back({ "close", [watching, space](__COMMAND_ARGS__)
 					{
-						Commands::get()->exit_space("watch");
+						Commands::get()->call_once.push_back([space]()
+							{
+								Commands::get()->exit_space(space);
+							});
+						
 					} });
 
 				space.callback = [watching]()
@@ -242,7 +262,7 @@ void init()
 						
 					};
 
-				Commands::get()->enter_space(space, "watch");
+				Commands::get()->enter_space(space);
 			});
 
 		add_font_effect("end", [](__FontEffectArgs__)
