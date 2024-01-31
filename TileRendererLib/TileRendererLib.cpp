@@ -212,7 +212,7 @@ void init()
 
 				CommandSpace space("watch");
 
-				space.temp.push_back({ "***", [watching](__COMMAND_ARGS__)
+				space.temp.push_back({ "set ***", [watching](__COMMAND_ARGS__)
 					{
 						string name = args[1];
 						shared_generic ptr = variable_dictionnary()->get(name);
@@ -220,6 +220,17 @@ void init()
 							watching->push_back({ name,ptr });
 						else
 							std::cout << "couldn't find the variable lol" << std::endl;
+					} });
+
+				space.temp.push_back({ "all", [watching](__COMMAND_ARGS__)
+					{
+						for (auto& reg : variable_dictionnary()->all())
+						{
+							for (auto& var : reg->all())
+							{
+								watching->push_back({var.first, var.second});
+							}
+						}
 					} });
 
 				space.temp.push_back({ "close", [watching, space](__COMMAND_ARGS__)

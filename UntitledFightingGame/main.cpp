@@ -13,9 +13,9 @@
 static ComponentXAdder<Shape_x> shape_adder;
 static ComponentXAdder<Collider_x> coll_adder;
 
-SystemXAdder<8, Shape_system, Position_x, Angle_x, Shape_x> shape_system_adder;
-SystemXAdder<9, GFX_system, GFX_x, Shape_x> polygon_gfx_system_adder;
-SystemXAdder<0, Controller_system, Position_x, Controller_x, Physics_x> controller_system_adder;
+SystemXAdder<9, Shape_system, Position_x, Angle_x, Shape_x> shape_system_adder;
+SystemXAdder<10, GFX_system, GFX_x, Shape_x> polygon_gfx_system_adder;
+SystemXAdder<8, Controller_system, Position_x, Controller_x, Physics_x, Collider_x> controller_system_adder;
 //SystemXAdder<1, Shooter_system, Shooter_x, Position_x, Angle_x> shooter_system_adder;
 SystemXAdder<7, Physics_system, Physics_x, Position_x, Angle_x> physics_system_adder;
 SystemXAdder<0, Lifetime_system, Lifetime_x> lifetime_system_adder;
@@ -67,7 +67,18 @@ int main()
 	set_window_resizable();
 
 	track_variable(player.component<Position_x>()->position, "pos");
+	track_variable(player.component<Physics_x>()->velocity, "vel");
+	track_variable(player.component<Physics_x>()->acceleration, "acc");
+
 	track_variable(player2.component<Position_x>()->position, "pos2");
+	track_variable(player2.component<Collider_x>()->collide_down, "coll_d");
+	track_variable(player2.component<Collider_x>()->collide_up, "coll_u");
+	track_variable(player2.component<Collider_x>()->collide_left, "coll_l");
+	track_variable(player2.component<Collider_x>()->collide_right, "coll_r");
+	track_variable(floor.component<Collider_x>()->collide_down, "coll_d2");
+	track_variable(floor.component<Collider_x>()->collide_up, "coll_u2");
+	track_variable(floor.component<Collider_x>()->collide_left, "coll_l2");
+	track_variable(floor.component<Collider_x>()->collide_right, "coll_r2");
 
 	while (run())
 	{

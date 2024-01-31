@@ -36,39 +36,11 @@ struct GFX_system
 	}
 };
 
-struct Controller_system
-{
-	void update(Position_x* position, Controller_x* controller, Physics_x* phys)
-	{
-		V2d_d old = position->position;
-		//keyboard().quickKeyboardControlWASD(position->position, controller->force);
-
-		controller->displacement_vector = old - position->position;
-
-		if (input(controller->input_prefix + "left"))
-		{
-			phys->acceleration.x = -100;
-		}
-
-		else if (input(controller->input_prefix + "right"))
-		{
-			phys->acceleration.x = 100;
-		}
-		else
-			phys->velocity.x = 0;
-
-		if (input(controller->input_prefix + "jump"))
-		{
-			phys->forces.push_back({ 0,-1.3 });
-		}
-	}
-};
-
 struct Physics_system
 {
 	void update(Physics_x* physics, Position_x* position, Angle_x* angle)
 	{
-		position->position += physics->velocity;
+		
 		physics->velocity += physics->acceleration + physics->gravity;
 
 		for (auto& f : physics->forces)
@@ -80,7 +52,11 @@ struct Physics_system
 
 		physics->velocity.range(-physics->top_speed, physics->top_speed);
 
+		position->position += physics->velocity;
+
 		angle->angle += physics->angular_velocity;
+
+
 	}
 };
 

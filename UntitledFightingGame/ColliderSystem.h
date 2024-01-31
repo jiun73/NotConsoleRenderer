@@ -31,6 +31,34 @@ struct Collider_x
 	bool collide_left = false;
 };
 
+struct Controller_system
+{
+	void update(Position_x* position, Controller_x* controller, Physics_x* phys, Collider_x* collider)
+	{
+		V2d_d old = position->position;
+		//keyboard().quickKeyboardControlWASD(position->position, controller->force);
+
+		controller->displacement_vector = old - position->position;
+
+		if (input(controller->input_prefix + "left"))
+		{
+			phys->acceleration.x = -100;
+		}
+
+		else if (input(controller->input_prefix + "right"))
+		{
+			phys->acceleration.x = 100;
+		}
+		else
+			phys->velocity.x = 0;
+
+		if (input(controller->input_prefix + "jump") && collider->collide_down)
+		{
+			phys->forces.push_back({ 0,-1.3 });
+		}
+	}
+};
+
 #include "BasicComponents.h"
 #include "Shape.h"
 
@@ -62,6 +90,17 @@ struct Collision_system
 	void update(vector<Shape_x*>& shapes, vector<Collider_x*>& colliders, vector<Position_x*>& positions, vector<EntityID>& ids)
 	{
 		size_t i = 0;
+
+		for (auto it1 = shapes.begin(); it1 != shapes.end(); it1++)
+		{
+			colliders.at(ids.at(i))->collide_down = false;
+			colliders.at(ids.at(i))->collide_up = false;
+			colliders.at(ids.at(i))->collide_left = false;
+			colliders.at(ids.at(i))->collide_right = false;
+			i++;
+		}
+
+		i = 0;
 		for (auto it1 = shapes.begin(); it1 != shapes.end(); it1++) //TODO: shitty way to do this
 		{
 			ColliderTag tag1 = colliders.at(i)->tag;
@@ -113,13 +152,6 @@ struct Collision_system
 						default:
 							break;
 						}
-					}
-					else
-					{
-						colliders.at(ids.at(y))->collide_down = false;
-						colliders.at(ids.at(y))->collide_left = false;
-						colliders.at(ids.at(y))->collide_right = false;
-						colliders.at(ids.at(y))->collide_up = false;
 					}
 					//gjk.visualize(**it1, **it2);
 				}
