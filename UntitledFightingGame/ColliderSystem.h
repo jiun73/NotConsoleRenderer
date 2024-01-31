@@ -25,6 +25,10 @@ typedef uint64_t ColliderPair;
 struct Collider_x
 {
 	ColliderTag tag;
+	bool collide_up = false;
+	bool collide_down = false;
+	bool collide_right = false;
+	bool collide_left = false;
 };
 
 #include "BasicComponents.h"
@@ -89,10 +93,10 @@ struct Collision_system
 							{
 								Physics_x* physics = EntX::get()->get_entity_component < Physics_x>(id);
 
-								if (dis.y < 0 && physics->velocity.y > 0) { physics->velocity.y = 0; }
-								if (dis.y > 0 && physics->velocity.y < 0) { physics->velocity.y = 0; }
-								if (dis.x < 0 && physics->velocity.x > 0) { physics->velocity.x = 0; }
-								if (dis.x > 0 && physics->velocity.x < 0) { physics->velocity.x = 0; }
+								if (dis.y < 0 && physics->velocity.y > 0) { colliders.at(id)->collide_down = true; physics->velocity.y = 0; }
+								if (dis.y > 0 && physics->velocity.y < 0) { colliders.at(id)->collide_up = true; physics->velocity.y = 0; }
+								if (dis.x < 0 && physics->velocity.x > 0) { colliders.at(id)->collide_right = true; physics->velocity.x = 0; }
+								if (dis.x > 0 && physics->velocity.x < 0) { colliders.at(id)->collide_left = true; physics->velocity.x = 0; }
 							}
 						}
 							break;
@@ -103,27 +107,19 @@ struct Collision_system
 							if (EntX::get()->entity_has_component<Health_x>(ids.at(y)))
 							{
 								EntX::get()->get_entity_component < Health_x>(ids.at(y))->health--;
-
-								//if (ids.at(y) == player.get_id())
-								//{
-								//	global_shape_transform = [](V2d_d point)
-								//		{
-								//			uint32_t c = SDL_GetTicks() - global_shape_transform_dt;
-
-								//			if (c > 1000) global_shape_transform = nullptr;
-
-								//			double delta = (1000 - std::min(c, uint32_t(1000))) / 1000.0;
-								//			return point + V2d_d(random().range(0, 15 * delta), random().range(0, 15 * delta));
-								//		};
-								//	global_shape_transform_dt = SDL_GetTicks();
-								//}
-
 							}
 
 							break;
 						default:
 							break;
 						}
+					}
+					else
+					{
+						colliders.at(ids.at(y))->collide_down = false;
+						colliders.at(ids.at(y))->collide_left = false;
+						colliders.at(ids.at(y))->collide_right = false;
+						colliders.at(ids.at(y))->collide_up = false;
 					}
 					//gjk.visualize(**it1, **it2);
 				}

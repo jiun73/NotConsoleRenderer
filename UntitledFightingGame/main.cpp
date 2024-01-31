@@ -34,30 +34,40 @@ enum Tags
 enum cTags
 {
 	SOLID = 0b1,
-	PLAYER = 0b10
+	PLAYER = 0b10,
+	PLAYER2 = 0b100
 };
 
 int main()
 {
 	TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Controller_x, Collider_x, Physics_x> player;
+	TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Controller_x, Collider_x, Physics_x> player2;
 	TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Collider_x> floor;
 
 	Rect_d player_square = { -5,5 };
-	player.create({ 25 }, { 0 }, { rgb(100,100,100) }, { player_square }, {}, { SOLID }, { 0,0,{0,0.03} });
+	player.create({ 25 }, { 0 }, { rgb(100,100,100) }, { player_square }, { "p1_"}, { PLAYER }, {0,0,{0,0.03}});
+	player2.create({ 50 }, { 0 }, { rgb(100,100,100) }, { player_square }, { "p2_"}, { PLAYER }, {0,0,{0,0.03}});
 
 
-	floor.create({ {0,95}, }, { 0 }, { rgb(100,100,100) }, { {0, {100,0}, {100,-5}, {0,-5}} }, { PLAYER });
+	floor.create({ {0,95}, }, { 0 }, { rgb(100,100,100) }, { {0, {100,0}, {100,-5}, {0,-5}} }, { SOLID });
 
-	inputs().map("left", { KEYBOARD_INPUT, INPUT_HELD, SDL_SCANCODE_A });
-	inputs().map("right", { KEYBOARD_INPUT, INPUT_HELD, SDL_SCANCODE_D });
-	inputs().map("jump", { KEYBOARD_INPUT, INPUT_PRESSED, SDL_SCANCODE_W});
+	inputs().map("p1_left", { KEYBOARD_INPUT, INPUT_HELD, SDL_SCANCODE_A });
+	inputs().map("p1_right", { KEYBOARD_INPUT, INPUT_HELD, SDL_SCANCODE_D });
+	inputs().map("p1_jump", { KEYBOARD_INPUT, INPUT_PRESSED, SDL_SCANCODE_W});
+	
+	inputs().map("p2_left", { KEYBOARD_INPUT, INPUT_HELD, SDL_SCANCODE_LEFT });
+	inputs().map("p2_right", { KEYBOARD_INPUT, INPUT_HELD, SDL_SCANCODE_RIGHT });
+	inputs().map("p2_jump", { KEYBOARD_INPUT, INPUT_PRESSED, SDL_SCANCODE_UP });
 
-	entitity_system<Collision_system>()->add_pairing(PLAYER, SOLID, CTYPE_PUSH);
+	entitity_system<Collision_system>()->add_pairing(SOLID, PLAYER, CTYPE_PUSH);
+	entitity_system<Collision_system>()->add_pairing(PLAYER, PLAYER, CTYPE_PUSH);
+
 
 	set_window_size({ 192 ,108 });
 	set_window_resizable();
 
 	track_variable(player.component<Position_x>()->position, "pos");
+	track_variable(player2.component<Position_x>()->position, "pos2");
 
 	while (run())
 	{

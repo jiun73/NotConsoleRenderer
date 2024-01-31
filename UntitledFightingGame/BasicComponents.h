@@ -47,6 +47,7 @@ struct GFX_x
 
 struct Controller_x
 {
+	string input_prefix;
 	int force = 1;
 	V2d_d displacement_vector;
 };

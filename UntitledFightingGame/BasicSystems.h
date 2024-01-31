@@ -45,19 +45,19 @@ struct Controller_system
 
 		controller->displacement_vector = old - position->position;
 
-		if (input("left"))
+		if (input(controller->input_prefix + "left"))
 		{
 			phys->acceleration.x = -100;
 		}
 
-		else if (input("right"))
+		else if (input(controller->input_prefix + "right"))
 		{
 			phys->acceleration.x = 100;
 		}
 		else
 			phys->velocity.x = 0;
 
-		if (input("jump"))
+		if (input(controller->input_prefix + "jump"))
 		{
 			phys->forces.push_back({ 0,-1.3 });
 		}

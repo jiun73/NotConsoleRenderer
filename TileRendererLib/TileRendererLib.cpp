@@ -212,7 +212,7 @@ void init()
 
 				CommandSpace space("watch");
 
-				space.temp.push_back({ "watch ***", [watching](__COMMAND_ARGS__)
+				space.temp.push_back({ "***", [watching](__COMMAND_ARGS__)
 					{
 						string name = args[1];
 						shared_generic ptr = variable_dictionnary()->get(name);
@@ -288,6 +288,17 @@ void init()
 						font.set_color(rainbow(1000, dest.x * 2));
 					});
 			});
+
+		add_font_effect("shake", [](__FontEffectArgs__)
+			{
+				_fonts.set_glyph_effect([&](SDL_Rect& dest)
+					{
+						const int force = 5;
+						dest.x += random().frange(-force, force);
+						dest.y += random().frange(-force, force);
+					});
+			});
+
 
 		add_font_effect("color", [](__FontEffectArgs__)
 			{
