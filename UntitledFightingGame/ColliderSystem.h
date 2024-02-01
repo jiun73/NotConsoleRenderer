@@ -93,10 +93,10 @@ struct Collision_system
 
 		for (auto it1 = shapes.begin(); it1 != shapes.end(); it1++)
 		{
-			colliders.at(ids.at(i))->collide_down = false;
-			colliders.at(ids.at(i))->collide_up = false;
-			colliders.at(ids.at(i))->collide_left = false;
-			colliders.at(ids.at(i))->collide_right = false;
+			colliders.at(i)->collide_down = false;
+			colliders.at(i)->collide_up = false;
+			colliders.at(i)->collide_left = false;
+			colliders.at(i)->collide_right = false;
 			i++;
 		}
 
@@ -124,18 +124,24 @@ struct Collision_system
 						case CTYPE_PUSH: 
 						{
 							V2d_d dis = gjk.EPA(**it1, **it2);
-							positions.at(y)->position += dis;
-
 							size_t id = ids.at(y);
+							positions.at(y)->position += dis;
 
 							if (EntX::get()->entity_has_component<Physics_x>(id))
 							{
 								Physics_x* physics = EntX::get()->get_entity_component < Physics_x>(id);
 
-								if (dis.y < 0 && physics->velocity.y > 0) { colliders.at(id)->collide_down = true; physics->velocity.y = 0; }
-								if (dis.y > 0 && physics->velocity.y < 0) { colliders.at(id)->collide_up = true; physics->velocity.y = 0; }
-								if (dis.x < 0 && physics->velocity.x > 0) { colliders.at(id)->collide_right = true; physics->velocity.x = 0; }
-								if (dis.x > 0 && physics->velocity.x < 0) { colliders.at(id)->collide_left = true; physics->velocity.x = 0; }
+								if (dis.y < 0 && physics->velocity.y > 0) 
+								{ 
+									colliders.at(y)->collide_down = true; physics->velocity.y = 0; 
+								}
+
+								if (dis.y > 0 && physics->velocity.y < 0) 
+								{
+									colliders.at(y)->collide_up = true; physics->velocity.y = 0; 
+								}
+								if (dis.x < 0 && physics->velocity.x > 0) { colliders.at(y)->collide_right = true; physics->velocity.x = 0; }
+								if (dis.x > 0 && physics->velocity.x < 0) { colliders.at(y)->collide_left = true; physics->velocity.x = 0; }
 							}
 						}
 							break;

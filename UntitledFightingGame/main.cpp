@@ -45,8 +45,9 @@ int main()
 	TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Collider_x> floor;
 
 	Rect_d player_square = { -5,5 };
-	player.create({ 25 }, { 0 }, { rgb(100,100,100) }, { player_square }, { "p1_"}, { PLAYER }, {0,0,{0,0.03}});
+	player.create({ 25 }, { 0 }, { rgb(100,100,100) }, { player_square }, { "p1_" }, { PLAYER }, { 0,0,{0,0.03} });
 	player2.create({ 50 }, { 0 }, { rgb(100,100,100) }, { player_square }, { "p2_"}, { PLAYER }, {0,0,{0,0.03}});
+	//player2.create({ 50 }, { 0 }, { rgb(100,100,100) }, { player_square }, { "p1_"}, { PLAYER }, {0,0,{0,0.03}});
 
 
 	floor.create({ {0,95}, }, { 0 }, { rgb(100,100,100) }, { {0, {100,0}, {100,-5}, {0,-5}} }, { SOLID });
@@ -71,14 +72,19 @@ int main()
 	track_variable(player.component<Physics_x>()->acceleration, "acc");
 
 	track_variable(player2.component<Position_x>()->position, "pos2");
-	track_variable(player2.component<Collider_x>()->collide_down, "coll_d");
-	track_variable(player2.component<Collider_x>()->collide_up, "coll_u");
-	track_variable(player2.component<Collider_x>()->collide_left, "coll_l");
-	track_variable(player2.component<Collider_x>()->collide_right, "coll_r");
-	track_variable(floor.component<Collider_x>()->collide_down, "coll_d2");
-	track_variable(floor.component<Collider_x>()->collide_up, "coll_u2");
-	track_variable(floor.component<Collider_x>()->collide_left, "coll_l2");
-	track_variable(floor.component<Collider_x>()->collide_right, "coll_r2");
+	track_variable(player2.component<Physics_x>()->velocity, "vel2");
+	track_variable(player2.component<Physics_x>()->acceleration, "acc2");
+
+
+	track_variable(player.component<Collider_x>()->collide_down, "coll_d");
+	track_variable(player.component<Collider_x>()->collide_up, "coll_u");
+	track_variable(player.component<Collider_x>()->collide_left, "coll_l");
+	track_variable(player.component<Collider_x>()->collide_right, "coll_r");
+
+	track_variable(player2.component<Collider_x>()->collide_down, "coll_d2");
+	track_variable(player2.component<Collider_x>()->collide_up, "coll_u2");
+	track_variable(player2.component<Collider_x>()->collide_left, "coll_l2");
+	track_variable(player2.component<Collider_x>()->collide_right, "coll_r2");
 
 	while (run())
 	{
