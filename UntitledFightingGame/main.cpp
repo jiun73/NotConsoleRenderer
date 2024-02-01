@@ -48,7 +48,7 @@ int main()
 	player.create({ 25 }, { 0 }, { rgb(100,100,100) }, { player_square }, { "p1_" }, { PLAYER }, { 0,0,{0,0.03} });
 	player2.create({ 50 }, { 0 }, { rgb(100,100,100) }, { player_square }, { "p2_"}, { PLAYER }, {0,0,{0,0.03}});
 	//player2.create({ 50 }, { 0 }, { rgb(100,100,100) }, { player_square }, { "p1_"}, { PLAYER }, {0,0,{0,0.03}});
-
+	//
 
 	floor.create({ {0,95}, }, { 0 }, { rgb(100,100,100) }, { {0, {100,0}, {100,-5}, {0,-5}} }, { SOLID });
 
