@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <queue>
 #include <map>
 #include <enet/enet.h>
 #include <bitset>
@@ -8,6 +9,7 @@
 #include "ThreadPool.h"
 
 using std::vector;
+using std::queue;
 using std::bitset;
 using std::map;
 
@@ -27,7 +29,7 @@ private:
 	ThreadPool threads;
 
 	vector<enet_uint8*> data_buffer;
-	map<size_t, vector<DataStream*>> read_buffer;
+	map<size_t, queue<DataStream*>> read_buffer;
 
 	size_t write_flag;
 
@@ -100,12 +102,28 @@ public:
 			puts("Failed to send packet");
 	}
 
+	template<size_t I, typename T>
+	void read_unfold(const vector<enet_uint8*>& data) {}
+
+	template<size_t I , typename T>
+	void read_unfold(const vector<enet_uint8*>& data, T& get)
+	{
+		get = *(T*)data.at(I);
+	}
+
+	template<size_t I, typename R, typename... Ts>
+	void read_unfold(const vector<enet_uint8*>& data, R& get, Ts&... rest)
+	{
+		read_stream<I, R>(data, get);
+		read_stream<I + 1, Ts...>(rest...);
+	}
+
 	template<typename... Ts>
 	void read_stream(size_t flag, Ts&... get)
 	{
 		DataStream* stream = read_buffer[flag].front();
-
-
+		read_unfold<0, Ts...>(stream->data);
+		read_buffer[flag].pop();
 	}
 
 	/*
