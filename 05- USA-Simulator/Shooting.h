@@ -34,6 +34,8 @@ struct physics
 {
 	V2d_d acceleration = { 0,0.01 };
 	V2d_d velocite = 0;
+	bool touchGround = false;
+	bool touchCeiling = false;
 };
 
 class player
@@ -186,10 +188,12 @@ public:
 		if (pos.y + rayon >= Y_CONSOLE)
 		{
 			down = false;
+			physique.velocite = 0;
 		}
 		else if (pos.y - rayon <= 0)
 		{
 			down = true;
+			physique.velocite = 0;
 		}
 		if (down)
 		{
