@@ -75,7 +75,30 @@ inline string_ranges range_until(string_ranges range, const string& str)
 	return range;
 }
 
-inline string_ranges range_first_level(string_ranges range, char open, char end)
+inline string_ranges range_outside(string_ranges range, char open, char end)
+{
+	int level = 0;
+	for (auto it = range.begin(); it != range.end(); it++)
+	{
+		if (*it == open)
+		{
+			level++; continue;
+		}
+		if (*it == end)
+		{
+			level--;
+
+			if (level == 0)
+				return { range.begin(), it + 1 };
+
+			continue;
+		}
+	}
+
+	return range;
+}
+
+inline string_ranges range_inside(string_ranges range, char open, char end)
 {
 	int level = 0;
 	for (auto it = range.begin(); it != range.end(); it++)

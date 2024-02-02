@@ -26,9 +26,10 @@ class Cstar
 	}
 };
 
-class CstarRows 
+struct CstarRows 
 {
 	vector<CstarRows> nested_rows;
+	shared_ptr<VariableRegistry> scope;
 	size_t size = 1;
 	bool condition = 1;
 };
@@ -94,6 +95,9 @@ public:
 	{
 		vector<string> keywords = split_and_trim(head);
 
+		CstarRows row;
+		row.scope = std::make_shared< VariableRegistry>();
+
 		for (size_t i = 0; i < keywords.size(); i++)
 		{
 			const string& current = keywords.at(i);
@@ -103,9 +107,18 @@ public:
 				if (i == keywords.size() - 1) return CstarRows(); //error
 				const string& next = keywords.at(i + 1);
 
+				if (isNum(next)) //TODO: change this
+				{
+					int i;
+					strings::destringify(i, next);
+					row.size = i;
+				}
+
 				i++;
 			}
 		}
+
+		return row;
 	}
 
 	void parse_row(string_ranges row)
@@ -116,7 +129,29 @@ public:
 		if (row.empty()) return; //error
 
 		std::cout << "-----------" << head.flat() << std::endl;
-		std::cout << "-------------" << row.flat() << std::endl;
+		//std::cout << "-------------" << row.flat() << std::endl;
+
+		CstarRows row_obj = parse_header(head);
+		shared_ptr<VariableRegistry> old_scope = current_scope;
+		CstarRows* old_base = current_row;
+
+		current_scope = row_obj.scope;
+		current_row = &row_obj;
+
+		vector<string_ranges> columns = chain(row, range_until, "|");
+		get_declaractions(columns.at(0));
+
+		if (columns.size() == 1) return;
+
+		for (auto it = columns.begin() + 1; it != columns.end(); it++)
+		{
+			std::cout << "-------------" << (*it).flat() << std::endl;
+		}
+
+		current_row = old_base;
+		current_scope = old_scope;
+
+		current_row->nested_rows.push_back(row_obj);
 	}
 
 	CstarParserError parse(string& str)
@@ -136,7 +171,7 @@ public:
 
 		for (auto it = rows.begin() + 1; it != rows.end(); it++)
 		{
-			vector<string_ranges> row_in = chain(*it, range_first_level, '{', '}');
+			vector<string_ranges> row_in = chain(*it, range_inside, '{', '}');
 			std::cout << row_in.size() << std::endl;
 
 			if (row_in.size() < 1) return {};//error

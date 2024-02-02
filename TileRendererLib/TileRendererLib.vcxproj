@@ -162,6 +162,8 @@
     <ClInclude Include="FunctionGenerics.h" />
     <ClInclude Include="Generics.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="Networking.h" />
+    <ClInclude Include="NetworkingX.h" />
     <ClInclude Include="ObjectGenerics.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Random.h" />
@@ -183,6 +185,7 @@
     <ClCompile Include="EntityX.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="Networking.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

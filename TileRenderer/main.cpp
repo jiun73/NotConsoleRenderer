@@ -1,6 +1,9 @@
 
 #include "TileRenderer.h"
 
+#include "CstarParser.h"
+#include "File.h"
+
 /*
 * Ceci est un exemple!
 * Tu peut regarder dans TileRenderer.h, il y a d'autres fonctions 
@@ -23,6 +26,12 @@ int main()
 	*/
 
 	int test_variable = 0;
+
+	CstarParser parser;
+	File file("file.txt", FILE_READING_STRING);
+
+	string str = file.getString();
+	parser.parse(str);
 
 	while (run()) //boucle principale
 	{
@@ -71,6 +80,8 @@ int main()
 		//Entrer la commande 'list all' :)
 		track_variable(pos, "pos");
 		track_variable(test_variable, "test");
+
+		
 	}
 
 	return 0;

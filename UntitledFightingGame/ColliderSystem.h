@@ -29,6 +29,8 @@ struct Collider_x
 	bool collide_down = false;
 	bool collide_right = false;
 	bool collide_left = false;
+
+	//std::function<void(EntityID, EntityID)> custom_function;
 };
 
 struct Controller_system
@@ -68,6 +70,7 @@ struct Collision_system
 
 	map< ColliderTag, ColliderKey> masks;
 	map< ColliderPair, CollisionTypes> types;
+	map< ColliderPair, std::function<void(EntityID, EntityID)>> customs;
 
 	void add_pairing(ColliderTag tag, ColliderTag collidesWith, CollisionTypes type = CTYPE_CUSTOM)
 	{

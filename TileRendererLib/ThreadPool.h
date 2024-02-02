@@ -8,6 +8,8 @@
 #include <cassert>
 #include <list>
 
+#include "Singleton.h"
+
 class ThreadPool {
 public:
 	void start(int num = 0);
@@ -30,3 +32,6 @@ private:
 	std::atomic<int> num_working = 0;
 	std::queue<std::function<void(int)>> jobs;
 };
+
+typedef Singleton<ThreadPool> Threads;
+
