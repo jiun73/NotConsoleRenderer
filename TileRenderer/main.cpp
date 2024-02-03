@@ -103,11 +103,12 @@ int main()
 				int i1 = r.range(0, 100);
 				int i2 = r.range(0, 100);
 				int i3 = r.range(0, 100);
-				net.start_stream(0); //on commence un canal '0', puis on envoie les données
-				net.send(i1);
-				net.send(i2);
-				net.send(i3);
-				net.end_stream();
+				//net.start_stream(0); //on commence un canal '0', puis on envoie les données
+				//net.send(i1);
+				//net.send(i2);
+				//net.send(i3);
+				//net.end_stream();
+				net[0] << i1 << i2 << i3 << net::send;
 				std::cout << i1 << " " << i2 << " " << i3 << " " << std::endl;
 			}
 
@@ -115,7 +116,8 @@ int main()
 			{
 				int i1, i2, i3;
 				net.wait_for_stream(0); //On attend que le canal '0' arrive, puis on lit les données
-				net.read_stream(0, i1, i2, i3);
+				//net.read_stream(0, i1, i2, i3);
+				net[0] >> net::wait >> i1 >> i2 >> i3;
 				std::cout << i1 << " " << i2 << " " << i3 << " " << std::endl;
 			}
 
@@ -123,21 +125,30 @@ int main()
 			{
 				string s;
 				std::cin >> s;
-				net.start_stream(1); //BTW on peut pas envoyer directement des conteneurs (vector, string, etc) parce qu'ils ne contiennent pas vraiment les données, mais plutot des pointers VERS les données (qui ne seront pas valide sur lordinateur de lautre)
-				net.send(s.size()); //on envoie la taille de la string
+				//net.start_stream(1); //BTW on peut pas envoyer directement des conteneurs (vector, string, etc) parce qu'ils ne contiennent pas vraiment les données, mais plutot des pointers VERS les données (qui ne seront pas valide sur lordinateur de lautre)
+				//net.send(s.size()); //on envoie la taille de la string
+				//for (auto& c : s)
+				//	net.send(c); //puis on envoie chaque caratère un a la fois
+				//net.end_stream();
+				net[1] << s.size();
 				for (auto& c : s)
-					net.send(c); //puis on envoie chaque caratère un a la fois
-				net.end_stream();
+					net[1] << c;
+				net[1] << net::send;
 			}
 
 			if (net.has_stream(1)) //Une bonne idée de pratique avant de faire un jeu: faire un 'chat' ou les utilisateurs peuvent envoyer des messages entre eux
 			{	
 				string s;
-				size_t size = net.read<size_t>(1);
+				//size_t size = net.read<size_t>(1);
+				size_t size;
+				net[1] >> size;
 				for (size_t i = 0; i < size; i++)
 				{
-					char c = net.read<char>(1);
+					//s.push_back(net.read<char>(1));
+					char c;
+					net[1] >> c;
 					s.push_back(c);
+
 				}
 				std::cout << s << std::endl;
 			}

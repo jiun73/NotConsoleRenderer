@@ -19,6 +19,15 @@ struct DataStream
 	deque<enet_uint8*> data;
 };
 
+struct StreamEnd {};
+struct StreamWait {};
+
+namespace net
+{
+	inline StreamEnd send;
+	inline StreamWait wait;
+}
+
 /*
 * Classe de networking qui supporte seulement un hôte et un client
 */
@@ -273,4 +282,44 @@ public:
 			return false;
 		}
 	}
+
+	Peer2Peer& operator[](size_t i)
+	{
+		write_flag = i;
+		return *this;
+	}
+
+	template<typename T>
+	Peer2Peer& operator<<(const T& object)
+	{
+		send(object);
+		return *this;
+	}
+
+	void operator<<(const StreamEnd& end)
+	{
+		end_stream();
+	}
+
+	/*Peer2Peer& operator>>(const StreamWait& ref)
+	{
+		wait_for_stream(write_flag);
+		return *this;
+	}*/
+
+	template<typename T>
+	Peer2Peer& operator>>(T& ref)
+	{
+		if constexpr (std::is_same_v<T, StreamWait>)
+		{
+			wait_for_stream(write_flag);
+		}
+		else
+		{
+			ref = read<T>(write_flag);
+		}
+		return *this;
+	}
+
+	
 };
