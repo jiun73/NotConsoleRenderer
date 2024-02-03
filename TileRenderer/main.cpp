@@ -3,6 +3,7 @@
 
 #include "CstarParser.h"
 #include "File.h"
+#include "Networking.h"
 
 /*
 * Ceci est un exemple!
@@ -33,22 +34,25 @@ int main()
 	string str = file.getString();
 	parser.parse(str);
 
+	Peer2Peer net;
+	Random r;
+
 	while (run()) //boucle principale
 	{
 		pencil(COLOR_BLACK); //Permet d'enlever tout ce qui reste de la derniere frame
 		draw_clear();
 
 		pencil(rgb(255, 255, 0)); //Couleur jaune
-		
+
 		draw_line({ 10,0 }, { 0,10 }); //ligne
 
 		draw_image("Images/chad.jpg", { {20,10},{50,25} }); // dessin de l'image (faut s'assurer que le nom est bon)
 
 		pencil(rainbow(1000)); //arc-en-ciel, boucle de 1000ms
 
-		draw_circle({75,5},5); //cercle
+		draw_circle({ 75,5 }, 5); //cercle
 
-		if(key_pressed(SDL_SCANCODE_SPACE))
+		if (key_pressed(SDL_SCANCODE_SPACE))
 			pencil(COLOR_GREEN);
 		else
 			pencil(COLOR_PINK);
@@ -71,17 +75,73 @@ int main()
 			std::cout << random().frange(1, 10) << std::endl;
 			sound().playSound("Sounds/rizz.wav");
 		}
-		
-		int pos = (int)(sin((SDL_GetTicks() % 1000) / 1000.0)  * 100) - 50;
+
+		int pos = (int)(sin((SDL_GetTicks() % 1000) / 1000.0) * 100) - 50;
 		draw_simple_text("You have no bitches", { pos,60 }, get_font(1)); //get_font(1) voir 'Fonts/fonts.hint'
-		draw_simple_text("You have " + strings::stringify(test_variable) + " bitches", {0,120}, get_font(0)); //get_font(0) voir 'Fonts/fonts.hint'
+		draw_simple_text("You have " + strings::stringify(test_variable) + " bitches", { 0,120 }, get_font(0)); //get_font(0) voir 'Fonts/fonts.hint'
 
 		//Nouvelle fonctionnalité !
 		//Entrer la commande 'list all' :)
 		track_variable(pos, "pos");
 		track_variable(test_variable, "test");
 
+		if (key_released(SDL_SCANCODE_1)) 
+		{
+			net.host();
+			net.wait_for_peer();
+		}
+
+		if (key_released(SDL_SCANCODE_2))
+		{
+			net.join();
+		}
 		
+		if (net.is_connected()) 
+		{
+			if (key_pressed(SDL_SCANCODE_X))
+			{
+				int i1 = r.range(0, 100);
+				int i2 = r.range(0, 100);
+				int i3 = r.range(0, 100);
+				net.start_stream(0); //on commence un canal '0', puis on envoie les données
+				net.send(i1);
+				net.send(i2);
+				net.send(i3);
+				net.end_stream();
+				std::cout << i1 << " " << i2 << " " << i3 << " " << std::endl;
+			}
+
+			if (key_pressed(SDL_SCANCODE_Z))
+			{
+				int i1, i2, i3;
+				net.wait_for_stream(0); //On attend que le canal '0' arrive, puis on lit les données
+				net.read_stream(0, i1, i2, i3);
+				std::cout << i1 << " " << i2 << " " << i3 << " " << std::endl;
+			}
+
+			if (key_pressed(SDL_SCANCODE_E))
+			{
+				string s;
+				std::cin >> s;
+				net.start_stream(1); //BTW on peut pas envoyer directement des conteneurs (vector, string, etc) parce qu'ils ne contiennent pas vraiment les données, mais plutot des pointers VERS les données (qui ne seront pas valide sur lordinateur de lautre)
+				net.send(s.size()); //on envoie la taille de la string
+				for (auto& c : s)
+					net.send(c); //puis on envoie chaque caratère un a la fois
+				net.end_stream();
+			}
+
+			if (net.has_stream(1)) //Une bonne idée de pratique avant de faire un jeu: faire un 'chat' ou les utilisateurs peuvent envoyer des messages entre eux
+			{	
+				string s;
+				size_t size = net.read<size_t>(1);
+				for (size_t i = 0; i < size; i++)
+				{
+					char c = net.read<char>(1);
+					s.push_back(c);
+				}
+				std::cout << s << std::endl;
+			}
+		}
 	}
 
 	return 0;

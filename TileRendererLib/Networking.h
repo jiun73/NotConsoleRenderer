@@ -8,7 +8,7 @@
 
 #include "ThreadPool.h"
 
-using std::vector;
+using std::deque;
 using std::queue;
 using std::bitset;
 using std::map;
@@ -16,10 +16,13 @@ using std::map;
 struct DataStream
 {
 	size_t flag;
-	vector<enet_uint8*> data;
+	deque<enet_uint8*> data;
 };
 
-class Networking
+/*
+* Classe de networking qui supporte seulement un hôte et un client
+*/
+class Peer2Peer
 {
 private:
 	ENetAddress address;
@@ -28,25 +31,69 @@ private:
 
 	ThreadPool threads;
 
-	vector<enet_uint8*> data_buffer;
+	deque<enet_uint8*> data_buffer;
 	map<size_t, queue<DataStream*>> read_buffer;
 
 	size_t write_flag;
+	bool connected = false;
 
-	bool read_packet(ENetPacket* packet, enet_uint8** data)
+	bool read_packet(ENetPacket* packet, enet_uint8*& data)
 	{
 		bool* is_flag = new bool;
-		*data = new enet_uint8[packet->dataLength - 1];
+		data = new enet_uint8[packet->dataLength - 1];
 		memcpy(is_flag, packet->data, 1);
 		memcpy(data, packet->data + 1, packet->dataLength - 1);
 
+		bool ret = *is_flag;
 		delete is_flag;
+		return ret;
 	}
 
 	template<typename T>
 	size_t get_bytes(T& data) { return *(size_t*)(&data); }
 
-	void handle_events(ENetEvent& event);
+	void handle_events(ENetEvent& event) {
+		switch (event.type)
+		{
+		case ENET_EVENT_TYPE_CONNECT:
+			std::cout << "A new client connected from " << event.peer->address.host << ":" << event.peer->address.port << "\n";
+			event.peer->data = (void*)("Peer");
+			peer = event.peer;
+			break;
+
+		case ENET_EVENT_TYPE_RECEIVE:
+		{
+			//std::cout << "<" << (const char*)event.peer->data << "> " << event.packet->data << std::endl;
+
+			enet_uint8* data;
+			bool is_flag = read_packet(event.packet, data);
+
+			if (is_flag)
+			{
+				DataStream* stream = new DataStream();
+				stream->flag = *(size_t*)(data);
+				stream->data = data_buffer;
+				read_buffer[stream->flag].push(stream);
+				std::cout << "End of stream " << stream->flag << " (" << data_buffer.size() << " read)" << std::endl;
+				data_buffer.clear();
+				
+			}
+			else
+			{
+				std::cout << "Received packet... " << std::endl;
+				data_buffer.push_back(data);
+			}
+
+			enet_packet_destroy(event.packet);
+		}
+		break;
+
+		case ENET_EVENT_TYPE_DISCONNECT:
+			std::cout << "Peer disconnected" << std::endl;
+			event.peer->data = NULL;
+		}
+	}
+
 
 	void listen()
 	{
@@ -65,19 +112,35 @@ private:
 			});
 	}
 
+	template<size_t I>
+	void read_unfold(const deque<enet_uint8*>& data) {}
+
+	template<size_t I, typename T>
+	void read_unfold(const deque<enet_uint8*>& data, T& get)
+	{
+		get = *(T*)data.at(I);
+	}
+
+	template<size_t I, typename R, typename... Ts>
+	void read_unfold(const deque<enet_uint8*>& data, R& get, Ts&... rest)
+	{
+		read_unfold<I, R>(data, get);
+		read_unfold<I + 1, Ts...>(data, rest...);
+	}
+
 public:
-	Networking()
+	Peer2Peer()
 	{
 		if (enet_initialize() != 0)
 			std::cerr << "An error occurred while initializing ENet.\n" << std::endl;
 		atexit(enet_deinitialize);
 	}
-	~Networking() { }
+	~Peer2Peer() { }
 
-	void start_stream(size_t flag)
+	void start_stream(size_t channel)
 	{
-		std::cout << "Start of stream " << flag << std::endl;
-		write_flag = flag;
+		std::cout << "Start of stream " << channel << std::endl;
+		write_flag = channel;
 	}
 
 	void end_stream()
@@ -102,29 +165,51 @@ public:
 			puts("Failed to send packet");
 	}
 
-	template<size_t I, typename T>
-	void read_unfold(const vector<enet_uint8*>& data) {}
-
-	template<size_t I , typename T>
-	void read_unfold(const vector<enet_uint8*>& data, T& get)
-	{
-		get = *(T*)data.at(I);
-	}
-
-	template<size_t I, typename R, typename... Ts>
-	void read_unfold(const vector<enet_uint8*>& data, R& get, Ts&... rest)
-	{
-		read_stream<I, R>(data, get);
-		read_stream<I + 1, Ts...>(rest...);
-	}
-
+	/*
+	* Read a stream of data that was sent in a given channel
+	*/
 	template<typename... Ts>
-	void read_stream(size_t flag, Ts&... get)
+	void read_stream(size_t channel, Ts&... get)
 	{
-		DataStream* stream = read_buffer[flag].front();
-		read_unfold<0, Ts...>(stream->data);
-		read_buffer[flag].pop();
+		DataStream* stream = read_buffer[channel].front();
+		read_unfold<0, Ts...>(stream->data, get...);
+		read_buffer[channel].pop();
 	}
+
+	template<typename T>
+	T read(size_t channel)
+	{
+		DataStream* stream = read_buffer[channel].front();
+		T ret = *(T*)stream->data.front();
+		stream->data.pop_front();
+
+		if (stream->data.empty())
+		{
+			read_buffer[channel].pop();
+		}
+
+		return ret;
+	}
+
+	bool has_stream(size_t flag)
+	{
+		return !read_buffer[flag].empty();
+	}
+
+	void wait_for_stream(size_t channel)
+	{
+		while (!has_stream(channel)) { std::cout << "Waiting for stream " << channel << "\r"; }
+	}
+
+	/*
+	* Attends qu'un utilisateur se connecte
+	*/
+	void wait_for_peer()
+	{
+		while (peer == NULL) { std::cout << "Waiting for peer \r";  };
+	}
+
+	bool is_connected() { return connected; }
 
 	/*
 	* Opens a networking session
@@ -142,6 +227,8 @@ public:
 		std::cout << "Server successfully created" << std::endl;
 
 		setup_listener();
+
+		connected = true;
 	}
 
 	/*
@@ -174,6 +261,8 @@ public:
 			enet_host_flush(client);
 
 			setup_listener();
+
+			connected = true;
 
 			return true;
 		}

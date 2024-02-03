@@ -155,9 +155,6 @@
     <ClCompile Include="Controls.cpp">
       <Filter>Header Files\Classes</Filter>
     </ClCompile>
-    <ClCompile Include="Networking.cpp">
-      <Filter>Header Files\Classes</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="EntityX.h">
