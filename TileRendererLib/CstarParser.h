@@ -12,6 +12,15 @@ using std::vector;
 
 class CstarParserError {};
 
+inline bool is_var_name(char c, size_t i)
+{
+}
+
+inline bool is_func_name(char c, size_t i)
+{
+	return 
+}
+
 class Cstar
 {
 	string head;
@@ -59,9 +68,11 @@ public:
 		return keywords;
 	}
 
-	Cstar parse_expression(string_ranges str)
+	void parse_expression(string_ranges str)
 	{
-		return {};
+
+
+		
 	}
 
 	Cstar parse_sequence(string& str)

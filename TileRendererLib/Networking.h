@@ -54,7 +54,7 @@ struct ReadBuffer
 		read_buffer[stream->flag].push(stream);
 		std::cout << "End of stream " << stream->flag << " (" << data_buffer.size() << " read)" << std::endl;
 		data_buffer.clear();
-	}
+	} 
 
 	void add(enet_uint8* data)
 	{
@@ -164,6 +164,7 @@ private:
 		case ENET_EVENT_TYPE_DISCONNECT:
 			std::cout << "Peer disconnected" << std::endl;
 			event.peer->data = NULL;
+			break;
 		}
 	}
 
