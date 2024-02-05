@@ -77,6 +77,28 @@ inline string_ranges range_until(string_ranges range, const string& str)
 
 inline string_ranges range_outside(string_ranges range, char open, char end)
 {
+	bool out = true;
+	int level = 0;
+	string_iter iter_open;
+	for (auto it = range.begin(); it != range.end(); it++)
+	{
+		if (*it == open && out && level == 0)
+		{
+			iter_open = it;
+			out = false;
+		}
+
+		if (*it == open) level++;
+		if (*it == end) level--;
+		if (*it == end && !out && level <= 0) return { range.begin(), iter_open, next(it) };
+	}
+
+	if (out) return range;
+	else return { range.begin(), iter_open, range.end() };
+}
+
+inline string_ranges range_inside(string_ranges range, char open, char end)
+{
 	int level = 0;
 	for (auto it = range.begin(); it != range.end(); it++)
 	{
@@ -98,27 +120,19 @@ inline string_ranges range_outside(string_ranges range, char open, char end)
 	return range;
 }
 
-inline string_ranges range_inside(string_ranges range, char open, char end)
+inline vector<string_ranges> range_delimiter(string_ranges range, char open, char end)
 {
-	int level = 0;
-	for (auto it = range.begin(); it != range.end(); it++)
+	vector<string_ranges> ret;
+	string_iter iter = range.begin();
+	while (iter != range.end())
 	{
-		if (*it == open) 
-		{
-			level++; continue;
-		}
-		if (*it == end)
-		{ 
-			level--; 
-
-			if (level == 0)
-				return { range.begin(), it + 1 };
-
-			continue; 
-		}
+		string_ranges out = range_outside({iter, range.end()}, open, end);
+		string_ranges in = range_inside({ out.end(), range.end() }, open, end);
+		ret.push_back(out);
+		ret.push_back(in);
+		iter = in.end();
 	}
-
-	return range;
+	return ret;
 }
 
 template<typename... Ts>

@@ -61,7 +61,47 @@ public:
 
 	Cstar parse_expression(string_ranges str)
 	{
+		
+	}
 
+	Cstar parse_sequence(string_ranges str)
+	{
+		Cstar ret;
+
+		vector<string_ranges> sequence = range_delimiter(str, '<', '>');
+		if (sequence.size() != 2) return; //error
+		vector<string_ranges> strings = range_delimiter(str, '"', '"');
+		vector<string_ranges> expressions;
+
+		bool add = false;
+
+		for (auto it = strings.begin(); it != strings.end(); it += 2)
+		{
+
+			vector<string_ranges> split = chain(*it, range_until, ";");
+			for (auto& s : split)
+			{
+				if (add)
+				{
+					expressions.back() = {expressions.back().begin(), s.end()};
+					add = false;
+				}
+				else
+				{
+					expressions.push_back(s);
+				}
+			}
+			if (!next(it)->empty())
+			{
+				expressions.back() = { expressions.back().begin(), next(it)->end() };
+				add = true;
+			}
+		}
+
+		for (auto& e : expressions)
+		{
+			parse_expression(e);
+		}
 	}
 
 	void parse_declaration(string_ranges dec)
@@ -76,8 +116,8 @@ public:
 		}
 		else
 		{		
-			if (!current_scope->make(keywords.at(1), keywords.at(0))) return; //error
 			std::cout << "made new variable " << keywords.at(0) << " " << keywords.at(1) << " in scope " << current_scope->name << std::endl;
+			if (!current_scope->make(keywords.at(1), keywords.at(0))) return; //error		
 		}	
 	}
 
@@ -121,10 +161,25 @@ public:
 		return row;
 	}
 
+	string_ranges extract_header(string_ranges& range)
+	{
+		string_ranges head = range_until(range, "{");
+		range = { head.skip(), prev(range.end()) };
+		return head;
+	}
+
+	void parse_column(string_ranges column)
+	{
+		string_ranges head = extract_header(column);
+
+		std::cout << "-------------" << head.flat() << std::endl;
+
+		parse_range(column, "ROW", true);
+	}
+
 	void parse_row(string_ranges row)
 	{	
-		string_ranges head = range_until(row, "{");
-		row = { head.skip(), prev(row.end()) };
+		string_ranges head = extract_header(row);
 
 		if (row.empty()) return; //error
 
@@ -138,20 +193,34 @@ public:
 		current_scope = row_obj.scope;
 		current_row = &row_obj;
 
-		vector<string_ranges> columns = chain(row, range_until, "|");
-		get_declaractions(columns.at(0));
-
-		if (columns.size() == 1) return;
-
-		for (auto it = columns.begin() + 1; it != columns.end(); it++)
-		{
-			std::cout << "-------------" << (*it).flat() << std::endl;
-		}
+		parse_range(row, "COL", false);
 
 		current_row = old_base;
 		current_scope = old_scope;
 
 		current_row->nested_rows.push_back(row_obj);
+	}
+
+	void parse_range(string_ranges range, const string& keyword, bool row )
+	{
+		vector<string_ranges> sub_rows = range_delimiter(range, '{', '}');
+
+		for (auto it = sub_rows.begin(); it != sub_rows.end(); it += 2)
+		{
+			auto in = next(it);
+			vector<string_ranges> columns = chain(*it, range_until, keyword);
+
+			if (columns.empty()) return; // error
+			get_declaractions(columns.front());
+			if (columns.size() > 1)
+			{
+				string_ranges column = { columns.at(1).begin(), in->end() };
+				if (row)
+					parse_row(column);
+				else
+					parse_column(column);
+			}
+		}
 	}
 
 	CstarParserError parse(string& str)
@@ -164,21 +233,25 @@ public:
 		remove_all_range(str, "/*", "*/", true);
 		change_whitespace_to_space(str);
 
-		vector<string_ranges> rows = chain(str, range_until, row_keyword);
-		if (rows.empty()) return {}; //error
+		parse_range(str, row_keyword, true);
 
-		get_declaractions(rows.at(0));
+		//vector<string_ranges> rows = chain(str, range_until, row_keyword);
+		//if (rows.empty()) return {}; //error
 
-		for (auto it = rows.begin() + 1; it != rows.end(); it++)
-		{
-			vector<string_ranges> row_in = chain(*it, range_inside, '{', '}');
-			std::cout << row_in.size() << std::endl;
+		//get_declaractions(rows.at(0));
 
-			if (row_in.size() < 1) return {};//error
-			parse_row(row_in.at(0));
-			if (row_in.size() == 2)
-				get_declaractions(row_in.at(1));
-		}
+		//for (auto it = rows.begin() + 1; it != rows.end(); it++)
+		//{
+		//	vector<string_ranges> row_in = chain(*it, range_inside, '{', '}');
+		//	std::cout << row_in.size() << std::endl;
+
+		//	if (row_in.size() < 1) return {};//error
+		//	parse_row(row_in.at(0));
+		//	if (row_in.size() == 2)
+		//		get_declaractions(row_in.at(1));
+		//}
+
+		return {};
 	}
 };
 

@@ -2,14 +2,14 @@ new vector<string> container
 new string object
 new int test = 100
 
-new function front = 
+new function front 
 <
 	#1 :is "container";
 	
 	#1 :at 0
 >
 
-<
+new init = <
 	container :push object;
 	:push container object;
 	
@@ -34,35 +34,32 @@ result : <
 	test :+ 2;
 > //this will output the string : "result : 100101102"
 
-ROW SIZE 2{ //row 1
-	
+ROW SIZE 2 { //row 1
+	new int local = 100
 
-	|button
-	[
-		text: hello!;
-		expr: <test := 200>
-	]
-	
-	|COL SIZE 3
+	COL BUTTON <test := 200>
 	{
-		|text 
-		[
-			: bruh1
-		]
-	}
-	
-	{
-		
+		<index "/" container :size>
 	}
 
-	|COL SIZE 3
+	new int local2 = 10000
+	
+	COL SIZE 3 TEXT
+	{
+		this is text
+	}
+
+	COL SIZE 3
+	{
+		ROW DIV { 53434543}
+	}
 }
 
+new double test = 0.0
+
 ROW IF <test :== 1> {
-	|dropbox SIZE 2 
-	[
-		
-	]
-	
-	
+	COL SIZE 2 DROPBOX 
+	{
+
+	}		
 }

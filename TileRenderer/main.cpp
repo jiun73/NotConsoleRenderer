@@ -115,7 +115,7 @@ int main()
 			if (key_pressed(SDL_SCANCODE_Z))
 			{
 				int i1, i2, i3;
-				net.wait_for_stream(0); //On attend que le canal '0' arrive, puis on lit les données
+				//net.wait_for_stream(0); //On attend que le canal '0' arrive, puis on lit les données
 				//net.read_stream(0, i1, i2, i3);
 				net[0] >> net::wait >> i1 >> i2 >> i3;
 				std::cout << i1 << " " << i2 << " " << i3 << " " << std::endl;
@@ -151,6 +151,11 @@ int main()
 
 				}
 				std::cout << s << std::endl;
+
+				//pour entrer du texte sans std::cin
+				keyboard().openTextInput(); // commence la collection de texte entré sur le clavier
+				keyboard().getTextInput(); // récupere le texte entré
+				keyboard().closeTextInput();
 			}
 		}
 	}
