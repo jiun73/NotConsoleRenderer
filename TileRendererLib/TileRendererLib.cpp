@@ -403,9 +403,9 @@ bool mouse_right_released() { return mouse().released(SDL_BUTTON_RIGHT); }
 
 bool input(const string& str) { return _inputs.check(str); }
 
-//j'ai la flemme de faire des meilleures fonctions, mais tu peut regarder dans Sound.h si tu veut jouer des sons 
+//j'ai la flemme de faire des meilleures fonctions, mais tu peux regarder dans Sound.h si tu veut jouer des sons 
 //C'est pas suuuper compliqué
-//Tu veut juste t'assurer de 'load' un son avant de le jouer
+//Tu veux juste t'assurer de 'load' un son avant de le jouer
 //Et que tes sons soit en format .wav
 SoundManager& sound() { return _sound; } 
 
