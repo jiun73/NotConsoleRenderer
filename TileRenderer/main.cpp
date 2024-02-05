@@ -36,6 +36,8 @@ int main()
 	string seq1 = "  <line1;lin\"f;ds\"e2;line3<subline1; subline2>end;fdsfdfs>";
 	parser.parse_sequence(seq1);
 
+	Server server;
+
 	Random r;
 
 	while (run()) //boucle principale
@@ -88,13 +90,18 @@ int main()
 
 		if (key_released(SDL_SCANCODE_1)) 
 		{
-			p2p().host();
-			p2p().wait_for_peer();
+			//p2p().host();
+			//p2p().wait_for_peer();
+			server.open_session([](Server& server) 
+				{
+
+				});
+			p2p().join();
 		}
 
 		if (key_released(SDL_SCANCODE_2))
 		{
-			p2p().join("192.168.138.31");
+			p2p().join();
 		}
 
 		if (key_pressed(SDL_SCANCODE_RETURN))

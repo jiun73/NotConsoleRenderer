@@ -10,7 +10,7 @@ new function front
 >
 
 new init = <
-	container :push object;
+	container :push object; 
 	:push container object;
 	
 	:foreach "n" container
@@ -22,7 +22,7 @@ new init = <
 	
 	rows
 	
-	:if test :== 1
+	:if test == 1
 	<
 		
 	>
@@ -57,7 +57,7 @@ ROW SIZE 2 { //row 1
 
 new double test = 0.0
 
-ROW IF <test :== 1> {
+ROW IF <test == 1> {
 	COL SIZE 2 DROPBOX 
 	{
 

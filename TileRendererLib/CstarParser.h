@@ -38,7 +38,7 @@ class CstarParser
 {
 private:
 	shared_ptr<VariableRegistry> current_scope;
-	CstarRows* current_row;
+	CstarRows* current_row = nullptr;
 	CstarRows base_row;
 
 public:

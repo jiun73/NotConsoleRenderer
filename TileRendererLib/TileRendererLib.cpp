@@ -95,6 +95,8 @@ void init()
 {
 	if (!__init__)
 	{
+		Threads::get()->start();
+
 		SDL_Init(SDL_INIT_EVERYTHING);
 		TTF_Init();
 		SDL_CreateWindowAndRenderer(window_size.x, window_size.y, window_flags, &sdl_win, &sdl_ren);

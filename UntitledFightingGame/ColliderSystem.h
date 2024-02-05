@@ -52,7 +52,10 @@ struct Controller_system
 			phys->acceleration.x = 100;
 		}
 		else
+		{
+			phys->acceleration.x = 0;
 			phys->velocity.x = 0;
+		}
 
 		if (input(controller->input_prefix + "jump") && collider->collide_down)
 		{
