@@ -94,7 +94,7 @@ int main()
 
 		if (key_released(SDL_SCANCODE_2))
 		{
-			p2p().join();
+			p2p().join("192.168.138.31");
 		}
 		
 		if (p2p().is_connected())
