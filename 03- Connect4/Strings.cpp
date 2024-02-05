@@ -25,7 +25,6 @@ bool extraire(string& chaine, T& v)
       getline(iss, chaine);
       return true;
    }
-
    return false;
 }
 
