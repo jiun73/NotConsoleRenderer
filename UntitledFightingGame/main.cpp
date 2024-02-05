@@ -63,7 +63,6 @@ int main()
 	entitity_system<Collision_system>()->add_pairing(SOLID, PLAYER, CTYPE_PUSH);
 	entitity_system<Collision_system>()->add_pairing(PLAYER, PLAYER, CTYPE_PUSH);
 
-
 	set_window_size({ 192 ,108 });
 	set_window_resizable();
 
