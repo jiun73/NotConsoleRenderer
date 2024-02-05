@@ -90,5 +90,10 @@ int main()
 	{
 		pencil(rgb(0, 0, 0));
 		draw_clear();
+		string maman;
+		if (key_held(SDL_SCANCODE_SPACE))
+		{
+			std::cin >> maman;
+		}
 	}
 }

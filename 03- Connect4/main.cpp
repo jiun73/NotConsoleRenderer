@@ -332,6 +332,10 @@ int main()
 	
 	while (run())
 	{
+		sound().playSound("music.mp3", 6468);
+		Mix_VolumeMusic(128);
+		sound().resumeMusic();
+		
 		if (firstUse)
 		{
 			update_modifiable(squares, squaresModifiable); 
