@@ -19,9 +19,9 @@ struct Camera
 	}
 
 	template <typename T>
-	Rectangle<T> find(const Rectangle<T>& rectangle)
+	vRectangle<T> find(const vRectangle<T>& rectangle)
 	{
-		Rectangle<T> rect = rectangle;
+		vRectangle<T> rect = rectangle;
 		rect.pos = find(rect.pos);
 		return rect;
 	}

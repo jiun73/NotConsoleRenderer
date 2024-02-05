@@ -61,47 +61,64 @@ public:
 
 	Cstar parse_expression(string_ranges str)
 	{
-		
+		return {};
 	}
 
-	Cstar parse_sequence(string_ranges str)
+	Cstar parse_sequence(string& str)
+	{
+		str += '\n';
+		remove_all_range(str, "//", "\n", false);
+		remove_all_range(str, "/*", "*/", true);
+		change_whitespace_to_space(str);
+		return parse_sequence_next(str);
+	}
+
+	Cstar parse_sequence_next(string_ranges str)
 	{
 		Cstar ret;
 
-		vector<string_ranges> sequence = range_delimiter(str, '<', '>');
-		if (sequence.size() != 2) return; //error
-		vector<string_ranges> strings = range_delimiter(str, '"', '"');
-		vector<string_ranges> expressions;
+		if (str.empty()) return {};
 
-		bool add = false;
+		str = range_trim(str, ' ');
 
-		for (auto it = strings.begin(); it != strings.end(); it += 2)
+		if (*str.begin() == '<' && *(str.end() - 1) == '>')
 		{
+			str.begin() += 1;
+			str.end() -= 1;
+		}
 
-			vector<string_ranges> split = chain(*it, range_until, ";");
-			for (auto& s : split)
+		std::cout << "full: " << str.flat() << std::endl;
+
+		vector<string_ranges> subseq = range_delimiter(str, '<', '>');
+		vector<string_ranges> expressions;
+		for (auto it = subseq.begin(); it != subseq.end(); it += 2)
+		{
+			vector<string_ranges> escape_str = split_escape_delim(*it, '"', '"', ';');
+			bool f = true;
+			for (auto& e : escape_str)
 			{
-				if (add)
+				if (f)
 				{
-					expressions.back() = {expressions.back().begin(), s.end()};
-					add = false;
+					if(!expressions.empty())
+						expressions.back() = { expressions.back().begin(), e.end() };
+					else
+						expressions.push_back(e);
+					f = false;
 				}
 				else
-				{
-					expressions.push_back(s);
-				}
+					expressions.push_back(e);
 			}
-			if (!next(it)->empty())
-			{
+			if (!expressions.empty())
 				expressions.back() = { expressions.back().begin(), next(it)->end() };
-				add = true;
-			}
 		}
 
 		for (auto& e : expressions)
 		{
+			std::cout << e.flat() << std::endl;
 			parse_expression(e);
 		}
+
+		return ret;
 	}
 
 	void parse_declaration(string_ranges dec)

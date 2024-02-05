@@ -99,7 +99,7 @@ Camera& camera();
 
 //Convertit des positions absolue vers des positions relatives à la camera
 template<typename T> inline Vector2D<T> to_game(const Vector2D<T>& position){return hidden::_camera.find(position);}
-template<typename T> inline Rectangle<T> to_game(const Rectangle<T>& rect) { return hidden::_camera.find(rect); }
+template<typename T> inline vRectangle<T> to_game(const vRectangle<T>& rect) { return hidden::_camera.find(rect); }
 
 //Retourne une couleur rgb
 Color rgb(int red, int green, int blue);
@@ -252,3 +252,9 @@ inline EntityManagerX* entities() { return EntX::get(); }
 
 template<typename T>
 inline T* entitity_system() { return EntX::get()->get_system<T>(); }
+
+//----------------------------------------------------------NETWORKING------------------------------------------------------------------------
+#include "Networking.h"
+
+Peer2Peer& p2p();
+Peer2Peer& p2p(size_t i);

@@ -49,7 +49,7 @@ namespace hidden {
 	FontsManager _fonts;
 	map<string, SDL_Texture* > textures;
 
-
+	Peer2Peer _net;
 	ConsoleApp cApp; //lol
 }
 
@@ -493,6 +493,10 @@ double distance(const V2d_d& pos1, const V2d_d& pos2)
 {
 	return sqrt(distance_square(pos1, pos2));
 }
+
+Peer2Peer& p2p() { return hidden::_net; }
+
+Peer2Peer& p2p(size_t i) { return hidden::_net[i]; }
 
 void draw_image(const string& path, Rect destination) 
 {
