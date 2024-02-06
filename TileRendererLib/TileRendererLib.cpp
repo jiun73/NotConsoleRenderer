@@ -106,6 +106,8 @@ void init()
 		track_variable(net::verbose_net, "net_debug");
 		__init__ = true;
 
+		__REGISTER_CLASS__(int);
+
 		__NEW_COMMAND__(test, "test", [](__COMMAND_ARGS__)
 			{
 				std::cout << "You tested alright!" << std::endl;

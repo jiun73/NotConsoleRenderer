@@ -1,0 +1,9 @@
+<
+	line1;
+	line2    :push    obj;	
+	line3 
+	<
+		subline1;
+		subline2;
+	>
+>

@@ -172,6 +172,19 @@ inline vector<string_ranges> chain(string_ranges range, string_ranges(range_func
 	return ret;
 }
 
+template<typename... Ts>
+inline vector<string_ranges> subchain(const vector<string_ranges>& ranges, string_ranges(range_func)(string_ranges, Ts...), std::remove_reference_t<Ts>... extras)
+{
+	vector<string_ranges> ret;
+	for (auto& r : ranges)
+	{
+		vector<string_ranges> sub = chain(r, range_func, extras...);
+		for (auto& s : sub)
+			ret.push_back(s);
+	}
+	return ret;
+}
+
 inline vector<string_ranges> split_escape_delim(string_ranges range, char open, char end, char split)
 {
 	vector<string_ranges> strings = range_delimiter(range, open, end);

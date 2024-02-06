@@ -20,6 +20,7 @@ int main()
 {
 	set_window_size(200); //fenetre de 200x200
 	set_window_resizable(); //fenetre peut etre agrandie
+	init();
 
 	/*
 	* En gros ca marche plus ou moins de la meme facon que le console renderer
@@ -30,11 +31,12 @@ int main()
 
 	CstarParser parser;
 	File file("file.txt", FILE_READING_STRING);
+	File file2("file2.txt", FILE_READING_STRING);
 
 	string str = file.getString();
+	string str2 = file2.getString();
 	parser.parse(str);
-	string seq1 = "  <line1;lin\"f;ds\"e2;line3<subline1; subline2>end;fdsfdfs>";
-	parser.parse_sequence(seq1);
+	parser.parse_sequence(str2);
 
 	Server server;
 

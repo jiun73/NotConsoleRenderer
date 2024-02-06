@@ -14,11 +14,16 @@ class CstarParserError {};
 
 inline bool is_var_name(string_ranges range)
 {
+	if (range.empty()) return false;
+	return std::all_of(range.begin(), range.end(), [](char c) { return isalnum(c) || c == '_'; }) && !std::all_of(range.begin(), range.end(), isdigit) && !isdigit(*range.begin());
 }
 
 inline bool is_func_name(string_ranges range)
 {
-
+	if (range.empty()) return false;
+	char beg = *range.begin();
+	if (!isalnum(beg) && beg != '_') return true;
+	return false;
 }
 
 class Cstar
@@ -70,9 +75,27 @@ public:
 
 	void parse_expression(string_ranges str)
 	{
+		str = range_trim(str, ' ');
+		std::cout << "> " << str.flat() << std::endl;
+		vector<string_ranges> ignore = range_delimiter(str, '<', '>');
 
-
-		
+		for (auto it = ignore.begin(); it != ignore.end(); it+=2)
+		{
+			vector<string_ranges> keywords = subchain(chain(*it, range_until, " "), range_until, ",");
+			for (auto& kw : keywords)
+			{
+				str = range_trim(kw, ' ');
+				if (is_var_name(kw))
+				{
+					std::cout << "\t> var " << kw.flat() << std::endl;
+				}
+				else if (is_func_name(kw))
+				{
+					std::cout << "\t> func " << kw.flat() << std::endl;
+				}
+			}
+			std::cout << "\t> " << next(it)->flat() << std::endl;
+		}
 	}
 
 	Cstar parse_sequence(string& str)
@@ -125,7 +148,6 @@ public:
 
 		for (auto& e : expressions)
 		{
-			std::cout << e.flat() << std::endl;
 			parse_expression(e);
 		}
 
@@ -143,9 +165,10 @@ public:
 
 		}
 		else
-		{		
+		{	
+			std::cout << "making... variable '" << keywords.at(0) << "' " << keywords.at(1) << " in scope " << current_scope->name << std::endl;
+			if (!current_scope->make(keywords.at(1), keywords.at(0))) return; //error	
 			std::cout << "made new variable " << keywords.at(0) << " " << keywords.at(1) << " in scope " << current_scope->name << std::endl;
-			if (!current_scope->make(keywords.at(1), keywords.at(0))) return; //error		
 		}	
 	}
 

@@ -28,6 +28,7 @@ public:
 	{
 		if (!has(name))
 		{
+			std::cout << "Added type " << name << " to factory" << std::endl;
 			factories.emplace(name, new GenericType<T>());
 		}
 	}
