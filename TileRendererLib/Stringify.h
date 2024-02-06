@@ -178,7 +178,7 @@ namespace strings
 		return ss.str();
 	}
 
-	template<typename T> inline std::string stringify(const Rectangle<T>& x)
+	template<typename T> inline std::string stringify(const vRectangle<T>& x)
 	{
 		std::stringstream ss;
 		ss << x;

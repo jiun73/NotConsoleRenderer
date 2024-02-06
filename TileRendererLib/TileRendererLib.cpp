@@ -49,7 +49,7 @@ namespace hidden {
 	FontsManager _fonts;
 	map<string, SDL_Texture* > textures;
 
-
+	Peer2Peer _net;
 	ConsoleApp cApp; //lol
 }
 
@@ -95,6 +95,8 @@ void init()
 {
 	if (!__init__)
 	{
+		Threads::get()->start();
+
 		SDL_Init(SDL_INIT_EVERYTHING);
 		TTF_Init();
 		SDL_CreateWindowAndRenderer(window_size.x, window_size.y, window_flags, &sdl_win, &sdl_ren);
@@ -403,9 +405,9 @@ bool mouse_right_released() { return mouse().released(SDL_BUTTON_RIGHT); }
 
 bool input(const string& str) { return _inputs.check(str); }
 
-//j'ai la flemme de faire des meilleures fonctions, mais tu peut regarder dans Sound.h si tu veut jouer des sons 
+//j'ai la flemme de faire des meilleures fonctions, mais tu peux regarder dans Sound.h si tu veut jouer des sons 
 //C'est pas suuuper compliqué
-//Tu veut juste t'assurer de 'load' un son avant de le jouer
+//Tu veux juste t'assurer de 'load' un son avant de le jouer
 //Et que tes sons soit en format .wav
 SoundManager& sound() { return _sound; } 
 
@@ -493,6 +495,10 @@ double distance(const V2d_d& pos1, const V2d_d& pos2)
 {
 	return sqrt(distance_square(pos1, pos2));
 }
+
+Peer2Peer& p2p() { return hidden::_net; }
+
+Peer2Peer& p2p(size_t i) { return hidden::_net[i]; }
 
 void draw_image(const string& path, Rect destination) 
 {

@@ -1,5 +1,13 @@
 #include "Shooting.h"
 
+void check(balls& ball, int i, vector<bullets>& balles, vector<balls>& ballons)
+{
+	ball.show();
+	ball.move();
+	ball.show_number();
+	ball.boom(i, balles, ballons);
+}
+
 int main()
 { 
 	// Site pour les sound effects: myinstants.com
@@ -15,9 +23,6 @@ int main()
 	{
 		ballons.push_back(balls());
 	}
-
-	bool down;
-	int determinant;
 
 	while (run())
 	{
@@ -41,10 +46,7 @@ int main()
 		}
 		for (int i = 0; i < ballons.size(); i++)
 		{
-			ballons.at(i).show();
-			ballons.at(i).move(down, determinant);
-			ballons.at(i).show_number();
-			ballons.at(i).boom(i,balles,ballons);
+			check(ballons.at(i), i, balles, ballons);
 		}
 	}
 }

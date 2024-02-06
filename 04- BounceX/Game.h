@@ -128,6 +128,8 @@ private:
 		pos.y += velocite.y * acceleration;
 	}
 public:
+	int vi = 0;
+	bool touchGround = false;
 	bool begin = false;
 	V2d_i velocite = { choose(),choose() };
 	int acceleration = 5;
@@ -188,12 +190,14 @@ private:
 	V2d_i bottomleft = { pos.x, pos.y + xy.y};
 	V2d_i bottomright = {pos.x + xy.x, pos.y + xy.y};
 	V2d_i centre = { pos.x + (topright.x - pos.x) / 2, pos.y + (bottomleft.y - pos.y) / 2 };
+	int angle = 0;
 	double convertir_en_radians(int angle)
 	{
 		double newAngle = static_cast<double>(angle);
 		double angleInRad = newAngle * 3.14159265 / 180.0000000;
 		return angleInRad;
 	}
+
 public:
 	void create()
 	{
@@ -235,7 +239,7 @@ public:
 		}
 		centre = { pos.x + (topright.x - pos.x) / 2, pos.y + (bottomleft.y - pos.y) / 2 };
 	}
-	void rotate_on_pos(int& angle)
+	void rotate_on_pos()
 	{
 		if (key_held(SDL_SCANCODE_SPACE))
 		{
@@ -250,7 +254,7 @@ public:
 			angle++;
 		}
 	}
-	void rotate_on_center(int& angle)
+	void rotate_on_center()
 	{
 		// centre du rectangle = {pos.x + (topright.x - pos.x) / 2, pos.y + (bottomleft.y - pos.y) / 2}
 		if (key_held(SDL_SCANCODE_Q))
@@ -271,6 +275,20 @@ public:
 			angle++;
 		}
 	}
+	void bounce_on_walls()
+	{
+		pos.x++;
+		pos.y = sin(convertir_en_radians(angle + 90));
+		
+		bottomleft.x++;
+		pos.y = sin(convertir_en_radians(angle + 270));
+
+		bottomright.x++;
+		bottomright.y = sin(convertir_en_radians(angle + 270));
+
+		topright.x++;
+		topright.y = sin(convertir_en_radians(angle + 90));
+	}
 	void show_coordinates()
 	{
 		pencil(COLOR_WHITE);
@@ -282,6 +300,14 @@ public:
 		texte += ":" + y + "}";
 		draw_simple_text(texte, { 100,10 }, get_font(0));
 	}
+};
+
+class ell
+{
+	int a = 100;
+	int b = 300;
+	V2d_i pos = { X_CONSOLE / 2, Y_CONSOLE / 2 };
+
 };
 
 

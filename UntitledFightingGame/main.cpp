@@ -63,7 +63,6 @@ int main()
 	entitity_system<Collision_system>()->add_pairing(SOLID, PLAYER, CTYPE_PUSH);
 	entitity_system<Collision_system>()->add_pairing(PLAYER, PLAYER, CTYPE_PUSH);
 
-
 	set_window_size({ 192 ,108 });
 	set_window_resizable();
 
@@ -90,5 +89,10 @@ int main()
 	{
 		pencil(rgb(0, 0, 0));
 		draw_clear();
+		string maman;
+		if (key_held(SDL_SCANCODE_SPACE))
+		{
+			std::cin >> maman;
+		}
 	}
 }

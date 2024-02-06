@@ -32,7 +32,7 @@ double convertir_en_radians(int angle)
 
 struct physics
 {
-	V2d_d acceleration = { 0,0.01 };
+	V2d_d acceleration = { 0.003,0.01 };
 	V2d_d velocite = 0;
 	bool touchGround = false;
 	bool touchCeiling = false;
@@ -45,7 +45,7 @@ private:
 	V2d_i pos = { X_CONSOLE / 2 - xy.x / 2, Y_CONSOLE - xy.y };
 	Color couleur = COLOR_GREEN;
 	int rayon = 15;
-	int speedAmplifier = 3;
+	int speedAmplifier = 5;
 
 public:
 	void show()
@@ -149,11 +149,25 @@ class balls
 private:
 	int rayon = 25;
 	V2d_i pos = generate();
-	V2d_i velocite = { 0,0 };
+	
 	vector<V2d_i> points;
 	int acceleration = 2;
 	int numero = rayon;
 	physics physique;
+
+	int choose()
+	{
+		int a = random().range(0, 1);
+		if (a == 0)
+		{
+			return -1;
+		}
+		return 1;
+	}
+	V2d_i velocite = {choose(), choose()};
+
+	bool down;
+	int determinant;
 
 	void destroy(int i, vector<balls>& vect)
 	{
@@ -183,17 +197,38 @@ public:
 		string x = entier_en_chaine(numero);
 		draw_simple_text(x, pos, get_font(0));
 	}
-	void move(bool& down, int& determinant)
+	void move()
 	{
-		if (pos.y + rayon >= Y_CONSOLE)
+		if (pos.y - rayon <= 0)
+		{
+			velocite.y = 1;
+			//sound().playSound(son);
+		}
+		else if (pos.y + rayon >= Y_CONSOLE)
+		{
+			//sound().playSound(son);
+			velocite.y = -1;
+		}
+		else if (pos.x - rayon <= 0)
+		{
+			//sound().playSound(son);
+			velocite.x = 1;
+		}
+		else if (pos.x + rayon >= X_CONSOLE)
+		{
+			//sound().playSound(son);
+			velocite.x = -1;
+		}
+		pos += velocite;
+		/*if (pos.y + rayon >= Y_CONSOLE)
 		{
 			down = false;
-			physique.velocite = 0;
+			//physique.velocite = 0;
 		}
 		else if (pos.y - rayon <= 0)
 		{
 			down = true;
-			physique.velocite = 0;
+			//physique.velocite = 0;
 		}
 		if (down)
 		{
@@ -204,7 +239,7 @@ public:
 			determinant = -1;
 		}
 		pos += physique.velocite * determinant;
-		physique.velocite += physique.acceleration;
+		physique.velocite += physique.acceleration;*/
 	}
 	vector<V2d_i> get_points()
 	{

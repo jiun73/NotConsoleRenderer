@@ -1,6 +1,8 @@
 #include "Game.h"
 #include <iomanip>
 
+double time = 0;
+
 double get_time(double& time)
 {
 	double aug = 1.0 / frame_rate;
@@ -111,6 +113,32 @@ void rotate(vector<V2d_i>& vect, int& angle)
 	angle++;
 }
 
+void carre_mouv(shape& carre)
+{
+	carre.create();
+	carre.move();
+	carre.rotate_on_pos();
+	carre.rotate_on_center(); // bug: quand on se déplace puis on spin, la carré revient à sa position initiale. Quand j'essaie de fixer cela, la carré sort complètement de l'écran
+	carre.show_coordinates();
+	//carre.bounce_on_walls(angle); // doesn't work
+}
+
+void main_mouv(square& main)
+{
+	//chute_libre(main, time, vi, touchGround);
+	//projectile_horizontal(main, time);
+	//projectile_oblique(main, time, angle);
+	//circle_on_axis(main, axis, 350, angle);
+	//rotate(main.get_points(), angle);
+	//main.create();
+	//main.show_coordinates();
+}
+
+void ellipse_mouv(shape& ellipse)
+{
+	// code à venir
+}
+
 int main()
 {
 	V2d_i window = { X_CONSOLE, Y_CONSOLE };
@@ -124,35 +152,17 @@ int main()
 
 	shape carre;
 
-	double time = 0;
-	int vi = 0;
-	bool touchGround = false;
-	int angle = 0;
-	V2d_i axis = { X_CONSOLE / 2, Y_CONSOLE / 2 };
-	int allow = 0;
-	int max = 3;
+	ell ellipse;
+
 	while (run())
 	{
 		pencil(COLOR_BLACK);
 		draw_clear();
-		allow++;
 		time = get_time(time);
-		chute_libre(main,time, vi, touchGround);
-		//projectile_horizontal(main, time);
-		//projectile_oblique(main, time, angle);
-		/*if (allow == max)
-		{
-			circle_on_axis(main, axis, 350, angle);
-			allow = 0;
-		}*/
-		//rotate(main.get_points(), angle);
-		//carre.create();
-		//carre.move();
-		//carre.rotate_on_pos(angle);
-		//carre.rotate_on_center(angle); // bug: quand on se déplace puis on spin, la carré revient à sa position initiale. Quand j'essaie de fixer cela, la carré sort complètement de l'écran
-		//carre.show_coordinates();
-		main.create();
-		main.show_coordinates();
 		show_time(time);
+
+		//ellipse_mouv(ellipse);
+		//main_mouv(main);
+		//carre_mouv(carre);
 	}
 }
