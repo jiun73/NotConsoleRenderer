@@ -10,8 +10,8 @@ const int BEG_Y_MAP = 100;
 const int END_X_MAP = 600;
 const int END_Y_MAP = 600;
 
-const int squaresPerRow = 8;
-const int squaresPerColumn = 15;
+const int squaresPerRow = 6;
+const int squaresPerColumn = 7;
 
 const int xy = (END_X_MAP - BEG_X_MAP) / squaresPerColumn;
 const int yx = (END_Y_MAP - BEG_Y_MAP) / squaresPerRow;
