@@ -13,5 +13,6 @@ int main()
 
 		pencil(COLOR_GREEN);
 		draw_full_rect(Rect({ {200,120},{200,200} }));
+		tile lo;
 	}
 }
