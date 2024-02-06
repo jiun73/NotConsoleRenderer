@@ -5,9 +5,19 @@
 #include <vector>
 using namespace std;
 
+// taille de la console
 const int X_CONSOLE = 1000;
 const int Y_CONSOLE = 900;
 V2d_i window = { X_CONSOLE, Y_CONSOLE };
+
+// Contour du board
+const int bcd = 50; // board contour difference: distance en pixels entre la console et et le contour du board
+const Rect board_contour = { {X_CONSOLE + bcd, Y_CONSOLE - bcd},{X_CONSOLE - bcd * 2, Y_CONSOLE - bcd * 2} };
+
+// Contour du gameplay
+const int gcd = 50; // gameplay contour difference: distance en pixels entre la console et et le contour du board
+const Rect gameplay_contour = { {X_CONSOLE + gcd, Y_CONSOLE - gcd},{X_CONSOLE - gcd * 2, Y_CONSOLE - gcd * 2} };
+
 
 // Chacun des 4 joueurs
 class player
