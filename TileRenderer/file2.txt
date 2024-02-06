@@ -4,6 +4,8 @@
 	line2    :push    obj;	
 	line3 
 	<
+		new int subline1;
+		new int subline2;
 		subline1;
 		subline2;
 	>

@@ -46,7 +46,10 @@ struct GenericFunction : public Generic
 {
 	virtual shared_generic call() = 0;
 	virtual void args(const vector<GenericArgument>& values) = 0;
+	virtual const type_info& args_type(size_t i) = 0;
+	virtual size_t arg_count() = 0;
 	virtual char* function_bytes() = 0;
+	virtual const type_info& return_type() = 0;
 };
 
 template<typename T>
@@ -127,6 +130,7 @@ public:
 		return nullptr;//return _return_->raw_bytes(); 
 	}
 	const type_info& type() override { return typeid(R(Args...)); }
+	const type_info& return_type() override { return typeid(R); }
 	const type_info& identity() override { return typeid(GenericFunction); }
 	size_t size() override { return 0; }
 
@@ -171,6 +175,11 @@ public:
 	void args(const vector<GenericArgument>& values) override
 	{
 		set_args(values);
+	}
+
+	size_t arg_count()
+	{
+		return sizeof...(Args);
 	}
 
 	char* function_bytes() override { return (char*)(&(_callback_)); }

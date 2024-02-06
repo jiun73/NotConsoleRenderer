@@ -12,6 +12,19 @@ using std::vector;
 
 class CstarParserError {};
 
+inline bool is_string(string_ranges range)
+{
+	if (range.empty()) return false;
+	if (next(range.begin()) == range.end()) return false;
+
+	return (*range.begin() == '"' && *prev(range.end()) == '"');
+}
+
+inline bool is_num(string_ranges range)
+{
+	return std::all_of(range.begin(), range.end(), isdigit);
+}
+
 inline bool is_keyword(string_ranges range)
 {
 	string flat = range.flat();
@@ -46,10 +59,10 @@ struct Cstar
 	bool root = true;
 	bool func = false;
 	shared_generic constant = nullptr;
+	shared_ptr<GenericFunction> function = nullptr;
 
 	shared_generic evaluate() 
 	{
-
 	}
 };
 
@@ -86,7 +99,7 @@ public:
 		return keywords;
 	}
 
-	void parse_expression(string_ranges str, Cstar& ret)
+	void parse_expression(string_ranges str, Cstar& ret_val)
 	{
 		str = range_trim(str, ' ');
 		std::cout << "> " << str.flat() << std::endl;
@@ -94,7 +107,6 @@ public:
 
 		vector<Cstar> constants;
 		vector<Cstar> functions;
-		vector<Cstar> subs;
 
 		bool f = true;
 		for (auto it = ignore.begin(); it != ignore.end(); it+=2)
@@ -129,7 +141,7 @@ public:
 					if (var == nullptr) { std::cout << "Invalid func name!" << std::endl; return; } // error
 					if (var->identity() != typeid(GenericFunction)) return; //error
 					func.func = true;
-					func.constant = var;
+					func.function = std::reinterpret_pointer_cast<GenericFunction>(var);
 					functions.push_back(func);
 				}
 				f = false;
@@ -139,11 +151,30 @@ public:
 			{
 				std::cout << "\t> " << next(it)->flat() << std::endl;
 				Cstar sub = parse_sequence_next(*next(it));
-				subs.push_back(sub);
+				constants.push_back(sub);
 			}
 		}
 
+		for (auto it = functions.rbegin(); it != functions.rend(); it++)
+		{
+			size_t count = it->function->arg_count();
+			bool ret = it->function->return_type() != typeid(void);
 
+			for (size_t i = 0; i < count; i++)
+			{
+				it->recursive.push_back(constants.back());
+				constants.pop_back();
+			}
+
+			if (ret)
+				constants.push_back(*it);
+		}
+
+		for (auto& f : functions)
+			ret_val.recursive.push_back(f);
+
+		for (auto& c : constants)
+			ret_val.recursive.push_back(c);
 	}
 
 	Cstar parse_sequence(string& str)
@@ -220,8 +251,7 @@ public:
 		}
 		else
 		{	
-			std::cout << "making... variable '" << keywords.at(0) << "' " << keywords.at(1) << " in scope " << current_scope->name << std::endl;
-			if (!current_scope->make(keywords.at(1), keywords.at(0))) return; //error	
+			if (!current_scope->make(keywords.at(1), keywords.at(0))) { std::cout << "Invalid variable type!" << std::endl; return; } //error	
 			std::cout << "made new variable " << keywords.at(0) << " " << keywords.at(1) << " in scope " << current_scope->name << std::endl;
 		}	
 	}
