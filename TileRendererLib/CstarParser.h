@@ -18,7 +18,7 @@ inline bool is_var_name(char c, size_t i)
 
 inline bool is_func_name(char c, size_t i)
 {
-	return 
+
 }
 
 class Cstar

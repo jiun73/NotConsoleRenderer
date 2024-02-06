@@ -94,7 +94,32 @@ int main()
 			//p2p().wait_for_peer();
 			server.open_session([](Server& server) 
 				{
+					map<size_t, ReadBuffer>& buffers = server.get_buffers();
 
+					for (auto& b : buffers)
+					{
+						ReadBuffer& rb = b.second;
+						if (rb.has(0))
+						{
+							int i1, i2, i3;
+							//net.wait_for_stream(0); //On attend que le canal '0' arrive, puis on lit les données
+							//net.read_stream(0, i1, i2, i3);
+							//server >> i1 >> i2 >> i3;
+							rb.read_stream(0, i1, i2, i3);
+							std::cout << i1 << " " << i2 << " " << i3 << " " << std::endl;
+						}
+						if (rb.has(1))
+						{
+							string s;
+							size_t read = rb.read<size_t>(1);
+							for (size_t i = 0; i < read; i++)
+							{
+								char c = rb.read<char>(1);
+								s.push_back(c);
+							}
+							std::cout << s << std::endl;
+						}
+					}
 				});
 			p2p().join();
 		}
@@ -121,10 +146,10 @@ int main()
 			//	p2p().send(c); //puis on envoie chaque caratère un a la fois
 			//p2p().end_stream();
 			const string& s = keyboard().getTextInput();
-			p2p()[1] << s.size();
+			p2p(1) << s.size();
 			for (auto& c : s)
-				p2p()[1] << c;
-			p2p()[1] << net::send;
+				p2p(1) << c;
+			p2p(1) << net::send;
 
 			keyboard().getTextInput() = "";
 
@@ -152,7 +177,7 @@ int main()
 				int i1, i2, i3;
 				//net.wait_for_stream(0); //On attend que le canal '0' arrive, puis on lit les données
 				//net.read_stream(0, i1, i2, i3);
-				p2p()[0] >> net::wait >> i1 >> i2 >> i3;
+				p2p(0) >> net::wait >> i1 >> i2 >> i3;
 				std::cout << i1 << " " << i2 << " " << i3 << " " << std::endl;
 			}
 
@@ -166,12 +191,12 @@ int main()
 				string s;
 				//size_t size = p2p().read<size_t>(1);
 				size_t size;
-				p2p()[1] >> size;
+				p2p(1) >> size;
 				for (size_t i = 0; i < size; i++)
 				{
 					//s.push_back(p2p().read<char>(1));
 					char c;
-					p2p()[1] >> c;
+					p2p(1) >> c;
 					s.push_back(c);
 
 				}

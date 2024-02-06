@@ -117,9 +117,6 @@
     <ClInclude Include="Controls.h">
       <Filter>Header Files\Classes</Filter>
     </ClInclude>
-    <ClInclude Include="NetworkingX.h">
-      <Filter>Header Files\Classes</Filter>
-    </ClInclude>
     <ClInclude Include="Networking.h">
       <Filter>Header Files\Classes</Filter>
     </ClInclude>
@@ -153,6 +150,9 @@
       <Filter>Source Files\ConsoleRenderer</Filter>
     </ClCompile>
     <ClCompile Include="Controls.cpp">
+      <Filter>Header Files\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Networking.cpp">
       <Filter>Header Files\Classes</Filter>
     </ClCompile>
   </ItemGroup>

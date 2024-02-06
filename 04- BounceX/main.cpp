@@ -1,7 +1,7 @@
 #include "Game.h"
 #include <iomanip>
 
-double time = 0;
+double _time = 0;
 
 double get_time(double& time)
 {
@@ -158,8 +158,8 @@ int main()
 	{
 		pencil(COLOR_BLACK);
 		draw_clear();
-		time = get_time(time);
-		show_time(time);
+		//time = get_time(time);
+		//show_time(time);
 
 		//ellipse_mouv(ellipse);
 		//main_mouv(main);

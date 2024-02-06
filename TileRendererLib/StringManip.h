@@ -19,12 +19,13 @@ inline void change_whitespace_to_space(std::string& str)
 	{
 		switch (c)
 		{
-		case '\n':
-		case '\t':
-		case '\v':
-		case '\f':
+		case '\n': 
+		case '\t': 
+		case '\v': 
+		case '\f': 
 		case '\r':
 			c = ' ';
+			break;
 		default:
 			break;
 		}

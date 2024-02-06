@@ -103,6 +103,7 @@ void init()
 		SDL_RenderSetLogicalSize(sdl_ren, window_size.x, window_size.y);
 		sound().init();	
 		fonts().read_hint_file(sdl_ren);
+		track_variable(net::verbose_net, "net_debug");
 		__init__ = true;
 
 		__NEW_COMMAND__(test, "test", [](__COMMAND_ARGS__)
@@ -287,8 +288,8 @@ void init()
 			{
 				_fonts.set_glyph_effect([](SDL_Rect& dest)
 					{
-						int xdis = sin((SDL_GetTicks() / 100.0) + dest.x * 5) * 5;
-						int ydis = cos((SDL_GetTicks() / 100.0) + dest.x * 5) * 5;
+						int xdis = (int)sin((SDL_GetTicks() / 100.0) + dest.x * 5) * 5;
+						int ydis = (int)cos((SDL_GetTicks() / 100.0) + dest.x * 5) * 5;
 						dest.x += xdis;
 						dest.y += ydis;
 					});
@@ -306,9 +307,9 @@ void init()
 			{
 				_fonts.set_glyph_effect([&](SDL_Rect& dest)
 					{
-						const int force = 5;
-						dest.x += random().frange(-force, force);
-						dest.y += random().frange(-force, force);
+						const double force = 5.0;
+						dest.x += (int)random().frange(-force, force);
+						dest.y += (int)random().frange(-force, force);
 					});
 			});
 

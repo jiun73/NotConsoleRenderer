@@ -31,8 +31,21 @@ struct StreamWait {};
 
 namespace net
 {
+	extern bool verbose_net;
 	inline StreamEnd send;
 	inline StreamWait wait;
+}
+
+inline bool read_packet(ENetPacket* packet, enet_uint8*& data)
+{
+	bool* is_flag = new bool;
+	data = new enet_uint8[packet->dataLength - 1];
+	memcpy(is_flag, packet->data, 1);
+	memcpy(data, packet->data + 1, packet->dataLength - 1);
+
+	bool ret = *is_flag;
+	delete is_flag;
+	return ret;
 }
 
 struct ReadBuffer 
@@ -40,27 +53,9 @@ struct ReadBuffer
 	deque<enet_uint8*> data_buffer;
 	map<size_t, queue<DataStream*>> read_buffer;
 
-	bool has(size_t channel)
-	{
-		if (read_buffer.count(channel) == 0) return false;
-		return !read_buffer[channel].empty();
-	}
-
-	void end(size_t channel)
-	{
-		DataStream* stream = new DataStream();
-		stream->flag = channel;
-		stream->data = data_buffer;
-		read_buffer[stream->flag].push(stream);
-		std::cout << "End of stream " << stream->flag << " (" << data_buffer.size() << " read)" << std::endl;
-		data_buffer.clear();
-	} 
-
-	void add(enet_uint8* data)
-	{
-		std::cout << "Received packet... " << std::endl;
-		data_buffer.push_back(data);
-	}
+	bool has(size_t channel);
+	void end(size_t channel);
+	void add(enet_uint8* data);
 
 	template<typename T>
 	T read(size_t channel) 
@@ -69,10 +64,7 @@ struct ReadBuffer
 			T ret = *(T*)stream->data.front();
 		stream->data.pop_front();
 
-		if (stream->data.empty())
-		{
-			read_buffer[channel].pop();
-		}
+		if (stream->data.empty()) read_buffer[channel].pop();
 
 		return ret;
 	}
@@ -81,10 +73,7 @@ struct ReadBuffer
 	void read_unfold(const deque<enet_uint8*>& data) {}
 
 	template<size_t I, typename T>
-	void read_unfold(const deque<enet_uint8*>& data, T& get)
-	{
-		get = *(T*)data.at(I);
-	}
+	void read_unfold(const deque<enet_uint8*>& data, T& get) { get = *(T*)data.at(I); }
 
 	template<size_t I, typename R, typename... Ts>
 	void read_unfold(const deque<enet_uint8*>& data, R& get, Ts&... rest)
@@ -108,9 +97,9 @@ struct ReadBuffer
 class Peer2Peer
 {
 private:
-	ENetAddress address;
-	ENetHost* client;
-	ENetPeer* peer;
+	ENetAddress address = {0,0};
+	ENetHost* client = nullptr;
+	ENetPeer* peer = nullptr;
 
 	//deque<enet_uint8*> data_buffer;
 	//map<size_t, queue<DataStream*>> read_buffer;
@@ -121,95 +110,22 @@ private:
 	size_t current_peer;
 	bool connected = false;
 
-	bool read_packet(ENetPacket* packet, enet_uint8*& data)
-	{
-		bool* is_flag = new bool;
-		data = new enet_uint8[packet->dataLength - 1];
-		memcpy(is_flag, packet->data, 1);
-		memcpy(data, packet->data + 1, packet->dataLength - 1);
-
-		bool ret = *is_flag;
-		delete is_flag;
-		return ret;
-	}
-
-	template<typename T>
-	size_t get_bytes(T& data) { return *(size_t*)(&data); }
-
-	void handle_events(ENetEvent& event) {
-		switch (event.type)
-		{
-		case ENET_EVENT_TYPE_CONNECT:
-			std::cout << "A new client connected from " << event.peer->address.host << ":" << event.peer->address.port << "\n";
-			event.peer->data = (void*)("Peer");
-			peer = event.peer;
-			break;
-
-		case ENET_EVENT_TYPE_RECEIVE:
-		{
-			//std::cout << "<" << (const char*)event.peer->data << "> " << event.packet->data << std::endl;
-
-			enet_uint8* data;
-			bool is_flag = read_packet(event.packet, data);
-
-			if (is_flag)
-				buffer.end(*(size_t*)(data));
-			else
-				buffer.add(data);
-
-			enet_packet_destroy(event.packet);
-		}
-		break;
-
-		case ENET_EVENT_TYPE_DISCONNECT:
-			std::cout << "Peer disconnected" << std::endl;
-			event.peer->data = NULL;
-			break;
-		}
-	}
-
-
-	void listen()
-	{
-		ENetEvent event;
-		while (enet_host_service(client, &event, 1000) > 0)
-			handle_events(event);
-	}
-
-	void setup_listener()
-	{
-		Threads::get()->queueJob([&](int i)
-			{
-				while (true)
-					listen();
-			});
-	}
+	void handle_events(ENetEvent& event);
+	void listen();
+	void setup_listener();
 
 public:
-	Peer2Peer()
-	{
-		if (enet_initialize() != 0)
-			std::cerr << "An error occurred while initializing ENet.\n" << std::endl;
-		atexit(enet_deinitialize);
-	}
+	Peer2Peer();
 	~Peer2Peer() { }
 
-	void start_stream(size_t channel)
-	{
-		std::cout << "Start of stream " << channel << std::endl;
-		write_flag = channel;
-	}
-
-	void end_stream()
-	{
-		std::cout << "End of stream " << write_flag << std::endl;
-		send<size_t>(write_flag, true);
-	}
+	void start_stream(size_t channel);
+	void end_stream();
 
 	template<typename T>
 	void send(T data, bool signal = false)
 	{
-		std::cout << "Sending... " << bitset<sizeof(data) * 8>(*(size_t*)(&data)) << std::endl;
+		if (net::verbose_net)
+			std::cout << "Sending... " << bitset<sizeof(data) * 8>(*(size_t*)(&data)) << std::endl;
 		enet_uint8* bytes = new enet_uint8[sizeof(data) + 1];
 		memcpy(bytes + 1, &data, sizeof(data));
 		memcpy(bytes, &signal, sizeof(bool));
@@ -226,56 +142,26 @@ public:
 	* Read a stream of data that was sent in a given channel
 	*/
 	template<typename... Ts>
-	void read_stream(size_t channel, Ts&... get)
-	{
-		buffer.read_stream(channel, get...);
-	}
+	void read_stream(size_t channel, Ts&... get) { buffer.read_stream(channel, get...); }
 
 	template<typename T>
-	T read(size_t channel)
-	{
-		return buffer.read<T>(channel);
-	}
+	T read(size_t channel) { return buffer.read<T>(channel); }
 
-	bool has_stream(size_t flag)
-	{
-		return buffer.has(flag);
-	}
+	bool has_stream(size_t flag);
 
-	void wait_for_stream(size_t channel)
-	{
-		while (!has_stream(channel)) { std::cout << "Waiting for stream " << channel << "\r"; }
-	}
+	void wait_for_stream(size_t channel);
 
 	/*
 	* Attends qu'un utilisateur se connecte
 	*/
-	void wait_for_peer()
-	{
-		while (peer == NULL) { std::cout << "Waiting for peer \r";  };
-	}
+	void wait_for_peer();
 
 	bool is_connected() { return connected; }
 
 	/*
 	* Opens a networking session
 	*/
-	void host()
-	{
-		address.host = ENET_HOST_ANY;
-		address.port = 7777;
-
-		client = enet_host_create(&address, 32, 1, 0, 0);
-
-		if (client == NULL)
-			printf("An error occurred while trying to create an ENet server host.");
-
-		std::cout << "Server successfully created" << std::endl;
-
-		setup_listener();
-
-		connected = true;
-	}
+	void host();
 
 	/*
 	* Tries to join the given ip
@@ -283,42 +169,7 @@ public:
 	* return TRUE if successfull
 	* Note that you need to port forward and open firewall and stuff to make this work
 	*/
-	bool join(std::string ip = "127.0.0.1")
-	{
-		client = enet_host_create(NULL, 1, 1, 0, 0);
-
-		if (client == NULL)
-			fprintf(stderr, "An error occurred while trying to create an ENet client host!\n");
-
-		ENetEvent event;
-
-		enet_address_set_host(&address, ip.c_str());
-		address.port = 7777;
-
-		peer = enet_host_connect(client, &address, 1, 0);
-		if (peer == NULL)
-			fprintf(stderr, "No available peers for initiating an ENet connection!\n");
-
-		if (enet_host_service(client, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)
-		{
-			std::cout << "Connection to " << ip << ":7777 succeeded" << std::endl;
-
-			event.peer->data = (void*)"Host";
-			enet_host_flush(client);
-
-			setup_listener();
-
-			connected = true;
-
-			return true;
-		}
-		else
-		{
-			enet_peer_reset(peer);
-			std::cout << "Connection to " << ip << ":7777 failed" << std::endl;
-			return false;
-		}
-	}
+	bool join(std::string ip = "127.0.0.1");
 
 	Peer2Peer& operator[](size_t i)
 	{
@@ -338,12 +189,6 @@ public:
 		end_stream();
 	}
 
-	/*Peer2Peer& operator>>(const StreamWait& ref)
-	{
-		wait_for_stream(write_flag);
-		return *this;
-	}*/
-
 	template<typename T>
 	Peer2Peer& operator>>(T& ref)
 	{
@@ -362,15 +207,15 @@ public:
 class Server 
 {
 private:
-	ENetAddress address;
-	ENetHost* client;
+	ENetAddress address = {0,0};
+	ENetHost* client = nullptr;
 	map<size_t, ENetPeer*> peers;
 
 	map<size_t, ReadBuffer> buffers;
 
 	size_t counter = 0;
-	size_t write_flag;
-	size_t current_peer;
+	size_t write_flag = 0;
+	size_t current_peer = 0;
 
 	bool open = false;
 	bool connected = false;
@@ -379,111 +224,22 @@ private:
 
 	function<void(Server&)> server_func;
 
-	bool read_packet(ENetPacket* packet, enet_uint8*& data)
-	{
-		bool* is_flag = new bool;
-		data = new enet_uint8[packet->dataLength - 1];
-		memcpy(is_flag, packet->data, 1);
-		memcpy(data, packet->data + 1, packet->dataLength - 1);
-
-		bool ret = *is_flag;
-		delete is_flag;
-		return ret;
-	}
-
-	template<typename T>
-	size_t get_bytes(T& data) { return *(size_t*)(&data); }
-
-	void handle_events(ENetEvent& event) {
-		switch (event.type)
-		{
-		case ENET_EVENT_TYPE_CONNECT:
-			std::cout << "A new client (" << counter <<") connected from " << event.peer->address.host << ":" << event.peer->address.port << "\n";
-			event.peer->data = (void*)(counter);
-			peers.emplace(counter, event.peer);
-			counter++;
-			break;
-
-		case ENET_EVENT_TYPE_RECEIVE:
-		{
-			//std::cout << "<" << (const char*)event.peer->data << "> " << event.packet->data << std::endl;
-
-			enet_uint8* data;
-			size_t peerID = *(size_t*)event.peer->data;
-			bool is_flag = read_packet(event.packet, data);
-
-			if (is_flag)
-				buffers[peerID].end(*(size_t*)(data));
-			else
-				buffers[peerID].add(data);
-
-			enet_packet_destroy(event.packet);
-		}
-		break;
-
-		case ENET_EVENT_TYPE_DISCONNECT:
-			std::cout << "Peer " << *(size_t*)event.peer->data <<" disconnected" << std::endl;
-			event.peer->data = NULL;
-		}
-	}
-
-
-	void listen()
-	{
-		ENetEvent event;
-		while (enet_host_service(client, &event, 1000) > 0)
-			handle_events(event);
-	}
-
-	void setup_listener()
-	{
-		Threads::get()->queueJob([&](int i)
-			{		
-				while (true)
-					listen();
-			});
-		Threads::get()->queueJob([&](int i) 
-			{
-				while (true)
-					server_func(*this);
-			});
-	}
+	void handle_events(ENetEvent& event);
+	void listen();
+	void setup_listener();
 
 public:
-	void open_session(function<void(Server&)> callback)
-	{
-		address.host = ENET_HOST_ANY;
-		address.port = 7777;
+	map<size_t, ReadBuffer>& get_buffers() { return buffers; }
 
-		client = enet_host_create(&address, 32, 1, 0, 0);
-
-		if (client == NULL)
-			printf("An error occurred while trying to create an ENet server host.");
-
-		std::cout << "Server successfully created" << std::endl;
-
-		server_func = callback;
-		setup_listener();
-	}
-
-	void start_stream(size_t channel)
-	{
-		std::cout << "Start of stream " << channel << std::endl;
-		write_flag = channel;
-	}
-
-	void end_stream()
-	{
-		std::cout << "End of stream " << write_flag << std::endl;
-		broadcasting = false;
-		messaging = false;
-		send<size_t>(write_flag, true);
-	}
+	void open_session(function<void(Server&)> callback);
+	void start_stream(size_t channel);
+	void end_stream();
 
 	template<typename T>
 	void send(T data, size_t peerid, bool signal = false)
 	{
-		std::cout << "Sending... " << bitset<sizeof(data) * 8>(*(size_t*)(&data)) << std::endl;
+		if (net::verbose_net)
+			std::cout << "Sending... " << bitset<sizeof(data) * 8>(*(size_t*)(&data)) << std::endl;
 		enet_uint8* bytes = new enet_uint8[sizeof(data) + 1];
 		memcpy(bytes + 1, &data, sizeof(data));
 		memcpy(bytes, &signal, sizeof(bool));
@@ -511,22 +267,12 @@ public:
 		return buffers[channel].read(channel);
 	}
 
-	/*bool has_stream(size_t flag)
-	{
-		return !read_buffer[flag].empty();
-	}*/
-
-	/*void wait_for_stream(size_t channel)
-	{
-		while (!has_stream(channel)) { std::cout << "Waiting for stream " << channel << "\r"; }
-	}*/
-
 	/*
 	* Attends qu'un utilisateur se connecte
 	*/
 	void wait_for_peer()
 	{
-		while (peers.empty()) { std::cout << "Waiting for peer \r"; };
+		while (peers.empty()) { if(net::verbose_net) std::cout << "Waiting for peer \r"; };
 	}
 
 	bool is_connected() { return connected; }
@@ -534,22 +280,7 @@ public:
 	/*
 	* Opens a networking session
 	*/
-	void host()
-	{
-		address.host = ENET_HOST_ANY;
-		address.port = 7777;
-
-		client = enet_host_create(&address, 32, 1, 0, 0);
-
-		if (client == NULL)
-			printf("An error occurred while trying to create an ENet server host.");
-
-		std::cout << "Server successfully created" << std::endl;
-
-		setup_listener();
-
-		connected = true;
-	}
+	void host();
 
 	Server& broadcast(size_t channel)
 	{
@@ -567,6 +298,15 @@ public:
 	void reflect(size_t channel)
 	{
 
+	}
+
+	size_t get_id_from_address(ENetAddress address)
+	{
+		for (auto& p : peers)
+		{
+			if (address.host == p.second->address.host && address.port == p.second->address.port)
+				return p.first;
+		}
 	}
 
 	template<typename T>
