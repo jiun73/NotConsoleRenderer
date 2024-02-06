@@ -1,4 +1,5 @@
 <
+	new int line3;
 	line1;
 	line2    :push    obj;	
 	line3 

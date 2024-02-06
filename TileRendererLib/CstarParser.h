@@ -12,9 +12,19 @@ using std::vector;
 
 class CstarParserError {};
 
+inline bool is_keyword(string_ranges range)
+{
+	string flat = range.flat();
+	if (flat != "new") return true;
+	if (ClassFactory::get()->has(flat)) return true;
+	return false;
+}
+
 inline bool is_var_name(string_ranges range)
 {
 	if (range.empty()) return false;
+	//if (is_keyword(range)) return false;
+
 	return std::all_of(range.begin(), range.end(), [](char c) { return isalnum(c) || c == '_'; }) && !std::all_of(range.begin(), range.end(), isdigit) && !isdigit(*range.begin());
 }
 
@@ -26,13 +36,16 @@ inline bool is_func_name(string_ranges range)
 	return false;
 }
 
-class Cstar
+
+
+struct Cstar
 {
-	string head;
+	shared_ptr<VariableRegistry> scope;
 	vector<Cstar> recursive;
 
-	GenericFunction* function = nullptr;
-	shared_generic* constant = nullptr;
+	bool root = true;
+	bool func = false;
+	shared_generic constant = nullptr;
 
 	shared_generic evaluate() 
 	{
@@ -73,29 +86,64 @@ public:
 		return keywords;
 	}
 
-	void parse_expression(string_ranges str)
+	void parse_expression(string_ranges str, Cstar& ret)
 	{
 		str = range_trim(str, ' ');
 		std::cout << "> " << str.flat() << std::endl;
 		vector<string_ranges> ignore = range_delimiter(str, '<', '>');
 
+		vector<Cstar> constants;
+		vector<Cstar> functions;
+		vector<Cstar> subs;
+
+		bool f = true;
 		for (auto it = ignore.begin(); it != ignore.end(); it+=2)
 		{
 			vector<string_ranges> keywords = subchain(chain(*it, range_until, " "), range_until, ",");
 			for (auto& kw : keywords)
 			{
-				str = range_trim(kw, ' ');
+				if (f && kw.flat() == "new")
+				{
+					get_declaractions(str);
+					return;
+				}
+
 				if (is_var_name(kw))
 				{
 					std::cout << "\t> var " << kw.flat() << std::endl;
+
+					Cstar constant;
+					constant.root = false;
+					shared_generic var = variable_dictionnary()->get(kw.flat());
+					if (var == nullptr) { std::cout << "Invalid var name!" << std::endl;  return; }
+					constant.constant = var;
+					constants.push_back(constant);
 				}
 				else if (is_func_name(kw))
 				{
 					std::cout << "\t> func " << kw.flat() << std::endl;
+
+					Cstar func;
+					func.root = false;
+					shared_generic var = variable_dictionnary()->get(kw.flat());	
+					if (var == nullptr) { std::cout << "Invalid func name!" << std::endl; return; } // error
+					if (var->identity() != typeid(GenericFunction)) return; //error
+					func.func = true;
+					func.constant = var;
+					functions.push_back(func);
 				}
+				f = false;
 			}
-			std::cout << "\t> " << next(it)->flat() << std::endl;
+			
+			if (!next(it)->empty())
+			{
+				std::cout << "\t> " << next(it)->flat() << std::endl;
+				Cstar sub = parse_sequence_next(*next(it));
+				subs.push_back(sub);
+			}
 		}
+
+
 	}
 
 	Cstar parse_sequence(string& str)
@@ -110,6 +158,10 @@ public:
 	Cstar parse_sequence_next(string_ranges str)
 	{
 		Cstar ret;
+		ret.scope = std::make_shared< VariableRegistry>();
+		ret.scope->name = "Expr scope";
+		current_scope = ret.scope;
+		variable_dictionnary()->enter_scope(current_scope);
 
 		if (str.empty()) return {};
 
@@ -148,8 +200,10 @@ public:
 
 		for (auto& e : expressions)
 		{
-			parse_expression(e);
+			parse_expression(e, ret);
 		}
+
+		variable_dictionnary()->exit_scope();
 
 		return ret;
 	}
@@ -241,11 +295,14 @@ public:
 		shared_ptr<VariableRegistry> old_scope = current_scope;
 		CstarRows* old_base = current_row;
 
+		row_obj.scope->name = "Row scope";
 		current_scope = row_obj.scope;
 		current_row = &row_obj;
+		variable_dictionnary()->enter_scope(current_scope);
 
 		parse_range(row, "COL", false);
 
+		variable_dictionnary()->exit_scope();
 		current_row = old_base;
 		current_scope = old_scope;
 

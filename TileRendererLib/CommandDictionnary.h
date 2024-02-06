@@ -29,7 +29,7 @@ public:
 	bool make(const string& str, const string& type)
 	{
 		if (!ClassFactory::get()->has(type)) return false;
-		add(ClassFactory::get()->make(type), name);
+		add(ClassFactory::get()->make(type), str);
 		return true;
 	}
 

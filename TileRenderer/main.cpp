@@ -33,6 +33,11 @@ int main()
 	File file("file.txt", FILE_READING_STRING);
 	File file2("file2.txt", FILE_READING_STRING);
 
+	int line1;
+	track_variable(line1, "line1");
+	int line2;
+	track_variable(line2, "line2");
+
 	string str = file.getString();
 	string str2 = file2.getString();
 	parser.parse(str);
