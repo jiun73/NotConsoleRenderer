@@ -12,12 +12,28 @@ V2d_i window = { X_CONSOLE, Y_CONSOLE };
 
 // Contour du board
 const int bcd = 50; // board contour difference: distance en pixels entre la console et et le contour du board
-const Rect board_contour = { {X_CONSOLE + bcd, Y_CONSOLE - bcd},{X_CONSOLE - bcd * 2, Y_CONSOLE - bcd * 2} };
+const Rect board_contour = { {bcd, bcd},{X_CONSOLE - bcd * 2, Y_CONSOLE - bcd * 2} };
 
-// Contour du gameplay
-const int gcd = 50; // gameplay contour difference: distance en pixels entre la console et et le contour du board
-const Rect gameplay_contour = { {X_CONSOLE + gcd, Y_CONSOLE - gcd},{X_CONSOLE - gcd * 2, Y_CONSOLE - gcd * 2} };
 
+// Dessin de lignes
+const int BEG_X_MAP = bcd;
+const int BEG_Y_MAP = bcd;
+const int END_X_MAP = X_CONSOLE - bcd;
+const int END_Y_MAP = Y_CONSOLE - bcd;
+
+const int squaresPerRow = 15;
+const int squaresPerColumn = 15;
+
+const int xy = (END_X_MAP - BEG_X_MAP) / squaresPerColumn;
+const int yx = (END_Y_MAP - BEG_Y_MAP) / squaresPerRow;
+
+
+// BOARD COLORING
+	// bleu
+	Rect le_bleu = { {BEG_X_MAP, BEG_Y_MAP},{ (END_X_MAP - BEG_X_MAP) * 6 / 15,(END_Y_MAP - BEG_Y_MAP) * 6 / 15 } };
+	Rect le_rouge = { {(END_X_MAP - BEG_X_MAP) * 9 / 15, BEG_Y_MAP},{(END_X_MAP - BEG_X_MAP) * 6 / 15,(END_Y_MAP - BEG_Y_MAP) * 6 / 15} };
+	Rect le_vert = { {(END_X_MAP - BEG_X_MAP) * 9 / 15, (END_Y_MAP - BEG_Y_MAP) * 9 / 15},{ (END_X_MAP - BEG_X_MAP) * 6 / 15,(END_Y_MAP - BEG_Y_MAP) * 6 / 15 } };
+	Rect le_jaune = { {BEG_X_MAP, (END_Y_MAP - BEG_Y_MAP) * 9 / 15},{ (END_X_MAP - BEG_X_MAP) * 6 / 15,(END_Y_MAP - BEG_Y_MAP) * 6 / 15 } };
 
 // Chacun des 4 joueurs
 class player
@@ -27,6 +43,11 @@ public:
 	Color couleur;
 	//vector<tile> tilesOccupied;
 };
+
+player rouge;
+player bleu;
+player jaune;
+player vert;
 
 // chaque taille du plancher
 class tile
