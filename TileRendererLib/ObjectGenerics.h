@@ -56,8 +56,15 @@ public:
 
 	void set(shared_generic value)
 	{
-		if (value->type() != type()) return;
-		if constexpr (std::is_nothrow_copy_assignable_v<T>) _object_ = *(T*)(value->raw_bytes());
+		if (value->type() != type()) { std::cout << "Types do not match! " << std::endl;  return; }
+		if constexpr (std::is_copy_assignable_v<T>) 
+		{ 
+			_object_ = *(T*)(value->raw_bytes());
+		}
+		else
+		{
+			std::cout << "not nothrow!" << std::endl;
+		}
 	}
 
 	string stringify() override { return strings::stringify(_object_); };

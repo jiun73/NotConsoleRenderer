@@ -107,6 +107,9 @@ void init()
 		__init__ = true;
 
 		__REGISTER_CLASS__(int);
+		__REGISTER_CLASS__(bool);
+		__REGISTER_CLASS__(size_t);
+		__REGISTER_CLASS__(string);
 
 		__NEW_COMMAND__(test, "test", [](__COMMAND_ARGS__)
 			{

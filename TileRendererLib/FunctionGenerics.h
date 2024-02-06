@@ -134,6 +134,27 @@ public:
 	const type_info& identity() override { return typeid(GenericFunction); }
 	size_t size() override { return 0; }
 
+	template <size_t I = 0>
+	const type_info& unfold_args_type(size_t i)
+	{
+		if constexpr (I < sizeof...(Args))
+		{
+			if (I == i)
+			{
+				return typeid(typename std::tuple_element_t<I, std::tuple<Args...>>);
+			}
+			else
+				return unfold_args_type<I + 1>(i);
+		}
+
+		return typeid(void);
+	}
+
+	const type_info& args_type(size_t i) override
+	{
+		return unfold_args_type(i);
+	}
+
 	void set(shared_generic value) override
 	{
 		if (value->type() != type()) { std::cout << "{set: types do not match}"; return; }

@@ -63,6 +63,57 @@ struct Cstar
 
 	shared_generic evaluate() 
 	{
+		if (root)
+		{
+			vector<shared_generic> ret;
+
+			for (auto& r : recursive)
+			{
+				shared_generic eval = r.evaluate();
+				if(eval != nullptr)
+					ret.push_back(eval);
+			}
+
+			if (ret.size() == 0) return nullptr;
+			if (ret.size() == 1) return ret.at(0);
+
+			string collect;
+
+			for (auto& r : ret)
+			{
+				collect += r->stringify();
+			}
+
+			shared_generic str_type = make_generic<string>(collect);
+			return str_type;
+		}
+		else
+		{
+			if (func)
+			{
+				vector<GenericArgument> args;
+				size_t i = 0;
+				for (auto& r : recursive)
+				{	
+					if (function->args_type(i) == typeid(Cstar&))
+					{
+						shared_generic rec = make_shared<GenericRef<Cstar>>(r);
+						args.push_back(rec);
+					}
+					else
+					{
+						args.push_back(r.evaluate());
+					}
+					i++;
+				}
+				function->args(args);
+				return function->call();
+			}
+			else
+			{
+				return constant;
+			}
+		}
 	}
 };
 
@@ -116,11 +167,31 @@ public:
 			{
 				if (f && kw.flat() == "new")
 				{
-					get_declaractions(str);
+					get_declaractions(str);	
 					return;
 				}
 
-				if (is_var_name(kw))
+				if (is_string(kw))
+				{
+					std::cout << "\t> str " << kw.flat() << std::endl;
+					kw.begin() += 1;
+					kw.end() -= 1;
+					Cstar constant;
+					constant.root = false;
+					constant.constant = make_generic<string>(kw.flat());
+					constants.push_back(constant);
+				}
+				else if (is_num(kw))
+				{
+					Cstar constant;
+					constant.root = false;
+					constant.constant = make_generic<int>();
+					constant.constant->destringify(kw.flat());
+					std::cout << "\t> num " << kw.flat() << " " << constant.constant->stringify() << std::endl;
+					
+					constants.push_back(constant);
+				}
+				else if (is_var_name(kw))
 				{
 					std::cout << "\t> var " << kw.flat() << std::endl;
 
@@ -253,6 +324,10 @@ public:
 		{	
 			if (!current_scope->make(keywords.at(1), keywords.at(0))) { std::cout << "Invalid variable type!" << std::endl; return; } //error	
 			std::cout << "made new variable " << keywords.at(0) << " " << keywords.at(1) << " in scope " << current_scope->name << std::endl;
+			if (keywords.size() > 3 && keywords.at(2) == "=")
+			{
+				current_scope->get(keywords.at(1))->destringify(keywords.at(3));
+			}
 		}	
 	}
 

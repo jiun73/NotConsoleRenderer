@@ -1,12 +1,10 @@
 <
-	new int line3;
-	line1;
-	line2    :push    obj;	
-	line3 
+	new int index = 1000;
+	new bool b = false;	
+
+	:while b 
 	<
-		new int subline1;
-		new int subline2;
-		subline1;
-		subline2;
-	>
+		
+	>;
+	index
 >

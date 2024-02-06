@@ -38,10 +38,29 @@ int main()
 	int line2;
 	track_variable(line2, "line2");
 
+	shared_generic eq_func = std::make_shared<GenericFunctionType<function<void(shared_generic, shared_generic)>>>([](shared_generic b, shared_generic a)
+		{
+			a->set(b);
+		});
+	variable_dictionnary()->global()->add(eq_func, "=");
+
+	shared_generic for_func = std::make_shared<GenericFunctionType<function<void(Cstar&, shared_generic)>>>([](Cstar& expr, shared_generic c)
+		{
+			while (*c->raw_bytes())
+			{
+				expr.evaluate();
+			}
+		});
+	variable_dictionnary()->global()->add(for_func, ":while");
+
+
+
+
 	string str = file.getString();
 	string str2 = file2.getString();
 	parser.parse(str);
-	parser.parse_sequence(str2);
+	shared_generic gen = parser.parse_sequence(str2).evaluate();
+	std::cout << gen->type().name() <<  "\n '" << gen->stringify() <<"'" << std::endl;
 
 	Server server;
 
