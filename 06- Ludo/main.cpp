@@ -19,7 +19,7 @@ void init_players(player& rouge, player& bleu, player& jaune, player& vert)
 	rouge.couleur = rgb(255, 0, 0);
 	bleu.couleur = rgb(0, 0, 255);
 	jaune.couleur = rgb(255, 255, 0);
-	vert.couleur = rgb(0, 0, 255);
+	vert.couleur = rgb(0, 255, 0);
 	rouge.name = "rouge";
 	bleu.name = "bleu";
 	jaune.name = "jaune";
@@ -29,7 +29,7 @@ void init_players(player& rouge, player& bleu, player& jaune, player& vert)
 
 void draw_board()
 {
-	pencil(COLOR_GREEN);
+	pencil(COLOR_CYAN);
 	draw_full_rect(board_contour);
 	draw_lines();
 

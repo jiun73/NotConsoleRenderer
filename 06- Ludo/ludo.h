@@ -6,7 +6,7 @@
 using namespace std;
 
 // taille de la console
-const int X_CONSOLE = 1000;
+const int X_CONSOLE = 900;
 const int Y_CONSOLE = 900;
 V2d_i window = { X_CONSOLE, Y_CONSOLE };
 
@@ -30,10 +30,10 @@ const int yx = (END_Y_MAP - BEG_Y_MAP) / squaresPerRow;
 
 // BOARD COLORING
 	// bleu
-	Rect le_bleu = { {BEG_X_MAP, BEG_Y_MAP},{ (END_X_MAP - BEG_X_MAP) * 6 / 15,(END_Y_MAP - BEG_Y_MAP) * 6 / 15 } };
-	Rect le_rouge = { {(END_X_MAP - BEG_X_MAP) * 9 / 15, BEG_Y_MAP},{(END_X_MAP - BEG_X_MAP) * 6 / 15,(END_Y_MAP - BEG_Y_MAP) * 6 / 15} };
-	Rect le_vert = { {(END_X_MAP - BEG_X_MAP) * 9 / 15, (END_Y_MAP - BEG_Y_MAP) * 9 / 15},{ (END_X_MAP - BEG_X_MAP) * 6 / 15,(END_Y_MAP - BEG_Y_MAP) * 6 / 15 } };
-	Rect le_jaune = { {BEG_X_MAP, (END_Y_MAP - BEG_Y_MAP) * 9 / 15},{ (END_X_MAP - BEG_X_MAP) * 6 / 15,(END_Y_MAP - BEG_Y_MAP) * 6 / 15 } };
+	Rect le_bleu = { {BEG_X_MAP, BEG_Y_MAP}, { 6 * xy,6 * yx } };
+	Rect le_rouge = { {xy * 10, BEG_Y_MAP},{ 6 * xy,6 * yx } };
+	Rect le_vert = { {xy * 10, yx * 10},{ 6 * xy,6 * yx } };
+	Rect le_jaune = { {BEG_X_MAP, yx * 10},{ 6 * xy,6 * yx } };
 
 // Chacun des 4 joueurs
 class player
@@ -53,12 +53,13 @@ player vert;
 class tile
 {
 private:
-	V2d_i pos;
-	int x;
-	int y;
+	
+	int x = (END_X_MAP - BEG_X_MAP) / squaresPerColumn;
+	int y = (END_Y_MAP - BEG_Y_MAP) / squaresPerRow;
 	V2d_i xy = { x,y };
 
 public:
+	V2d_i pos;
 	map<bool, player> occupation;
 	static vector<tile> tiles;
 	void show(Color couleur = COLOR_WHITE, bool is_full = true)
