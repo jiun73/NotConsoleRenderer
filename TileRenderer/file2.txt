@@ -1,10 +1,11 @@
 <
-	new int index = 1000;
-	new bool b = false;	
-
-	:while b 
+	new int index = 0;
+	new bool name = true;	
+	new bool test = 1;
+	:while <index :ls 10>
 	<
-		
+		index ++;
+		:cout "iter";
 	>;
-	index
->
+	index;
+> /*fdsfdsf*/

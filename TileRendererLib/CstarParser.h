@@ -74,8 +74,8 @@ struct Cstar
 					ret.push_back(eval);
 			}
 
-			if (ret.size() == 0) return nullptr;
-			if (ret.size() == 1) return ret.at(0);
+			if (ret.size() == 0) { return nullptr; }
+			if (ret.size() == 1) { return ret.at(0); }
 
 			string collect;
 
@@ -237,12 +237,11 @@ public:
 				constants.pop_back();
 			}
 
-			if (ret)
-				constants.push_back(*it);
+			constants.push_back(*it);
 		}
 
-		for (auto& f : functions)
-			ret_val.recursive.push_back(f);
+		//for (auto& f : functions)
+			//ret_val.recursive.push_back(f);
 
 		for (auto& c : constants)
 			ret_val.recursive.push_back(c);

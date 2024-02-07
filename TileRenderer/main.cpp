@@ -44,17 +44,42 @@ int main()
 		});
 	variable_dictionnary()->global()->add(eq_func, "=");
 
-	shared_generic for_func = std::make_shared<GenericFunctionType<function<void(Cstar&, shared_generic)>>>([](Cstar& expr, shared_generic c)
-		{
-			while (*c->raw_bytes())
+	shared_generic for_func = std::make_shared<GenericFunctionType<function<void(Cstar&, Cstar&)>>>([](Cstar& expr, Cstar& condition)
+		{	
+			while (true)
 			{
+				shared_generic gen = condition.evaluate();
+				if (gen->type() != typeid(bool)) { std::cout << "wrong type for while" << std::endl;  return; }
+				if (!*(bool*)(gen->raw_bytes())) return;
+
 				expr.evaluate();
 			}
 		});
 	variable_dictionnary()->global()->add(for_func, ":while");
 
+	shared_generic add_func = std::make_shared<GenericFunctionType<function<void(int& )>>>([](int& a)
+		{
+			a++;
+		});
+	variable_dictionnary()->global()->add(add_func, "++");
 
+	shared_generic cout_func = std::make_shared<GenericFunctionType<function<void(shared_generic)>>>([](shared_generic a)
+		{
+			std::cout << a->stringify() << std::endl;
+		});
+	variable_dictionnary()->global()->add(cout_func, ":cout");
 
+	shared_generic grea_func = std::make_shared<GenericFunctionType<function<bool(int, int)>>>([](int b, int a)
+		{
+			return a > b;
+		});
+	variable_dictionnary()->global()->add(grea_func, ":gr");
+
+	shared_generic less_func = std::make_shared<GenericFunctionType<function<bool(int, int)>>>([](int b, int a)
+		{
+			return a < b;
+		});
+	variable_dictionnary()->global()->add(less_func, ":ls");
 
 	string str = file.getString();
 	string str2 = file2.getString();

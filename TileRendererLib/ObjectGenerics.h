@@ -56,7 +56,7 @@ public:
 
 	void set(shared_generic value)
 	{
-		if (value->type() != type()) { std::cout << "Types do not match! " << std::endl;  return; }
+		if (value->type() != type()) { std::cout << "{set: types do not match }" << value->type().name() << " " << type().name() << std::endl;  return; }
 		if constexpr (std::is_copy_assignable_v<T>) 
 		{ 
 			_object_ = *(T*)(value->raw_bytes());
