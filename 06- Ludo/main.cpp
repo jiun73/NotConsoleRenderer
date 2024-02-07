@@ -1,5 +1,12 @@
 #include "ludo.h"
 
+void draw_triangle(V2d_i pos1, V2d_i pos2, V2d_i pos3)
+{
+	draw_line(pos1, pos2);
+	draw_line(pos2, pos3);
+	draw_line(pos3, pos1);
+}
+
 void draw_lines()
 {
 	pencil(COLOR_BLACK);
@@ -26,6 +33,21 @@ void init_players(player& rouge, player& bleu, player& jaune, player& vert)
 	vert.name = "vert";
 }
 
+void draw_board_triangles()
+{
+	pencil(bleu.couleur);
+	draw_triangle(bleu1,centre, bleu2);
+
+	pencil(rouge.couleur);
+	draw_triangle(rouge1, centre,rouge2);
+
+	pencil(vert.couleur);
+	draw_triangle(vert1, centre, vert2);
+
+	pencil(jaune.couleur);
+	draw_triangle(jaune1, centre, jaune2);
+}
+
 
 void draw_board()
 {
@@ -44,6 +66,8 @@ void draw_board()
 
 	pencil(vert.couleur);
 	draw_full_rect(le_vert);
+
+	draw_board_triangles();
 }
 
 
