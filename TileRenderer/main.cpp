@@ -55,7 +55,16 @@ int main()
 				expr.evaluate();
 			}
 		});
-	variable_dictionnary()->global()->add(for_func, ":while");
+	variable_dictionnary()->global()->add(for_func, "$while");
+
+	shared_generic if_func = std::make_shared<GenericFunctionType<function<void(Cstar&, bool)>>>([](Cstar& expr, bool b)
+		{
+			if (b)
+			{
+				expr.evaluate();
+			}
+		});
+	variable_dictionnary()->global()->add(if_func, "$if");
 
 	shared_generic add_func = std::make_shared<GenericFunctionType<function<void(int& )>>>([](int& a)
 		{
@@ -81,11 +90,82 @@ int main()
 		});
 	variable_dictionnary()->global()->add(less_func, ":ls");
 
+	shared_generic destr_func = std::make_shared<GenericFunctionType<function<void(string, shared_generic)>>>([](string b, shared_generic a)
+		{
+			a->destringify(b);
+		});
+	variable_dictionnary()->global()->add(destr_func, ":=");
+
+	shared_generic discard_func = std::make_shared<GenericFunctionType<function<void(shared_generic)>>>([](shared_generic a)
+		{});
+	variable_dictionnary()->global()->add(discard_func, "!#");
+
+	shared_generic space_func = std::make_shared<GenericFunctionType<function<string()>>>([]()
+		{
+			return " ";
+		});
+	variable_dictionnary()->global()->add(space_func, "#");
+
+	shared_generic newline_func = std::make_shared<GenericFunctionType<function<string()>>>([]()
+		{
+			return "\n";
+		});
+	variable_dictionnary()->global()->add(newline_func, "##");
+
+	shared_generic pushb_func = std::make_shared<GenericFunctionType<function<void(shared_generic, shared_generic)>>>([](shared_generic b, shared_generic a)
+		{
+			if (a->identity() == typeid(GenericContainer))
+			{
+				shared_ptr<GenericContainer> container = std::reinterpret_pointer_cast<GenericContainer>(a);
+				container->insert(b, container->size());
+			}
+			else
+				std::cout << "Cannot push a non-container" << std::endl;
+		});
+	variable_dictionnary()->global()->add(pushb_func, "-pushb");
+
+	shared_generic pushf_func = std::make_shared<GenericFunctionType<function<void(shared_generic, shared_generic)>>>([](shared_generic b, shared_generic a)
+		{
+			if (a->identity() == typeid(GenericContainer))
+			{
+				shared_ptr<GenericContainer> container = std::reinterpret_pointer_cast<GenericContainer>(a);
+				container->insert(b, 0);
+			}
+			else
+				std::cout << "Cannot push a non-container" << std::endl;
+		});
+	variable_dictionnary()->global()->add(pushf_func, "-pushf");
+
+	shared_generic insert_func = std::make_shared<GenericFunctionType<function<void(int, shared_generic, shared_generic)>>>([](size_t i, shared_generic b, shared_generic a)
+		{
+			if (a->identity() == typeid(GenericContainer))
+			{
+				shared_ptr<GenericContainer> container = std::reinterpret_pointer_cast<GenericContainer>(a);
+				container->insert(b, i);
+			}
+			else
+				std::cout << "Cannot push a non-container" << std::endl;
+		});
+	variable_dictionnary()->global()->add(insert_func, "-ins");
+
+	shared_generic at_func = std::make_shared<GenericFunctionType<function<shared_generic(size_t, shared_generic)>>>([](size_t i, shared_generic a) -> shared_generic
+		{
+			if (a->identity() == typeid(GenericContainer))
+			{
+				shared_ptr<GenericContainer> container = std::reinterpret_pointer_cast<GenericContainer>(a);
+				return container->at(i);
+			}
+			else
+				std::cout << "Cannot at a non-container" << std::endl;
+			return nullptr;
+		});
+	variable_dictionnary()->global()->add(at_func, "-at");
+
 	string str = file.getString();
 	string str2 = file2.getString();
 	parser.parse(str);
 	shared_generic gen = parser.parse_sequence(str2).evaluate();
-	std::cout << gen->type().name() <<  "\n '" << gen->stringify() <<"'" << std::endl;
+	std::cout << gen->type().name() <<  "\n" << gen->stringify() << std::endl;
 
 	Server server;
 

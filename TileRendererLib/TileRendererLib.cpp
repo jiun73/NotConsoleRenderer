@@ -108,6 +108,7 @@ void init()
 
 		__REGISTER_CLASS__(int);
 		__REGISTER_CLASS__(bool);
+		__REGISTER_CLASS__(char);
 		__REGISTER_CLASS__(size_t);
 		__REGISTER_CLASS__(string);
 

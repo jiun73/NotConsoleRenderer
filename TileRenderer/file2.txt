@@ -1,11 +1,10 @@
 <
-	new int index = 0;
-	new bool name = true;	
-	new bool test = 1;
-	:while <index :ls 10>
-	<
-		index ++;
-		:cout "iter";
-	>;
-	index;
+	new string s = hello!;
+	new char c;
+	c = '1' ;
+	s -pushb c;
+	s -pushf c;
+	s -ins c 2;
+	$if test <>;
+	c ## s;
 > /*fdsfdsf*/

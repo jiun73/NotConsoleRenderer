@@ -210,7 +210,10 @@ inline vector<string_ranges> split_escape_delim(string_ranges range, char open, 
 		}
 		if (!next(it)->empty())
 		{
-			expressions.back() = { expressions.back().begin(), next(it)->end() };
+			if (expressions.empty())
+				expressions.push_back(*next(it));
+			else
+				expressions.back() = { expressions.back().begin(), next(it)->end() };
 			add = true;
 		}
 	}

@@ -3,6 +3,7 @@
 #include <string>
 #include "Singleton.h"
 #include "Generics.h"
+#include "ContainerGenerics.h"
 #include "Stringify.h"
 
 using std::map;
@@ -29,7 +30,16 @@ public:
 		if (!has(name))
 		{
 			std::cout << "Added type " << name << " to factory" << std::endl;
-			factories.emplace(name, new GenericType<T>());
+			if constexpr (is_container<T>::value)
+			{
+				std::cout << " .... as container" << std::endl;
+				factories.emplace(name, new GenericContainerType<T>());
+			}
+			else
+			{
+				
+				factories.emplace(name, new GenericType<T>());
+			}
 		}
 	}
 	shared_generic factory(const string& name) { return factories.at(name); }

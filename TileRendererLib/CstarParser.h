@@ -20,6 +20,14 @@ inline bool is_string(string_ranges range)
 	return (*range.begin() == '"' && *prev(range.end()) == '"');
 }
 
+inline bool is_char(string_ranges range)
+{
+	if (range.empty()) return false;
+	if (next(range.begin()) == range.end()) return false;
+
+	return (*range.begin() == '\'' && *prev(range.end()) == '\'');
+}
+
 inline bool is_num(string_ranges range)
 {
 	return std::all_of(range.begin(), range.end(), isdigit);
@@ -171,7 +179,17 @@ public:
 					return;
 				}
 
-				if (is_string(kw))
+				if (is_char(kw))
+				{
+					std::cout << "\t> ch " << kw.flat() << std::endl;
+					kw.begin() += 1;
+					kw.end() -= 1;
+					Cstar constant;
+					constant.root = false;
+					constant.constant = make_generic<char>(kw.flat().at(0));
+					constants.push_back(constant);
+				}
+				else if (is_string(kw))
 				{
 					std::cout << "\t> str " << kw.flat() << std::endl;
 					kw.begin() += 1;
@@ -213,7 +231,10 @@ public:
 					if (var->identity() != typeid(GenericFunction)) return; //error
 					func.func = true;
 					func.function = std::reinterpret_pointer_cast<GenericFunction>(var);
-					functions.push_back(func);
+					if(func.function->arg_count() > 0)
+						functions.push_back(func);
+					else
+						constants.push_back(func);
 				}
 				f = false;
 			}
