@@ -1,10 +1,11 @@
 <
 	new string s = hello!;
 	new char c;
-	c = '1' ;
+	c = <s -at 0>;
 	s -pushb c;
 	s -pushf c;
 	s -ins c 2;
+
 	$if test <>;
 	c ## s;
 > /*fdsfdsf*/
