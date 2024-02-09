@@ -53,7 +53,7 @@ void draw_board()
 {
 	pencil(COLOR_CYAN);
 	draw_full_rect(board_contour);
-	draw_lines();
+	
 
 	pencil(bleu.couleur);
 	draw_full_rect(le_bleu);
@@ -68,6 +68,7 @@ void draw_board()
 	draw_full_rect(le_vert);
 
 	draw_board_triangles();
+	draw_lines();
 }
 
 
@@ -84,5 +85,6 @@ int main()
 		draw_clear();
 
 		draw_board();
+		//draw_image("board.png", { {100,100}, {200,200 } });
 	}
 }
