@@ -84,7 +84,7 @@ int main()
 		pencil(COLOR_WHITE);
 		draw_clear();
 
-		draw_board();
-		//draw_image("board.png", { {100,100}, {200,200 } });
+		//draw_board();
+		draw_image("board.png", { {100,100}, {200,200 } });
 	}
 }
