@@ -452,7 +452,11 @@ void load_texture(const string& path)
 {
 	SDL_Surface* sur = IMG_Load(path.c_str());
 
-	SDL_assert(sur);
+	if (!sur)
+	{
+		std::cout << SDL_GetError() << std::endl;
+		SDL_assert(sur);
+	}
 
 	SDL_Texture* tex = SDL_CreateTextureFromSurface(sdl_ren, sur);
 
