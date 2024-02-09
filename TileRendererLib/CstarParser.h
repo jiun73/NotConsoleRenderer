@@ -125,12 +125,55 @@ struct Cstar
 	}
 };
 
+class CstarParser;
+
+template<typename T>
+class CstarVar
+{
+private:
+	shared_generic generic = nullptr;
+	Cstar seq;
+
+	bool is_seq = false;
+
+public:
+	void set(const string& str, const CstarParser& parser);
+	shared_generic get_gen() { return generic; }
+
+	T& get() 
+	{
+		if (generic == nullptr)
+		{
+			generic = make_generic<T>();
+		}
+		if (!is_seq)
+			return *(T*)generic->raw_bytes();
+		else
+			return *(T*)seq.evaluate();
+	}
+
+	operator T()
+	{
+		return get();
+	}
+
+	T& operator->()
+	{
+		return get();
+	}
+
+	T& operator()() 
+	{
+		return get();
+	}
+};
+
 struct CstarRows 
 {
 	vector<CstarRows> nested_rows;
 	shared_ptr<VariableRegistry> scope;
-	size_t size = 1;
-	bool condition = 1;
+	CstarVar<size_t> size;
+	CstarVar<bool> condition;
 };
 
 class CstarParser 
@@ -379,9 +422,8 @@ public:
 
 				if (isNum(next)) //TODO: change this
 				{
-					int i;
-					strings::destringify(i, next);
-					row.size = i;
+					row.size.set(next, *this);
+					current_scope->add(row.size.get_gen(), "SIZE");
 				}
 
 				i++;
@@ -489,3 +531,21 @@ public:
 };
 
 //typedef CstartGlobalParser;
+
+template<typename T>
+inline void CstarVar<T>::set(const string& str, const CstarParser& parser)
+{
+	if (!str.empty() && str.begin() != str.end())
+	{
+		if (*str.begin() == '<' && *str.end() == '>')
+		{
+			string strcop = str;
+			seq = parser.parse_sequence(strcop);
+			is_seq = true;
+			return;
+		}
+	}
+
+	generic = make_generic<T>();
+	generic->destringify(str.flat());
+}

@@ -121,13 +121,19 @@ int main()
 		{
 			return " ";
 		});
-	variable_dictionnary()->global()->add(space_func, "#");
+	variable_dictionnary()->global()->add(space_func, "#_");
 
 	shared_generic newline_func = std::make_shared<GenericFunctionType<function<string()>>>([]()
 		{
 			return "\n";
 		});
-	variable_dictionnary()->global()->add(newline_func, "##");
+	variable_dictionnary()->global()->add(newline_func, "#/");
+
+	shared_generic strify_func = std::make_shared<GenericFunctionType<function<string(shared_generic)>>>([](shared_generic a)
+		{
+			return a->stringify();
+		});
+	variable_dictionnary()->global()->add(strify_func, "#");
 
 	shared_generic pushb_func = std::make_shared<GenericFunctionType<function<void(shared_generic, shared_generic)>>>([](shared_generic b, shared_generic a)
 		{
@@ -181,8 +187,8 @@ int main()
 	string str = file.getString();
 	string str2 = file2.getString();
 	parser.parse(str);
-	shared_generic gen = parser.parse_sequence(str2).evaluate();
-	std::cout << gen->type().name() <<  "\n" << gen->stringify() << std::endl;
+	//shared_generic gen = parser.parse_sequence(str2).evaluate();
+	//std::cout << gen->type().name() <<  "\n" << gen->stringify() << std::endl;
 
 	Server server;
 
