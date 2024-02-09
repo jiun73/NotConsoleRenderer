@@ -66,11 +66,28 @@ int main()
 		});
 	variable_dictionnary()->global()->add(if_func, "$if");
 
+	shared_generic feach_func = std::make_shared<GenericFunctionType<function<void(Cstar&, shared_generic)>>>([](Cstar& expr, shared_generic a)
+		{
+			if (a->identity() == typeid(GenericContainer))
+			{
+				shared_ptr<GenericContainer> container = std::reinterpret_pointer_cast<GenericContainer>(a);
+				for (size_t i = 0; i < container->size(); i++)
+				{
+					expr.evaluate();
+				}
+			}
+			else
+				std::cout << "Cannot foreach a non-container" << std::endl;
+		});
+	variable_dictionnary()->global()->add(feach_func, "$foreach");
+
 	shared_generic add_func = std::make_shared<GenericFunctionType<function<void(int& )>>>([](int& a)
 		{
 			a++;
 		});
 	variable_dictionnary()->global()->add(add_func, "++");
+
+
 
 	shared_generic cout_func = std::make_shared<GenericFunctionType<function<void(shared_generic)>>>([](shared_generic a)
 		{
@@ -148,7 +165,7 @@ int main()
 		});
 	variable_dictionnary()->global()->add(insert_func, "-ins");
 
-	shared_generic at_func = std::make_shared<GenericFunctionType<function<shared_generic(size_t, shared_generic)>>>([](size_t i, shared_generic a) -> shared_generic
+	shared_generic at_func = std::make_shared<GenericFunctionType<function<shared_generic(int, shared_generic)>>>([](size_t i, shared_generic a) -> shared_generic
 		{
 			if (a->identity() == typeid(GenericContainer))
 			{
