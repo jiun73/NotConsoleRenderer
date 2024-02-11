@@ -111,7 +111,7 @@ int main()
 		{
 			a->destringify(b);
 		});
-	variable_dictionnary()->global()->add(destr_func, ":=");
+	variable_dictionnary()->global()->add(destr_func, "#=");
 
 	shared_generic discard_func = std::make_shared<GenericFunctionType<function<void(shared_generic)>>>([](shared_generic a)
 		{});

@@ -137,7 +137,10 @@ private:
 	bool is_seq = false;
 
 public:
-	void set(const string& str, const CstarParser& parser);
+	CstarVar() {}
+	~CstarVar() {}
+
+	void set(const string& str,  CstarParser& parser);
 	shared_generic get_gen() { return generic; }
 
 	T& get() 
@@ -149,7 +152,7 @@ public:
 		if (!is_seq)
 			return *(T*)generic->raw_bytes();
 		else
-			return *(T*)seq.evaluate();
+			return *(T*)seq.evaluate()->raw_bytes();
 	}
 
 	operator T()
@@ -271,13 +274,24 @@ public:
 					func.root = false;
 					shared_generic var = variable_dictionnary()->get(kw.flat());	
 					if (var == nullptr) { std::cout << "Invalid func name!" << std::endl; return; } // error
-					if (var->identity() != typeid(GenericFunction)) return; //error
-					func.func = true;
-					func.function = std::reinterpret_pointer_cast<GenericFunction>(var);
-					if(func.function->arg_count() > 0)
-						functions.push_back(func);
+					if (var->identity() == typeid(GenericFunction))
+					{
+						func.func = true;
+						func.function = std::reinterpret_pointer_cast<GenericFunction>(var);
+						if (func.function->arg_count() > 0)
+							functions.push_back(func);
+						else
+							constants.push_back(func);
+					}
+					if (var->type() == typeid(Cstar))
+					{
+						constants.push_back(*(Cstar*)var->raw_bytes());
+					}
 					else
-						constants.push_back(func);
+					{
+						return; // error
+					}
+					
 				}
 				f = false;
 			}
@@ -381,7 +395,10 @@ public:
 
 		if (keywords.at(0) == "function")
 		{
-
+			if (keywords.size() < 4) return;
+	
+			string_ranges func = { dec.begin() + 12 + keywords.at(1).size(), dec.end()};
+			parse_sequence_next(func);
 		}
 		else
 		{	
@@ -406,28 +423,37 @@ public:
 
 	CstarRows parse_header(string_ranges head)
 	{
-		vector<string> keywords = split_and_trim(head);
+		vector<string_ranges> keywords = split_escape_delim(head, '<', '>', ' ');
 
 		CstarRows row;
 		row.scope = std::make_shared< VariableRegistry>();
 
 		for (size_t i = 0; i < keywords.size(); i++)
 		{
-			const string& current = keywords.at(i);
+			string_ranges current = keywords.at(i);
 
-			if (current == "SIZE")
+			if (i == keywords.size() - 1) break; //error
+			string_ranges next = keywords.at(i + 1);
+
+			range_trim(current, ' ');
+			range_trim(next, ' ');
+
+			if (next.flat() == "AS")
 			{
-				if (i == keywords.size() - 1) return CstarRows(); //error
-				const string& next = keywords.at(i + 1);
-
-				if (isNum(next)) //TODO: change this
-				{
-					row.size.set(next, *this);
-					current_scope->add(row.size.get_gen(), "SIZE");
-				}
-
+				if (i == keywords.size() - 2) break; //error
+				string_ranges next_2 = keywords.at(i + 2);
+				range_trim(next_2, ' ');
+				row.size.get();
+				current_scope->add(row.size.get_gen(), next_2.flat());
 				i++;
 			}
+			else
+			{
+				row.size.set(next.flat(), *this);
+				
+			}
+
+			i++;
 		}
 
 		return row;
@@ -533,11 +559,11 @@ public:
 //typedef CstartGlobalParser;
 
 template<typename T>
-inline void CstarVar<T>::set(const string& str, const CstarParser& parser)
+inline void CstarVar<T>::set(const string& str, CstarParser& parser)
 {
 	if (!str.empty() && str.begin() != str.end())
 	{
-		if (*str.begin() == '<' && *str.end() == '>')
+		if (*str.begin() == '<' && *prev(str.end()) == '>')
 		{
 			string strcop = str;
 			seq = parser.parse_sequence(strcop);
@@ -547,5 +573,5 @@ inline void CstarVar<T>::set(const string& str, const CstarParser& parser)
 	}
 
 	generic = make_generic<T>();
-	generic->destringify(str.flat());
+	generic->destringify(str);
 }
