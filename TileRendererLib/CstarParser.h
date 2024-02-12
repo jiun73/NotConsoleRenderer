@@ -66,8 +66,11 @@ struct Cstar
 
 	bool root = true;
 	bool func = false;
+	bool user_func = false;
 	shared_generic constant = nullptr;
 	shared_ptr<GenericFunction> function = nullptr;
+
+	vector<string> args_name;
 
 	shared_generic evaluate() 
 	{
@@ -177,6 +180,12 @@ struct CstarRows
 	shared_ptr<VariableRegistry> scope;
 	CstarVar<size_t> size;
 	CstarVar<bool> condition;
+
+	void render(Rect dest)
+	{
+		int pencil = 0;
+
+	}
 };
 
 class CstarParser 
@@ -285,7 +294,10 @@ public:
 					}
 					if (var->type() == typeid(Cstar))
 					{
-						constants.push_back(*(Cstar*)var->raw_bytes());
+						Cstar& star = *(Cstar*)var->raw_bytes();
+
+
+						//constants.push_back();
 					}
 					else
 					{

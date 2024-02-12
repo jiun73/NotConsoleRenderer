@@ -2,16 +2,14 @@ new vector<string> container
 new string object
 new int test = 100
 
-new function front 
+new function :front
 <
-	#1 :is "container";
-	
-	#1 :at 0
->
+	this $arg container;
+	container :at 0
+> 
 
 new init = <
 	container :push object; 
-	:push container object;
 	
 	:foreach "n" container
 	<
@@ -29,10 +27,10 @@ new init = <
 >
 
 result : <
-	test; //when a instruction has a return that isn't used, it's that functions' return
+	test; /*when a instruction has a return that isn't used, it's that functions' return*/
 	test :+ 1;
 	test :+ 2;
-> //this will output the string : "result : 100101102"
+> /*this will output the string : "result : 100101102"*/
 
 ROW SIZE 2 { //row 1
 	new int local = 100
