@@ -233,8 +233,15 @@ public:
 					get_declaractions(str);	
 					return;
 				}
+				if (f && kw.flat() == "arg")
+				{
 
-				if (is_char(kw))
+				}
+				else if (kw.flat() == "this")
+				{
+
+				}
+				else if (is_char(kw))
 				{
 					std::cout << "\t> ch " << kw.flat() << std::endl;
 					kw.begin() += 1;

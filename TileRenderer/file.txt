@@ -4,7 +4,7 @@ new int test = 100
 
 new function :front
 <
-	this $arg container;
+	arg container; 
 	container :at 0
 > 
 
