@@ -493,6 +493,8 @@ int main()
 	bool inputWasEmpty = false;
 	int selected_line = 0;
 
+	spawn();
+
 	const Font& pixel_font = get_font(FONT_PIXEL);
 
 	keyboard().lockInputsInTextmode = false;

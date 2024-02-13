@@ -72,6 +72,12 @@ struct Cstar
 
 	vector<string> args_name;
 
+	void add_arg(const string& str)
+	{
+		scope->add(nullptr, str);
+		args_name.push_back(str);
+	}
+
 	shared_generic evaluate() 
 	{
 		if (root)
@@ -119,6 +125,15 @@ struct Cstar
 				}
 				function->args(args);
 				return function->call();
+			}
+			else if (user_func)
+			{
+				Cstar& star = *(Cstar*)(constant->raw_bytes());
+
+				if (star.args_name.size() > 0)
+				{
+
+				}
 			}
 			else
 			{
@@ -226,69 +241,75 @@ public:
 		for (auto it = ignore.begin(); it != ignore.end(); it+=2)
 		{
 			vector<string_ranges> keywords = subchain(chain(*it, range_until, " "), range_until, ",");
-			for (auto& kw : keywords)
+			for (auto kw = keywords.begin(); kw != keywords.end(); kw++)
 			{
-				if (f && kw.flat() == "new")
+				if (f && kw->flat() == "new")
 				{
 					get_declaractions(str);	
 					return;
 				}
-				if (f && kw.flat() == "arg")
+				if (f && kw->flat() == "arg")
 				{
-
+					if (keywords.size() < 2) return;
+					string next_kw = next(kw)->flat();
+					ret_val.add_arg(next_kw);
+					return;
 				}
-				else if (kw.flat() == "this")
+				else if (kw->flat() == "this")
 				{
-
-				}
-				else if (is_char(kw))
-				{
-					std::cout << "\t> ch " << kw.flat() << std::endl;
-					kw.begin() += 1;
-					kw.end() -= 1;
 					Cstar constant;
 					constant.root = false;
-					constant.constant = make_generic<char>(kw.flat().at(0));
+					constant.constant = std::make_shared<GenericRef<Cstar>>(ret_val);
 					constants.push_back(constant);
 				}
-				else if (is_string(kw))
+				else if (is_char(*kw))
 				{
-					std::cout << "\t> str " << kw.flat() << std::endl;
-					kw.begin() += 1;
-					kw.end() -= 1;
+					std::cout << "\t> ch " << kw->flat() << std::endl;
+					kw->begin() += 1;
+					kw->end() -= 1;
 					Cstar constant;
 					constant.root = false;
-					constant.constant = make_generic<string>(kw.flat());
+					constant.constant = make_generic<char>(kw->flat().at(0));
 					constants.push_back(constant);
 				}
-				else if (is_num(kw))
+				else if (is_string(*kw))
+				{
+					std::cout << "\t> str " << kw->flat() << std::endl;
+					kw->begin() += 1;
+					kw->end() -= 1;
+					Cstar constant;
+					constant.root = false;
+					constant.constant = make_generic<string>(kw->flat());
+					constants.push_back(constant);
+				}
+				else if (is_num(*kw))
 				{
 					Cstar constant;
 					constant.root = false;
 					constant.constant = make_generic<int>();
-					constant.constant->destringify(kw.flat());
-					std::cout << "\t> num " << kw.flat() << " " << constant.constant->stringify() << std::endl;
+					constant.constant->destringify(kw->flat());
+					std::cout << "\t> num " << kw->flat() << " " << constant.constant->stringify() << std::endl;
 					
 					constants.push_back(constant);
 				}
-				else if (is_var_name(kw))
+				else if (is_var_name(*kw))
 				{
-					std::cout << "\t> var " << kw.flat() << std::endl;
+					std::cout << "\t> var " << kw->flat() << std::endl;
 
 					Cstar constant;
 					constant.root = false;
-					shared_generic var = variable_dictionnary()->get(kw.flat());
+					shared_generic var = variable_dictionnary()->get(kw->flat());
 					if (var == nullptr) { std::cout << "Invalid var name!" << std::endl;  return; }
 					constant.constant = var;
 					constants.push_back(constant);
 				}
-				else if (is_func_name(kw))
+				else if (is_func_name(*kw))
 				{
-					std::cout << "\t> func " << kw.flat() << std::endl;
+					std::cout << "\t> func " << kw->flat() << std::endl;
 
 					Cstar func;
 					func.root = false;
-					shared_generic var = variable_dictionnary()->get(kw.flat());	
+					shared_generic var = variable_dictionnary()->get(kw->flat());
 					if (var == nullptr) { std::cout << "Invalid func name!" << std::endl; return; } // error
 					if (var->identity() == typeid(GenericFunction))
 					{
@@ -302,9 +323,13 @@ public:
 					if (var->type() == typeid(Cstar))
 					{
 						Cstar& star = *(Cstar*)var->raw_bytes();
+						func.constant = var;
+						func.user_func = true;
 
-
-						//constants.push_back();
+						if(star.args_name.size() == 0)
+							constants.push_back(func);
+						else
+							functions.push_back(func);
 					}
 					else
 					{
@@ -325,16 +350,22 @@ public:
 
 		for (auto it = functions.rbegin(); it != functions.rend(); it++)
 		{
-			size_t count = it->function->arg_count();
-			bool ret = it->function->return_type() != typeid(void);
-
-			for (size_t i = 0; i < count; i++)
+			if (it->func)
 			{
-				it->recursive.push_back(constants.back());
-				constants.pop_back();
-			}
+				size_t count = it->function->arg_count();
 
-			constants.push_back(*it);
+				for (size_t i = 0; i < count; i++)
+				{
+					it->recursive.push_back(constants.back());
+					constants.pop_back();
+				}
+
+				constants.push_back(*it);
+			}
+			else
+
+			{
+			}
 		}
 
 		//for (auto& f : functions)
