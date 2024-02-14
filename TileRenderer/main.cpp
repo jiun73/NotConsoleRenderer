@@ -366,6 +366,8 @@ int main()
 				
 			}
 		}
+
+		parser.render({ 0,get_window_size() });
 	}
 
 	return 0;

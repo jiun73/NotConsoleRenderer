@@ -107,11 +107,12 @@ void init()
 		__init__ = true;
 
 		__REGISTER_CLASS__(int);
+		__REGISTER_CLASS__(double);
 		__REGISTER_CLASS__(bool);
 		__REGISTER_CLASS__(char);
 		__REGISTER_CLASS__(size_t);
 		__REGISTER_CLASS__(string);
-		const FactoryManagerAdder<vector<string>>* vector_string__adder = new FactoryManagerAdder<vector<string>>("vector<string>");;
+		const FactoryManagerAdder<vector<string>>* vector_string__adder = new FactoryManagerAdder<vector<string>>("vector<string>", true);;
 
 		__NEW_COMMAND__(test, "test", [](__COMMAND_ARGS__)
 			{

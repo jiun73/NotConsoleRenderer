@@ -1,19 +1,29 @@
-new vector<string> container
-new string object
+new vector(string) container
+new string object = hello  
 new int test = 100
 
 new function -front =
 <
-	arg vector<string> c; 
-	:cout <c :type>;
+	arg vector(string) c; 
+	:cout c :type;
 	c -at 0;
 > 
 
 new init b = 
 <
-	container -pushb object; 
-	container -front;
+	new int index = 0;
+	$while <index :ls 10>
+	<
+		container -pushb <object index>;
+		index ++;
+	>;
+	
+	:cout <"b" #_ "done!">;
 >
+
+/*
+	comment
+*/
 
 ROW SIZE 2 { //row 1
 	new int local = 100
@@ -32,14 +42,14 @@ ROW SIZE 2 { //row 1
 
 	COL SIZE 3
 	{
-		ROW DIV { 53434543}
+		new int local3 = 666;
 	}
 }
 
 new double test = 0.0
 
 ROW IF <test == 1> {
-	COL SIZE 2 DROPBOX 
+	COL SIZE 2 DROPBOX FIT
 	{
 
 	}		

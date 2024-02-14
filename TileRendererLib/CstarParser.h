@@ -3,6 +3,7 @@
 #include "FunctionGenerics.h"
 #include "StringRanges.h"
 #include "CommandDictionnary.h"
+#include "TileRenderer.h"
 
 #include <string>
 #include <vector>
@@ -73,9 +74,9 @@ struct GLUU
 	vector<string> args_name;
 	size_t arg_count = 0;
 
-	void add_arg(const string& str)
+	void add_arg(const string& str, const string& type)
 	{
-		scope->add(std::make_shared<NullGeneric>(), str);
+		scope->add(ClassFactory::get()->make(type), str);
 		args_name.push_back(str);
 	}
 
@@ -86,7 +87,8 @@ struct GLUU
 		{
 			scope->add(args.at(i), name);
 			//*(scope->get(name)) = *args.at(i);
-			scope->get(name).swap(args.at(i));
+			//scope->get(name).swap(args.at(i));
+			scope->get(name)->set(args.at(i));
 			i++;
 		}
 	}
@@ -217,17 +219,42 @@ public:
 	}
 };
 
-struct GLUURows 
+struct GLUUGraphics
 {
-	vector<GLUURows> nested_rows;
+	vector<GLUUGraphics> nested;
 	shared_ptr<VariableRegistry> scope;
 	CstarVar<size_t> size;
 	CstarVar<bool> condition;
 
+	bool is_row = false;
+
 	void render(Rect dest)
 	{
-		int pencil = 0;
+		
 
+		if (is_row)
+		{
+			int pencil = dest.pos.x;
+			for (auto& col : nested)
+			{
+				int sz = 10;
+				Rect sub = { {pencil, dest.pos.y},{sz, dest.sz.y} };
+				draw_rect(sub);
+				col.render(sub);
+				pencil += sz;
+			}
+		}
+		else
+		{
+			int pencil = dest.pos.y;
+			for (auto& row : nested)
+			{
+				Rect sub = { {dest.pos.x, pencil},{dest.sz.x, 10} };
+				draw_rect(sub);
+				row.render(sub);
+				pencil += 10;
+			}
+		}
 	}
 };
 
@@ -235,8 +262,8 @@ class GLUUParser
 {
 private:
 	shared_ptr<VariableRegistry> current_scope;
-	GLUURows* current_row = nullptr;
-	GLUURows base_row;
+	GLUUGraphics* current_row = nullptr;
+	GLUUGraphics base_row;
 
 public:
 	vector<string> split_and_trim(string_ranges str) 
@@ -278,10 +305,11 @@ public:
 				}
 				if (f && kw->flat() == "arg")
 				{
-					if (keywords.size() < 2) return;
-					string next_kw = next(kw)->flat();
-					ret_val.add_arg(next_kw);
-					std::cout << "'" << next_kw << "'" << std::endl;
+					if (keywords.size() < 3) return; //error
+					string type = next(kw)->flat();
+					string name = next(kw, 2)->flat();
+					ret_val.add_arg(name, type);
+					std::cout << "'" << name  << "' as " << type << std::endl;
 					return;
 				}
 				else if (kw->flat() == "this")
@@ -435,13 +463,11 @@ public:
 			str.end() -= 1;
 		}
 
-		std::cout << "full: " << str.flat() << std::endl;
-
 		vector<string_ranges> subseq = range_delimiter(str, '<', '>');
 		vector<string_ranges> expressions;
 		for (auto it = subseq.begin(); it != subseq.end(); it += 2)
 		{
-			vector<string_ranges> escape_str = split_escape_delim(*it, '"', '"', ';');
+			vector<string_ranges> escape_str = split_escape_delim(*it, '"', '"', ";");
 			bool f = true;
 			for (auto& e : escape_str)
 			{
@@ -508,18 +534,19 @@ public:
 	void get_declaractions(string_ranges row)
 	{
 		string new_keyword = "new ";
-
-		vector<string_ranges> declaractions = chain(row, range_until, new_keyword);
+		vector<string_ranges> declaractions = split_escape_delim(row, '<', '>', new_keyword);
 		if (!declaractions.empty())
 			for (auto it = declaractions.begin() + 1; it != declaractions.end(); it++)
+			{
 				parse_declaration(*it);
+			}
 	}
 
-	GLUURows parse_header(string_ranges head)
+	GLUUGraphics parse_header(string_ranges head)
 	{
-		vector<string_ranges> keywords = split_escape_delim(head, '<', '>', ' ');
+		vector<string_ranges> keywords = split_escape_delim(head, '<', '>', " ");
 
-		GLUURows row;
+		GLUUGraphics row;
 		row.scope = std::make_shared< VariableRegistry>();
 
 		for (size_t i = 0; i < keywords.size(); i++)
@@ -560,43 +587,35 @@ public:
 		return head;
 	}
 
-	void parse_column(string_ranges column)
-	{
-		string_ranges head = extract_header(column);
-
-		std::cout << "-------------" << head.flat() << std::endl;
-
-		parse_range(column, "ROW", true);
-	}
-
-	void parse_row(string_ranges row)
+	void parse_graphic(string_ranges row, bool is_row)
 	{	
 		string_ranges head = extract_header(row);
 
 		if (row.empty()) return; //error
 
 		std::cout << "-----------" << head.flat() << std::endl;
-		//std::cout << "-------------" << row.flat() << std::endl;
 
-		GLUURows row_obj = parse_header(head);
+		GLUUGraphics row_obj = parse_header(head);
 		shared_ptr<VariableRegistry> old_scope = current_scope;
-		GLUURows* old_base = current_row;
+		GLUUGraphics* old_base = current_row;
+
+		row_obj.is_row = is_row;
 
 		row_obj.scope->name = "Row scope";
 		current_scope = row_obj.scope;
 		current_row = &row_obj;
 		variable_dictionnary()->enter_scope(current_scope);
 
-		parse_range(row, "COL", false);
+		parse_range(row, is_row ? "COL" : "ROW", !is_row);
 
 		variable_dictionnary()->exit_scope();
 		current_row = old_base;
 		current_scope = old_scope;
 
-		current_row->nested_rows.push_back(row_obj);
+		current_row->nested.push_back(row_obj);
 	}
 
-	void parse_range(string_ranges range, const string& keyword, bool row )
+	void parse_range(string_ranges range, const string& keyword, bool row)
 	{
 		vector<string_ranges> sub_rows = range_delimiter(range, '{', '}');
 
@@ -610,10 +629,7 @@ public:
 			if (columns.size() > 1)
 			{
 				string_ranges column = { columns.at(1).begin(), in->end() };
-				if (row)
-					parse_row(column);
-				else
-					parse_column(column);
+				parse_graphic(column, row);
 			}
 		}
 	}
@@ -630,23 +646,12 @@ public:
 
 		parse_range(str, row_keyword, true);
 
-		//vector<string_ranges> rows = chain(str, range_until, row_keyword);
-		//if (rows.empty()) return {}; //error
-
-		//get_declaractions(rows.at(0));
-
-		//for (auto it = rows.begin() + 1; it != rows.end(); it++)
-		//{
-		//	vector<string_ranges> row_in = chain(*it, range_inside, '{', '}');
-		//	std::cout << row_in.size() << std::endl;
-
-		//	if (row_in.size() < 1) return {};//error
-		//	parse_row(row_in.at(0));
-		//	if (row_in.size() == 2)
-		//		get_declaractions(row_in.at(1));
-		//}
-
 		return {};
+	}
+
+	void render(Rect windowSize)
+	{
+		base_row.render(windowSize);
 	}
 };
 
