@@ -29,7 +29,7 @@ int main()
 
 	int test_variable = 0;
 
-	CstarParser parser;
+	GLUUParser parser;
 	File file("file.txt", FILE_READING_STRING);
 	File file2("file2.txt", FILE_READING_STRING);
 
@@ -44,7 +44,7 @@ int main()
 		});
 	variable_dictionnary()->global()->add(eq_func, "=");
 
-	shared_generic for_func = std::make_shared<GenericFunctionType<function<void(Cstar&, Cstar&)>>>([](Cstar& expr, Cstar& condition)
+	shared_generic for_func = std::make_shared<GenericFunctionType<function<void(GLUU&, GLUU&)>>>([](GLUU& expr, GLUU& condition)
 		{	
 			while (true)
 			{
@@ -57,7 +57,7 @@ int main()
 		});
 	variable_dictionnary()->global()->add(for_func, "$while");
 
-	shared_generic if_func = std::make_shared<GenericFunctionType<function<void(Cstar&, bool)>>>([](Cstar& expr, bool b)
+	shared_generic if_func = std::make_shared<GenericFunctionType<function<void(GLUU&, bool)>>>([](GLUU& expr, bool b)
 		{
 			if (b)
 			{
@@ -66,7 +66,7 @@ int main()
 		});
 	variable_dictionnary()->global()->add(if_func, "$if");
 
-	shared_generic feach_func = std::make_shared<GenericFunctionType<function<void(Cstar&, shared_generic)>>>([](Cstar& expr, shared_generic a)
+	shared_generic feach_func = std::make_shared<GenericFunctionType<function<void(GLUU&, shared_generic)>>>([](GLUU& expr, shared_generic a)
 		{
 			if (a->identity() == typeid(GenericContainer))
 			{
@@ -87,7 +87,11 @@ int main()
 		});
 	variable_dictionnary()->global()->add(add_func, "++");
 
-
+	shared_generic type_func = std::make_shared<GenericFunctionType<function<string(shared_generic)>>>([](shared_generic a)
+		{
+			return a->type().name();
+		});
+	variable_dictionnary()->global()->add(type_func, ":type");
 
 	shared_generic cout_func = std::make_shared<GenericFunctionType<function<void(shared_generic)>>>([](shared_generic a)
 		{

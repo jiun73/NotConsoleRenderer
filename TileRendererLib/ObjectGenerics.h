@@ -79,6 +79,20 @@ public:
 	shared_generic make() override { return make_shared<GenericType<T>>(); }
 };
 
+class NullGeneric : public Generic
+{
+	 char* raw_bytes() override { return nullptr; };
+	 const type_info& type() override { return typeid(void); };
+	 const type_info& identity() override { return typeid(NullGeneric); };
+	 void set(shared_generic value) override { };
+	 size_t size() override { return 0; };
+
+	 string stringify() override { return "null"; }
+	 int destringify(const string& str) override { return -2; }
+
+	 shared_generic make() override { return make_shared<NullGeneric>(); }
+};
+
 template<typename T>
 inline shared_ptr<GenericType<T>> make_generic() { return make_shared< GenericType<T>>(); }
 

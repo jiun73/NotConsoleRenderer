@@ -59,10 +59,10 @@ inline bool is_func_name(string_ranges range)
 
 
 
-struct Cstar
+struct GLUU
 {
 	shared_ptr<VariableRegistry> scope;
-	vector<Cstar> recursive;
+	vector<GLUU> recursive;
 
 	bool root = true;
 	bool func = false;
@@ -71,11 +71,44 @@ struct Cstar
 	shared_ptr<GenericFunction> function = nullptr;
 
 	vector<string> args_name;
+	size_t arg_count = 0;
 
 	void add_arg(const string& str)
 	{
-		scope->add(nullptr, str);
+		scope->add(std::make_shared<NullGeneric>(), str);
 		args_name.push_back(str);
+	}
+
+	void set_args(vector<shared_generic>& args)
+	{
+		size_t i = 0;
+		for (auto& name : args_name)
+		{
+			scope->add(args.at(i), name);
+			//*(scope->get(name)) = *args.at(i);
+			scope->get(name).swap(args.at(i));
+			i++;
+		}
+	}
+
+	vector<shared_generic> get_args_from_recursive(bool func_check = false)
+	{
+		vector<shared_generic> args;
+		size_t i = 0;
+		for (auto& r : recursive)
+		{
+			if (func_check && function->args_type(i) == typeid(GLUU&) )
+			{
+				shared_generic rec = make_shared<GenericRef<GLUU>>(r);
+				args.push_back(rec);
+			}
+			else
+			{
+				args.push_back(r.evaluate());
+			}
+			i++;
+		}
+		return args;
 	}
 
 	shared_generic evaluate() 
@@ -109,31 +142,26 @@ struct Cstar
 			if (func)
 			{
 				vector<GenericArgument> args;
-				size_t i = 0;
-				for (auto& r : recursive)
-				{	
-					if (function->args_type(i) == typeid(Cstar&))
-					{
-						shared_generic rec = make_shared<GenericRef<Cstar>>(r);
-						args.push_back(rec);
-					}
-					else
-					{
-						args.push_back(r.evaluate());
-					}
-					i++;
+
+				for (auto& arg : get_args_from_recursive(true))
+				{
+					args.push_back(arg);
 				}
+
 				function->args(args);
 				return function->call();
 			}
 			else if (user_func)
 			{
-				Cstar& star = *(Cstar*)(constant->raw_bytes());
+				GLUU& star = *(GLUU*)(constant->raw_bytes());
 
 				if (star.args_name.size() > 0)
 				{
-
+					vector<shared_generic> args = get_args_from_recursive();
+					star.set_args(args);
 				}
+
+				return star.evaluate();
 			}
 			else
 			{
@@ -143,14 +171,14 @@ struct Cstar
 	}
 };
 
-class CstarParser;
+class GLUUParser;
 
 template<typename T>
 class CstarVar
 {
 private:
 	shared_generic generic = nullptr;
-	Cstar seq;
+	GLUU seq;
 
 	bool is_seq = false;
 
@@ -158,7 +186,7 @@ public:
 	CstarVar() {}
 	~CstarVar() {}
 
-	void set(const string& str,  CstarParser& parser);
+	void set(const string& str,  GLUUParser& parser);
 	shared_generic get_gen() { return generic; }
 
 	T& get() 
@@ -189,9 +217,9 @@ public:
 	}
 };
 
-struct CstarRows 
+struct GLUURows 
 {
-	vector<CstarRows> nested_rows;
+	vector<GLUURows> nested_rows;
 	shared_ptr<VariableRegistry> scope;
 	CstarVar<size_t> size;
 	CstarVar<bool> condition;
@@ -203,12 +231,12 @@ struct CstarRows
 	}
 };
 
-class CstarParser 
+class GLUUParser 
 {
 private:
 	shared_ptr<VariableRegistry> current_scope;
-	CstarRows* current_row = nullptr;
-	CstarRows base_row;
+	GLUURows* current_row = nullptr;
+	GLUURows base_row;
 
 public:
 	vector<string> split_and_trim(string_ranges str) 
@@ -228,14 +256,14 @@ public:
 		return keywords;
 	}
 
-	void parse_expression(string_ranges str, Cstar& ret_val)
+	void parse_expression(string_ranges str, GLUU& ret_val)
 	{
 		str = range_trim(str, ' ');
 		std::cout << "> " << str.flat() << std::endl;
 		vector<string_ranges> ignore = range_delimiter(str, '<', '>');
 
-		vector<Cstar> constants;
-		vector<Cstar> functions;
+		vector<GLUU> constants;
+		vector<GLUU> functions;
 
 		bool f = true;
 		for (auto it = ignore.begin(); it != ignore.end(); it+=2)
@@ -253,13 +281,14 @@ public:
 					if (keywords.size() < 2) return;
 					string next_kw = next(kw)->flat();
 					ret_val.add_arg(next_kw);
+					std::cout << "'" << next_kw << "'" << std::endl;
 					return;
 				}
 				else if (kw->flat() == "this")
 				{
-					Cstar constant;
+					GLUU constant;
 					constant.root = false;
-					constant.constant = std::make_shared<GenericRef<Cstar>>(ret_val);
+					constant.constant = std::make_shared<GenericRef<GLUU>>(ret_val);
 					constants.push_back(constant);
 				}
 				else if (is_char(*kw))
@@ -267,7 +296,7 @@ public:
 					std::cout << "\t> ch " << kw->flat() << std::endl;
 					kw->begin() += 1;
 					kw->end() -= 1;
-					Cstar constant;
+					GLUU constant;
 					constant.root = false;
 					constant.constant = make_generic<char>(kw->flat().at(0));
 					constants.push_back(constant);
@@ -277,14 +306,14 @@ public:
 					std::cout << "\t> str " << kw->flat() << std::endl;
 					kw->begin() += 1;
 					kw->end() -= 1;
-					Cstar constant;
+					GLUU constant;
 					constant.root = false;
 					constant.constant = make_generic<string>(kw->flat());
 					constants.push_back(constant);
 				}
 				else if (is_num(*kw))
 				{
-					Cstar constant;
+					GLUU constant;
 					constant.root = false;
 					constant.constant = make_generic<int>();
 					constant.constant->destringify(kw->flat());
@@ -296,7 +325,7 @@ public:
 				{
 					std::cout << "\t> var " << kw->flat() << std::endl;
 
-					Cstar constant;
+					GLUU constant;
 					constant.root = false;
 					shared_generic var = variable_dictionnary()->get(kw->flat());
 					if (var == nullptr) { std::cout << "Invalid var name!" << std::endl;  return; }
@@ -307,7 +336,7 @@ public:
 				{
 					std::cout << "\t> func " << kw->flat() << std::endl;
 
-					Cstar func;
+					GLUU func;
 					func.root = false;
 					shared_generic var = variable_dictionnary()->get(kw->flat());
 					if (var == nullptr) { std::cout << "Invalid func name!" << std::endl; return; } // error
@@ -320,11 +349,12 @@ public:
 						else
 							constants.push_back(func);
 					}
-					if (var->type() == typeid(Cstar))
+					else if (var->type() == typeid(GLUU))
 					{
-						Cstar& star = *(Cstar*)var->raw_bytes();
+						GLUU& star = *(GLUU*)var->raw_bytes();
 						func.constant = var;
 						func.user_func = true;
+						func.arg_count = star.args_name.size();
 
 						if(star.args_name.size() == 0)
 							constants.push_back(func);
@@ -343,29 +373,31 @@ public:
 			if (!next(it)->empty())
 			{
 				std::cout << "\t> " << next(it)->flat() << std::endl;
-				Cstar sub = parse_sequence_next(*next(it));
+				GLUU sub = parse_sequence_next(*next(it));
 				constants.push_back(sub);
 			}
 		}
 
 		for (auto it = functions.rbegin(); it != functions.rend(); it++)
 		{
+			size_t count = 0;
 			if (it->func)
 			{
-				size_t count = it->function->arg_count();
-
-				for (size_t i = 0; i < count; i++)
-				{
-					it->recursive.push_back(constants.back());
-					constants.pop_back();
-				}
-
-				constants.push_back(*it);
+				count = it->function->arg_count();
 			}
 			else
-
 			{
+				count = it->arg_count;
 			}
+
+			for (size_t i = 0; i < count; i++)
+			{
+				it->recursive.push_back(constants.back());
+				constants.pop_back();
+			}
+
+			constants.push_back(*it);
+
 		}
 
 		//for (auto& f : functions)
@@ -375,7 +407,7 @@ public:
 			ret_val.recursive.push_back(c);
 	}
 
-	Cstar parse_sequence(string& str)
+	GLUU parse_sequence(string& str)
 	{
 		str += '\n';
 		remove_all_range(str, "//", "\n", false);
@@ -384,11 +416,12 @@ public:
 		return parse_sequence_next(str);
 	}
 
-	Cstar parse_sequence_next(string_ranges str)
+	GLUU parse_sequence_next(string_ranges str)
 	{
-		Cstar ret;
+		GLUU ret;
 		ret.scope = std::make_shared< VariableRegistry>();
 		ret.scope->name = "Expr scope";
+		shared_ptr<VariableRegistry> old_scope = current_scope;
 		current_scope = ret.scope;
 		variable_dictionnary()->enter_scope(current_scope);
 
@@ -433,6 +466,7 @@ public:
 		}
 
 		variable_dictionnary()->exit_scope();
+		current_scope = old_scope;
 
 		return ret;
 	}
@@ -443,12 +477,22 @@ public:
 
 		if (keywords.size() < 2) return; //error
 
-		if (keywords.at(0) == "function")
+		if (keywords.at(0) == "function" || keywords.at(0) == "init")
 		{
 			if (keywords.size() < 4) return;
-	
-			string_ranges func = { dec.begin() + 12 + keywords.at(1).size(), dec.end()};
-			parse_sequence_next(func);
+
+			string name = keywords.at(1);
+			size_t eq = dec.flat().find('=');
+			string_ranges func = { dec.begin() + eq + 1, dec.end()};
+			GLUU expr = parse_sequence_next(func);
+			current_scope->add(make_shared<GenericType<GLUU>>(expr), name);
+
+			if (keywords.at(0) == "init")
+			{
+				expr.evaluate();
+			}
+
+			std::cout << "Added new func as '" << name << "' in scope " << current_scope->name << std::endl;
 		}
 		else
 		{	
@@ -471,11 +515,11 @@ public:
 				parse_declaration(*it);
 	}
 
-	CstarRows parse_header(string_ranges head)
+	GLUURows parse_header(string_ranges head)
 	{
 		vector<string_ranges> keywords = split_escape_delim(head, '<', '>', ' ');
 
-		CstarRows row;
+		GLUURows row;
 		row.scope = std::make_shared< VariableRegistry>();
 
 		for (size_t i = 0; i < keywords.size(); i++)
@@ -534,9 +578,9 @@ public:
 		std::cout << "-----------" << head.flat() << std::endl;
 		//std::cout << "-------------" << row.flat() << std::endl;
 
-		CstarRows row_obj = parse_header(head);
+		GLUURows row_obj = parse_header(head);
 		shared_ptr<VariableRegistry> old_scope = current_scope;
-		CstarRows* old_base = current_row;
+		GLUURows* old_base = current_row;
 
 		row_obj.scope->name = "Row scope";
 		current_scope = row_obj.scope;
@@ -609,7 +653,7 @@ public:
 //typedef CstartGlobalParser;
 
 template<typename T>
-inline void CstarVar<T>::set(const string& str, CstarParser& parser)
+inline void CstarVar<T>::set(const string& str, GLUUParser& parser)
 {
 	if (!str.empty() && str.begin() != str.end())
 	{

@@ -111,6 +111,7 @@ void init()
 		__REGISTER_CLASS__(char);
 		__REGISTER_CLASS__(size_t);
 		__REGISTER_CLASS__(string);
+		const FactoryManagerAdder<vector<string>>* vector_string__adder = new FactoryManagerAdder<vector<string>>("vector<string>");;
 
 		__NEW_COMMAND__(test, "test", [](__COMMAND_ARGS__)
 			{
