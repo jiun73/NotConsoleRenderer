@@ -3,56 +3,70 @@ new string object = hello
 new int test = 100
 
 new function -front =
-<
+{
 	arg vector(string) c; 
 	:cout c :type;
 	c -at 0;
-> 
+}
 
 new init b = 
-<
+{
+	//base_fit #= "true";
 	new int index = 0;
-	$while <index :ls 10>
-	<
-		container -pushb <object index>;
+	$while {index :ls 10}
+	{
+		container -pushb {object index};
 		index ++;
-	>;
+	};
 	
-	:cout <"b" #_ "done!">;
->
+	:cout {"b" #_ "done!"};
+}
 
 /*
 	comment
 */
 
-ROW SIZE 20 CFIT { //row 1
+ROW SIZE 30 CFIT < //row 1
 	new int local = 100
+	
+	[BASE CFIT]
 
-	COL SIZE 1 BUTTON <test := 200>
-	{
-		<index "/" container :size>
-	}
+	COL SIZE 1 BUTTON {test := 200} {index "/" container :size}
+	<
+		ROW SIZE 10
+		<
+			COL SIZE 1 <>
+		>
+	>
 
 	new int local2 = 10000
 	
 	COL SIZE 1 TEXT
-	{
+	<
 		this is text
-	}
+	>
 
 	COL SIZE 1
-	{
+	<
 		new int local3 = 666;
-	}
-}
+	>
+>
 
 new bool yo = true
 new double test = 0.0
 
-ROW IF <test == 1>
-{
-	COL SIZE 2 DROPBOX FIT <yo>
-	{
-
-	}		
-}
+ROW SIZE 20 IF {test == 1}
+<
+	COL SIZE 20 DROPBOX CFIT
+	<
+		
+	>	
+	COL SIZE 20 DROPBOX CFIT
+	<
+		
+	>		
+	COL SIZE 20 DROPBOX CFIT
+	<
+		
+	>			
+>

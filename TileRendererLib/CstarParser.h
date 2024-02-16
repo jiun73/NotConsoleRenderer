@@ -281,10 +281,21 @@ struct GLUUGraphics
 			double pencil = dest.pos.y;
 			for (auto& row : nested)
 			{
-				Rect_d sub = { {dest.pos.x, pencil},{dest.sz.x, 10.0} };
+				double sz;
+
+				if (fit)
+				{
+					sz = row.map_size(dest.sz.x, get_size_max());
+				}
+				else
+				{
+					sz = row.size();
+				}
+
+				Rect_d sub = { {dest.pos.x, pencil},{dest.sz.x, sz} };
 				draw_rect(sub);
 				row.render(sub);
-				pencil += 10;
+				pencil += sz;
 			}
 		}
 	}
@@ -304,15 +315,21 @@ private:
 
 public:
 
+	const char row_open = '<';
+	const char row_close = '>';
 
-	GLUUParser() 
-	<%
-		keywords_func.emplace("SIZE", std::make_pair( 1, [](GLUUParser& parser, GLUUGraphics& gfx, vector<string> s)
+	const char expr_open = '{';
+	const char expr_close = '}';
+
+
+	GLUUParser()
+	{
+		keywords_func.emplace("SIZE", std::make_pair(1, [](GLUUParser& parser, GLUUGraphics& gfx, vector<string> s)
 			{
 				std::cout << strings::stringify(s) << std::endl;
 				gfx.size.set(s.at(0), parser);
 				std::cout << gfx.size() << std::endl;
-			} ));
+			}));
 
 		keywords_func.emplace("IF", std::make_pair(1, [](GLUUParser& parser, GLUUGraphics& gfx, vector<string> s)
 			{
@@ -329,9 +346,11 @@ public:
 
 		keywords_func.emplace("CFIT", std::make_pair(0, [](GLUUParser& parser, GLUUGraphics& gfx, vector<string> s)
 			{
-				gfx.fit = true;
+				gfx.fit() = true;
 			}));
-	%>
+
+		track_variable(base_row.fit.get(), "base_fit");
+	}
 	~GLUUParser()
 	{
 
@@ -358,7 +377,7 @@ public:
 	{
 		str = range_trim(str, ' ');
 		std::cout << "> " << str.flat() << std::endl;
-		vector<string_ranges> ignore = range_delimiter(str, '<', '>');
+		vector<string_ranges> ignore = range_delimiter(str, expr_open, expr_close);
 
 		vector<GLUU> constants;
 		vector<GLUU> functions;
@@ -528,13 +547,13 @@ public:
 
 		str = range_trim(str, ' ');
 
-		if (*str.begin() == '<' && *(str.end() - 1) == '>')
+		if (*str.begin() == expr_open && *(str.end() - 1) == expr_close)
 		{
 			str.begin() += 1;
 			str.end() -= 1;
 		}
 
-		vector<string_ranges> subseq = range_delimiter(str, '<', '>');
+		vector<string_ranges> subseq = range_delimiter(str, expr_open, expr_close);
 		vector<string_ranges> expressions;
 		for (auto it = subseq.begin(); it != subseq.end(); it += 2)
 		{
@@ -605,7 +624,7 @@ public:
 	void get_declaractions(string_ranges row)
 	{
 		string new_keyword = "new ";
-		vector<string_ranges> declaractions = split_escape_delim(row, '<', '>', new_keyword);
+		vector<string_ranges> declaractions = split_escape_delim(row, expr_open, expr_close, new_keyword);
 		if (!declaractions.empty())
 			for (auto it = declaractions.begin() + 1; it != declaractions.end(); it++)
 			{
@@ -616,7 +635,7 @@ public:
 	GLUUGraphics parse_header(string_ranges head)
 	{
 		head = range_trim(head, ' ');
-		vector<string_ranges> keywords = split_and_delim(head, '<', '>', " ");
+		vector<string_ranges> keywords = split_and_delim(head, expr_open, expr_close, " ");
 
 		GLUUGraphics row;
 		row.scope = std::make_shared< VariableRegistry>();
@@ -648,7 +667,7 @@ public:
 
 	string_ranges extract_header(string_ranges& range)
 	{
-		string_ranges head = range_until(range, "{");
+		string_ranges head = range_until(range, "<");
 		range = { head.skip(), prev(range.end()) };
 		return head;
 	}
@@ -683,7 +702,7 @@ public:
 
 	void parse_range(string_ranges range, const string& keyword, bool row)
 	{
-		vector<string_ranges> sub_rows = range_delimiter(range, '{', '}');
+		vector<string_ranges> sub_rows = range_delimiter(range, row_open, row_close);
 
 		for (auto it = sub_rows.begin(); it != sub_rows.end(); it += 2)
 		{
@@ -728,7 +747,7 @@ inline void CstarVar<T>::set(const string& str, GLUUParser& parser)
 {
 	if (!str.empty() && str.begin() != str.end())
 	{
-		if (*str.begin() == '<' && *prev(str.end()) == '>')
+		if (*str.begin() == parser.expr_open && *prev(str.end()) == parser.expr_close)
 		{
 			string strcop = str;
 			seq = parser.parse_sequence(strcop);

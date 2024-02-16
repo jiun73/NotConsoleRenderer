@@ -27,7 +27,7 @@ int main()
 	* juste plus rapide et meilleur
 	*/
 
-	int test_variable = 0;
+	int test_variable = 1000;
 
 	GLUUParser parser;
 	File file("file.txt", FILE_READING_STRING);
@@ -200,6 +200,18 @@ int main()
 		});
 	variable_dictionnary()->global()->add(deref_func, "@");
 
+	shared_generic true_func = std::make_shared<GenericFunctionType<function<bool()>>>([]()
+		{
+			return true;
+		});
+	variable_dictionnary()->global()->add(deref_func, ":true");
+
+	shared_generic false_func = std::make_shared<GenericFunctionType<function<bool()>>>([]()
+		{
+			return false;
+		});
+	variable_dictionnary()->global()->add(false_func, ":false");
+
 	string str = file.getString();
 	string str2 = file2.getString();
 	parser.parse(str);
@@ -250,13 +262,13 @@ int main()
 		}
 
 		int pos = (int)(sin((SDL_GetTicks() % 1000) / 1000.0) * 100) - 50;
-		draw_simple_text("You have no bitches", { pos,60 }, get_font(1)); //get_font(1) voir 'Fonts/fonts.hint'
-		draw_simple_text("You have " + strings::stringify(test_variable) + " bitches", { 0,120 }, get_font(0)); //get_font(0) voir 'Fonts/fonts.hint'
+		draw_simple_text("Gluu", { pos,60 }, get_font(1)); //get_font(1) voir 'Fonts/fonts.hint'
+		draw_simple_text("Worked " + strings::stringify(test_variable) + " times", { 0,120 }, get_font(0)); //get_font(0) voir 'Fonts/fonts.hint'
 
 		//Nouvelle fonctionnalité !
 		//Entrer la commande 'list all' :)
 		track_variable(pos, "pos");
-		track_variable(test_variable, "test");
+		track_variable(test_variable, "zero_bitches");
 
 		if (key_released(SDL_SCANCODE_1)) 
 		{
