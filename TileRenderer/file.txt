@@ -25,31 +25,33 @@ new init b =
 	comment
 */
 
-ROW SIZE 2 { //row 1
+ROW SIZE 20 CFIT { //row 1
 	new int local = 100
 
-	COL BUTTON <test := 200>
+	COL SIZE 1 BUTTON <test := 200>
 	{
 		<index "/" container :size>
 	}
 
 	new int local2 = 10000
 	
-	COL SIZE 3 TEXT
+	COL SIZE 1 TEXT
 	{
 		this is text
 	}
 
-	COL SIZE 3
+	COL SIZE 1
 	{
 		new int local3 = 666;
 	}
 }
 
+new bool yo = true
 new double test = 0.0
 
-ROW IF <test == 1> {
-	COL SIZE 2 DROPBOX FIT
+ROW IF <test == 1>
+{
+	COL SIZE 2 DROPBOX FIT <yo>
 	{
 
 	}		

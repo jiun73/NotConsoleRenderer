@@ -232,6 +232,27 @@ inline vector<string_ranges> split_escape_delim(string_ranges range, char open, 
 	return expressions;
 }
 
+inline vector<string_ranges> split_and_delim(string_ranges range, char open, char end, string sp = ";")
+{
+	vector<string_ranges> strings = range_delimiter(range, open, end);
+	vector<string_ranges> expressions;
+
+	for (auto it = strings.begin(); it != strings.end(); it += 2)
+	{
+		vector<string_ranges> split = chain(*it, range_until, sp);
+		for (auto& s : split)
+		{
+			expressions.push_back(s);
+		}
+		if (!next(it)->empty())
+		{
+			expressions.push_back(*next(it));
+		}
+	}
+
+	return expressions;
+}
+
 //template<typename T>
 //struct chain {};
 

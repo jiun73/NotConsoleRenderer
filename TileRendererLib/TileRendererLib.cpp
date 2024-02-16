@@ -74,6 +74,11 @@ V2d_d get_window_size()
 	return { (double)x,(double)y };
 }
 
+V2d_d get_logical_size()
+{
+	return window_size;
+}
+
 V2d_d mouse_position()
 {
 	V2d_d mpos = mouse().position();

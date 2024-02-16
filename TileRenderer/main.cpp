@@ -188,6 +188,18 @@ int main()
 		});
 	variable_dictionnary()->global()->add(at_func, "-at");
 
+	shared_generic deref_func = std::make_shared<GenericFunctionType<function<shared_generic(shared_generic)>>>([](shared_generic a) -> shared_generic
+		{
+			if (a->identity() == typeid(GenericObject))
+			{
+				shared_ptr<GenericObject> obj = std::reinterpret_pointer_cast<GenericObject>(a);
+				return obj->dereference();
+			}
+			std::cout << "Cannot dereference a non-object!" << std::endl;
+			return nullptr;
+		});
+	variable_dictionnary()->global()->add(deref_func, "@");
+
 	string str = file.getString();
 	string str2 = file2.getString();
 	parser.parse(str);
@@ -366,8 +378,8 @@ int main()
 				
 			}
 		}
-
-		parser.render({ 0,get_window_size() });
+		
+		parser.render({ 0,get_logical_size() });
 	}
 
 	return 0;

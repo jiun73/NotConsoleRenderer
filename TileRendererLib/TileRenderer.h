@@ -41,6 +41,8 @@ V2d_d get_renderer_scale();
 //Retourne la taille présente de la fenêtre 
 V2d_d get_window_size();
 
+V2d_d get_logical_size();
+
 //----------------------------------------------------------SON-------------------------------------------------------------------------------
 
 //Retourne simplement une référence vers le SoundManager, voir la définition de la classe dans Sound.h

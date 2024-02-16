@@ -186,6 +186,11 @@ private:
 
 public:
 	CstarVar() {}
+	CstarVar(const T& df) 
+	{
+		get() = df;
+	}
+
 	~CstarVar() {}
 
 	void set(const string& str,  GLUUParser& parser);
@@ -223,22 +228,49 @@ struct GLUUGraphics
 {
 	vector<GLUUGraphics> nested;
 	shared_ptr<VariableRegistry> scope;
-	CstarVar<size_t> size;
+	CstarVar<size_t> size = 10;
 	CstarVar<bool> condition;
+	CstarVar<bool> fit = false;
 
 	bool is_row = false;
 
-	void render(Rect dest)
+	int get_size_max()
+	{
+		int i = 0;
+		for (auto& n : nested)
+		{
+			i += n.size();
+		}
+
+		return i;
+	}
+
+	double map_size(double sz, double max)
+	{
+		return sz * (size() / max);
+	}
+
+	void render(Rect_d dest)
 	{
 		
 
 		if (is_row)
 		{
-			int pencil = dest.pos.x;
+			double pencil = dest.pos.x;
 			for (auto& col : nested)
 			{
-				int sz = 10;
-				Rect sub = { {pencil, dest.pos.y},{sz, dest.sz.y} };
+				double sz;
+
+				if (fit)
+				{
+					sz = col.map_size(dest.sz.x, get_size_max());
+				}
+				else
+				{
+					sz = col.size();
+				}
+
+				Rect_d sub = { {pencil, dest.pos.y},{sz, dest.sz.y} };
 				draw_rect(sub);
 				col.render(sub);
 				pencil += sz;
@@ -246,10 +278,10 @@ struct GLUUGraphics
 		}
 		else
 		{
-			int pencil = dest.pos.y;
+			double pencil = dest.pos.y;
 			for (auto& row : nested)
 			{
-				Rect sub = { {dest.pos.x, pencil},{dest.sz.x, 10} };
+				Rect_d sub = { {dest.pos.x, pencil},{dest.sz.x, 10.0} };
 				draw_rect(sub);
 				row.render(sub);
 				pencil += 10;
@@ -258,14 +290,53 @@ struct GLUUGraphics
 	}
 };
 
-class GLUUParser 
+#include <map>
+using std::map;
+
+class GLUUParser
 {
 private:
 	shared_ptr<VariableRegistry> current_scope;
 	GLUUGraphics* current_row = nullptr;
 	GLUUGraphics base_row;
 
+	map <string, pair<size_t, function<void(GLUUParser&, GLUUGraphics&, vector<string>)>>> keywords_func;
+
 public:
+
+
+	GLUUParser() 
+	<%
+		keywords_func.emplace("SIZE", std::make_pair( 1, [](GLUUParser& parser, GLUUGraphics& gfx, vector<string> s)
+			{
+				std::cout << strings::stringify(s) << std::endl;
+				gfx.size.set(s.at(0), parser);
+				std::cout << gfx.size() << std::endl;
+			} ));
+
+		keywords_func.emplace("IF", std::make_pair(1, [](GLUUParser& parser, GLUUGraphics& gfx, vector<string> s)
+			{
+				std::cout << strings::stringify(s) << std::endl;
+				gfx.condition.set(s.at(0), parser);
+			}));
+
+		keywords_func.emplace("FIT", std::make_pair(1, [](GLUUParser& parser, GLUUGraphics& gfx, vector<string> s)
+			{
+				std::cout << strings::stringify(s) << std::endl;
+				gfx.fit.set(s.at(0), parser);
+				std::cout << gfx.fit() << std::endl;
+			}));
+
+		keywords_func.emplace("CFIT", std::make_pair(0, [](GLUUParser& parser, GLUUGraphics& gfx, vector<string> s)
+			{
+				gfx.fit = true;
+			}));
+	%>
+	~GLUUParser()
+	{
+
+	}
+
 	vector<string> split_and_trim(string_ranges str) 
 	{
 		str = range_trim(str, ' ');
@@ -544,37 +615,32 @@ public:
 
 	GLUUGraphics parse_header(string_ranges head)
 	{
-		vector<string_ranges> keywords = split_escape_delim(head, '<', '>', " ");
+		head = range_trim(head, ' ');
+		vector<string_ranges> keywords = split_and_delim(head, '<', '>', " ");
 
 		GLUUGraphics row;
 		row.scope = std::make_shared< VariableRegistry>();
 
-		for (size_t i = 0; i < keywords.size(); i++)
+		for (size_t i = 0; i < keywords.size(); i++ )
 		{
-			string_ranges current = keywords.at(i);
+			string current = keywords.at(i).flat();
 
-			if (i == keywords.size() - 1) break; //error
-			string_ranges next = keywords.at(i + 1);
-
-			range_trim(current, ' ');
-			range_trim(next, ' ');
-
-			if (next.flat() == "AS")
+			std::cout << " param: " << current << std::endl; //error
+			if (keywords_func.count(current))
 			{
-				if (i == keywords.size() - 2) break; //error
-				string_ranges next_2 = keywords.at(i + 2);
-				range_trim(next_2, ' ');
-				row.size.get();
-				current_scope->add(row.size.get_gen(), next_2.flat());
-				i++;
+				auto& p = keywords_func.at(current);
+				vector<string> args;
+				for (size_t y = 0; y < p.first; y++)
+				{
+					i++;
+					args.push_back(keywords.at(i).flat());
+				}
+				p.second(*this, row, args);
 			}
 			else
 			{
-				row.size.set(next.flat(), *this);
-				
+				//std::cout << "Invalid param: " << current << std::endl; //error
 			}
-
-			i++;
 		}
 
 		return row;
@@ -649,7 +715,7 @@ public:
 		return {};
 	}
 
-	void render(Rect windowSize)
+	void render(Rect_d windowSize)
 	{
 		base_row.render(windowSize);
 	}

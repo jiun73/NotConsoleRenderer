@@ -1,7 +1,7 @@
 #pragma once
 #include "Generics.h"
 
-class GenericObject : public Generic
+struct GenericObject : public Generic
 {
 	virtual shared_generic dereference() = 0;
 };

@@ -126,6 +126,14 @@ namespace strings
 		return true;
 	}
 
+	inline int destringify(size_t& target, std::string s)
+	{
+		if (!isNum(s)) return false;
+
+		target = stoi(s);
+		return true;
+	}
+
 	//turn any type into a string! (if defined)
 	template<typename T> inline std::string stringify(const std::vector<T>& x)
 	{
