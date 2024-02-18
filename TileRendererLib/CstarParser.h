@@ -252,8 +252,6 @@ struct GLUUGraphics
 
 	void render(Rect_d dest)
 	{
-		
-
 		if (is_row)
 		{
 			double pencil = dest.pos.x;
@@ -303,6 +301,7 @@ struct GLUUGraphics
 
 #include <map>
 using std::map;
+using std::make_pair;
 
 class GLUUParser
 {
@@ -314,47 +313,41 @@ private:
 	map <string, pair<size_t, function<void(GLUUParser&, GLUUGraphics&, vector<string>)>>> keywords_func;
 
 public:
-
 	const char row_open = '<';
 	const char row_close = '>';
-
 	const char expr_open = '{';
 	const char expr_close = '}';
 
-
 	GLUUParser()
 	{
-		keywords_func.emplace("SIZE", std::make_pair(1, [](GLUUParser& parser, GLUUGraphics& gfx, vector<string> s)
+		keywords_func.emplace("SIZE", make_pair(1, [](GLUUParser& parser, GLUUGraphics& gfx, vector<string> s)
 			{
 				std::cout << strings::stringify(s) << std::endl;
 				gfx.size.set(s.at(0), parser);
 				std::cout << gfx.size() << std::endl;
 			}));
 
-		keywords_func.emplace("IF", std::make_pair(1, [](GLUUParser& parser, GLUUGraphics& gfx, vector<string> s)
+		keywords_func.emplace("IF", make_pair(1, [](GLUUParser& parser, GLUUGraphics& gfx, vector<string> s)
 			{
 				std::cout << strings::stringify(s) << std::endl;
 				gfx.condition.set(s.at(0), parser);
 			}));
 
-		keywords_func.emplace("FIT", std::make_pair(1, [](GLUUParser& parser, GLUUGraphics& gfx, vector<string> s)
+		keywords_func.emplace("FIT", make_pair(1, [](GLUUParser& parser, GLUUGraphics& gfx, vector<string> s)
 			{
 				std::cout << strings::stringify(s) << std::endl;
 				gfx.fit.set(s.at(0), parser);
 				std::cout << gfx.fit() << std::endl;
 			}));
 
-		keywords_func.emplace("CFIT", std::make_pair(0, [](GLUUParser& parser, GLUUGraphics& gfx, vector<string> s)
+		keywords_func.emplace("CFIT", make_pair(0, [](GLUUParser& parser, GLUUGraphics& gfx, vector<string> s)
 			{
 				gfx.fit() = true;
 			}));
 
 		track_variable(base_row.fit.get(), "base_fit");
 	}
-	~GLUUParser()
-	{
-
-	}
+	~GLUUParser() {}
 
 	vector<string> split_and_trim(string_ranges str) 
 	{
@@ -385,107 +378,123 @@ public:
 		bool f = true;
 		for (auto it = ignore.begin(); it != ignore.end(); it+=2)
 		{
-			vector<string_ranges> keywords = subchain(chain(*it, range_until, " "), range_until, ",");
-			for (auto kw = keywords.begin(); kw != keywords.end(); kw++)
+			vector<string_ranges> ignore2 = range_delimiter(*it, '"', '"');
+			for (auto it2 = ignore2.begin(); it2 != ignore2.end(); it2 += 2)
 			{
-				if (f && kw->flat() == "new")
+				vector<string_ranges> keywords = subchain(chain(*it2, range_until, " "), range_until, ",");
+				for (auto kw = keywords.begin(); kw != keywords.end(); kw++)
 				{
-					get_declaractions(str);	
-					return;
-				}
-				if (f && kw->flat() == "arg")
-				{
-					if (keywords.size() < 3) return; //error
-					string type = next(kw)->flat();
-					string name = next(kw, 2)->flat();
-					ret_val.add_arg(name, type);
-					std::cout << "'" << name  << "' as " << type << std::endl;
-					return;
-				}
-				else if (kw->flat() == "this")
-				{
-					GLUU constant;
-					constant.root = false;
-					constant.constant = std::make_shared<GenericRef<GLUU>>(ret_val);
-					constants.push_back(constant);
-				}
-				else if (is_char(*kw))
-				{
-					std::cout << "\t> ch " << kw->flat() << std::endl;
-					kw->begin() += 1;
-					kw->end() -= 1;
-					GLUU constant;
-					constant.root = false;
-					constant.constant = make_generic<char>(kw->flat().at(0));
-					constants.push_back(constant);
-				}
-				else if (is_string(*kw))
-				{
-					std::cout << "\t> str " << kw->flat() << std::endl;
-					kw->begin() += 1;
-					kw->end() -= 1;
-					GLUU constant;
-					constant.root = false;
-					constant.constant = make_generic<string>(kw->flat());
-					constants.push_back(constant);
-				}
-				else if (is_num(*kw))
-				{
-					GLUU constant;
-					constant.root = false;
-					constant.constant = make_generic<int>();
-					constant.constant->destringify(kw->flat());
-					std::cout << "\t> num " << kw->flat() << " " << constant.constant->stringify() << std::endl;
-					
-					constants.push_back(constant);
-				}
-				else if (is_var_name(*kw))
-				{
-					std::cout << "\t> var " << kw->flat() << std::endl;
-
-					GLUU constant;
-					constant.root = false;
-					shared_generic var = variable_dictionnary()->get(kw->flat());
-					if (var == nullptr) { std::cout << "Invalid var name!" << std::endl;  return; }
-					constant.constant = var;
-					constants.push_back(constant);
-				}
-				else if (is_func_name(*kw))
-				{
-					std::cout << "\t> func " << kw->flat() << std::endl;
-
-					GLUU func;
-					func.root = false;
-					shared_generic var = variable_dictionnary()->get(kw->flat());
-					if (var == nullptr) { std::cout << "Invalid func name!" << std::endl; return; } // error
-					if (var->identity() == typeid(GenericFunction))
+					if (f && kw->flat() == "new")
 					{
-						func.func = true;
-						func.function = std::reinterpret_pointer_cast<GenericFunction>(var);
-						if (func.function->arg_count() > 0)
-							functions.push_back(func);
+						get_declaractions(str);
+						return;
+					}
+					if (f && kw->flat() == "arg")
+					{
+						if (keywords.size() < 3) return; //error
+						string type = next(kw)->flat();
+						string name = next(kw, 2)->flat();
+						ret_val.add_arg(name, type);
+						std::cout << "'" << name << "' as " << type << std::endl;
+						return;
+					}
+					else if (kw->flat() == "this")
+					{
+						GLUU constant;
+						constant.root = false;
+						constant.constant = std::make_shared<GenericRef<GLUU>>(ret_val);
+						constants.push_back(constant);
+					}
+					else if (is_char(*kw))
+					{
+						std::cout << "\t> ch " << kw->flat() << std::endl;
+						kw->begin() += 1;
+						kw->end() -= 1;
+						GLUU constant;
+						constant.root = false;
+						constant.constant = make_generic<char>(kw->flat().at(0));
+						constants.push_back(constant);
+					}
+					else if (is_string(*kw))
+					{
+						std::cout << "\t> str " << kw->flat() << std::endl;
+						kw->begin() += 1;
+						kw->end() -= 1;
+						GLUU constant;
+						constant.root = false;
+						constant.constant = make_generic<string>(kw->flat());
+						constants.push_back(constant);
+					}
+					else if (is_num(*kw))
+					{
+						GLUU constant;
+						constant.root = false;
+						constant.constant = make_generic<int>();
+						constant.constant->destringify(kw->flat());
+						std::cout << "\t> num " << kw->flat() << " " << constant.constant->stringify() << std::endl;
+
+						constants.push_back(constant);
+					}
+					else if (is_var_name(*kw))
+					{
+						std::cout << "\t> var " << kw->flat() << std::endl;
+
+						GLUU constant;
+						constant.root = false;
+						shared_generic var = variable_dictionnary()->get(kw->flat());
+						if (var == nullptr) { std::cout << "Invalid var name!" << std::endl;  return; }
+						constant.constant = var;
+						constants.push_back(constant);
+					}
+					else if (is_func_name(*kw))
+					{
+						std::cout << "\t> func " << kw->flat() << std::endl;
+
+						GLUU func;
+						func.root = false;
+						shared_generic var = variable_dictionnary()->get(kw->flat());
+						if (var == nullptr) { std::cout << "Invalid func name!" << std::endl; return; } // error
+						if (var->identity() == typeid(GenericFunction))
+						{
+							func.func = true;
+							func.function = std::reinterpret_pointer_cast<GenericFunction>(var);
+							if (func.function->arg_count() > 0)
+								functions.push_back(func);
+							else
+								constants.push_back(func);
+						}
+						else if (var->type() == typeid(GLUU))
+						{
+							GLUU& star = *(GLUU*)var->raw_bytes();
+							func.constant = var;
+							func.user_func = true;
+							func.arg_count = star.args_name.size();
+
+							if (star.args_name.size() == 0)
+								constants.push_back(func);
+							else
+								functions.push_back(func);
+						}
 						else
-							constants.push_back(func);
-					}
-					else if (var->type() == typeid(GLUU))
-					{
-						GLUU& star = *(GLUU*)var->raw_bytes();
-						func.constant = var;
-						func.user_func = true;
-						func.arg_count = star.args_name.size();
+						{
+							return; // error
+						}
 
-						if(star.args_name.size() == 0)
-							constants.push_back(func);
-						else
-							functions.push_back(func);
 					}
-					else
-					{
-						return; // error
-					}
-					
+					f = false;
 				}
-				f = false;
+
+				if (!next(it2)->empty())
+				{
+					string_ranges r2 = *next(it2);
+					std::cout << "\t> str " << r2.flat() << std::endl;
+					r2.begin() += 1;
+					r2.end() -= 1;
+					GLUU constant;
+					constant.root = false;
+					constant.constant = make_generic<string>(r2.flat());
+					constants.push_back(constant);
+				}
 			}
 			
 			if (!next(it)->empty())

@@ -120,6 +120,9 @@
     <ClInclude Include="Networking.h">
       <Filter>Header Files\Classes</Filter>
     </ClInclude>
+    <ClInclude Include="Operators.h">
+      <Filter>Header Files\Generic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TileRendererLib.cpp">

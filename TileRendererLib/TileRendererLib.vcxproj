@@ -164,6 +164,7 @@
     <ClInclude Include="Input.h" />
     <ClInclude Include="Networking.h" />
     <ClInclude Include="ObjectGenerics.h" />
+    <ClInclude Include="Operators.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Rect.h" />

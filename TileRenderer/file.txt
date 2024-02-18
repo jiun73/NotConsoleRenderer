@@ -19,7 +19,14 @@ new init b =
 		index ++;
 	};
 	
-	:cout {"b" #_ "done!"};
+	{
+		arg int index;
+		index = 0;
+	} index;
+	
+	:cout {"b done!"};
+	
+	:cout {1 == 1}
 }
 
 /*
@@ -29,7 +36,7 @@ new init b =
 ROW SIZE 30 CFIT < //row 1
 	new int local = 100
 	
-	[BASE CFIT]
+	//[BASE CFIT]
 
 	COL SIZE 1 BUTTON {test := 200} {index "/" container :size}
 	<

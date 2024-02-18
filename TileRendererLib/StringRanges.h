@@ -86,19 +86,13 @@ inline string_ranges range_outside(string_ranges range, char open, char end)
 
 		if (*it == end && !out && level <= 0) return { range.begin(), iter_open, next(it) };
 
-		
-
 		if (*it == open && out && level <= 0)
 		{
 			iter_open = it;
 			out = false;
 		}
 
-		
-		
 		if (*it == open) level++;
-		
-		
 	}
 
 	if (out) return range;
@@ -128,10 +122,6 @@ inline string_ranges range_inside(string_ranges range, char open, char end)
 		{
 			level++; in = true; continue;
 		}
-
-		
-
-		
 	}
 
 	return range;

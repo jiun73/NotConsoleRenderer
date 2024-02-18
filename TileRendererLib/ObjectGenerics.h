@@ -1,9 +1,11 @@
 #pragma once
 #include "Generics.h"
+#include "Operators.h"
 
 struct GenericObject : public Generic
 {
 	virtual shared_generic dereference() = 0;
+	virtual bool equals(shared_generic) = 0;
 };
 
 template<typename T>
@@ -33,6 +35,13 @@ public:
 
 	string stringify() override { return strings::stringify(*_object_); };
 	int destringify(const string& str) override { return strings::destringify(*_object_, str); }
+
+	bool equals(shared_generic gen) override
+	{
+		if (gen->type() != type()) return false;
+		if constexpr (!operators::has_operator_equals<T, bool(T)>::value && !std::is_arithmetic_v<T>) { return false; }
+		else return (*(T*)gen->raw_bytes() == *_object_);
+	}
 
 	shared_generic dereference() override;
 	shared_generic make() override;
@@ -74,6 +83,13 @@ public:
 	{
 		if constexpr (is_pointer_v<T>) return make_shared < GenericRef<remove_pointer_t<T>>>(*_object_);
 		else return make_shared<GenericType<T>>(*this);
+	}
+
+	bool equals(shared_generic gen) override
+	{
+		if (gen->type() != type()) return false;
+		if constexpr (!operators::has_operator_equals<bool, T, T>::value && !std::is_arithmetic_v<T>) return false;
+		else return (*(T*)gen->raw_bytes() == _object_);
 	}
 
 	shared_generic make() override { return make_shared<GenericType<T>>(); }

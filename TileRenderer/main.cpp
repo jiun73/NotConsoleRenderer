@@ -28,6 +28,9 @@ int main()
 	*/
 
 	int test_variable = 1000;
+	1 == 1;
+
+	std::cout << "int: " << operators::has_operator_equals<int, bool(int)>::value << std::endl;;
 
 	GLUUParser parser;
 	File file("file.txt", FILE_READING_STRING);
@@ -43,6 +46,17 @@ int main()
 			a->set(b);
 		});
 	variable_dictionnary()->global()->add(eq_func, "=");
+
+	shared_generic eeq_func = std::make_shared<GenericFunctionType<function<bool(shared_generic, shared_generic)>>>([](shared_generic b, shared_generic a)
+		{
+			if (a->identity() == typeid(GenericObject) && b->identity() == typeid(GenericObject))
+			{
+				shared_ptr<GenericObject> obj = std::reinterpret_pointer_cast<GenericObject>(a);
+				return obj->equals(b);
+			}
+			return false;
+		});
+	variable_dictionnary()->global()->add(eeq_func, "==");
 
 	shared_generic for_func = std::make_shared<GenericFunctionType<function<void(GLUU&, GLUU&)>>>([](GLUU& expr, GLUU& condition)
 		{	
@@ -204,7 +218,7 @@ int main()
 		{
 			return true;
 		});
-	variable_dictionnary()->global()->add(deref_func, ":true");
+	variable_dictionnary()->global()->add(true_func, ":true");
 
 	shared_generic false_func = std::make_shared<GenericFunctionType<function<bool()>>>([]()
 		{
