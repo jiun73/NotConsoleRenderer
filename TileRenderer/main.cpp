@@ -1,7 +1,7 @@
 
 #include "TileRenderer.h"
 
-#include "CstarParser.h"
+#include "GLUU_parser.h"
 #include "File.h"
 #include "Networking.h"
 
@@ -15,6 +15,17 @@
 * 
 * Juste a creer un nouveau proet dans la solution et copier les settings de 'exemple'
 */
+
+class GLUU_Text : public GLUUWidget 
+{
+	pair<size_t, string> fetch_keyword() override  { return { 0,"TEXT" }; }
+	void update(GLUUElement& graphic) override 
+	{
+		std::cout << "Called " << std::endl;
+	}
+	shared_ptr<GLUUWidget> make(vector<string> args) override { return make_shared<GLUU_Text>(); }
+
+};
 
 int main() 
 {
@@ -35,6 +46,8 @@ int main()
 	GLUUParser parser;
 	File file("file.txt", FILE_READING_STRING);
 	File file2("file2.txt", FILE_READING_STRING);
+
+	parser.register_class(make_shared<GLUU_Text>());
 
 	int line1;
 	track_variable(line1, "line1");
@@ -228,7 +241,7 @@ int main()
 
 	string str = file.getString();
 	string str2 = file2.getString();
-	parser.parse(str);
+	shared_ptr<GLUUGraphics> gluu_gfx = parser.parse(str);
 	//shared_generic gen = parser.parse_sequence(str2).evaluate();
 	//std::cout << gen->type().name() <<  "\n" << gen->stringify() << std::endl;
 
@@ -405,7 +418,7 @@ int main()
 			}
 		}
 		
-		parser.render({ 0,get_logical_size() });
+		gluu_gfx->render({ 0,get_logical_size() });
 	}
 
 	return 0;

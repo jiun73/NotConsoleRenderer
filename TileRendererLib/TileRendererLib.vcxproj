@@ -155,12 +155,15 @@
     <ClInclude Include="ConsoleRenderer.h" />
     <ClInclude Include="ContainerGenerics.h" />
     <ClInclude Include="Controls.h" />
-    <ClInclude Include="CstarParser.h" />
+    <ClInclude Include="GLUU_parser.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Fonts.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="FunctionGenerics.h" />
     <ClInclude Include="Generics.h" />
+    <ClInclude Include="GLUU.h" />
+    <ClInclude Include="GLUU_types.h" />
+    <ClInclude Include="GLUU_var.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Networking.h" />
     <ClInclude Include="ObjectGenerics.h" />

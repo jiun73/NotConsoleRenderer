@@ -5,6 +5,8 @@
 #include "CommandDictionnary.h"
 #include "TileRenderer.h"
 
+#include "GLUU.h"
+
 #include <string>
 #include <vector>
 
@@ -13,185 +15,21 @@ using std::vector;
 
 class CstarParserError {};
 
-inline bool is_string(string_ranges range)
-{
-	if (range.empty()) return false;
-	if (next(range.begin()) == range.end()) return false;
-
-	return (*range.begin() == '"' && *prev(range.end()) == '"');
-}
-
-inline bool is_char(string_ranges range)
-{
-	if (range.empty()) return false;
-	if (next(range.begin()) == range.end()) return false;
-
-	return (*range.begin() == '\'' && *prev(range.end()) == '\'');
-}
-
-inline bool is_num(string_ranges range)
-{
-	return std::all_of(range.begin(), range.end(), isdigit);
-}
-
-inline bool is_keyword(string_ranges range)
-{
-	string flat = range.flat();
-	if (flat != "new") return true;
-	if (ClassFactory::get()->has(flat)) return true;
-	return false;
-}
-
-inline bool is_var_name(string_ranges range)
-{
-	if (range.empty()) return false;
-	//if (is_keyword(range)) return false;
-
-	return std::all_of(range.begin(), range.end(), [](char c) { return isalnum(c) || c == '_'; }) && !std::all_of(range.begin(), range.end(), isdigit) && !isdigit(*range.begin());
-}
-
-inline bool is_func_name(string_ranges range)
-{
-	if (range.empty()) return false;
-	char beg = *range.begin();
-	if (!isalnum(beg) && beg != '_') return true;
-	return false;
-}
-
-
-
-struct GLUU
-{
-	shared_ptr<VariableRegistry> scope;
-	vector<GLUU> recursive;
-
-	bool root = true;
-	bool func = false;
-	bool user_func = false;
-	shared_generic constant = nullptr;
-	shared_ptr<GenericFunction> function = nullptr;
-
-	vector<string> args_name;
-	size_t arg_count = 0;
-
-	void add_arg(const string& str, const string& type)
-	{
-		scope->add(ClassFactory::get()->make(type), str);
-		args_name.push_back(str);
-	}
-
-	void set_args(vector<shared_generic>& args)
-	{
-		size_t i = 0;
-		for (auto& name : args_name)
-		{
-			scope->add(args.at(i), name);
-			//*(scope->get(name)) = *args.at(i);
-			//scope->get(name).swap(args.at(i));
-			scope->get(name)->set(args.at(i));
-			i++;
-		}
-	}
-
-	vector<shared_generic> get_args_from_recursive(bool func_check = false)
-	{
-		vector<shared_generic> args;
-		size_t i = 0;
-		for (auto& r : recursive)
-		{
-			if (func_check && function->args_type(i) == typeid(GLUU&) )
-			{
-				shared_generic rec = make_shared<GenericRef<GLUU>>(r);
-				args.push_back(rec);
-			}
-			else
-			{
-				args.push_back(r.evaluate());
-			}
-			i++;
-		}
-		return args;
-	}
-
-	shared_generic evaluate() 
-	{
-		if (root)
-		{
-			vector<shared_generic> ret;
-
-			for (auto& r : recursive)
-			{
-				shared_generic eval = r.evaluate();
-				if(eval != nullptr)
-					ret.push_back(eval);
-			}
-
-			if (ret.size() == 0) { return nullptr; }
-			if (ret.size() == 1) { return ret.at(0); }
-
-			string collect;
-
-			for (auto& r : ret)
-			{
-				collect += r->stringify();
-			}
-
-			shared_generic str_type = make_generic<string>(collect);
-			return str_type;
-		}
-		else
-		{
-			if (func)
-			{
-				vector<GenericArgument> args;
-
-				for (auto& arg : get_args_from_recursive(true))
-				{
-					args.push_back(arg);
-				}
-
-				function->args(args);
-				return function->call();
-			}
-			else if (user_func)
-			{
-				GLUU& star = *(GLUU*)(constant->raw_bytes());
-
-				if (star.args_name.size() > 0)
-				{
-					vector<shared_generic> args = get_args_from_recursive();
-					star.set_args(args);
-				}
-
-				return star.evaluate();
-			}
-			else
-			{
-				return constant;
-			}
-		}
-	}
-};
-
 class GLUUParser;
 
 template<typename T>
-class CstarVar
+class GLUUVar
 {
 private:
 	shared_generic generic = nullptr;
 	GLUU seq;
-
 	bool is_seq = false;
 
 public:
-	CstarVar() {}
-	CstarVar(const T& df) 
-	{
-		get() = df;
-	}
+	GLUUVar() {}
+	GLUUVar(const T& df);
 
-	~CstarVar() {}
+	~GLUUVar() {}
 
 	void set(const string& str,  GLUUParser& parser);
 	shared_generic get_gen() { return generic; }
@@ -199,38 +37,34 @@ public:
 	T& get() 
 	{
 		if (generic == nullptr)
-		{
 			generic = make_generic<T>();
-		}
 		if (!is_seq)
 			return *(T*)generic->raw_bytes();
 		else
 			return *(T*)seq.evaluate()->raw_bytes();
 	}
 
-	operator T()
-	{
-		return get();
-	}
-
-	T& operator->()
-	{
-		return get();
-	}
-
-	T& operator()() 
-	{
-		return get();
-	}
+	operator T() { return get(); }
+	T& operator->() { return get(); }
+	T& operator()() { return get(); }
 };
 
-struct GLUUGraphics
+struct GLUUElement;
+
+struct GLUUWidget
 {
-	vector<GLUUGraphics> nested;
+	virtual pair<size_t, string> fetch_keyword() = 0;
+	virtual void update(GLUUElement& graphic) = 0;
+	virtual shared_ptr<GLUUWidget> make(vector<string> args) = 0;
+};
+
+struct GLUUElement
+{
+	vector<GLUUElement> nested;
 	shared_ptr<VariableRegistry> scope;
-	CstarVar<size_t> size = 10;
-	CstarVar<bool> condition;
-	CstarVar<bool> fit = false;
+	GLUUVar<size_t> size = 10;
+	GLUUVar<bool> condition;
+	GLUUVar<bool> fit = false;
 
 	bool is_row = false;
 
@@ -297,20 +131,45 @@ struct GLUUGraphics
 			}
 		}
 	}
+
+	shared_ptr < GLUUWidget> widget = nullptr;
+
+	void update() 
+	{
+		if (widget != nullptr)
+			widget->update(*this);
+
+		for (auto& n : nested)
+		{
+			n.update();
+		}
+	}
 };
 
 #include <map>
 using std::map;
 using std::make_pair;
 
+struct GLUUGraphics
+{
+	GLUUElement* current_row = nullptr;
+	GLUUElement base_row;
+
+	void render(Rect_d window) { base_row.update(); base_row.render(window); }
+	void update() 
+	{
+		//base_row.update();
+	}
+};
+
 class GLUUParser
 {
 private:
 	shared_ptr<VariableRegistry> current_scope;
-	GLUUGraphics* current_row = nullptr;
-	GLUUGraphics base_row;
+	map <string, pair<size_t, function<void(GLUUParser&, GLUUElement&, vector<string>)>>> keywords_func;
+	map <string, shared_ptr<GLUUWidget>> widgets;
 
-	map <string, pair<size_t, function<void(GLUUParser&, GLUUGraphics&, vector<string>)>>> keywords_func;
+	shared_ptr<GLUUGraphics> graphics;
 
 public:
 	const char row_open = '<';
@@ -320,34 +179,39 @@ public:
 
 	GLUUParser()
 	{
-		keywords_func.emplace("SIZE", make_pair(1, [](GLUUParser& parser, GLUUGraphics& gfx, vector<string> s)
+		keywords_func.emplace("SIZE", make_pair(1, [](GLUUParser& parser, GLUUElement& gfx, vector<string> s)
 			{
 				std::cout << strings::stringify(s) << std::endl;
 				gfx.size.set(s.at(0), parser);
 				std::cout << gfx.size() << std::endl;
 			}));
 
-		keywords_func.emplace("IF", make_pair(1, [](GLUUParser& parser, GLUUGraphics& gfx, vector<string> s)
+		keywords_func.emplace("IF", make_pair(1, [](GLUUParser& parser, GLUUElement& gfx, vector<string> s)
 			{
 				std::cout << strings::stringify(s) << std::endl;
 				gfx.condition.set(s.at(0), parser);
 			}));
 
-		keywords_func.emplace("FIT", make_pair(1, [](GLUUParser& parser, GLUUGraphics& gfx, vector<string> s)
+		keywords_func.emplace("FIT", make_pair(1, [](GLUUParser& parser, GLUUElement& gfx, vector<string> s)
 			{
 				std::cout << strings::stringify(s) << std::endl;
 				gfx.fit.set(s.at(0), parser);
 				std::cout << gfx.fit() << std::endl;
 			}));
 
-		keywords_func.emplace("CFIT", make_pair(0, [](GLUUParser& parser, GLUUGraphics& gfx, vector<string> s)
+		keywords_func.emplace("CFIT", make_pair(0, [](GLUUParser& parser, GLUUElement& gfx, vector<string> s)
 			{
 				gfx.fit() = true;
 			}));
 
-		track_variable(base_row.fit.get(), "base_fit");
+		//track_variable(graphics->base_row.fit.get(), "base_fit");
 	}
 	~GLUUParser() {}
+
+	void register_class(shared_ptr <GLUUWidget> c)
+	{
+		widgets.emplace(c->fetch_keyword().second, c);
+	}
 
 	vector<string> split_and_trim(string_ranges str) 
 	{
@@ -641,12 +505,12 @@ public:
 			}
 	}
 
-	GLUUGraphics parse_header(string_ranges head)
+	GLUUElement parse_header(string_ranges head)
 	{
 		head = range_trim(head, ' ');
 		vector<string_ranges> keywords = split_and_delim(head, expr_open, expr_close, " ");
 
-		GLUUGraphics row;
+		GLUUElement row;
 		row.scope = std::make_shared< VariableRegistry>();
 
 		for (size_t i = 0; i < keywords.size(); i++ )
@@ -654,7 +518,19 @@ public:
 			string current = keywords.at(i).flat();
 
 			std::cout << " param: " << current << std::endl; //error
-			if (keywords_func.count(current))
+			if (widgets.count(current))
+			{
+				size_t p = widgets.at(current)->fetch_keyword().first;
+				vector<string> args;
+				for (size_t y = 0; y < p; y++)
+				{
+					i++;
+					args.push_back(keywords.at(i).flat());
+				}
+
+				row.widget = widgets.at(current)->make(args);
+			}
+			else if (keywords_func.count(current))
 			{
 				auto& p = keywords_func.at(current);
 				vector<string> args;
@@ -689,24 +565,24 @@ public:
 
 		std::cout << "-----------" << head.flat() << std::endl;
 
-		GLUUGraphics row_obj = parse_header(head);
+		GLUUElement row_obj = parse_header(head);
 		shared_ptr<VariableRegistry> old_scope = current_scope;
-		GLUUGraphics* old_base = current_row;
+		GLUUElement* old_base = graphics->current_row;
 
 		row_obj.is_row = is_row;
 
 		row_obj.scope->name = "Row scope";
 		current_scope = row_obj.scope;
-		current_row = &row_obj;
+		graphics->current_row = &row_obj;
 		variable_dictionnary()->enter_scope(current_scope);
 
 		parse_range(row, is_row ? "COL" : "ROW", !is_row);
 
 		variable_dictionnary()->exit_scope();
-		current_row = old_base;
+		graphics->current_row = old_base;
 		current_scope = old_scope;
 
-		current_row->nested.push_back(row_obj);
+		graphics->current_row->nested.push_back(row_obj);
 	}
 
 	void parse_range(string_ranges range, const string& keyword, bool row)
@@ -728,10 +604,12 @@ public:
 		}
 	}
 
-	CstarParserError parse(string& str)
+	shared_ptr<GLUUGraphics> parse(string& str)
 	{
+		graphics = make_shared<GLUUGraphics>();
+		//graphics->widgets = widgets;
 		current_scope = variable_dictionnary()->global();
-		current_row = &base_row;
+		graphics->current_row = &graphics->base_row;
 		string row_keyword = "ROW";
 		str += '\n';
 		remove_all_range(str, "//", "\n", false);
@@ -740,19 +618,19 @@ public:
 
 		parse_range(str, row_keyword, true);
 
-		return {};
+		return graphics;
 	}
 
 	void render(Rect_d windowSize)
 	{
-		base_row.render(windowSize);
+		graphics->base_row.render(windowSize);
 	}
 };
 
 //typedef CstartGlobalParser;
 
 template<typename T>
-inline void CstarVar<T>::set(const string& str, GLUUParser& parser)
+inline void GLUUVar<T>::set(const string& str, GLUUParser& parser)
 {
 	if (!str.empty() && str.begin() != str.end())
 	{
@@ -767,4 +645,10 @@ inline void CstarVar<T>::set(const string& str, GLUUParser& parser)
 
 	generic = make_generic<T>();
 	generic->destringify(str);
+}
+
+template<typename T>
+inline GLUUVar<T>::GLUUVar(const T& df)
+{
+	get() = df;
 }
