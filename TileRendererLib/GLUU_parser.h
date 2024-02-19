@@ -55,7 +55,7 @@ struct GLUUWidget
 {
 	virtual pair<size_t, string> fetch_keyword() = 0;
 	virtual void update(GLUUElement& graphic) = 0;
-	virtual shared_ptr<GLUUWidget> make(vector<string> args) = 0;
+	virtual shared_ptr<GLUUWidget> make(vector<string> args, GLUUParser& parser) = 0;
 };
 
 struct GLUUElement
@@ -65,6 +65,7 @@ struct GLUUElement
 	GLUUVar<size_t> size = 10;
 	GLUUVar<bool> condition;
 	GLUUVar<bool> fit = false;
+	Rect_d last_dest;
 
 	bool is_row = false;
 
@@ -130,6 +131,7 @@ struct GLUUElement
 				pencil += sz;
 			}
 		}
+		last_dest = dest;
 	}
 
 	shared_ptr < GLUUWidget> widget = nullptr;
@@ -155,7 +157,7 @@ struct GLUUGraphics
 	GLUUElement* current_row = nullptr;
 	GLUUElement base_row;
 
-	void render(Rect_d window) { base_row.update(); base_row.render(window); }
+	void render(Rect_d window) { base_row.render(window); base_row.update();}
 	void update() 
 	{
 		//base_row.update();
@@ -528,7 +530,7 @@ public:
 					args.push_back(keywords.at(i).flat());
 				}
 
-				row.widget = widgets.at(current)->make(args);
+				row.widget = widgets.at(current)->make(args, *this);
 			}
 			else if (keywords_func.count(current))
 			{

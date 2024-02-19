@@ -1,7 +1,7 @@
 
 #include "TileRenderer.h"
 
-#include "GLUU_parser.h"
+#include "GLUU_std.h"
 #include "File.h"
 #include "Networking.h"
 
@@ -18,12 +18,25 @@
 
 class GLUU_Text : public GLUUWidget 
 {
-	pair<size_t, string> fetch_keyword() override  { return { 0,"TEXT" }; }
+	GLUUVar<string> text;
+
+	pair<size_t, string> fetch_keyword() override  
+	{
+		return { 1,"TEXT" }; 
+	}
+
 	void update(GLUUElement& graphic) override 
 	{
-		std::cout << "Called " << std::endl;
+		draw_text(text(), graphic.last_dest.sz.x, graphic.last_dest.pos, get_font(0));
 	}
-	shared_ptr<GLUUWidget> make(vector<string> args) override { return make_shared<GLUU_Text>(); }
+
+	shared_ptr<GLUUWidget> make(vector<string> args, GLUUParser& parser) override 
+	{
+		std::cout << args.at(0) << std::endl;
+		shared_ptr<GLUU_Text> ptr = make_shared<GLUU_Text>();
+		ptr->text.set(args.at(0), parser);
+		return ptr; 
+	}
 
 };
 
@@ -32,6 +45,8 @@ int main()
 	set_window_size(200); //fenetre de 200x200
 	set_window_resizable(); //fenetre peut etre agrandie
 	init();
+
+	GLUU_import_standard();
 
 	/*
 	* En gros ca marche plus ou moins de la meme facon que le console renderer
@@ -53,191 +68,6 @@ int main()
 	track_variable(line1, "line1");
 	int line2;
 	track_variable(line2, "line2");
-
-	shared_generic eq_func = std::make_shared<GenericFunctionType<function<void(shared_generic, shared_generic)>>>([](shared_generic b, shared_generic a)
-		{
-			a->set(b);
-		});
-	variable_dictionnary()->global()->add(eq_func, "=");
-
-	shared_generic eeq_func = std::make_shared<GenericFunctionType<function<bool(shared_generic, shared_generic)>>>([](shared_generic b, shared_generic a)
-		{
-			if (a->identity() == typeid(GenericObject) && b->identity() == typeid(GenericObject))
-			{
-				shared_ptr<GenericObject> obj = std::reinterpret_pointer_cast<GenericObject>(a);
-				return obj->equals(b);
-			}
-			return false;
-		});
-	variable_dictionnary()->global()->add(eeq_func, "==");
-
-	shared_generic for_func = std::make_shared<GenericFunctionType<function<void(GLUU&, GLUU&)>>>([](GLUU& expr, GLUU& condition)
-		{	
-			while (true)
-			{
-				shared_generic gen = condition.evaluate();
-				if (gen->type() != typeid(bool)) { std::cout << "wrong type for while" << std::endl;  return; }
-				if (!*(bool*)(gen->raw_bytes())) return;
-
-				expr.evaluate();
-			}
-		});
-	variable_dictionnary()->global()->add(for_func, "$while");
-
-	shared_generic if_func = std::make_shared<GenericFunctionType<function<void(GLUU&, bool)>>>([](GLUU& expr, bool b)
-		{
-			if (b)
-			{
-				expr.evaluate();
-			}
-		});
-	variable_dictionnary()->global()->add(if_func, "$if");
-
-	shared_generic feach_func = std::make_shared<GenericFunctionType<function<void(GLUU&, shared_generic)>>>([](GLUU& expr, shared_generic a)
-		{
-			if (a->identity() == typeid(GenericContainer))
-			{
-				shared_ptr<GenericContainer> container = std::reinterpret_pointer_cast<GenericContainer>(a);
-				for (size_t i = 0; i < container->size(); i++)
-				{
-					expr.evaluate();
-				}
-			}
-			else
-				std::cout << "Cannot foreach a non-container" << std::endl;
-		});
-	variable_dictionnary()->global()->add(feach_func, "$foreach");
-
-	shared_generic add_func = std::make_shared<GenericFunctionType<function<void(int& )>>>([](int& a)
-		{
-			a++;
-		});
-	variable_dictionnary()->global()->add(add_func, "++");
-
-	shared_generic type_func = std::make_shared<GenericFunctionType<function<string(shared_generic)>>>([](shared_generic a)
-		{
-			return a->type().name();
-		});
-	variable_dictionnary()->global()->add(type_func, ":type");
-
-	shared_generic cout_func = std::make_shared<GenericFunctionType<function<void(shared_generic)>>>([](shared_generic a)
-		{
-			std::cout << a->stringify() << std::endl;
-		});
-	variable_dictionnary()->global()->add(cout_func, ":cout");
-
-	shared_generic grea_func = std::make_shared<GenericFunctionType<function<bool(int, int)>>>([](int b, int a)
-		{
-			return a > b;
-		});
-	variable_dictionnary()->global()->add(grea_func, ":gr");
-
-	shared_generic less_func = std::make_shared<GenericFunctionType<function<bool(int, int)>>>([](int b, int a)
-		{
-			return a < b;
-		});
-	variable_dictionnary()->global()->add(less_func, ":ls");
-
-	shared_generic destr_func = std::make_shared<GenericFunctionType<function<void(string, shared_generic)>>>([](string b, shared_generic a)
-		{
-			a->destringify(b);
-		});
-	variable_dictionnary()->global()->add(destr_func, "#=");
-
-	shared_generic discard_func = std::make_shared<GenericFunctionType<function<void(shared_generic)>>>([](shared_generic a)
-		{});
-	variable_dictionnary()->global()->add(discard_func, "!#");
-
-	shared_generic space_func = std::make_shared<GenericFunctionType<function<string()>>>([]()
-		{
-			return " ";
-		});
-	variable_dictionnary()->global()->add(space_func, "#_");
-
-	shared_generic newline_func = std::make_shared<GenericFunctionType<function<string()>>>([]()
-		{
-			return "\n";
-		});
-	variable_dictionnary()->global()->add(newline_func, "#/");
-
-	shared_generic strify_func = std::make_shared<GenericFunctionType<function<string(shared_generic)>>>([](shared_generic a)
-		{
-			return a->stringify();
-		});
-	variable_dictionnary()->global()->add(strify_func, "#");
-
-	shared_generic pushb_func = std::make_shared<GenericFunctionType<function<void(shared_generic, shared_generic)>>>([](shared_generic b, shared_generic a)
-		{
-			if (a->identity() == typeid(GenericContainer))
-			{
-				shared_ptr<GenericContainer> container = std::reinterpret_pointer_cast<GenericContainer>(a);
-				container->insert(b, container->size());
-			}
-			else
-				std::cout << "Cannot push a non-container" << std::endl;
-		});
-	variable_dictionnary()->global()->add(pushb_func, "-pushb");
-
-	shared_generic pushf_func = std::make_shared<GenericFunctionType<function<void(shared_generic, shared_generic)>>>([](shared_generic b, shared_generic a)
-		{
-			if (a->identity() == typeid(GenericContainer))
-			{
-				shared_ptr<GenericContainer> container = std::reinterpret_pointer_cast<GenericContainer>(a);
-				container->insert(b, 0);
-			}
-			else
-				std::cout << "Cannot push a non-container" << std::endl;
-		});
-	variable_dictionnary()->global()->add(pushf_func, "-pushf");
-
-	shared_generic insert_func = std::make_shared<GenericFunctionType<function<void(int, shared_generic, shared_generic)>>>([](size_t i, shared_generic b, shared_generic a)
-		{
-			if (a->identity() == typeid(GenericContainer))
-			{
-				shared_ptr<GenericContainer> container = std::reinterpret_pointer_cast<GenericContainer>(a);
-				container->insert(b, i);
-			}
-			else
-				std::cout << "Cannot push a non-container" << std::endl;
-		});
-	variable_dictionnary()->global()->add(insert_func, "-ins");
-
-	shared_generic at_func = std::make_shared<GenericFunctionType<function<shared_generic(int, shared_generic)>>>([](size_t i, shared_generic a) -> shared_generic
-		{
-			if (a->identity() == typeid(GenericContainer))
-			{
-				shared_ptr<GenericContainer> container = std::reinterpret_pointer_cast<GenericContainer>(a);
-				return container->at(i);
-			}
-			else
-				std::cout << "Cannot at a non-container" << std::endl;
-			return nullptr;
-		});
-	variable_dictionnary()->global()->add(at_func, "-at");
-
-	shared_generic deref_func = std::make_shared<GenericFunctionType<function<shared_generic(shared_generic)>>>([](shared_generic a) -> shared_generic
-		{
-			if (a->identity() == typeid(GenericObject))
-			{
-				shared_ptr<GenericObject> obj = std::reinterpret_pointer_cast<GenericObject>(a);
-				return obj->dereference();
-			}
-			std::cout << "Cannot dereference a non-object!" << std::endl;
-			return nullptr;
-		});
-	variable_dictionnary()->global()->add(deref_func, "@");
-
-	shared_generic true_func = std::make_shared<GenericFunctionType<function<bool()>>>([]()
-		{
-			return true;
-		});
-	variable_dictionnary()->global()->add(true_func, ":true");
-
-	shared_generic false_func = std::make_shared<GenericFunctionType<function<bool()>>>([]()
-		{
-			return false;
-		});
-	variable_dictionnary()->global()->add(false_func, ":false");
 
 	string str = file.getString();
 	string str2 = file2.getString();

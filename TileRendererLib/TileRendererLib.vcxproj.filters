@@ -132,6 +132,9 @@
     <ClInclude Include="GLUU_var.h">
       <Filter>Header Files\Generic\Cstar</Filter>
     </ClInclude>
+    <ClInclude Include="GLUU_std.h">
+      <Filter>Header Files\Generic\Cstar</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TileRendererLib.cpp">

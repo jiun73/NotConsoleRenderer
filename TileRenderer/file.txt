@@ -9,20 +9,20 @@ new function -front =
 	c -at 0;
 }
 
+new function :seconds = 
+{
+	:ticks / 1000;
+}
+
 new init b = 
 {
 	//base_fit #= "true";
 	new int index = 0;
-	$while {index :ls 10}
+	$while {index /- 10}
 	{
 		container -pushb {object index};
 		index ++;
 	};
-	
-	{
-		arg int index;
-		index = 0;
-	} index;
 	
 	:cout {"b done!"};
 	
@@ -48,7 +48,7 @@ ROW SIZE 30 CFIT < //row 1
 
 	new int local2 = 10000
 	
-	COL SIZE 1 TEXT
+	COL SIZE 1 TEXT { "bruh" ## :seconds "s"; }
 	<
 		this is text
 	>

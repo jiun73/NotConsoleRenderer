@@ -162,6 +162,7 @@
     <ClInclude Include="FunctionGenerics.h" />
     <ClInclude Include="Generics.h" />
     <ClInclude Include="GLUU.h" />
+    <ClInclude Include="GLUU_std.h" />
     <ClInclude Include="GLUU_types.h" />
     <ClInclude Include="GLUU_var.h" />
     <ClInclude Include="Input.h" />

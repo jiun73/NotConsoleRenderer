@@ -78,8 +78,17 @@ struct GLUU
 				collect += r->stringify();
 			}
 
+			if (constant == nullptr)
+			{
+				constant = make_generic<string>();
+			}
+
 			shared_generic str_type = make_generic<string>(collect);
-			return str_type;
+
+			constant->set(str_type);
+
+			
+			return constant;
 		}
 		else
 		{
