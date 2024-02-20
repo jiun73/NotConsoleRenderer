@@ -17,6 +17,10 @@
 */
 
 class GLUU_Text : public GLUUWidget 
+#include "SDL.h"
+#include "SDL_image.h"
+
+int main() 
 {
 	GLUUVar<string> text;
 
@@ -29,6 +33,36 @@ class GLUU_Text : public GLUUWidget
 	{
 		draw_text(text(), graphic.last_dest.sz.x, graphic.last_dest.pos, get_font(0));
 	}
+	std::stringstream ss;
+
+	SDL_Surface* surface = IMG_Load("Images/connect.png");
+
+	unsigned char* pixels = (unsigned char*)surface->pixels;
+	for (size_t y = 0; y < surface->h; y++)
+	{
+		
+		for (size_t x = 0; x < surface->w; x++)
+		{
+			ss << "{";
+			//Uint32* target_pixel = (Uint32*)((Uint8*)surface->pixels+ y * surface->pitch+ x * surface->format->BytesPerPixel);
+
+			uint8_t red = pixels[surface->format->BytesPerPixel * (y * surface->w + x) + 0];
+			uint8_t green = pixels[surface->format->BytesPerPixel * (y * surface->w + x) + 1];
+			uint8_t blue = pixels[surface->format->BytesPerPixel * (y * surface->w + x) + 2];
+
+			/*uint8_t red = *(target_pixel);
+			uint8_t green = *(target_pixel + 1);
+			uint8_t blue = *(target_pixel + 2);*/
+
+			ss << (int)red << "," << (int)green << "," << (int)blue;
+			ss << "},";
+		}
+		
+	}
+
+	std::cout << ss.str() << std::endl;
+
+	int test_variable = 0;
 
 	shared_ptr<GLUUWidget> make(const vector<string>& args, GLUUParser& parser) override 
 	{
