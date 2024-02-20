@@ -30,14 +30,44 @@ class GLUU_Text : public GLUUWidget
 		draw_text(text(), graphic.last_dest.sz.x, graphic.last_dest.pos, get_font(0));
 	}
 
-	shared_ptr<GLUUWidget> make(vector<string> args, GLUUParser& parser) override 
+	shared_ptr<GLUUWidget> make(const vector<string>& args, GLUUParser& parser) override 
 	{
 		std::cout << args.at(0) << std::endl;
 		shared_ptr<GLUU_Text> ptr = make_shared<GLUU_Text>();
 		ptr->text.set(args.at(0), parser);
 		return ptr; 
 	}
+};
 
+class GLUU_Button : public GLUUWidget
+{
+	GLUUVar<string> text;
+	GLUU expr;
+
+	pair<size_t, string> fetch_keyword() override
+	{
+		return { 2,"BUTTON" };
+	}
+
+	void update(GLUUElement& graphic) override
+	{	
+		if (point_in_rectangle(mouse_position(), graphic.last_dest))
+			pencil(COLOR_WHITE);
+		else
+			pencil(COLOR_GREEN);
+		draw_full_rect(graphic.last_dest);
+		draw_text(text(), graphic.last_dest.sz.x, graphic.last_dest.pos, get_font(0));
+	}
+
+	shared_ptr<GLUUWidget> make(const vector<string>& args, GLUUParser& parser) override
+	{
+		std::cout << args.at(0) << args.at(1) << std::endl;
+		shared_ptr<GLUU_Button> ptr = make_shared<GLUU_Button>();
+		ptr->text.set(args.at(0), parser);
+		string copy = args.at(1);
+		ptr->expr = parser.parse_sequence(copy);
+		return ptr;
+	}
 };
 
 int main() 
@@ -63,6 +93,7 @@ int main()
 	File file2("file2.txt", FILE_READING_STRING);
 
 	parser.register_class(make_shared<GLUU_Text>());
+	parser.register_class(make_shared<GLUU_Button>());
 
 	int line1;
 	track_variable(line1, "line1");

@@ -38,7 +38,7 @@ ROW SIZE 30 CFIT < //row 1
 	
 	//[BASE CFIT]
 
-	COL SIZE 1 BUTTON {test := 200} {index "/" container :size}
+	COL SIZE 1 BUTTON {"test"} {}
 	<
 		ROW SIZE 10
 		<

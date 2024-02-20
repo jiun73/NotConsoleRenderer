@@ -104,8 +104,8 @@ private:
 
 			if (current == nullptr) //ignore null typoids;
 			{
-				set_args<I + 1>(arg);
-				return;
+				return set_args<I + 1>(arg);
+				
 			}
 
 			const type_info& info = typeid(typename std::tuple_element_t<I, std::tuple<Args...>>);
@@ -118,7 +118,7 @@ private:
 			}
 
 			arguments.at(I) = current;
-			set_args<I + 1>(arg);
+			return set_args<I + 1>(arg);
 		}
 		return true;
 		//return { I,TYPOID_SUCCESS };
@@ -195,9 +195,9 @@ public:
 		return nullptr;
 	}
 
-	void args(const vector<GenericArgument>& values) override
+	bool args(const vector<GenericArgument>& values) override
 	{
-		set_args(values);
+		return set_args(values);
 	}
 
 	size_t arg_count()

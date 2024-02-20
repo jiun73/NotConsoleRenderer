@@ -55,7 +55,7 @@ struct GLUUWidget
 {
 	virtual pair<size_t, string> fetch_keyword() = 0;
 	virtual void update(GLUUElement& graphic) = 0;
-	virtual shared_ptr<GLUUWidget> make(vector<string> args, GLUUParser& parser) = 0;
+	virtual shared_ptr<GLUUWidget> make(const vector<string>& args, GLUUParser& parser) = 0;
 };
 
 struct GLUUElement
@@ -529,9 +529,12 @@ public:
 
 		for (size_t i = 0; i < keywords.size(); i++ )
 		{
-			string current = keywords.at(i).flat();
+			string current = range_trim(keywords.at(i), ' ').flat();
 
 			std::cout << " param: " << current << std::endl; //error
+
+			if (current.empty()) continue;
+
 			if (widgets.count(current))
 			{
 				size_t p = widgets.at(current)->fetch_keyword().first;
@@ -539,7 +542,11 @@ public:
 				for (size_t y = 0; y < p; y++)
 				{
 					i++;
-					args.push_back(keywords.at(i).flat());
+					string current = range_trim(keywords.at(i), ' ').flat();
+					if (current.empty()) {
+						y--;  continue;
+					}
+					args.push_back(current);
 				}
 
 				row.widget = widgets.at(current)->make(args, *this);
@@ -551,7 +558,11 @@ public:
 				for (size_t y = 0; y < p.first; y++)
 				{
 					i++;
-					args.push_back(keywords.at(i).flat());
+					string current = range_trim(keywords.at(i), ' ').flat();
+					if (current.empty()) {
+						y--;  continue;
+					}
+					args.push_back(current);
 				}
 				p.second(*this, row, args);
 			}

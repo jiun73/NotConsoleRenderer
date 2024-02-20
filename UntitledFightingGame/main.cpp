@@ -8,7 +8,7 @@
 #include "ObjectGenerics.h"
 #include "FunctionGenerics.h"
 #include "ContainerGenerics.h"
-#include "CstarParser.h"
+#include "GLUU_parser.h"
 
 static ComponentXAdder<Shape_x> shape_adder;
 static ComponentXAdder<Collider_x> coll_adder;
