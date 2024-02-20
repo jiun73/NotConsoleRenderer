@@ -7,6 +7,8 @@ struct GLUU
 	shared_ptr<VariableRegistry> scope;
 	vector<GLUU> recursive;
 
+
+	bool func_set_args = true;
 	bool root = true;
 	bool func = false;
 	bool user_func = false;

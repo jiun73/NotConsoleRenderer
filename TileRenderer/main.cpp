@@ -52,10 +52,19 @@ class GLUU_Button : public GLUUWidget
 	void update(GLUUElement& graphic) override
 	{	
 		if (point_in_rectangle(mouse_position(), graphic.last_dest))
-			pencil(COLOR_WHITE);
+		{
+			if(mouse_left_held())
+				pencil(COLOR_PINK);
+			else
+				pencil(COLOR_GREEN);
+			if (mouse_left_released())
+				expr.evaluate();
+		}
 		else
-			pencil(COLOR_GREEN);
+			pencil(COLOR_BLACK);
 		draw_full_rect(graphic.last_dest);
+		pencil(COLOR_WHITE);
+		draw_rect(graphic.last_dest);
 		draw_text(text(), graphic.last_dest.sz.x, graphic.last_dest.pos, get_font(0));
 	}
 
@@ -66,6 +75,56 @@ class GLUU_Button : public GLUUWidget
 		ptr->text.set(args.at(0), parser);
 		string copy = args.at(1);
 		ptr->expr = parser.parse_sequence(copy);
+		return ptr;
+	}
+};
+
+class GLUU_Textbox : public GLUUWidget
+{
+	GLUUVar<string> default_text;
+	GLUU expr;
+
+	pair<size_t, string> fetch_keyword() override
+	{
+		return { 2,"TEXTBOX" };
+	}
+
+	void update(GLUUElement& graphic) override
+	{
+		if (point_in_rectangle(mouse_position(), graphic.last_dest))
+		{
+			if (mouse_left_released())
+				keyboard().openTextInput();
+
+			if (!keyboard().getTextInput().empty() && keyboard().getTextInput().back() == '\n')
+			{
+				keyboard().getTextInput().pop_back();
+				vector<shared_generic> ref = { make_generic_ref(keyboard().getTextInput()) };
+				expr.set_args(ref);
+				expr.evaluate();
+			}
+		}
+		else
+		{
+			if (mouse_left_pressed())
+				keyboard().closeTextInput();
+		}
+
+		if(keyboard().getTextInput().empty())
+			draw_text(default_text(), graphic.last_dest.sz.x, graphic.last_dest.pos, get_font(0));
+		else
+			draw_text(keyboard().getTextInput(), graphic.last_dest.sz.x, graphic.last_dest.pos, get_font(0));
+	}
+
+	shared_ptr<GLUUWidget> make(const vector<string>& args, GLUUParser& parser) override
+	{
+		std::cout << args.at(0) << args.at(1) << std::endl;
+		shared_ptr<GLUU_Textbox> ptr = make_shared<GLUU_Textbox>();
+		ptr->default_text.set(args.at(0), parser);
+		
+		string copy = args.at(1);
+		ptr->expr = parser.parse_sequence(copy, false);
+		
 		return ptr;
 	}
 };
@@ -94,6 +153,7 @@ int main()
 
 	parser.register_class(make_shared<GLUU_Text>());
 	parser.register_class(make_shared<GLUU_Button>());
+	parser.register_class(make_shared<GLUU_Textbox>());
 
 	int line1;
 	track_variable(line1, "line1");
@@ -207,24 +267,24 @@ int main()
 
 		draw_text(keyboard().getTextInput(), 500, 0, get_font(0));
 
-		if (!keyboard().getTextInput().empty() && keyboard().getTextInput().back() == '\n')
-		{
-			
-			//p2p().start_stream(1); //BTW on peut pas envoyer directement des conteneurs (vector, string, etc) parce qu'ils ne contiennent pas vraiment les données, mais plutot des pointers VERS les données (qui ne seront pas valide sur lordinateur de lautre)
-			//p2p().send(s.size()); //on envoie la taille de la string
-			//for (auto& c : s)
-			//	p2p().send(c); //puis on envoie chaque caratère un a la fois
-			//p2p().end_stream();
-			const string& s = keyboard().getTextInput();
-			p2p(1) << s.size();
-			for (auto& c : s)
-				p2p(1) << c;
-			p2p(1) << net::send;
+		//if (!keyboard().getTextInput().empty() && keyboard().getTextInput().back() == '\n')
+		//{
+		//	
+		//	//p2p().start_stream(1); //BTW on peut pas envoyer directement des conteneurs (vector, string, etc) parce qu'ils ne contiennent pas vraiment les données, mais plutot des pointers VERS les données (qui ne seront pas valide sur lordinateur de lautre)
+		//	//p2p().send(s.size()); //on envoie la taille de la string
+		//	//for (auto& c : s)
+		//	//	p2p().send(c); //puis on envoie chaque caratère un a la fois
+		//	//p2p().end_stream();
+		//	const string& s = keyboard().getTextInput();
+		//	p2p(1) << s.size();
+		//	for (auto& c : s)
+		//		p2p(1) << c;
+		//	p2p(1) << net::send;
 
-			keyboard().getTextInput() = "";
+		//	keyboard().getTextInput() = "";
 
-			keyboard().closeTextInput();
-		}
+		//	keyboard().closeTextInput();
+		//}
 		
 		if (p2p().is_connected())
 		{

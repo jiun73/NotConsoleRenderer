@@ -124,6 +124,13 @@ inline shared_ptr<GenericType<T>> make_generic_from_string(const string& t)
 }
 
 template<typename T>
+inline shared_ptr<GenericRef<T>> make_generic_ref(T& ref)
+{
+	shared_ptr<GenericRef<T>> ptr = std::make_shared<GenericRef<T>>(ref);
+	return ptr;
+}
+
+template<typename T>
 inline shared_generic GenericRef<T>::dereference()
 {
 	if constexpr (is_pointer_v<T>) return make_shared < GenericRef<remove_pointer_t<T>>>(*this);

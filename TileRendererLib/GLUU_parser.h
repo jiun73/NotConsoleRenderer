@@ -318,6 +318,7 @@ public:
 
 						GLUU func;
 						func.root = false;
+						func.func_set_args = ret_val.func_set_args;
 						shared_generic var = variable_dictionnary()->get(kw->flat());
 						if (var == nullptr) { std::cout << "Invalid func name!" << std::endl; return; } // error
 						if (var->identity() == typeid(GenericFunction))
@@ -375,9 +376,17 @@ public:
 		for (auto it = functions.rbegin(); it != functions.rend(); it++)
 		{
 			size_t count = 0;
+			
+
+			
 			if (it->func)
 			{
-				count = it->function->arg_count();
+				if (it->func_set_args)
+				{
+					count = it->function->arg_count();
+				}
+				else
+					count = 0;
 			}
 			else
 			{
@@ -390,7 +399,7 @@ public:
 				constants.pop_back();
 			}
 
-			if (it->func)
+			if (it->func && it->func_set_args)
 			{
 				const auto& args = it->generic_to_args(it->get_args_from_recursive(true));
 				if (!it->function->args(args)) //check for overloads
@@ -412,18 +421,19 @@ public:
 			ret_val.recursive.push_back(c);
 	}
 
-	GLUU parse_sequence(string& str)
+	GLUU parse_sequence(string& str , bool set_args = true)
 	{
 		str += '\n';
 		remove_all_range(str, "//", "\n", false);
 		remove_all_range(str, "/*", "*/", true);
 		change_whitespace_to_space(str);
-		return parse_sequence_next(str);
+		return parse_sequence_next(str, set_args);
 	}
 
-	GLUU parse_sequence_next(string_ranges str)
+	GLUU parse_sequence_next(string_ranges str, bool set_args = true)
 	{
 		GLUU ret;
+		ret.func_set_args = set_args;
 		ret.scope = std::make_shared< VariableRegistry>();
 		ret.scope->name = "Expr scope";
 		shared_ptr<VariableRegistry> old_scope = current_scope;

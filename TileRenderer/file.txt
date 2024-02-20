@@ -38,7 +38,7 @@ ROW SIZE 30 CFIT < //row 1
 	
 	//[BASE CFIT]
 
-	COL SIZE 1 BUTTON {"test"} {}
+	COL SIZE 1 BUTTON {"local: " local} {local ++ }
 	<
 		ROW SIZE 10
 		<
@@ -62,9 +62,9 @@ ROW SIZE 30 CFIT < //row 1
 new bool yo = true
 new double test = 0.0
 
-ROW SIZE 20 IF {test == 1}
+ROW SIZE 50 CFIT IF {test == 1}
 <
-	COL SIZE 20 DROPBOX CFIT
+	COL SIZE 60 TEXTBOX { "enter text... " } { arg string text; :cout text;}
 	<
 		
 	>	
