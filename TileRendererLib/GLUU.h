@@ -14,6 +14,7 @@ struct GLUU
 	shared_ptr<GenericFunction> function = nullptr;
 
 	vector<string> args_name;
+	string func_name;
 	size_t arg_count = 0;
 
 	void add_arg(const string& str, const string& type)
@@ -52,6 +53,18 @@ struct GLUU
 			}
 			i++;
 		}
+		return args;
+	}
+
+	vector<GenericArgument> generic_to_args(const vector<shared_generic>& gen)
+	{
+		vector<GenericArgument> args;
+
+		for (auto& arg : get_args_from_recursive(true))
+		{
+			args.push_back(arg);
+		}
+
 		return args;
 	}
 
@@ -94,15 +107,11 @@ struct GLUU
 		{
 			if (func)
 			{
-				vector<GenericArgument> args;
-
-				for (auto& arg : get_args_from_recursive(true))
-				{
-					args.push_back(arg);
-				}
-
-				function->args(args);
-				return function->call();
+				if (function->args(generic_to_args(get_args_from_recursive(true))))
+					return function->call();
+				else
+					assert(false); //error
+				return nullptr;
 			}
 			else if (user_func)
 			{

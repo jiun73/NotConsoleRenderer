@@ -324,6 +324,7 @@ public:
 						{
 							func.func = true;
 							func.function = std::reinterpret_pointer_cast<GenericFunction>(var);
+							func.func_name = kw->flat();
 							if (func.function->arg_count() > 0)
 								functions.push_back(func);
 							else
@@ -387,6 +388,17 @@ public:
 			{
 				it->recursive.push_back(constants.back());
 				constants.pop_back();
+			}
+
+			if (it->func)
+			{
+				const auto& args = it->generic_to_args(it->get_args_from_recursive(true));
+				if (!it->function->args(args)) //check for overloads
+				{
+					auto fn = variable_dictionnary()->get_fn(it->func_name, args); //error
+					auto fn_type = std::reinterpret_pointer_cast<GenericFunction>(fn);
+					it->function = fn_type;
+				}
 			}
 
 			constants.push_back(*it);

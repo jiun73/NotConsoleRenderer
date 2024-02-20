@@ -45,7 +45,7 @@ struct GenericArgument
 struct GenericFunction : public Generic
 {
 	virtual shared_generic call() = 0;
-	virtual void args(const vector<GenericArgument>& values) = 0;
+	virtual bool args(const vector<GenericArgument>& values) = 0;
 	virtual const type_info& args_type(size_t i) = 0;
 	virtual size_t arg_count() = 0;
 	virtual char* function_bytes() = 0;
@@ -92,7 +92,7 @@ private:
 	}
 
 	template<size_t I = 0>
-	inline void set_args(const vector<GenericArgument>& arg)
+	inline bool set_args(const vector<GenericArgument>& arg)
 	{
 		if constexpr (I < sizeof...(Args))
 		{
@@ -113,12 +113,14 @@ private:
 			if (current->type() != info && info != typeid(shared_generic)) //if arg is shared Typoid, then set it regardless of type inside current
 			{
 				std::cout << "{arg invalid (should be " << info.name() << ")}";
+				return false;
 				//return { I,TYPOID_INVALID_INPUT };
 			}
 
 			arguments.at(I) = current;
 			set_args<I + 1>(arg);
 		}
+		return true;
 		//return { I,TYPOID_SUCCESS };
 	}
 

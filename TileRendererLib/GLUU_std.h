@@ -56,6 +56,8 @@ inline void GLUU_import_standard()
 	GLUU_import_function<bool(int, int)>("/+", [](int b, int a) {return a > b; });
 	GLUU_import_function<bool()>(":true", []() {return true; });
 	GLUU_import_function<bool()>(":false", []() {return false; });
+	GLUU_import_function<bool(bool, bool)>(":or", [](bool b, bool a) {return a || b; });
+	GLUU_import_function<bool(bool, bool)>(":and", [](bool b, bool a) {return a && b; });
 
 	GLUU_import_function<void(GLUU&, GLUU&)>("$while", [](GLUU& expr, GLUU& condition)
 		{
@@ -89,73 +91,41 @@ inline void GLUU_import_standard()
 
 	GLUU_import_function<void(_sgen_, _sgen_)>("-pushb", [](_sgen_ b, _sgen_ a) 
 		{ 
-			if (a->identity() == typeid(GenericContainer))
-			{
-				shared_ptr<GenericContainer> container = std::reinterpret_pointer_cast<GenericContainer>(a);
-				container->insert(b, container->size());
-			}
-			else
-				std::cout << "Cannot push a non-container" << std::endl;
+			if (!GLUU_is_id<GenericContainer>(a)) { std::cout << "Cannot push a non-container" << std::endl;; return; }
+
+			auto container = GLUU_rein<GenericContainer>(a);
+			container->insert(b, container->size());
 		});
 
-	/*shared_generic pushb_func = std::make_shared<GenericFunctionType<function<void(shared_generic, shared_generic)>>>([](shared_generic b, shared_generic a)
+	GLUU_import_function<void(_sgen_, _sgen_)>("-pushf", [](_sgen_ b, _sgen_ a)
 		{
-			if (a->identity() == typeid(GenericContainer))
-			{
-				shared_ptr<GenericContainer> container = std::reinterpret_pointer_cast<GenericContainer>(a);
-				container->insert(b, container->size());
-			}
-			else
-				std::cout << "Cannot push a non-container" << std::endl;
-		});
-	variable_dictionnary()->global()->add(pushb_func, "-pushb");*/
+			if (!GLUU_is_id<GenericContainer>(a)) { std::cout << "Cannot push a non-container" << std::endl;; return; }
 
-	shared_generic pushf_func = std::make_shared<GenericFunctionType<function<void(shared_generic, shared_generic)>>>([](shared_generic b, shared_generic a)
-		{
-			if (a->identity() == typeid(GenericContainer))
-			{
-				shared_ptr<GenericContainer> container = std::reinterpret_pointer_cast<GenericContainer>(a);
-				container->insert(b, 0);
-			}
-			else
-				std::cout << "Cannot push a non-container" << std::endl;
+			auto container = GLUU_rein<GenericContainer>(a);
+			container->insert(b, 0);
 		});
-	variable_dictionnary()->global()->add(pushf_func, "-pushf");
 
-	shared_generic insert_func = std::make_shared<GenericFunctionType<function<void(int, shared_generic, shared_generic)>>>([](size_t i, shared_generic b, shared_generic a)
+	GLUU_import_function<void(int, _sgen_, _sgen_)>("-ins", [](size_t i, _sgen_ b, _sgen_ a)
 		{
-			if (a->identity() == typeid(GenericContainer))
-			{
-				shared_ptr<GenericContainer> container = std::reinterpret_pointer_cast<GenericContainer>(a);
-				container->insert(b, i);
-			}
-			else
-				std::cout << "Cannot push a non-container" << std::endl;
-		});
-	variable_dictionnary()->global()->add(insert_func, "-ins");
+			if (!GLUU_is_id<GenericContainer>(a)) { std::cout << "Cannot push a non-container" << std::endl;; return; }
 
-	shared_generic at_func = std::make_shared<GenericFunctionType<function<shared_generic(int, shared_generic)>>>([](size_t i, shared_generic a) -> shared_generic
-		{
-			if (a->identity() == typeid(GenericContainer))
-			{
-				shared_ptr<GenericContainer> container = std::reinterpret_pointer_cast<GenericContainer>(a);
-				return container->at(i);
-			}
-			else
-				std::cout << "Cannot at a non-container" << std::endl;
-			return nullptr;
+			auto container = GLUU_rein<GenericContainer>(a);
+			container->insert(b, i);
 		});
-	variable_dictionnary()->global()->add(at_func, "-at");
 
-	shared_generic deref_func = std::make_shared<GenericFunctionType<function<shared_generic(shared_generic)>>>([](shared_generic a) -> shared_generic
+	GLUU_import_function<_sgen_(int, _sgen_)>("-at", [](size_t i, _sgen_ a)-> _sgen_
 		{
-			if (a->identity() == typeid(GenericObject))
-			{
-				shared_ptr<GenericObject> obj = std::reinterpret_pointer_cast<GenericObject>(a);
-				return obj->dereference();
-			}
-			std::cout << "Cannot dereference a non-object!" << std::endl;
-			return nullptr;
+			if (!GLUU_is_id<GenericContainer>(a)) { std::cout << "Cannot at a non-container" << std::endl; return nullptr; }
+
+			auto container = GLUU_rein<GenericContainer>(a);
+			return container->at(i);
 		});
-	variable_dictionnary()->global()->add(deref_func, "@");
+
+	GLUU_import_function<_sgen_( _sgen_)>("@", [](_sgen_ a)-> _sgen_
+		{
+			if (!GLUU_is_id<GenericObject>(a)) { std::cout << "Cannot dereference a non-object!" << std::endl; return nullptr; }
+
+			shared_ptr<GenericObject> obj = std::reinterpret_pointer_cast<GenericObject>(a);
+			return obj->dereference();
+		});
 }
