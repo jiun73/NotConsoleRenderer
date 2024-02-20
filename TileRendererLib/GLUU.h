@@ -2,13 +2,13 @@
 #include "GLUU_types.h"
 #include "CommandDictionnary.h"
 
+
+
 struct GLUU
 {
 	shared_ptr<VariableRegistry> scope;
 	vector<GLUU> recursive;
 
-
-	bool func_set_args = true;
 	bool root = true;
 	bool func = false;
 	bool user_func = false;
@@ -22,6 +22,13 @@ struct GLUU
 	void add_arg(const string& str, const string& type)
 	{
 		scope->add(ClassFactory::get()->make(type), str);
+		args_name.push_back(str);
+	}
+
+	void add_arg_ref(const string& str, const string& type)
+	{
+		shared_ptr<GenericObject> ptr = std::reinterpret_pointer_cast<GenericObject>(ClassFactory::get()->make(type));
+		scope->add(ptr->reference(), str);
 		args_name.push_back(str);
 	}
 
@@ -62,7 +69,7 @@ struct GLUU
 	{
 		vector<GenericArgument> args;
 
-		for (auto& arg : get_args_from_recursive(true))
+		for (auto& arg : gen)
 		{
 			args.push_back(arg);
 		}

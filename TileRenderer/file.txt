@@ -64,7 +64,7 @@ new double test = 0.0
 
 ROW SIZE 50 CFIT IF {test == 1}
 <
-	COL SIZE 60 TEXTBOX { "enter text... " } { arg string text; :cout text;}
+	COL SIZE 60 TEXTBOX { "enter text... " } { arg* string text; :cout @ text; {text @} = "" }
 	<
 		
 	>	

@@ -37,7 +37,14 @@ using _sgen_ = shared_generic;
 
 inline void GLUU_import_standard()
 {
-	GLUU_import_function<void(_sgen_, _sgen_)>("=", [](_sgen_ b, _sgen_ a) {a->set(b); });
+	GLUU_import_function<void(_sgen_, _sgen_)>("=", [](_sgen_ b, _sgen_ a) 
+		{
+			a->set(b); 
+		});
+	GLUU_import_function<void()>("!!!", []() 
+		{
+			std::cout << "brpt" << std::endl;
+		});
 
 	GLUU_import_function<bool(_sgen_, _sgen_)>("==", [](_sgen_ b, _sgen_ a)
 		{

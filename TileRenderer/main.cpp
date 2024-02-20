@@ -16,11 +16,11 @@
 * Juste a creer un nouveau proet dans la solution et copier les settings de 'exemple'
 */
 
-class GLUU_Text : public GLUUWidget 
+
 #include "SDL.h"
 #include "SDL_image.h"
 
-int main() 
+class GLUU_Text : public GLUUWidget
 {
 	GLUUVar<string> text;
 
@@ -33,36 +33,6 @@ int main()
 	{
 		draw_text(text(), graphic.last_dest.sz.x, graphic.last_dest.pos, get_font(0));
 	}
-	std::stringstream ss;
-
-	SDL_Surface* surface = IMG_Load("Images/connect.png");
-
-	unsigned char* pixels = (unsigned char*)surface->pixels;
-	for (size_t y = 0; y < surface->h; y++)
-	{
-		
-		for (size_t x = 0; x < surface->w; x++)
-		{
-			ss << "{";
-			//Uint32* target_pixel = (Uint32*)((Uint8*)surface->pixels+ y * surface->pitch+ x * surface->format->BytesPerPixel);
-
-			uint8_t red = pixels[surface->format->BytesPerPixel * (y * surface->w + x) + 0];
-			uint8_t green = pixels[surface->format->BytesPerPixel * (y * surface->w + x) + 1];
-			uint8_t blue = pixels[surface->format->BytesPerPixel * (y * surface->w + x) + 2];
-
-			/*uint8_t red = *(target_pixel);
-			uint8_t green = *(target_pixel + 1);
-			uint8_t blue = *(target_pixel + 2);*/
-
-			ss << (int)red << "," << (int)green << "," << (int)blue;
-			ss << "},";
-		}
-		
-	}
-
-	std::cout << ss.str() << std::endl;
-
-	int test_variable = 0;
 
 	shared_ptr<GLUUWidget> make(const vector<string>& args, GLUUParser& parser) override 
 	{
@@ -133,7 +103,7 @@ class GLUU_Textbox : public GLUUWidget
 			if (!keyboard().getTextInput().empty() && keyboard().getTextInput().back() == '\n')
 			{
 				keyboard().getTextInput().pop_back();
-				vector<shared_generic> ref = { make_generic_ref(keyboard().getTextInput()) };
+				vector<shared_generic> ref = { make_generic<string*>(&keyboard().getTextInput()) };
 				expr.set_args(ref);
 				expr.evaluate();
 			}
@@ -157,7 +127,7 @@ class GLUU_Textbox : public GLUUWidget
 		ptr->default_text.set(args.at(0), parser);
 		
 		string copy = args.at(1);
-		ptr->expr = parser.parse_sequence(copy, false);
+		ptr->expr = parser.parse_sequence(copy);
 		
 		return ptr;
 	}
@@ -177,7 +147,6 @@ int main()
 	*/
 
 	int test_variable = 1000;
-	1 == 1;
 
 	std::cout << "int: " << operators::has_operator_equals<int, bool(int)>::value << std::endl;;
 
@@ -188,6 +157,35 @@ int main()
 	parser.register_class(make_shared<GLUU_Text>());
 	parser.register_class(make_shared<GLUU_Button>());
 	parser.register_class(make_shared<GLUU_Textbox>());
+
+	std::stringstream ss;
+
+	SDL_Surface* surface = IMG_Load("Images/connect.png");
+
+	unsigned char* pixels = (unsigned char*)surface->pixels;
+	for (size_t y = 0; y < surface->h; y++)
+	{
+
+		for (size_t x = 0; x < surface->w; x++)
+		{
+			ss << "{";
+			//Uint32* target_pixel = (Uint32*)((Uint8*)surface->pixels+ y * surface->pitch+ x * surface->format->BytesPerPixel);
+
+			uint8_t red = pixels[surface->format->BytesPerPixel * (y * surface->w + x) + 0];
+			uint8_t green = pixels[surface->format->BytesPerPixel * (y * surface->w + x) + 1];
+			uint8_t blue = pixels[surface->format->BytesPerPixel * (y * surface->w + x) + 2];
+
+			/*uint8_t red = *(target_pixel);
+			uint8_t green = *(target_pixel + 1);
+			uint8_t blue = *(target_pixel + 2);*/
+
+			ss << (int)red << "," << (int)green << "," << (int)blue;
+			ss << "},";
+		}
+
+	}
+
+	std::cout << ss.str() << std::endl;
 
 	int line1;
 	track_variable(line1, "line1");
@@ -243,7 +241,7 @@ int main()
 			sound().playSound("Sounds/rizz.wav");
 		}
 
-		int pos = (int)(sin((SDL_GetTicks() % 1000) / 1000.0) * 100) - 50;
+		int pos = (int)(sin((SDL_GetTicks() % 1000) / 100.0) * 100);
 		draw_simple_text("Gluu", { pos,60 }, get_font(1)); //get_font(1) voir 'Fonts/fonts.hint'
 		draw_simple_text("Worked " + strings::stringify(test_variable) + " times", { 0,120 }, get_font(0)); //get_font(0) voir 'Fonts/fonts.hint'
 
