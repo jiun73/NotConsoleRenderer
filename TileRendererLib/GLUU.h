@@ -11,11 +11,10 @@ namespace GLUU {
 
 	using Compiled_ptr = shared_ptr<Compiled>;
 
-	typedef Singleton<Parser> Global;
-
 	inline Parser* parser() { return Global::get(); }
 
 	inline Compiled_ptr parse(string& str) { return parser()->parse(str); }
+	inline Compiled_ptr parse_copy(string str) { return parser()->parse(str); }
 
 	struct Import
 	{

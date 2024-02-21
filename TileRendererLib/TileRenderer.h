@@ -144,6 +144,7 @@ void draw_clear();
 //\param 'path' est le chemin ou se trouve l'image
 void load_texture(const string& path);
 V2d_i get_image_size(const string& path);
+void output_texture_pixels(const string path);
 
 //----------------------------------------------------------TEXTE-----------------------------------------------------------------------------
 

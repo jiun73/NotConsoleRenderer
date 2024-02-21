@@ -16,10 +16,6 @@
 * Juste a creer un nouveau proet dans la solution et copier les settings de 'exemple'
 */
 
-
-#include "SDL.h"
-#include "SDL_image.h"
-
 int main() 
 {
 	set_window_size(200); //fenetre de 200x200
@@ -35,44 +31,9 @@ int main()
 
 	std::cout << "int: " << operators::has_operator_equals<int, bool(int)>::value << std::endl;;
 
-	//GLUUParser parser;
 	File file("file.txt", FILE_READING_STRING);
-	File file2("file2.txt", FILE_READING_STRING);
 
-	std::stringstream ss;
-
-	SDL_Surface* surface = IMG_Load("Images/connect.png");
-
-	unsigned char* pixels = (unsigned char*)surface->pixels;
-	for (size_t y = 0; y < surface->h; y++)
-	{
-
-		for (size_t x = 0; x < surface->w; x++)
-		{
-			ss << "{";
-
-			uint8_t red = pixels[surface->format->BytesPerPixel * (y * surface->w + x) + 0];
-			uint8_t green = pixels[surface->format->BytesPerPixel * (y * surface->w + x) + 1];
-			uint8_t blue = pixels[surface->format->BytesPerPixel * (y * surface->w + x) + 2];
-
-			ss << (int)red << "," << (int)green << "," << (int)blue;
-			ss << "},";
-		}
-
-	}
-
-	std::cout << ss.str() << std::endl;
-
-	int line1;
-	track_variable(line1, "line1");
-	int line2;
-	track_variable(line2, "line2");
-
-	string str = file.getString();
-	string str2 = file2.getString();
-	GLUU::Compiled_ptr gluu_gfx = GLUU::parse(str);
-	//shared_generic gen = parser.parse_sequence(str2).evaluate();
-	//std::cout << gen->type().name() <<  "\n" << gen->stringify() << std::endl;
+	GLUU::Compiled_ptr gluu_gfx = GLUU::parse_copy(file.getString());
 
 	Server server;
 

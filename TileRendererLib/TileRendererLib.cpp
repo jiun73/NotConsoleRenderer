@@ -111,14 +111,6 @@ void init()
 		track_variable(net::verbose_net, "net_debug");
 		__init__ = true;
 
-		__REGISTER_CLASS__(int);
-		__REGISTER_CLASS__(double);
-		__REGISTER_CLASS__(bool);
-		__REGISTER_CLASS__(char);
-		__REGISTER_CLASS__(size_t);
-		__REGISTER_CLASS__(string);
-		const FactoryManagerAdder<vector<string>>* vector_string__adder = new FactoryManagerAdder<vector<string>>("vector<string>", true);;
-
 		__NEW_COMMAND__(test, "test", [](__COMMAND_ARGS__)
 			{
 				std::cout << "You tested alright!" << std::endl;
@@ -482,6 +474,33 @@ V2d_i get_image_size(const string& path)
 	SDL_QueryTexture(tex, NULL, NULL, &ret.x, &ret.y);
 
 	return ret;
+}
+
+void output_texture_pixels(const string path)
+{
+	std::stringstream ss;
+
+	SDL_Surface* surface = IMG_Load(path.c_str());
+
+	unsigned char* pixels = (unsigned char*)surface->pixels;
+	for (size_t y = 0; y < surface->h; y++)
+	{
+
+		for (size_t x = 0; x < surface->w; x++)
+		{
+			ss << "{";
+
+			uint8_t red = pixels[surface->format->BytesPerPixel * (y * surface->w + x) + 0];
+			uint8_t green = pixels[surface->format->BytesPerPixel * (y * surface->w + x) + 1];
+			uint8_t blue = pixels[surface->format->BytesPerPixel * (y * surface->w + x) + 2];
+
+			ss << (int)red << "," << (int)green << "," << (int)blue;
+			ss << "},";
+		}
+
+	}
+
+	std::cout << ss.str() << std::endl;
 }
 
 Random& random()

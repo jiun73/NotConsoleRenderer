@@ -157,6 +157,8 @@ public:
 	}
 
 	vector<shared_ptr<VariableRegistry>>& all() { return scopes; }
+	vector<shared_ptr<VariableRegistry>>& all_saved() 
+	{ return scopes; }
 };
 
 inline VariableDictionnary* variable_dictionnary() { return Singleton< VariableDictionnary>::get(); }

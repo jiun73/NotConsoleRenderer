@@ -3,6 +3,8 @@
 #include "GLUU_parser.h"
 
 namespace GLUU {
+
+
 	template<typename T>
 	inline bool is_iden(shared_generic gen)
 	{
@@ -31,13 +33,21 @@ namespace GLUU {
 	inline void import_function(const string& s, function<T> f)
 	{
 		shared_generic func = std::make_shared<GenericFunctionType<function<T>>>(f);
-		variable_dictionnary()->global()->add(func, s);
+		Global::get()->get_scope()->add(func, s);
 	}
 
 	using _sgen_ = shared_generic;
 
 	inline void import_standard()
 	{
+		__REGISTER_CLASS__(int);
+		__REGISTER_CLASS__(double);
+		__REGISTER_CLASS__(bool);
+		__REGISTER_CLASS__(char);
+		__REGISTER_CLASS__(size_t);
+		__REGISTER_CLASS__(string);
+		const FactoryManagerAdder<vector<string>>* vector_string__adder = new FactoryManagerAdder<vector<string>>("vector<string>", true);
+
 		import_function<void(_sgen_, _sgen_)>("=", [](_sgen_ b, _sgen_ a)
 			{
 				a->set(b);

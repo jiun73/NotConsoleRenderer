@@ -126,6 +126,8 @@ namespace GLUU {
 	class Parser
 	{
 	private:
+		shared_ptr<VariableRegistry> GLUU_scope;
+
 		shared_ptr<VariableRegistry> current_scope;
 		map <string, pair<size_t, function<void(Parser&, Element&, vector<string>)>>> keywords_func;
 		map <string, shared_ptr<Widget>> widgets;
@@ -138,8 +140,12 @@ namespace GLUU {
 		const char expr_open = '{';
 		const char expr_close = '}';
 
+		shared_ptr<VariableRegistry> get_scope() { return GLUU_scope; }
+
 		Parser()
 		{
+			GLUU_scope = variable_dictionnary()->make_new_scope("GLUU");
+
 			keywords_func.emplace("SIZE", make_pair(1, [](Parser& parser, Element& gfx, vector<string> s)
 				{
 					std::cout << strings::stringify(s) << std::endl;
@@ -381,6 +387,7 @@ namespace GLUU {
 				ret_val.recursive.push_back(c);
 		}
 
+
 		Expression parse_sequence(string& str)
 		{
 			str += '\n';
@@ -602,7 +609,8 @@ namespace GLUU {
 		{
 			graphics = make_shared<Compiled>();
 			//graphics->widgets = widgets;
-			current_scope = variable_dictionnary()->global();
+			current_scope = GLUU_scope;
+			variable_dictionnary()->enter_scope(current_scope);
 			graphics->current_row = &graphics->base_row;
 			string row_keyword = "ROW";
 			str += '\n';
@@ -612,6 +620,8 @@ namespace GLUU {
 
 			parse_range(str, row_keyword, true);
 
+			variable_dictionnary()->exit_scope();
+
 			return graphics;
 		}
 
@@ -619,7 +629,9 @@ namespace GLUU {
 		{
 			graphics->base_row.render(windowSize);
 		}
+
+		
 	};
 
-	//typedef CstartGlobalParser;
+	typedef Singleton<Parser> Global;
 }
