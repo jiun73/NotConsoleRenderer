@@ -1,7 +1,7 @@
 
 #include "TileRenderer.h"
 
-#include "GLUU_std.h"
+#include "GLUU.h"
 #include "File.h"
 #include "Networking.h"
 
@@ -20,126 +20,11 @@
 #include "SDL.h"
 #include "SDL_image.h"
 
-class GLUU_Text : public GLUUWidget
-{
-	GLUUVar<string> text;
-
-	pair<size_t, string> fetch_keyword() override  
-	{
-		return { 1,"TEXT" }; 
-	}
-
-	void update(GLUUElement& graphic) override 
-	{
-		draw_text(text(), graphic.last_dest.sz.x, graphic.last_dest.pos, get_font(0));
-	}
-
-	shared_ptr<GLUUWidget> make(const vector<string>& args, GLUUParser& parser) override 
-	{
-		std::cout << args.at(0) << std::endl;
-		shared_ptr<GLUU_Text> ptr = make_shared<GLUU_Text>();
-		ptr->text.set(args.at(0), parser);
-		return ptr; 
-	}
-};
-
-class GLUU_Button : public GLUUWidget
-{
-	GLUUVar<string> text;
-	GLUU expr;
-
-	pair<size_t, string> fetch_keyword() override
-	{
-		return { 2,"BUTTON" };
-	}
-
-	void update(GLUUElement& graphic) override
-	{	
-		if (point_in_rectangle(mouse_position(), graphic.last_dest))
-		{
-			if(mouse_left_held())
-				pencil(COLOR_PINK);
-			else
-				pencil(COLOR_GREEN);
-			if (mouse_left_released())
-				expr.evaluate();
-		}
-		else
-			pencil(COLOR_BLACK);
-		draw_full_rect(graphic.last_dest);
-		pencil(rgb(100,100,100));
-		draw_rect(graphic.last_dest);
-		draw_text(text(), graphic.last_dest.sz.x, graphic.last_dest.pos, get_font(0));
-	}
-
-	shared_ptr<GLUUWidget> make(const vector<string>& args, GLUUParser& parser) override
-	{
-		std::cout << args.at(0) << args.at(1) << std::endl;
-		shared_ptr<GLUU_Button> ptr = make_shared<GLUU_Button>();
-		ptr->text.set(args.at(0), parser);
-		string copy = args.at(1);
-		ptr->expr = parser.parse_sequence(copy);
-		return ptr;
-	}
-};
-
-class GLUU_Textbox : public GLUUWidget
-{
-	GLUUVar<string> default_text;
-	GLUU expr;
-
-	pair<size_t, string> fetch_keyword() override
-	{
-		return { 2,"TEXTBOX" };
-	}
-
-	void update(GLUUElement& graphic) override
-	{
-		if (point_in_rectangle(mouse_position(), graphic.last_dest))
-		{
-			if (mouse_left_released())
-				keyboard().openTextInput();
-
-			if (!keyboard().getTextInput().empty() && keyboard().getTextInput().back() == '\n')
-			{
-				keyboard().getTextInput().pop_back();
-				vector<shared_generic> ref = { make_generic<string*>(&keyboard().getTextInput()) };
-				expr.set_args(ref);
-				expr.evaluate();
-			}
-		}
-		else
-		{
-			if (mouse_left_pressed())
-				keyboard().closeTextInput();
-		}
-
-		if(keyboard().getTextInput().empty())
-			draw_text(default_text(), graphic.last_dest.sz.x, graphic.last_dest.pos, get_font(0));
-		else
-			draw_text(keyboard().getTextInput(), graphic.last_dest.sz.x, graphic.last_dest.pos, get_font(0));
-	}
-
-	shared_ptr<GLUUWidget> make(const vector<string>& args, GLUUParser& parser) override
-	{
-		std::cout << args.at(0) << args.at(1) << std::endl;
-		shared_ptr<GLUU_Textbox> ptr = make_shared<GLUU_Textbox>();
-		ptr->default_text.set(args.at(0), parser);
-		
-		string copy = args.at(1);
-		ptr->expr = parser.parse_sequence(copy);
-		
-		return ptr;
-	}
-};
-
 int main() 
 {
 	set_window_size(200); //fenetre de 200x200
 	set_window_resizable(); //fenetre peut etre agrandie
 	init();
-
-	GLUU_import_standard();
 
 	/*
 	* En gros ca marche plus ou moins de la meme facon que le console renderer
@@ -150,13 +35,9 @@ int main()
 
 	std::cout << "int: " << operators::has_operator_equals<int, bool(int)>::value << std::endl;;
 
-	GLUUParser parser;
+	//GLUUParser parser;
 	File file("file.txt", FILE_READING_STRING);
 	File file2("file2.txt", FILE_READING_STRING);
-
-	parser.register_class(make_shared<GLUU_Text>());
-	parser.register_class(make_shared<GLUU_Button>());
-	parser.register_class(make_shared<GLUU_Textbox>());
 
 	std::stringstream ss;
 
@@ -169,15 +50,10 @@ int main()
 		for (size_t x = 0; x < surface->w; x++)
 		{
 			ss << "{";
-			//Uint32* target_pixel = (Uint32*)((Uint8*)surface->pixels+ y * surface->pitch+ x * surface->format->BytesPerPixel);
 
 			uint8_t red = pixels[surface->format->BytesPerPixel * (y * surface->w + x) + 0];
 			uint8_t green = pixels[surface->format->BytesPerPixel * (y * surface->w + x) + 1];
 			uint8_t blue = pixels[surface->format->BytesPerPixel * (y * surface->w + x) + 2];
-
-			/*uint8_t red = *(target_pixel);
-			uint8_t green = *(target_pixel + 1);
-			uint8_t blue = *(target_pixel + 2);*/
 
 			ss << (int)red << "," << (int)green << "," << (int)blue;
 			ss << "},";
@@ -194,7 +70,7 @@ int main()
 
 	string str = file.getString();
 	string str2 = file2.getString();
-	shared_ptr<GLUUGraphics> gluu_gfx = parser.parse(str);
+	GLUU::Compiled_ptr gluu_gfx = GLUU::parse(str);
 	//shared_generic gen = parser.parse_sequence(str2).evaluate();
 	//std::cout << gen->type().name() <<  "\n" << gen->stringify() << std::endl;
 

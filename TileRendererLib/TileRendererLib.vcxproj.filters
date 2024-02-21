@@ -25,11 +25,14 @@
     <Filter Include="Source Files\ConsoleRenderer">
       <UniqueIdentifier>{5655e238-feea-4bc5-94c1-f472d1053769}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Generic\Cstar">
-      <UniqueIdentifier>{02f3a915-e810-471f-b500-a3c63c76f16b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Strings">
       <UniqueIdentifier>{c28468d1-f5f9-4c2f-a200-9bf9d8bfaa60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Generic\GLUU">
+      <UniqueIdentifier>{02f3a915-e810-471f-b500-a3c63c76f16b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Generic\GLUU\GLUU_widgets">
+      <UniqueIdentifier>{a563f4e5-d15d-49d3-9d57-b3a091ae5bc1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -103,7 +106,7 @@
       <Filter>Source Files\ConsoleRenderer</Filter>
     </ClInclude>
     <ClInclude Include="GLUU_parser.h">
-      <Filter>Header Files\Generic\Cstar</Filter>
+      <Filter>Header Files\Generic\GLUU</Filter>
     </ClInclude>
     <ClInclude Include="StringManip.h">
       <Filter>Header Files\Strings</Filter>
@@ -123,17 +126,35 @@
     <ClInclude Include="Operators.h">
       <Filter>Header Files\Generic</Filter>
     </ClInclude>
-    <ClInclude Include="GLUU.h">
-      <Filter>Header Files\Generic\Cstar</Filter>
+    <ClInclude Include="GLUU_expr.h">
+      <Filter>Header Files\Generic\GLUU</Filter>
     </ClInclude>
     <ClInclude Include="GLUU_types.h">
-      <Filter>Header Files\Generic\Cstar</Filter>
-    </ClInclude>
-    <ClInclude Include="GLUU_var.h">
-      <Filter>Header Files\Generic\Cstar</Filter>
+      <Filter>Header Files\Generic\GLUU</Filter>
     </ClInclude>
     <ClInclude Include="GLUU_std.h">
-      <Filter>Header Files\Generic\Cstar</Filter>
+      <Filter>Header Files\Generic\GLUU</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_widgets.h">
+      <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU.h">
+      <Filter>Header Files\Generic\GLUU</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_text.h">
+      <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_button.h">
+      <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_textbox.h">
+      <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_seqvar.h">
+      <Filter>Header Files\Generic\GLUU</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_wint.h">
+      <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,143 +1,39 @@
 #pragma once
-#include "GLUU_types.h"
-#include "CommandDictionnary.h"
 
+#include "GLUU_parser.h"
+#include "GLUU_std.h"
+#include "GLUU_widgets.h"
 
+#include "Singleton.h"
 
-struct GLUU
-{
-	shared_ptr<VariableRegistry> scope;
-	vector<GLUU> recursive;
+namespace GLUU {
+	using std::unique_ptr;
 
-	bool root = true;
-	bool func = false;
-	bool user_func = false;
-	shared_generic constant = nullptr;
-	shared_ptr<GenericFunction> function = nullptr;
+	using Compiled_ptr = shared_ptr<Compiled>;
 
-	vector<string> args_name;
-	string func_name;
-	size_t arg_count = 0;
+	typedef Singleton<Parser> Global;
 
-	void add_arg(const string& str, const string& type)
+	inline Parser* parser() { return Global::get(); }
+
+	inline Compiled_ptr parse(string& str) { return parser()->parse(str); }
+
+	struct Import
 	{
-		scope->add(ClassFactory::get()->make(type), str);
-		args_name.push_back(str);
-	}
+		Import(function<void()> callback) { callback(); }
+		~Import() { }
+	};
 
-	void add_arg_ref(const string& str, const string& type)
+	template<typename T>
+	struct ImportWidget 
 	{
-		shared_ptr<GenericObject> ptr = std::reinterpret_pointer_cast<GenericObject>(ClassFactory::get()->make(type));
-		scope->add(ptr->reference(), str);
-		args_name.push_back(str);
-	}
+		static_assert(std::is_base_of_v<Widget, T>);
 
-	void set_args(vector<shared_generic>& args)
-	{
-		size_t i = 0;
-		for (auto& name : args_name)
-		{
-			scope->add(args.at(i), name);
-			//*(scope->get(name)) = *args.at(i);
-			//scope->get(name).swap(args.at(i));
-			scope->get(name)->set(args.at(i));
-			i++;
-		}
-	}
+		ImportWidget() { parser()->register_class(make_shared<T>()); }
+		~ImportWidget() {}
+	};
 
-	vector<shared_generic> get_args_from_recursive(bool func_check = false)
-	{
-		vector<shared_generic> args;
-		size_t i = 0;
-		for (auto& r : recursive)
-		{
-			if (func_check && function->args_type(i) == typeid(GLUU&))
-			{
-				shared_generic rec = make_shared<GenericRef<GLUU>>(r);
-				args.push_back(rec);
-			}
-			else
-			{
-				args.push_back(r.evaluate());
-			}
-			i++;
-		}
-		return args;
-	}
-
-	vector<GenericArgument> generic_to_args(const vector<shared_generic>& gen)
-	{
-		vector<GenericArgument> args;
-
-		for (auto& arg : gen)
-		{
-			args.push_back(arg);
-		}
-
-		return args;
-	}
-
-	shared_generic evaluate()
-	{
-		if (root)
-		{
-			vector<shared_generic> ret;
-
-			for (auto& r : recursive)
-			{
-				shared_generic eval = r.evaluate();
-				if (eval != nullptr)
-					ret.push_back(eval);
-			}
-
-			if (ret.size() == 0) { return nullptr; }
-			if (ret.size() == 1) { return ret.at(0); }
-
-			string collect;
-
-			for (auto& r : ret)
-			{
-				collect += r->stringify();
-			}
-
-			if (constant == nullptr)
-			{
-				constant = make_generic<string>();
-			}
-
-			shared_generic str_type = make_generic<string>(collect);
-
-			constant->set(str_type);
-
-			
-			return constant;
-		}
-		else
-		{
-			if (func)
-			{
-				if (function->args(generic_to_args(get_args_from_recursive(true))))
-					return function->call();
-				else
-					assert(false); //error
-				return nullptr;
-			}
-			else if (user_func)
-			{
-				GLUU& star = *(GLUU*)(constant->raw_bytes());
-
-				if (star.args_name.size() > 0)
-				{
-					vector<shared_generic> args = get_args_from_recursive();
-					star.set_args(args);
-				}
-
-				return star.evaluate();
-			}
-			else
-			{
-				return constant;
-			}
-		}
-	}
-};
+	inline Import import_std(import_standard);
+	inline ImportWidget<TextWidget> import_text;
+	inline ImportWidget<TextboxWidget> import_textbox;
+	inline ImportWidget<ButtonWidget> import_button;
+}
