@@ -67,7 +67,7 @@ class GLUU_Button : public GLUUWidget
 		else
 			pencil(COLOR_BLACK);
 		draw_full_rect(graphic.last_dest);
-		pencil(COLOR_WHITE);
+		pencil(rgb(100,100,100));
 		draw_rect(graphic.last_dest);
 		draw_text(text(), graphic.last_dest.sz.x, graphic.last_dest.pos, get_font(0));
 	}
