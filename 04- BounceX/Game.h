@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "TileRenderer.h"
+#include "NotConsoleRenderer.h"
 #include "Strings.h"
 #include <ctime>
 

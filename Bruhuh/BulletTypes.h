@@ -40,4 +40,6 @@ inline WeaponBullet get_bullet_from_type(BulletTypes type)
 	default:
 		break;
 	}
+
+	return {};
 }

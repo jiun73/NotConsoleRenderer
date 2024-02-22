@@ -127,6 +127,7 @@ public:
 	{
 		shared_ptr<VariableRegistry> pointer = make_temporary_scope(name);
 		saved_scopes.emplace(pointer);
+		std::cout << "new scope " << name << std::endl;
 		return pointer;
 	}
 
@@ -157,8 +158,13 @@ public:
 	}
 
 	vector<shared_ptr<VariableRegistry>>& all() { return scopes; }
-	vector<shared_ptr<VariableRegistry>>& all_saved() 
-	{ return scopes; }
+	vector<shared_ptr<VariableRegistry>> all_saved() 
+	{ 
+		vector<shared_ptr<VariableRegistry>> ret;
+		for (auto& s : saved_scopes)
+			ret.push_back(s);
+		return ret; 
+	}
 };
 
 inline VariableDictionnary* variable_dictionnary() { return Singleton< VariableDictionnary>::get(); }

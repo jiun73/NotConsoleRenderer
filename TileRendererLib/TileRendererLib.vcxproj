@@ -152,6 +152,7 @@
     <ClInclude Include="Color.h" />
     <ClInclude Include="CommandDictionnary.h" />
     <ClInclude Include="CommandPrompt.h" />
+    <ClInclude Include="CommandStandard.h" />
     <ClInclude Include="ConsoleRenderer.h" />
     <ClInclude Include="ContainerGenerics.h" />
     <ClInclude Include="Controls.h" />
@@ -184,7 +185,7 @@
     <ClInclude Include="StringManip.h" />
     <ClInclude Include="StringRanges.h" />
     <ClInclude Include="ThreadPool.h" />
-    <ClInclude Include="TileRenderer.h" />
+    <ClInclude Include="NotConsoleRenderer.h" />
     <ClInclude Include="Vec2D.h" />
     <ClInclude Include="Vec3D.h" />
   </ItemGroup>
@@ -204,7 +205,7 @@
     </ClCompile>
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="ThreadPool.cpp" />
-    <ClCompile Include="TileRendererLib.cpp" />
+    <ClCompile Include="NotConsoleRendererLib.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="EntityX.h" />

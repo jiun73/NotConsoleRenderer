@@ -3,7 +3,7 @@
 #include "FunctionGenerics.h"
 #include "StringRanges.h"
 #include "CommandDictionnary.h"
-#include "TileRenderer.h"
+#include "NotConsoleRenderer.h"
 
 #include "GLUU_expr.h"
 #include "GLUU_seqvar.h"
@@ -113,6 +113,7 @@ namespace GLUU {
 
 	struct Compiled
 	{
+		shared_ptr<VariableRegistry> compiled_scope;
 		Element* current_row = nullptr;
 		Element base_row;
 
@@ -387,6 +388,13 @@ namespace GLUU {
 				ret_val.recursive.push_back(c);
 		}
 
+		Expression parse_new_sequence(string& str)
+		{
+			variable_dictionnary()->enter_scope(GLUU_scope);
+			Expression e = parse_sequence(str);
+			variable_dictionnary()->exit_scope();
+			return e;
+		}
 
 		Expression parse_sequence(string& str)
 		{
@@ -609,8 +617,13 @@ namespace GLUU {
 		{
 			graphics = make_shared<Compiled>();
 			//graphics->widgets = widgets;
-			current_scope = GLUU_scope;
+			
+			graphics->compiled_scope = variable_dictionnary()->make_temporary_scope("Global expression scope");
+			current_scope = graphics->compiled_scope;
+
+			variable_dictionnary()->enter_scope(GLUU_scope);
 			variable_dictionnary()->enter_scope(current_scope);
+
 			graphics->current_row = &graphics->base_row;
 			string row_keyword = "ROW";
 			str += '\n';
@@ -620,6 +633,7 @@ namespace GLUU {
 
 			parse_range(str, row_keyword, true);
 
+			variable_dictionnary()->exit_scope();
 			variable_dictionnary()->exit_scope();
 
 			return graphics;

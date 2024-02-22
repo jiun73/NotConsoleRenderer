@@ -22,9 +22,6 @@
     <Filter Include="Header Files\Debugging">
       <UniqueIdentifier>{eadb03d2-ff5b-49a9-8505-2c3aa7b5af86}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\ConsoleRenderer">
-      <UniqueIdentifier>{5655e238-feea-4bc5-94c1-f472d1053769}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Strings">
       <UniqueIdentifier>{c28468d1-f5f9-4c2f-a200-9bf9d8bfaa60}</UniqueIdentifier>
     </Filter>
@@ -34,15 +31,15 @@
     <Filter Include="Header Files\Generic\GLUU\GLUU_widgets">
       <UniqueIdentifier>{a563f4e5-d15d-49d3-9d57-b3a091ae5bc1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Debugging\ConsoleRenderer">
+      <UniqueIdentifier>{5655e238-feea-4bc5-94c1-f472d1053769}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TileRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Color.h">
@@ -103,7 +100,7 @@
       <Filter>Header Files\Debugging</Filter>
     </ClInclude>
     <ClInclude Include="ConsoleRenderer.h">
-      <Filter>Source Files\ConsoleRenderer</Filter>
+      <Filter>Header Files\Debugging\ConsoleRenderer</Filter>
     </ClInclude>
     <ClInclude Include="GLUU_parser.h">
       <Filter>Header Files\Generic\GLUU</Filter>
@@ -156,9 +153,15 @@
     <ClInclude Include="GLUU_wint.h">
       <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
     </ClInclude>
+    <ClInclude Include="CommandStandard.h">
+      <Filter>Header Files\Debugging</Filter>
+    </ClInclude>
+    <ClInclude Include="NotConsoleRenderer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="TileRendererLib.cpp">
+    <ClCompile Include="NotConsoleRendererLib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
@@ -183,7 +186,7 @@
       <Filter>Header Files\Debugging</Filter>
     </ClCompile>
     <ClCompile Include="ConsoleRenderer.cpp">
-      <Filter>Source Files\ConsoleRenderer</Filter>
+      <Filter>Header Files\Debugging\ConsoleRenderer</Filter>
     </ClCompile>
     <ClCompile Include="Controls.cpp">
       <Filter>Header Files\Classes</Filter>

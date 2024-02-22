@@ -1,9 +1,10 @@
 
-#include "TileRenderer.h"
+#include "NotConsoleRenderer.h"
 
 #include "GLUU.h"
 #include "File.h"
 #include "Networking.h"
+#include "CommandStandard.h"
 
 /*
 * Ceci est un exemple!
@@ -18,6 +19,7 @@
 
 int main() 
 {
+	add_regular_command_set();
 	set_window_size(200); //fenetre de 200x200
 	set_window_resizable(); //fenetre peut etre agrandie
 	init();
