@@ -164,12 +164,7 @@ int main()
 				int i1 = r.range(0, 100);
 				int i2 = r.range(0, 100);
 				int i3 = r.range(0, 100);
-				//p2p().start_stream(0); //on commence un canal '0', puis on envoie les données
-				//p2p().send(i1);
-				//p2p().send(i2);
-				//p2p().send(i3);
-				//p2p().end_stream();
-				p2p(0) << i1 << i2 << i3 << net::send;
+				p2p(0) << i1 << i2 << i3 << net::send; //on commence un canal '0', puis on envoie les données
 				std::cout << i1 << " " << i2 << " " << i3 << " " << std::endl;
 			}
 
