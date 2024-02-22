@@ -372,14 +372,14 @@ namespace GLUU {
 				}
 
 				if (it->func)
-				{
-					const auto& args = it->generic_to_args(it->get_args_from_recursive(true));
-					if (!it->function->args(args)) //check for overloads
-					{
-						auto fn = variable_dictionnary()->get_fn(it->func_name, args); //error GLUU_ERROR_OVERLOAD_NOT_FOUND
-						auto fn_type = std::reinterpret_pointer_cast<GenericFunction>(fn);
-						it->function = fn_type;
-					}
+				{ 
+					//const auto& args = it->generic_to_args(it->get_args_from_recursive(true)); error
+					//if (!it->function->args(args)) //check for overloads
+					//{
+					//	auto fn = variable_dictionnary()->get_fn(it->func_name, args); //error GLUU_ERROR_OVERLOAD_NOT_FOUND
+					//	auto fn_type = std::reinterpret_pointer_cast<GenericFunction>(fn);
+					//	it->function = fn_type;
+					//}
 				}
 
 				constants.push_back(*it);
@@ -419,7 +419,11 @@ namespace GLUU {
 			current_scope = ret.scope;
 			variable_dictionnary()->enter_scope(current_scope);
 
-			if (str.empty()) return {};
+			if (str.empty())
+			{
+				assert(false);
+				return {};
+			}
 
 			str = range_trim(str, ' ');
 
@@ -531,7 +535,10 @@ namespace GLUU {
 					for (size_t y = 0; y < p; y++)
 					{
 						i++;
-						if (i >= keywords.size()) return row; //error GLUU_ERROR_MISSING_ARGS
+						if (i >= keywords.size()) {
+							assert(false);
+							return row;
+							}//error GLUU_ERROR_MISSING_ARGS
 
 						string current = range_trim(keywords.at(i), ' ').flat();
 						if (current.empty()) {
