@@ -238,8 +238,7 @@ public:
 	template<typename T>
 	void send(T data, size_t peerid, bool signal = false)
 	{
-		if (net::verbose_net)
-			std::cout << "Sending... " << bitset<sizeof(data) * 8>(*(size_t*)(&data)) << std::endl;
+		
 		enet_uint8* bytes = new enet_uint8[sizeof(data) + 1];
 		memcpy(bytes + 1, &data, sizeof(data));
 		memcpy(bytes, &signal, sizeof(bool));
@@ -250,6 +249,9 @@ public:
 
 		if (enet_peer_send(peers.at(peerid), 0, packet) != 0)
 			puts("Failed to send packet");
+
+		if (net::verbose_net)
+			std::cout << "Sending... " << bitset<sizeof(data) * 8>(*(size_t*)(&data)) << std::endl;
 	}
 
 	/*
@@ -287,6 +289,9 @@ public:
 	Server& broadcast(size_t channel)
 	{
 		write_flag = channel;
+		broadcasting = true;
+		messaging = false;
+
 		return *this;
 	}
 
@@ -294,6 +299,9 @@ public:
 	{
 		write_flag = channel;
 		current_peer = peerid;
+		messaging = true;
+		broadcasting = false;
+
 		return *this;
 	}
 

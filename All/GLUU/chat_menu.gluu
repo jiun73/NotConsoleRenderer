@@ -13,7 +13,17 @@ ROW CFIT SIZE 60 IF { state == 1 }
 	
 	COL CFIT <
 		ROW CFIT <
-			COL TEXTBOX { "Enter ip..." } { arg* string ip; success = { :chat_join {ip @} } ; {ip @} = "" } < >
+			COL TEXTBOX { "Enter ip..." } 
+				{ 	
+					arg* string ip; 
+					success = { :chat_join ip @}; 
+					{ip @} = "";
+					$if success 
+					{
+						state = 2;
+					}
+				} 
+				< >
 			COL BUTTON { "Back" } {state = 0} < >
 		>
 		
@@ -32,14 +42,20 @@ ROW SIZE 30 CFIT IF { state == 2; }
 	<
 		
 	>
-	
-	COL TEXTBOX { "Enter message..." } { arg* string ip; {ip @} = "" }
+
+	COL TEXTBOX { "Enter message..." } { arg* string ip; :chat_send ip @; {ip @} = "" }
 	<
-	
+		
 	>
-	
+
 	COL BUTTON { "Back" } { :cout "huho!" }
 	<
 		
 	>
+	
+>
+
+ROW SIZE 110 CFIT
+<
+	COL TEXT { :chat_msg; } < >
 >

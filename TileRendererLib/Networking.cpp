@@ -197,7 +197,9 @@ void Server::handle_events(ENetEvent& event) {
 		bool is_flag = read_packet(event.packet, data);
 
 		if (is_flag)
+		{
 			buffers[peerID].end(*(size_t*)(data));
+		}
 		else
 			buffers[peerID].add(data);
 
@@ -260,11 +262,21 @@ void Server::start_stream(size_t channel)
 
 void Server::end_stream()
 {
-	if (net::verbose_net)
-	std::cout << "End of stream " << write_flag << std::endl;
+	if(messaging)
+		send<size_t>(write_flag, current_peer, true);
+	else if (broadcasting)
+	{
+		for (auto& p : peers)
+		{
+			send<size_t>(write_flag, p.first, true);
+		}
+	}
+
 	broadcasting = false;
 	messaging = false;
-	send<size_t>(write_flag, true);
+	
+	if (net::verbose_net)
+		std::cout << "Write end of stream " << write_flag << std::endl;
 }
 
 /*
