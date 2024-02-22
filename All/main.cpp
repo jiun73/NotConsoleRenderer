@@ -9,12 +9,9 @@ int main()
 
 	add_regular_command_set();
 
-	File file("GLUU/chat_menu.gluu", FILE_READING_STRING);
-	GLUU::Compiled_ptr menu = GLUU::parse_copy(file.getString());
-
 	Server server;
 
-	GLUU::import_function<void()>(":net_server_host", [&]()
+	GLUU::import_function<void()>(":chat_host", [&]()
 		{
 			server.open_session([](Server& server)
 				{
@@ -23,6 +20,25 @@ int main()
 
 			p2p().join();
 		});
+
+	GLUU::import_function<void()>(":chat_wait", [&]()
+		{
+			server.wait_for_peer();
+		});
+
+	GLUU::import_function<bool(string)>(":chat_join", [&](string s)
+		{
+			return p2p().join(s);
+		});
+
+	GLUU::import_function<int()>(":peercnt", [&]()
+		{
+			return server.peer_count();
+		});
+
+	File file("GLUU/chat_menu.gluu", FILE_READING_STRING);
+
+	GLUU::Compiled_ptr menu = GLUU::parse_copy(file.getString());
 
 	while (run())
 	{

@@ -76,6 +76,7 @@ namespace GLUU {
 		import_function<bool()>(":false", []() {return false; });
 		import_function<bool(bool, bool)>(":or", [](bool b, bool a) {return a || b; });
 		import_function<bool(bool, bool)>(":and", [](bool b, bool a) {return a && b; });
+		import_function<bool(bool)>(":not", [](bool a) {return !a; });
 
 		import_function<void(Expression&, Expression&)>("$while", [](Expression& expr, Expression& condition)
 			{

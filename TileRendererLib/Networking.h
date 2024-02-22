@@ -204,10 +204,10 @@ public:
 	}
 };
 
-class Server 
+class Server
 {
 private:
-	ENetAddress address = {0,0};
+	ENetAddress address = { 0,0 };
 	ENetHost* client = nullptr;
 	map<size_t, ENetPeer*> peers;
 
@@ -272,8 +272,10 @@ public:
 	*/
 	void wait_for_peer()
 	{
-		while (peers.empty()) { if(net::verbose_net) std::cout << "Waiting for peer \r"; };
+		while (peers.empty()) { if (net::verbose_net) std::cout << "Waiting for peer \r"; };
 	}
+
+	int peer_count() { return peers.size(); }
 
 	bool is_connected() { return connected; }
 
