@@ -480,6 +480,8 @@
 
 		TextDrawCounter counter(font, pos);
 
+		if (max_width == 0) return;
+
 		for (auto lines : all_ranges(range, get_text_range_until, '\n'))
 		{
 			for (auto max : all_ranges<int, const Font&>(lines, get_text_range_max_size, max_width, font))
@@ -495,6 +497,8 @@
 		string_range range = { text.cbegin(), text.cend() };
 
 		TextDrawCounter counter(font, pos);
+
+		if (max_width == 0) return;
 
 		for (auto lines : all_ranges(range, get_text_range_until, '\n'))
 		{

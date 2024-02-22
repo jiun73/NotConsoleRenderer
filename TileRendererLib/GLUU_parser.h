@@ -33,7 +33,8 @@ namespace GLUU {
 			int i = 0;
 			for (auto& n : nested)
 			{
-				i += n.size();
+				if(n.condition())
+					i += n.size();
 			}
 
 			return i;
@@ -44,23 +45,34 @@ namespace GLUU {
 			return sz * (size() / max);
 		}
 
+		double get_size(const Rect_d& dest, Element& other, bool vert)
+		{
+			if (!other.condition()) return 0;
+
+			if (fit)
+			{
+				if(!vert)
+					return other.map_size(dest.sz.x, get_size_max());
+				else 
+					return other.map_size(dest.sz.y, get_size_max());
+			}
+			else
+			{
+				return other.size();
+			}
+
+		}
+
 		void render(Rect_d dest)
 		{
+			if (!condition()) return;
+
 			if (is_row)
 			{
 				double pencil = dest.pos.x;
 				for (auto& col : nested)
 				{
-					double sz;
-
-					if (fit)
-					{
-						sz = col.map_size(dest.sz.x, get_size_max());
-					}
-					else
-					{
-						sz = col.size();
-					}
+					double sz = get_size(dest, col, false);
 
 					Rect_d sub = { {pencil, dest.pos.y},{sz, dest.sz.y} };
 					draw_rect(sub);
@@ -73,16 +85,7 @@ namespace GLUU {
 				double pencil = dest.pos.y;
 				for (auto& row : nested)
 				{
-					double sz;
-
-					if (fit)
-					{
-						sz = row.map_size(dest.sz.x, get_size_max());
-					}
-					else
-					{
-						sz = row.size();
-					}
+					double sz = get_size(dest, row, true);;
 
 					Rect_d sub = { {dest.pos.x, pencil},{dest.sz.x, sz} };
 					draw_rect(sub);
@@ -97,6 +100,8 @@ namespace GLUU {
 
 		void update()
 		{
+			if (!condition()) return;
+
 			if (widget != nullptr)
 				widget->update(*this);
 
@@ -526,6 +531,8 @@ namespace GLUU {
 					for (size_t y = 0; y < p; y++)
 					{
 						i++;
+						if (i >= keywords.size()) return row; //error GLUU_ERROR_MISSING_ARGS
+
 						string current = range_trim(keywords.at(i), ' ').flat();
 						if (current.empty()) {
 							y--;  continue;
@@ -542,6 +549,8 @@ namespace GLUU {
 					for (size_t y = 0; y < p.first; y++)
 					{
 						i++;
+						if (i >= keywords.size()) return row; //error GLUU_ERROR_MISSING_ARGS
+
 						string current = range_trim(keywords.at(i), ' ').flat();
 						if (current.empty()) {
 							y--;  continue;

@@ -1,22 +1,26 @@
 new int state = 0;
 
-ROW IF {state == 0}
+new init _ = 
+{
+	state = 0;
+}
+
+ROW CFIT SIZE 60 IF { state == 0; }
 <
-	COL BUTTON {state = 1}
+	COL BUTTON { "Join " } { state = 1 } 
 	<
-		join
-	>
 	
-	COL BUTTON {:chat_begin; state = 2}
+	>
+	COL BUTTON { "Host " } { state = 2 } 
 	<
-		host
+
 	>
 >
 
-ROW IF {state == 1}
+ROW CFIT SIZE 30 IF { state == 1; }
 <
 	new string ip;
-	COL TEXTBOX { "Enter ip..." } { arg* string text; :net_join  text @; state = 2}
+	COL TEXTBOX { "Enter ip..." } { arg* string ip; {ip @} = "" }
 	<
 		
 	>
@@ -27,15 +31,21 @@ ROW IF {state == 1}
 	>
 >
 
-ROW IF <state == 2>
+ROW SIZE 30 CFIT IF { state == 2; }
 <
-	COL TEXT { :chat_msg }
+	COL TEXT { "" }
 	<
+		
 	>
 	
 	new string message;
-	COL TEXTBOX
+	COL TEXTBOX { "Enter message..." } { arg* string ip; {ip @} = "" }
 	<
 		:chat_send message;
+	>
+	
+	COL BUTTON { "Back" } {state = 0}
+	<
+
 	>
 >
