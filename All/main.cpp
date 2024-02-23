@@ -80,18 +80,9 @@ int main()
 		if (p2p().has_stream(1))
 		{
 			string s;
-			size_t size;
-			p2p(1) >> size;
-			for (size_t i = 0; i < size; i++)
-			{
-				char c;
-				p2p(1) >> c;
-				s.push_back(c);
-
-			}
+			p2p(1).rdc(s);
 
 			ss << s << std::endl;
-			std::cout << "Broadcasted message: " << ss.str() << std::endl;
 		}
 	}
 }

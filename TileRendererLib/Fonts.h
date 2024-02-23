@@ -191,7 +191,7 @@ public:
 	{
 		if (no_whitespace)
 		{
-			if (std::isspace(character))
+			if (std::isspace(character) && character != ' ')
 			{
 				return empty_glyph;
 			}
