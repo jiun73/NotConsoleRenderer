@@ -1,4 +1,4 @@
-#include "TileRenderer.h"
+#include "NotConsoleRenderer.h"
 #include "EntityX.h"
 #include "Vec3D.h"
 #include "Shape_x.h"
@@ -492,6 +492,8 @@ int main()
 	bool edit = true;
 	bool inputWasEmpty = false;
 	int selected_line = 0;
+
+	spawn();
 
 	const Font& pixel_font = get_font(FONT_PIXEL);
 

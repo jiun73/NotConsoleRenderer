@@ -1,4 +1,4 @@
-#include "TileRenderer.h"
+#include "NotConsoleRenderer.h"
 #include "EntityX.h"
 #include "BasicSystems.h"
 #include "ColliderSystem.h"
@@ -8,7 +8,7 @@
 #include "ObjectGenerics.h"
 #include "FunctionGenerics.h"
 #include "ContainerGenerics.h"
-#include "CstarParser.h"
+#include "GLUU_parser.h"
 
 static ComponentXAdder<Shape_x> shape_adder;
 static ComponentXAdder<Collider_x> coll_adder;
@@ -47,9 +47,6 @@ int main()
 	Rect_d player_square = { -5,5 };
 	player.create({ 25 }, { 0 }, { rgb(100,100,100) }, { player_square }, { "p1_" }, { PLAYER }, { 0,0,{0,0.03} });
 	player2.create({ 50 }, { 0 }, { rgb(100,100,100) }, { player_square }, { "p2_"}, { PLAYER }, {0,0,{0,0.03}});
-	//player2.create({ 50 }, { 0 }, { rgb(100,100,100) }, { player_square }, { "p1_"}, { PLAYER }, {0,0,{0,0.03}});
-
-
 	floor.create({ {0,95}, }, { 0 }, { rgb(100,100,100) }, { {0, {100,0}, {100,-5}, {0,-5}} }, { SOLID });
 
 	inputs().map("p1_left", { KEYBOARD_INPUT, INPUT_HELD, SDL_SCANCODE_A });
@@ -73,7 +70,6 @@ int main()
 	track_variable(player2.component<Position_x>()->position, "pos2");
 	track_variable(player2.component<Physics_x>()->velocity, "vel2");
 	track_variable(player2.component<Physics_x>()->acceleration, "acc2");
-
 
 	track_variable(player.component<Collider_x>()->collide_down, "coll_d");
 	track_variable(player.component<Collider_x>()->collide_up, "coll_u");

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "TileRenderer.h"
+#include "NotConsoleRenderer.h"
 #include "Strings.h"
 
 const int X_CONSOLE = 1000;

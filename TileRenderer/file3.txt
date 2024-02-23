@@ -1,0 +1,42 @@
+new int state = 0;
+
+ROW IF <state == 0>
+{
+	COL BUTTON <state = 1;>
+	{
+		join
+	}
+	
+	COL BUTTON <:chat_begin; state = 2;>
+	{
+		host
+	}
+}
+
+ROW IF <state == 1>
+{
+	new string ip;
+	COL TEXTBOX ip <state = 2;>
+	{
+		Enter ip...
+	}
+	
+	COL BUTTON <state = 0;>
+	{
+		back
+	}
+}
+
+ROW IF <state == 2>
+{
+	COL TEXT 
+	{
+		:chat_text;
+	}
+	
+	new string message;
+	COL TEXTBOX
+	{
+		:chat_send message;
+	}
+}

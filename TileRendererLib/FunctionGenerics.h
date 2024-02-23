@@ -45,8 +45,11 @@ struct GenericArgument
 struct GenericFunction : public Generic
 {
 	virtual shared_generic call() = 0;
-	virtual void args(const vector<GenericArgument>& values) = 0;
+	virtual bool args(const vector<GenericArgument>& values) = 0;
+	virtual const type_info& args_type(size_t i) = 0;
+	virtual size_t arg_count() = 0;
 	virtual char* function_bytes() = 0;
+	virtual const type_info& return_type() = 0;
 };
 
 template<typename T>
@@ -89,7 +92,7 @@ private:
 	}
 
 	template<size_t I = 0>
-	inline void set_args(const vector<GenericArgument>& arg)
+	inline bool set_args(const vector<GenericArgument>& arg)
 	{
 		if constexpr (I < sizeof...(Args))
 		{
@@ -101,8 +104,8 @@ private:
 
 			if (current == nullptr) //ignore null typoids;
 			{
-				set_args<I + 1>(arg);
-				return;
+				return set_args<I + 1>(arg);
+				
 			}
 
 			const type_info& info = typeid(typename std::tuple_element_t<I, std::tuple<Args...>>);
@@ -110,12 +113,14 @@ private:
 			if (current->type() != info && info != typeid(shared_generic)) //if arg is shared Typoid, then set it regardless of type inside current
 			{
 				std::cout << "{arg invalid (should be " << info.name() << ")}";
+				return false;
 				//return { I,TYPOID_INVALID_INPUT };
 			}
 
 			arguments.at(I) = current;
-			set_args<I + 1>(arg);
+			return set_args<I + 1>(arg);
 		}
+		return true;
 		//return { I,TYPOID_SUCCESS };
 	}
 
@@ -127,8 +132,30 @@ public:
 		return nullptr;//return _return_->raw_bytes(); 
 	}
 	const type_info& type() override { return typeid(R(Args...)); }
+	const type_info& return_type() override { return typeid(R); }
 	const type_info& identity() override { return typeid(GenericFunction); }
 	size_t size() override { return 0; }
+
+	template <size_t I = 0>
+	const type_info& unfold_args_type(size_t i)
+	{
+		if constexpr (I < sizeof...(Args))
+		{
+			if (I == i)
+			{
+				return typeid(typename std::tuple_element_t<I, std::tuple<Args...>>);
+			}
+			else
+				return unfold_args_type<I + 1>(i);
+		}
+
+		return typeid(void);
+	}
+
+	const type_info& args_type(size_t i) override
+	{
+		return unfold_args_type(i);
+	}
 
 	void set(shared_generic value) override
 	{
@@ -168,9 +195,14 @@ public:
 		return nullptr;
 	}
 
-	void args(const vector<GenericArgument>& values) override
+	bool args(const vector<GenericArgument>& values) override
 	{
-		set_args(values);
+		return set_args(values);
+	}
+
+	size_t arg_count()
+	{
+		return sizeof...(Args);
 	}
 
 	char* function_bytes() override { return (char*)(&(_callback_)); }

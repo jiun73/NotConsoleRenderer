@@ -43,7 +43,7 @@ struct remove_param_const { typedef T type; };
 template<template<typename...> typename T, typename... I>
 struct remove_param_const<T<I...>> { typedef T<std::remove_const_t<I>...> type; };
 
-struct GenericContainer : public Generic
+struct GenericContainer : public GenericObject
 {
 	virtual shared_generic at(size_t i) = 0;
 	virtual void insert(shared_generic value, size_t i) = 0;
@@ -114,6 +114,25 @@ public:
 
 		container.insert(iter_at(i), cast);
 	};
+
+	shared_generic dereference() override
+	{
+		if constexpr (is_pointer_v<T>) return make_shared < GenericRef<remove_pointer_t<T>>>(*container);
+		else return make_shared<GenericContainerType<T>>(*this);
+	}
+
+	shared_generic reference() override
+	{
+		if constexpr (is_pointer_v<T>) return make_shared < GenericContainerType<T>>(container);
+		else return make_shared<GenericType<T*>>(&container);
+	}
+
+	bool equals(shared_generic gen) override
+	{
+		if (gen->type() != type()) return false;
+		if constexpr (!operators::has_operator_equals<T, bool(T)>::value && !std::is_arithmetic_v<T>) { return false; }
+		else return (*(T*)gen->raw_bytes() == *container);
+	}
 
 	void erase(size_t i) override 
 	{

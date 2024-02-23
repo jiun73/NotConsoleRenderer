@@ -41,7 +41,7 @@ namespace strings
 		std::ostringstream ss;
 
 		//strings_hidden::operator<<(ss, x);
-		ss << x;
+		//ss << x;
 
 		return ss.str();
 	}
@@ -54,6 +54,8 @@ namespace strings
 	}
 
 	inline std::string stringify(const int& x) { return std::to_string(x); }
+
+	inline std::string stringify(const char& x) { std::string s;  s.push_back(x);  return s; }
 	inline std::string stringify(const unsigned int& x) { return std::to_string(x); }
 	inline std::string stringify(const bool& x) { return std::to_string(x); }
 	inline std::string stringify(const double& x) { return std::to_string(x); };
@@ -117,6 +119,14 @@ namespace strings
 	}
 
 	inline int destringify(uint32_t& target, std::string s)
+	{
+		if (!isNum(s)) return false;
+
+		target = stoi(s);
+		return true;
+	}
+
+	inline int destringify(size_t& target, std::string s)
 	{
 		if (!isNum(s)) return false;
 
