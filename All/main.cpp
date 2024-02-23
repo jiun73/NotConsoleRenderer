@@ -26,18 +26,10 @@ int main()
 						if (rb.has(0))
 						{
 							string s;
-							size_t read = rb.read<size_t>(0);
-							for (size_t i = 0; i < read; i++)
-							{
-								char c = rb.read<char>(0);
-								s.push_back(c);
-							}
+							rb.rdc(0, s);
 							std::cout << s << std::endl;
 
-							server.broadcast(1) << s.size();
-							for (auto& c : s)
-								server.broadcast(1) << c;
-							server.broadcast(1) << net::send;
+							server.broadcast(1).wrtc(s) << net::send;
 						}
 					}
 				});
@@ -72,10 +64,7 @@ int main()
 
 	GLUU::import_function<void(string&)>(":chat_send", [&](string& s)
 		{
-			p2p(0) << s.size();
-			for (auto& c : s)
-				p2p(0) << c;
-			p2p(0) << net::send;
+			p2p(0).wrtc(s) << net::send;
 		});
 
 	File file("GLUU/chat_menu.gluu", FILE_READING_STRING);

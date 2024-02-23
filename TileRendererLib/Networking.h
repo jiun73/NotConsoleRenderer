@@ -69,6 +69,17 @@ struct ReadBuffer
 		return ret;
 	}
 
+	template<typename T>
+	ReadBuffer& rdc(size_t channel, T& ref)
+	{
+		size_t sz = read<size_t>(channel);
+		for (size_t i = 0; i < sz; i++)
+		{
+			ref.insert(ref.end(), read<typename T::value_type>(channel));
+		}
+		return *this;
+	}
+
 	template<size_t I>
 	void read_unfold(const deque<enet_uint8*>& data) {}
 
@@ -202,6 +213,27 @@ public:
 		}
 		return *this;
 	}
+
+	template<typename T>
+	Peer2Peer& wrtc(const T& object)
+	{
+		size_t i = 0;
+		for (auto& o : object) i++;
+		send(i);
+		for (auto& o : object) send(o);
+		return *this;
+	}
+
+	template<typename T>
+	Peer2Peer& rdc(T& ref)
+	{	
+		size_t sz = read<size_t>(write_flag);
+		for (size_t i = 0; i < sz; i++)
+		{
+			ref.insert(ref.end(), read<typename T::value_type>(write_flag));
+		}
+		return *this;
+	}
 };
 
 class Server
@@ -322,31 +354,19 @@ public:
 	template<typename T>
 	Server& operator<<(const T& object)
 	{
-		if (!broadcasting) 
+		if (broadcasting) 
 		{
-			std::cout << "not broadcasting!" << std::endl;
-			return *this;
+			for (auto& p : peers)
+			{
+				send(object, p.first);
+			}
 		}
 
-		for (auto& p : peers)
+		if (messaging)
 		{
-			send(object, p.first);
+			send(object, current_peer);
 		}
 		
-		return *this;
-	}
-
-	template<typename T>
-	Server& operator<(const T& object)
-	{
-		if (!messaging)
-		{
-			std::cout << "not messaging!" << std::endl;
-			return *this;
-		}
-
-		send(object, current_peer);
-
 		return *this;
 	}
 
@@ -355,8 +375,27 @@ public:
 		end_stream();
 	}
 
-	void operator<(const StreamEnd& end)
+	template<typename T>
+	Server& wrtc(const T& object)
 	{
-		end_stream();
+		if (messaging)
+		{
+			size_t i = 0;
+			for (auto& o : object) i++;
+			send(i, current_peer);
+			for (auto& o : object) send(o, current_peer);
+		}
+
+		if (broadcasting)
+		{
+			for (auto& p : peers)
+			{
+				size_t i = 0;
+				for (auto& o : object) i++;
+				send(i, p.first);
+				for (auto& o : object) send(o, p.first);
+			}
+		}
+		return *this;
 	}
 };
