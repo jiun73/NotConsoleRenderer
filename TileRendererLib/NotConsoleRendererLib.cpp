@@ -524,6 +524,8 @@
 				i++;
 			}
 
+			counter.linebreak();
+
 		}
 
 		_fonts.remove_glyph_effect();

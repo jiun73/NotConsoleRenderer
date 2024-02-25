@@ -38,24 +38,13 @@ ROW CFIT SIZE 60 IF { state == 1 }
 
 ROW SIZE 30 CFIT IF { state == 2; }
 <
-	COL TEXT { "Connected: " :peercnt } IF { is_host } 
-	<
-		
-	>
-
-	COL TEXTBOX { "Enter message..." } { arg* string ip; :chat_send ip @; {ip @} = "" }
-	<
-		
-	>
-
-	COL BUTTON { "Back" } { :cout "huho!" }
-	<
-		
-	>
+	COL TEXT { "Connected: " :peercnt } IF { is_host } <>
+	COL TEXTBOX { "Enter message..." } { arg* string ip; :chat_send ip @; {ip @} = "" } <>
+	COL BUTTON { "Back" } { :cout "huho!" } <>
 	
 >
 
 ROW SIZE 110 CFIT
 <
-	COL TEXT { :chat_msg; } < >
+	COL TEXT { :chat_msg; } <>
 >

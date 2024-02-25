@@ -195,6 +195,7 @@
     <ClCompile Include="Controls.cpp" />
     <ClCompile Include="EntityX.cpp" />
     <ClCompile Include="File.cpp" />
+    <ClCompile Include="GLUU_parser.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Networking.cpp" />
     <ClCompile Include="pch.cpp">
