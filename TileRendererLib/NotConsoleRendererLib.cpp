@@ -119,10 +119,12 @@
 				{
 					_fonts.set_glyph_effect([](SDL_Rect& dest)
 						{
-							int xdis = (int)sin((SDL_GetTicks() / 100.0) + dest.x * 5) * 5;
-							int ydis = (int)cos((SDL_GetTicks() / 100.0) + dest.x * 5) * 5;
+							double x = ((SDL_GetTicks() % 1000) / 1000.0 * 2 * M_PI + (double)(dest.x * 7)) ;
+							int xdis = sin(x) * 5.0;
+							int ydis = cos(x) * 5.0;
 							dest.x += xdis;
 							dest.y += ydis;
+							std::cout << xdis << ydis << std::endl;
 						});
 				});
 
@@ -590,7 +592,7 @@
 
 	string_range hidden::get_text_range_special(string_range range, vector<bool>& is_special)
 	{
-		const char sp_char = '\\';
+		const char sp_char = '%';
 		const char end_char = '.';
 
 		if (range.first == range.second)
