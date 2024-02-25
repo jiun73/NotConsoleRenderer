@@ -17,6 +17,20 @@
 * Juste a creer un nouveau proet dans la solution et copier les settings de 'exemple'
 */
 
+enum MessageTypes 
+{
+	MESSAGE_IN,
+	MESSAGE_OUT,
+	SET_NAME, //string
+	NAME_UPDATE
+};
+
+class Message 
+{
+	string content;
+	size_t peer;
+};
+
 int main() 
 {
 	add_regular_command_set();
@@ -137,25 +151,6 @@ int main()
 		}
 
 		draw_text(keyboard().getTextInput(), 500, 0, get_font(0));
-
-		//if (!keyboard().getTextInput().empty() && keyboard().getTextInput().back() == '\n')
-		//{
-		//	
-		//	//p2p().start_stream(1); //BTW on peut pas envoyer directement des conteneurs (vector, string, etc) parce qu'ils ne contiennent pas vraiment les données, mais plutot des pointers VERS les données (qui ne seront pas valide sur lordinateur de lautre)
-		//	//p2p().send(s.size()); //on envoie la taille de la string
-		//	//for (auto& c : s)
-		//	//	p2p().send(c); //puis on envoie chaque caratère un a la fois
-		//	//p2p().end_stream();
-		//	const string& s = keyboard().getTextInput();
-		//	p2p(1) << s.size();
-		//	for (auto& c : s)
-		//		p2p(1) << c;
-		//	p2p(1) << net::send;
-
-		//	keyboard().getTextInput() = "";
-
-		//	keyboard().closeTextInput();
-		//}
 		
 		if (p2p().is_connected())
 		{
