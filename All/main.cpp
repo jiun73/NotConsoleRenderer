@@ -20,6 +20,8 @@ int main()
 				{
 					auto& buffers = server.get_buffers();
 
+					map<size_t, string> usernames;
+
 					for (auto& b : buffers)
 					{
 						ReadBuffer& rb = b.second;
@@ -44,7 +46,12 @@ int main()
 
 	GLUU::import_function<bool(string&)>(":chat_join", [&](string& s)
 		{
-			return p2p().join(s);
+			bool success = p2p().join(s);
+			if (success)
+			{
+
+			}
+			return success;
 		});
 
 	GLUU::import_function<void()>(":chat_disconnect", [&]()

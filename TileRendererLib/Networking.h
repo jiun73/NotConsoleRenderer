@@ -23,6 +23,7 @@ enum NetFlags
 struct DataStream
 {
 	size_t flag = -1;
+	size_t peerid = -1;
 	deque<enet_uint8*> data;
 };
 
