@@ -7,10 +7,9 @@ namespace GLUU {
 		GLUU_Make(2, "BUTTON")
 		{
 			auto ptr = make_shared<ButtonWidget>();
-			string copy = args.at(1);
 
 			ptr->text.set(args.at(0), parser);
-			ptr->expr = parser.parse_sequence(copy);
+			ptr->expr = parser.parse_sequence_next(args.at(1));
 			return ptr;
 		}
 

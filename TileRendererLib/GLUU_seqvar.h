@@ -16,7 +16,7 @@ namespace GLUU {
 		~SeqVar() {}
 
 		template<typename ParserType>
-		void set(const string& str, ParserType& parser);
+		void set(string_ranges str, ParserType& parser);
 		shared_generic get_gen() { return generic; }
 
 		T& get()
@@ -42,19 +42,18 @@ namespace GLUU {
 
 	template<typename T>
 	template<typename ParserType>
-	inline void SeqVar<T>::set(const string& str, ParserType& parser) {
+	inline void SeqVar<T>::set(string_ranges str, ParserType& parser) {
 		if (!str.empty() && str.begin() != str.end())
 		{
 			if (*str.begin() == parser.expr_open && *prev(str.end()) == parser.expr_close)
 			{
-				string strcop = str;
-				seq = parser.parse_sequence(strcop);
+				seq = parser.parse_sequence_next(str);
 				is_seq = true;
 				return;
 			}
 		}
 
 		generic = make_generic<T>();
-		generic->destringify(str);
+		generic->destringify(str.flat());
 	}
 }

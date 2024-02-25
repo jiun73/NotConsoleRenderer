@@ -2,7 +2,7 @@
 #include "GLUU_types.h"
 #include "CommandDictionnary.h"
 
-#define GLUU_Make(_args, _name) pair<size_t, string> fetch_keyword() override {return { _args, _name };} shared_ptr<Widget> make(const vector<string>& args, Parser& parser) override
+#define GLUU_Make(_args, _name) pair<size_t, string> fetch_keyword() override {return { _args, _name };} shared_ptr<Widget> make(vector<string_ranges>& args, Parser& parser) override
 
 namespace GLUU {
 	struct Expression
