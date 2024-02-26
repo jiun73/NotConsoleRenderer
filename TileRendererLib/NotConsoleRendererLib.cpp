@@ -438,17 +438,41 @@
 
 		for (size_t y = miny; y < maxy; y++)
 		{
-			double a1 = rise(p1, { x1, flat_y });
-			double a2 = rise(p1, { x2, flat_y });
+			double xx1 = 0;
+			double xx2 = 0;
 
-			double b1 = p1.y - a1 * p1.x;
-			double b2 = p1.y - a2 * p1.x;
+			if (p1.x == x1)
+			{
+				xx1 = x1;
 
-			double x1 = (y - b1) / a1;
-			double x2 = (y - b2) / a2;
+				double a2 = rise(p1, { x2, flat_y });
+				double b2 = p1.y - a2 * p1.x;
+				xx2 = (y - b2) / a2;
 
-			double minx = (std::min)(x1, x2);
-			double maxx = (std::max)(x1, x2);
+			}
+			else if (p1.x == x2)
+			{
+				double a1 = rise(p1, { x1, flat_y });
+				double b1 = p1.y - a1 * p1.x;
+
+				xx1 = (y - b1) / a1;
+
+				xx2 = x2;
+			}
+			else
+			{
+				double a1 = rise(p1, { x1, flat_y });
+				double a2 = rise(p1, { x2, flat_y });
+
+				double b1 = p1.y - a1 * p1.x;
+				double b2 = p1.y - a2 * p1.x;
+
+				xx1 = (y - b1) / a1;
+				xx2 = (y - b2) / a2;
+			}
+
+			double minx = (std::min)(xx1, xx2);
+			double maxx = (std::max)(xx1, xx2);
 
 			for (size_t x = minx; x < maxx; x++)
 			{
@@ -482,9 +506,19 @@
 		if (top == p3 && bot == p2) mid = p1;
 		if (top == p1 && bot == p3) mid = p2;
 
-		double a = rise(top, bot);
-		double b = top.y - top.x * a;
-		double flat_x = (mid.y - b) / a;
+		double flat_x = 0;
+
+		if(top.x == bot.x)
+		{	
+			flat_x = top.x;
+		}
+		else
+		{
+
+			double a = rise(top, bot);
+			double b = top.y - top.x * a;
+			flat_x = (mid.y - b) / a;
+		}
 
 		draw_flat_triangle(top, mid.y, mid.x, flat_x);
 		draw_flat_triangle(bot, mid.y, mid.x, flat_x);

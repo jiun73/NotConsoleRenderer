@@ -206,15 +206,15 @@ int main()
 		}
 
 		V2d_i p1 = { 80, 60};
-		V2d_i p2 = { 90, 10 };
+		V2d_i p2 = { 80, 10 };
 		V2d_i p3 = { 50, 30 };
-
-		draw_triangle(p1, p2, p3);
 
 		pencil(COLOR_GREEN);
 		draw_line(p1, p2);
 		draw_line(p2, p3);
 		draw_line(p1, p3);
+
+		draw_full_triangle(p1, p2, p3);
 		
 		//gluu_gfx->render({ 0,get_logical_size() });
 	}
