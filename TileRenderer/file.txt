@@ -1,65 +1,79 @@
-new vector<string> container
-new string object
+new vector(string) container
+new string object = hello  
 new int test = 100
 
-new function front 
-<
-	#1 :is "container";
-	
-	#1 :at 0
->
+new function -front =
+{
+	arg vector(string) c; 
+	:cout c :type;
+	c -at 0;
+}
 
-new init = <
-	container :push object; 
-	:push container object;
-	
-	:foreach "n" container
-	<
-		n := "hi!"
-	>;
-	
-	container :front;
-	
-	rows
-	
-	:if test == 1
-	<
-		
-	>
->
+new function :seconds = 
+{
+	:ticks / 1000;
+}
 
-result : <
-	test; //when a instruction has a return that isn't used, it's that functions' return
-	test :+ 1;
-	test :+ 2;
-> //this will output the string : "result : 100101102"
-
-ROW SIZE 2 { //row 1
-	new int local = 100
-
-	COL BUTTON <test := 200>
+new init b = 
+{
+	//base_fit #= "true";
+	new int index = 0;
+	$while {index /- 10}
 	{
-		<index "/" container :size>
-	}
+		container -pushb {object index};
+		index ++;
+	};
+	
+	:cout {"b done!"};
+	
+	:cout {1 == 1}
+}
+
+/*
+	comment
+*/
+
+ROW SIZE 30 CFIT < //row 1
+	new int local = 100
+	
+	//[BASE CFIT]
+
+	COL SIZE 1 BUTTON {"local: " local} {local ++ }
+	<
+		ROW SIZE 10
+		<
+			COL SIZE 1 <>
+		>
+	>
 
 	new int local2 = 10000
 	
-	COL SIZE 3 TEXT
-	{
+	COL SIZE 1 TEXT { "bruh" ## :seconds "s"; }
+	<
 		this is text
-	}
+	>
 
-	COL SIZE 3
-	{
-		ROW DIV { 53434543}
-	}
-}
+	COL SIZE 1
+	<
+		new int local3 = 666;
+	>
+>
 
+new bool yo = true
 new double test = 0.0
 
-ROW IF <test == 1> {
-	COL SIZE 2 DROPBOX 
-	{
-
-	}		
-}
+ROW SIZE 50 CFIT IF {test == 1}
+<
+	COL SIZE 60 TEXTBOX { "enter text... " } { arg* string text; :cout @ text; {text @} = "" }
+	<
+		
+	>	
+	COL SIZE 20 DROPBOX CFIT
+	<
+		
+	>		
+	COL SIZE 20 DROPBOX CFIT
+	<
+		
+	>			
+>

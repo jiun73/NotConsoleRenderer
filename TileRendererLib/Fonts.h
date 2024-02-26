@@ -43,7 +43,9 @@ inline uint32_t next_2pow(uint32_t v)
 
 class Font
 {
+
 public:
+	Glyph empty_glyph;
 	TTF_Font* ttf = nullptr;
 	size_t font_index;
 	string path;	
@@ -60,6 +62,7 @@ public:
 	int ascent = 0;
 	int descent = 0;
 	bool fixedWidth = false;
+	bool no_whitespace = true;
 
 	bool kerning = false;
 
@@ -186,6 +189,13 @@ public:
 
 	const Glyph& get(const char& character) const
 	{
+		if (no_whitespace)
+		{
+			if (std::isspace(character))
+			{
+				return empty_glyph;
+			}
+		}
 		if(glyphs.count(character))
 			return glyphs.at(character);
 		return glyphs.at(' ');

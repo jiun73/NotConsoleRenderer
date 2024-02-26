@@ -1,6 +1,6 @@
 #pragma once
 
-#include "TileRenderer.h"
+#include "NotConsoleRenderer.h"
 
 const int X_CONSOLE = 700;
 const int Y_CONSOLE = 700;

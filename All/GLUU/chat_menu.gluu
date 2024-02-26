@@ -1,0 +1,41 @@
+new int state = 0;
+
+ROW IF {state == 0}
+<
+	COL BUTTON {state = 1}
+	<
+		join
+	>
+	
+	COL BUTTON {:chat_begin; state = 2}
+	<
+		host
+	>
+>
+
+ROW IF {state == 1}
+<
+	new string ip;
+	COL TEXTBOX { "Enter ip..." } { arg* string text; :net_join  text @; state = 2}
+	<
+		
+	>
+	
+	COL BUTTON { "Back" } {state = 0}
+	<
+
+	>
+>
+
+ROW IF <state == 2>
+<
+	COL TEXT { :chat_msg }
+	<
+	>
+	
+	new string message;
+	COL TEXTBOX
+	<
+		:chat_send message;
+	>
+>

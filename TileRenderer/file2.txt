@@ -1,0 +1,15 @@
+<
+	new string str = hello!;
+	new string buff;
+	new int i = 0;
+	buff = str;
+	$foreach buff 
+	<
+		new char c;
+		c = buff -at i;
+		:cout c;
+		str -ins c i;
+		i ++;	
+	>;
+	str;
+>
