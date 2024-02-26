@@ -263,12 +263,12 @@ void Server::start_stream(ChannelID channel)
 void Server::end_stream()
 {
 	if(messaging)
-		send<size_t>(write_flag, current_peer, true);
+		send<ChannelID>(write_flag, current_peer, true);
 	else if (broadcasting)
 	{
 		for (auto& p : peers)
 		{
-			send<size_t>(write_flag, p.first, true);
+			send<ChannelID>(write_flag, p.first, true);
 		}
 	}
 

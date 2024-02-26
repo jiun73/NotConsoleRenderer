@@ -113,8 +113,10 @@
 	//Change la couleur de dessin
 	void pencil(Color color);
 
-	//Dessine un simple pixel
-	void draw_pix(V2d_i position);
+Color get_pencil();
+
+//Dessine un simple pixel
+void draw_pix(V2d_i position);
 
 	//Dessine un rectangle, non rempli
 	void draw_rect(Rect rectangle);
@@ -138,8 +140,10 @@
 	//Dessine un cercle avec le millieu à la position 'pos' et au rayon 'radius'
 	void draw_circle(V2d_i pos, int radius);
 
-	//Dessine une couleur sur l'écran au complet
-	void draw_clear();
+void draw_triangle(V2d_i p1, V2d_i p2, V2d_i p3);
+
+//Dessine une couleur sur l'écran au complet
+void draw_clear();
 
 	//Permet de charger un texture à l'avance, mais 'draw_image' le fait si ce n'est pas fait manuellement
 	//\param 'path' est le chemin ou se trouve l'image
