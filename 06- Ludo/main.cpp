@@ -48,6 +48,32 @@ void draw_board_triangles()
 	draw_triangle(jaune1, centre, jaune2);
 }
 
+void light_random_cases()
+{
+	pencil(rouge.couleur);
+	carreaux.at(91).light();
+	carreaux.at(106).light();
+	carreaux.at(107).light();
+	carreaux.at(108).light();
+	carreaux.at(109).light();
+	carreaux.at(110).light();
+
+	pencil(vert.couleur);
+	carreaux.at(22).light();
+	carreaux.at(23).light();
+	carreaux.at(37).light();
+	carreaux.at(52).light();
+	carreaux.at(67).light();
+	carreaux.at(82).light();
+
+	pencil(bleu.couleur);
+	carreaux.at(201).light();
+	carreaux.at(202).light();
+	carreaux.at(187).light();
+	carreaux.at(172).light();
+	carreaux.at(157).light();
+	carreaux.at(142).light();
+}
 
 void draw_board()
 {
@@ -68,7 +94,32 @@ void draw_board()
 	draw_full_rect(le_vert);
 
 	draw_board_triangles();
-	draw_lines();
+	draw_lines();*/
+
+	for (int i = 0; i < carreaux.size(); i++)
+	{
+		if (trouver_colonne(i) < 6 && trouver_rangee(i) < 6)
+		{
+			carreaux.at(i).light(rgb(255, 0, 0));
+		}
+		else if (trouver_colonne(i) < 6 && trouver_rangee(i) >= 9)
+		{
+			carreaux.at(i).light(rgb(0, 0, 255));
+		}
+		else if (trouver_colonne(i) >= 9 && trouver_rangee(i) < 6)
+		{
+			carreaux.at(i).light(rgb(255, 255, 0));
+		}
+		else if (trouver_colonne(i) >= 9 && trouver_rangee(i) >= 9)
+		{
+			carreaux.at(i).light(rgb(0, 255, 0));
+		}
+		else
+		{
+			carreaux.at(i).light();
+		}
+	}
+	light_random_cases();
 }
 
 
