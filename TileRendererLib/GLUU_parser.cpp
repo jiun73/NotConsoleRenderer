@@ -47,7 +47,7 @@ namespace GLUU
 		widgets.emplace(c->fetch_keyword().second, c);
 	}
 
-	bool Parser::parse_keyword(vector<string_ranges>::iterator kw, vector<Expression>& constants, vector<Expression>& functions, bool& f, string_ranges full, size_t size, Expression& ret_val)
+	bool Parser::parse_keyword(vector<string_ranges>::iterator& kw, vector<Expression>& constants, vector<Expression>& functions, bool& f, string_ranges full, size_t size, Expression& ret_val, vector<string_ranges>::iterator end)
 	{
 		string flat = kw->flat();
 
@@ -73,6 +73,38 @@ namespace GLUU
 			ret_val.add_arg_ref(name, type);
 			output_seq("arg* '" + name + "' as " + type);
 			return true;
+		}
+		if (is_member(*kw))
+		{
+			output_seq("member '" + kw->flat() + "'");
+			string_ranges member_expr = *kw;
+
+			vector<string_ranges> split = chain(member_expr, range_until, ".");
+
+			shared_generic var;
+			bool b = true;
+			next_level();
+			for (auto& s : split)
+			{
+				output_seq(s.flat());
+				if (b)
+				{
+					var = variable_dictionnary()->get(s.flat());
+					if(var == nullptr) { add_error(GLUU_ERROR_INVALID_VARIABLE_NAME, "variable '" + s.flat() + "' doesn't exist in this scope", kw->begin()); return true; }
+				}
+				else
+				{
+					var = inspectors.at(var->type())(var, s.flat());
+					if (var == nullptr) { add_error(GLUU_ERROR_INVALID_VARIABLE_NAME, "no member '" + s.flat() + "' ", kw->begin()); return true; }
+				}
+				b = false;
+			}
+			prev_level();
+
+			Expression constant;
+			constant.root = false;
+			constant.constant = var;
+			constants.push_back(constant);
 		}
 		else if (flat == "this")
 		{
@@ -146,7 +178,7 @@ namespace GLUU
 				vector<string_ranges> keywords = subchain(chain(*it2, range_until, " "), range_until, ",");
 				for (auto kw = keywords.begin(); kw != keywords.end(); kw++)
 				{
-					if (parse_keyword(kw, constants, functions, f, str, keywords.size(), ret_val)) return;
+					if (parse_keyword(kw, constants, functions, f, str, keywords.size(), ret_val, keywords.end())) return;
 				}
 
 				if (!next(it2)->empty())

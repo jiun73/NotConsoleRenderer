@@ -29,11 +29,21 @@ int main()
 	* juste plus rapide et meilleur
 	*/
 
+	GLUU::parser()->register_inspector<Color>([](shared_generic gen, const string& str) -> shared_generic
+		{
+			Color& col = *(Color*)gen->raw_bytes();
+			if (str == "r") return make_generic_ref(col.r);
+			if (str == "g") return make_generic_ref(col.g);
+			if (str == "b") return make_generic_ref(col.b);
+			if (str == "a") return make_generic_ref(col.a);
+			return nullptr;
+		});
+
 	int test_variable = 1000;
 
 	std::cout << "int: " << operators::has_operator_equals<int, bool(int)>::value << std::endl;;
 
-	File file("file.txt", FILE_READING_STRING);
+	File file("anim_maker.gluu", FILE_READING_STRING);
 
 	GLUU::Compiled_ptr gluu_gfx = GLUU::parse_copy(file.getString());
 

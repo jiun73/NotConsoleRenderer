@@ -9,6 +9,7 @@
 #include "GLUU_seqvar.h"
 #include "GLUU_wint.h"
 
+#include <typeindex>
 
 namespace GLUU {
 	enum Errors 
@@ -127,6 +128,7 @@ namespace GLUU {
 #include <map>
 	using std::map;
 	using std::make_pair;
+	using std::type_index;
 
 	struct Compiled
 	{
@@ -159,6 +161,8 @@ namespace GLUU {
 		size_t seq_level = 0;
 		size_t row_level = 0;
 
+		unordered_map<type_index, function<shared_generic(shared_generic, const string&)>> inspectors;
+
 	public:
 		const char row_open = '<';
 		const char row_close = '>';
@@ -169,6 +173,12 @@ namespace GLUU {
 
 		Parser();
 		~Parser() {}
+
+		template<typename T>
+		void register_inspector(function<shared_generic(shared_generic, const string&)> inspector)
+		{
+			inspectors.emplace(typeid(T), inspector);
+		}
 
 		void next_level()
 		{
@@ -280,7 +290,7 @@ namespace GLUU {
 			}
 		}
 
-		bool parse_keyword(vector<string_ranges>::iterator kw, vector<Expression>& constants, vector<Expression>& functions, bool& f, string_ranges full, size_t size, Expression& ret_val);
+		bool parse_keyword(vector<string_ranges>::iterator& kw, vector<Expression>& constants, vector<Expression>& functions, bool& f, string_ranges full, size_t size, Expression& ret_val, vector<string_ranges>::iterator end);
 
 		void parse_expression(string_ranges str, Expression& ret_val);
 

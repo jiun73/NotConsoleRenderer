@@ -2,6 +2,8 @@
 
 #include "GLUU_parser.h"
 
+#include "Color.h"
+
 namespace GLUU {
 
 
@@ -46,6 +48,7 @@ namespace GLUU {
 		__REGISTER_CLASS__(char);
 		__REGISTER_CLASS__(size_t);
 		__REGISTER_CLASS__(string);
+		__REGISTER_CLASS__(Color);
 		const FactoryManagerAdder<vector<string>>* vector_string__adder = new FactoryManagerAdder<vector<string>>("vector<string>", true);
 
 		import_function<void(_sgen_, _sgen_)>("=", [](_sgen_ b, _sgen_ a)
@@ -100,6 +103,10 @@ namespace GLUU {
 			});
 
 		import_function<string(_sgen_)>(":type", [](_sgen_ a) {return a->type().name(); });
+		import_function<uint8_t(int)>("(u8)", [](int a) {return a; });
+		import_function<uint16_t(int)>("(u16)", [](int a) {return a; });
+		import_function<uint32_t(int)>("(u32)", [](int a) {return a; });
+		import_function<uint64_t(int)>("(u64)", [](int a) {return a; });
 		import_function<void(_sgen_)>(":cout", [](_sgen_ a) {std::cout << a->stringify() << std::endl; });
 		import_function<int()>(":ticks", []() { return (int)SDL_GetTicks(); });
 
