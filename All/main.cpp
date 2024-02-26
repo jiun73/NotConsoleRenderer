@@ -48,6 +48,7 @@ int main()
 						{
 							string username;
 							rb.rdc(SET_NAME, username);
+							std::cout << "Added user " << username;
 							usernames.emplace(b.first, username);
 
 							server.broadcast(NAME_UPDATE) << usernames.size();
