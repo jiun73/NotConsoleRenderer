@@ -1,10 +1,29 @@
 #include "ludo.h"
 
-void draw_triangle(V2d_i pos1, V2d_i pos2, V2d_i pos3)
+vector<tile> carreaux;
+
+vector<tile> get_tiles()
 {
-	draw_line(pos1, pos2);
-	draw_line(pos2, pos3);
-	draw_line(pos3, pos1);
+	vector<tile> tiles;
+	for (int i = 0; i < 15 * 15; i++)
+	{
+		tiles.push_back(tile());
+	}
+	int index = 0;
+	for (int i = BEG_Y_MAP; i <= END_Y_MAP - yx; i += yx)
+	{
+		for (int n = BEG_X_MAP; n <= END_X_MAP - xy; n += xy)
+		{
+			tiles.at(index).pos = { n,i };
+			index++;
+		}
+	}
+	return tiles;
+}
+
+void init_game(vector<tile>& carreaux)
+{
+	carreaux = get_tiles();
 }
 
 void draw_lines()
@@ -33,21 +52,6 @@ void init_players(player& rouge, player& bleu, player& jaune, player& vert)
 	vert.name = "vert";
 }
 
-void draw_board_triangles()
-{
-	pencil(bleu.couleur);
-	draw_triangle(bleu1,centre, bleu2);
-
-	pencil(rouge.couleur);
-	draw_triangle(rouge1, centre,rouge2);
-
-	pencil(vert.couleur);
-	draw_triangle(vert1, centre, vert2);
-
-	pencil(jaune.couleur);
-	draw_triangle(jaune1, centre, jaune2);
-}
-
 void light_random_cases()
 {
 	pencil(rouge.couleur);
@@ -58,7 +62,7 @@ void light_random_cases()
 	carreaux.at(109).light();
 	carreaux.at(110).light();
 
-	pencil(vert.couleur);
+	pencil(jaune.couleur);
 	carreaux.at(22).light();
 	carreaux.at(23).light();
 	carreaux.at(37).light();
@@ -73,53 +77,75 @@ void light_random_cases()
 	carreaux.at(172).light();
 	carreaux.at(157).light();
 	carreaux.at(142).light();
+
+	pencil(vert.couleur);
+	carreaux.at(133).light();
+	carreaux.at(118).light();
+	carreaux.at(117).light();
+	carreaux.at(116).light();
+	carreaux.at(115).light();
+	carreaux.at(114).light();
+}
+
+int trouver_rangee(int index)
+{
+	return index / 15;
+}
+
+int trouver_colonne(int index)
+{
+	return index % 15;
+}
+
+void draw_triangles()
+{
+	V2d_i centre = { carreaux.at(112).pos.x + xy / 2, carreaux.at(112).pos.y + yx / 2 };
+	V2d_i topleft = { carreaux.at(96).pos.x, carreaux.at(96).pos.y };
+	V2d_i bottomleft = { carreaux.at(141).pos.x, carreaux.at(141).pos.y };
+	V2d_i topright = { carreaux.at(99).pos.x, carreaux.at(99).pos.y };
+	V2d_i bottomright = { carreaux.at(144).pos.x, carreaux.at(144).pos.y };
+	pencil(rouge.couleur);
+	draw_triangle(topleft, bottomleft, centre);
+	pencil(jaune.couleur);
+	draw_triangle(topright, topleft, centre);
+	pencil(vert.couleur);
+	draw_triangle(topright, bottomright, centre);
+	pencil(bleu.couleur);
+	draw_triangle(bottomleft, bottomright, centre);
 }
 
 void draw_board()
 {
-	pencil(COLOR_CYAN);
-	draw_full_rect(board_contour);
-	
-
-	pencil(bleu.couleur);
-	draw_full_rect(le_bleu);
-
-	pencil(rouge.couleur);
-	draw_full_rect(le_rouge);
-
-	pencil(jaune.couleur);
-	draw_full_rect(le_jaune);
-
-	pencil(vert.couleur);
-	draw_full_rect(le_vert);
-
-	draw_board_triangles();
-	draw_lines();*/
-
 	for (int i = 0; i < carreaux.size(); i++)
 	{
 		if (trouver_colonne(i) < 6 && trouver_rangee(i) < 6)
 		{
-			carreaux.at(i).light(rgb(255, 0, 0));
+			pencil(rouge.couleur);
+			carreaux.at(i).light();
 		}
 		else if (trouver_colonne(i) < 6 && trouver_rangee(i) >= 9)
 		{
-			carreaux.at(i).light(rgb(0, 0, 255));
+			pencil(bleu.couleur);
+			carreaux.at(i).light();
 		}
 		else if (trouver_colonne(i) >= 9 && trouver_rangee(i) < 6)
 		{
-			carreaux.at(i).light(rgb(255, 255, 0));
+			pencil(jaune.couleur);
+			carreaux.at(i).light();
 		}
 		else if (trouver_colonne(i) >= 9 && trouver_rangee(i) >= 9)
 		{
-			carreaux.at(i).light(rgb(0, 255, 0));
+			pencil(vert.couleur);
+			carreaux.at(i).light();
 		}
 		else
 		{
+			pencil(COLOR_WHITE);
 			carreaux.at(i).light();
 		}
 	}
 	light_random_cases();
+	draw_triangles();
 }
 
 
@@ -129,13 +155,13 @@ int main()
 	set_window_resizable();
 	setlocale(LC_ALL, "");
 	init_players(rouge, bleu, jaune, vert);
+	init_game(carreaux);
 
 	while (run())
 	{
-		pencil(COLOR_WHITE);
+		pencil(COLOR_BLACK);
 		draw_clear();
 
-		//draw_board();
-		draw_image("board.png", { {100,100}, {200,200 } });
+		draw_board();
 	}
 }

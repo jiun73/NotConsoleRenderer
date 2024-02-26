@@ -34,13 +34,7 @@ const int yx = (END_Y_MAP - BEG_Y_MAP) / squaresPerRow;
 	Rect le_rouge = { {xy * 10, BEG_Y_MAP},{ 6 * xy,6 * yx } };
 	Rect le_vert = { {xy * 10, yx * 10},{ 6 * xy,6 * yx } };
 	Rect le_jaune = { {BEG_X_MAP, yx * 10},{ 6 * xy,6 * yx } };
-
-	// le carré au centre
-	V2d_i centre = { BEG_X_MAP + (END_X_MAP - BEG_X_MAP) / 2 , BEG_Y_MAP + (END_Y_MAP - BEG_Y_MAP) / 2};
-	V2d_i bleu1 = {xy * 7, yx * 7}; V2d_i bleu2 = {xy * 7, yx * 10};
-	V2d_i jaune1 = { xy * 7, yx * 10 }; V2d_i jaune2 = { xy * 10, yx * 10 };
-	V2d_i rouge1 = { xy * 7, yx * 7 }; V2d_i rouge2 = { xy * 10, yx * 7 };
-	V2d_i vert1 = { xy * 10, yx * 7 }; V2d_i vert2 = { xy * 10, yx * 10 };
+	 
 
 // Chacun des 4 joueurs
 class player
@@ -69,12 +63,13 @@ public:
 	V2d_i pos;
 	map<bool, player> occupation;
 	static vector<tile> tiles;
-	void show(Color couleur = COLOR_WHITE, bool is_full = true)
+
+	void light()
 	{
-		if (!is_full)
-		{
-			pencil(couleur);
-			draw_rect(Rect({ pos, xy }));
-		}
+		draw_full_rect({ pos,xy });
+		Color actual = get_pencil();
+		pencil(COLOR_BLACK);
+		draw_rect({ pos,xy });
+		pencil(actual);
 	}
 };
