@@ -140,7 +140,9 @@ void draw_pix(V2d_i position);
 	//Dessine un cercle avec le millieu à la position 'pos' et au rayon 'radius'
 	void draw_circle(V2d_i pos, int radius);
 
-void draw_triangle(V2d_i p1, V2d_i p2, V2d_i p3);
+	void draw_triangle(V2d_i p1, V2d_i p2, V2d_i p3);
+
+void draw_full_triangle(V2d_i p1, V2d_i p2, V2d_i p3);
 
 //Dessine une couleur sur l'écran au complet
 void draw_clear();

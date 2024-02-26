@@ -459,6 +459,13 @@
 
 	void draw_triangle(V2d_i p1, V2d_i p2, V2d_i p3)
 	{
+		draw_line(p1, p2);
+		draw_line(p1, p3);
+		draw_line(p3, p3);
+	}
+
+	void draw_full_triangle(V2d_i p1, V2d_i p2, V2d_i p3)
+	{
 		V2d_i top;
 		V2d_i mid;
 		V2d_i bot;
@@ -475,13 +482,9 @@
 		if (top == p3 && bot == p2) mid = p1;
 		if (top == p1 && bot == p3) mid = p2;
 
-		std::cout << top << mid << bot << std::endl;
-
 		double a = rise(top, bot);
 		double b = top.y - top.x * a;
 		double flat_x = (mid.y - b) / a;
-
-		std::cout << flat_x << std::endl;
 
 		draw_flat_triangle(top, mid.y, mid.x, flat_x);
 		draw_flat_triangle(bot, mid.y, mid.x, flat_x);
