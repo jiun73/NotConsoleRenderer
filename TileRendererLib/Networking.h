@@ -13,6 +13,9 @@ using std::queue;
 using std::bitset;
 using std::map;
 
+typedef uint8_t ChannelID;
+typedef size_t PeerID;
+
 enum NetFlags 
 {
 	NET_DATA,
@@ -22,7 +25,8 @@ enum NetFlags
 
 struct DataStream
 {
-	size_t flag = -1;
+	ChannelID flag = -1;
+	PeerID peerid = -1;
 	deque<enet_uint8*> data;
 };
 
@@ -106,8 +110,8 @@ private:
 
 	ReadBuffer buffer;
 
-	size_t write_flag;
-	size_t current_peer;
+	ChannelID write_flag;
+	PeerID current_peer;
 	bool connected = false;
 
 	void handle_events(ENetEvent& event);
@@ -142,14 +146,14 @@ public:
 	* Read a stream of data that was sent in a given channel
 	*/
 	template<typename... Ts>
-	void read_stream(size_t channel, Ts&... get) { buffer.read_stream(channel, get...); }
+	void read_stream(ChannelID channel, Ts&... get) { buffer.read_stream(channel, get...); }
 
 	template<typename T>
-	T read(size_t channel) { return buffer.read<T>(channel); }
+	T read(ChannelID channel) { return buffer.read<T>(channel); }
 
-	bool has_stream(size_t flag);
+	bool has_stream(ChannelID flag);
 
-	void wait_for_stream(size_t channel);
+	void wait_for_stream(ChannelID channel);
 
 	/*
 	* Attends qu'un utilisateur se connecte
@@ -171,7 +175,7 @@ public:
 	*/
 	bool join(std::string ip = "127.0.0.1");
 
-	Peer2Peer& operator[](size_t i)
+	Peer2Peer& operator[](ChannelID i)
 	{
 		write_flag = i;
 		return *this;
@@ -232,7 +236,7 @@ public:
 	map<size_t, ReadBuffer>& get_buffers() { return buffers; }
 
 	void open_session(function<void(Server&)> callback);
-	void start_stream(size_t channel);
+	void start_stream(ChannelID channel);
 	void end_stream();
 
 	template<typename T>
@@ -256,13 +260,13 @@ public:
 	* Read a stream of data that was sent in a given channel
 	*/
 	template<typename... Ts>
-	void read_stream(size_t channel, Ts&... get)
+	void read_stream(ChannelID channel, Ts&... get)
 	{
 		buffers[channel].read_stream(channel, get...);
 	}
 
 	template<typename T>
-	T read(size_t channel, size_t peerID)
+	T read(ChannelID channel, size_t peerID)
 	{
 		return buffers[channel].read(channel);
 	}
@@ -282,20 +286,20 @@ public:
 	*/
 	void host();
 
-	Server& broadcast(size_t channel)
+	Server& broadcast(ChannelID channel)
 	{
 		write_flag = channel;
 		return *this;
 	}
 
-	Server& message(size_t channel, size_t peerid)
+	Server& message(ChannelID channel, size_t peerid)
 	{
 		write_flag = channel;
 		current_peer = peerid;
 		return *this;
 	}
 
-	void reflect(size_t channel)
+	void reflect(ChannelID channel)
 	{
 
 	}
