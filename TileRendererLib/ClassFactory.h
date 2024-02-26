@@ -3,6 +3,7 @@
 #include <string>
 #include "Singleton.h"
 #include "Generics.h"
+#include "ContainerGenerics.h"
 #include "Stringify.h"
 
 using std::map;
@@ -28,7 +29,17 @@ public:
 	{
 		if (!has(name))
 		{
-			factories.emplace(name, new GenericType<T>());
+			std::cout << "Added type " << name << " to factory" << std::endl;
+			if constexpr (is_container<T>::value)
+			{
+				std::cout << " .... as container" << std::endl;
+				factories.emplace(name, new GenericContainerType<T>());
+			}
+			else
+			{
+				
+				factories.emplace(name, new GenericType<T>());
+			}
 		}
 	}
 	shared_generic factory(const string& name) { return factories.at(name); }
@@ -38,12 +49,26 @@ public:
 
 typedef Singleton<FactoryManager> ClassFactory;
 
+#include "StringRanges.h"
+
 template<typename T>
 struct FactoryManagerAdder
 {
-	FactoryManagerAdder(const string& name) { ClassFactory::get()->add<T>(name); }
+	FactoryManagerAdder(const string& name, bool replace_char = false) 
+	{
+		if (replace_char)
+		{
+			string copy = name;
+			copy = replace(replace(copy, '<', '('), '>', ')').flat();
+			ClassFactory::get()->add<T>(copy);
+		}
+		else
+		{
+			ClassFactory::get()->add<T>(name);
+		}
+	}
 	~FactoryManagerAdder() {}
 };
 
-#define __REGISTER_CLASS__(type) const FactoryManagerAdder<type>* type##_adder = new FactoryManagerAdder<type>(#type);
-#define __REGISTER_CLASS_NAME__(type,name) const FactoryManagerAdder<type>* name##_adder = new FactoryManagerAdder<type>(#type);
+#define __REGISTER_CLASS__(type) const FactoryManagerAdder<type>* type##_adder = new FactoryManagerAdder<type>(#type, true);
+#define __REGISTER_CLASS_NAME__(type,name) const FactoryManagerAdder<type>* name##_adder = new FactoryManagerAdder<type>(#type, true);

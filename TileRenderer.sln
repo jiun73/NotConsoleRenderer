@@ -25,6 +25,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UntitledFightingGame", "Unt
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "06- Ludo", "06- Ludo\06- Ludo.vcxproj", "{4F5EF347-A4EF-41F5-B938-2EE1C83868FC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "All", "All\All.vcxproj", "{B54AAEAA-0C6E-496E-8905-72ECCBDCB573}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -121,6 +123,14 @@ Global
 		{4F5EF347-A4EF-41F5-B938-2EE1C83868FC}.Release|x64.Build.0 = Release|x64
 		{4F5EF347-A4EF-41F5-B938-2EE1C83868FC}.Release|x86.ActiveCfg = Release|Win32
 		{4F5EF347-A4EF-41F5-B938-2EE1C83868FC}.Release|x86.Build.0 = Release|Win32
+		{B54AAEAA-0C6E-496E-8905-72ECCBDCB573}.Debug|x64.ActiveCfg = Debug|x64
+		{B54AAEAA-0C6E-496E-8905-72ECCBDCB573}.Debug|x64.Build.0 = Debug|x64
+		{B54AAEAA-0C6E-496E-8905-72ECCBDCB573}.Debug|x86.ActiveCfg = Debug|Win32
+		{B54AAEAA-0C6E-496E-8905-72ECCBDCB573}.Debug|x86.Build.0 = Debug|Win32
+		{B54AAEAA-0C6E-496E-8905-72ECCBDCB573}.Release|x64.ActiveCfg = Release|x64
+		{B54AAEAA-0C6E-496E-8905-72ECCBDCB573}.Release|x64.Build.0 = Release|x64
+		{B54AAEAA-0C6E-496E-8905-72ECCBDCB573}.Release|x86.ActiveCfg = Release|Win32
+		{B54AAEAA-0C6E-496E-8905-72ECCBDCB573}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

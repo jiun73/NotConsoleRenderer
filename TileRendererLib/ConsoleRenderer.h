@@ -6,7 +6,6 @@
 #include "Rect.h"
 #include "Random.h"
 
-
 enum fgConsoleColors
 {
 	BLACK = 0,
@@ -172,3 +171,5 @@ public:
 	friend RunBool;
 
 };
+
+typedef Singleton<ConsoleApp> CApp;

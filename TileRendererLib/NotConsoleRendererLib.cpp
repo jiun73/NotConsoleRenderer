@@ -119,12 +119,10 @@
 				{
 					_fonts.set_glyph_effect([](SDL_Rect& dest)
 						{
-							double x = ((SDL_GetTicks() % 1000) / 1000.0 * 2 * M_PI + (double)(dest.x * 7)) ;
-							int xdis = sin(x) * 5.0;
-							int ydis = cos(x) * 5.0;
+							int xdis = (int)sin((SDL_GetTicks() / 100.0) + dest.x * 5) * 5;
+							int ydis = (int)cos((SDL_GetTicks() / 100.0) + dest.x * 5) * 5;
 							dest.x += xdis;
 							dest.y += ydis;
-							std::cout << xdis << ydis << std::endl;
 						});
 				});
 
@@ -275,12 +273,6 @@
 	}
 
 	void pencil(Color color) { SDL_SetRenderDrawColor(sdl_ren, color.r, color.g, color.b, color.a); }
-	Color get_pencil()
-	{
-		Color col;
-		SDL_GetRenderDrawColor(sdl_ren, &col.r, &col.g, &col.b, &col.a);
-		return col;
-	}
 	void draw_pix(V2d_i position) { position += draw_offset;  SDL_RenderDrawPoint(sdl_ren, position.x, position.y); }
 	void draw_rect(Rect rectangle) { rectangle.pos += draw_offset; SDL_RenderDrawRect(sdl_ren, rectangle.SDL()); }
 	void draw_full_rect(Rect rectangle) { SDL_RenderFillRect(sdl_ren, rectangle.SDL()); }
@@ -428,67 +420,6 @@
 		}
 	}
 
-	double rise(const V2d_i& p1, const V2d_i& p2)
-	{
-		return ((double)p1.y - p2.y) / ((double)p1.x - p2.x);
-	}
-
-	void draw_flat_triangle(V2d_i p1, int flat_y, int x1, int x2)
-	{
-		int miny = (std::min)(p1.y, flat_y);
-		int maxy = (std::max)(p1.y, flat_y);
-
-		for (size_t y = miny; y < maxy; y++)
-		{
-			double a1 = rise(p1, { x1, flat_y });
-			double a2 = rise(p1, { x2, flat_y });
-
-			double b1 = p1.y - a1 * p1.x;
-			double b2 = p1.y - a2 * p1.x;
-
-			double x1 = (y - b1) / a1;
-			double x2 = (y - b2) / a2;
-
-			double minx = (std::min)(x1, x2);
-			double maxx = (std::max)(x1, x2);
-
-			for (size_t x = minx; x < maxx; x++)
-			{
-				SDL_RenderDrawPoint(sdl_ren, x, y);
-			}
-		}
-	}
-
-	void draw_triangle(V2d_i p1, V2d_i p2, V2d_i p3)
-	{
-		V2d_i top;
-		V2d_i mid;
-		V2d_i bot;
-
-		if (p1.y > p2.y) top = p1;
-		else top = p2;
-		if (p3.y > top.y) top = p3;
-
-		if (p1.y < p2.y) bot = p1;
-		else bot = p2;
-		if (p3.y < bot.y) bot = p3;
-
-		if (top == p1 && bot == p2) mid = p3;
-		if (top == p3 && bot == p2) mid = p1;
-		if (top == p1 && bot == p3) mid = p2;
-
-		std::cout << top << mid << bot << std::endl;
-
-		double a = rise(top, bot);
-		double b = top.y - top.x * a;
-		double flat_x = (mid.y - b) / a;
-
-		std::cout << flat_x << std::endl;
-
-		draw_flat_triangle(top, mid.y, mid.x, flat_x);
-		draw_flat_triangle(bot, mid.y, mid.x, flat_x);
-	}
-
 	FontsManager& fonts()
 	{
 		return _fonts;
@@ -549,8 +480,6 @@
 
 		TextDrawCounter counter(font, pos);
 
-		if (max_width == 0) return;
-
 		for (auto lines : all_ranges(range, get_text_range_until, '\n'))
 		{
 			for (auto max : all_ranges<int, const Font&>(lines, get_text_range_max_size, max_width, font))
@@ -566,8 +495,6 @@
 		string_range range = { text.cbegin(), text.cend() };
 
 		TextDrawCounter counter(font, pos);
-
-		if (max_width == 0) return;
 
 		for (auto lines : all_ranges(range, get_text_range_until, '\n'))
 		{
@@ -592,8 +519,6 @@
 				}
 				i++;
 			}
-
-			counter.linebreak();
 
 		}
 
@@ -659,7 +584,7 @@
 
 	string_range hidden::get_text_range_special(string_range range, vector<bool>& is_special)
 	{
-		const char sp_char = '%';
+		const char sp_char = '\\';
 		const char end_char = '.';
 
 		if (range.first == range.second)

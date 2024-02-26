@@ -1,9 +1,10 @@
 
-#include "TileRenderer.h"
+#include "NotConsoleRenderer.h"
 
-#include "CstarParser.h"
+#include "GLUU.h"
 #include "File.h"
 #include "Networking.h"
+#include "CommandStandard.h"
 
 /*
 * Ceci est un exemple!
@@ -18,17 +19,20 @@
 
 int main() 
 {
+	add_regular_command_set();
 	set_window_size(200); //fenetre de 200x200
 	set_window_resizable(); //fenetre peut etre agrandie
+	init();
 
 	/*
 	* En gros ca marche plus ou moins de la meme facon que le console renderer
 	* juste plus rapide et meilleur
 	*/
 
-	int test_variable = 0;
+	int test_variable = 1000;
 
-	CstarParser parser;
+	std::cout << "int: " << operators::has_operator_equals<int, bool(int)>::value << std::endl;;
+
 	File file("file.txt", FILE_READING_STRING);
 
 	//GLUU::Compiled_ptr gluu_gfx = GLUU::parse_copy(file.getString());
@@ -83,7 +87,7 @@ int main()
 		//Nouvelle fonctionnalité !
 		//Entrer la commande 'list all' :)
 		track_variable(pos, "pos");
-		track_variable(test_variable, "test");
+		track_variable(test_variable, "zero_bitches");
 
 		if (key_released(SDL_SCANCODE_1)) 
 		{
@@ -134,24 +138,24 @@ int main()
 
 		draw_text(keyboard().getTextInput(), 500, 0, get_font(0));
 
-		if (!keyboard().getTextInput().empty() && keyboard().getTextInput().back() == '\n')
-		{
-			
-			//p2p().start_stream(1); //BTW on peut pas envoyer directement des conteneurs (vector, string, etc) parce qu'ils ne contiennent pas vraiment les données, mais plutot des pointers VERS les données (qui ne seront pas valide sur lordinateur de lautre)
-			//p2p().send(s.size()); //on envoie la taille de la string
-			//for (auto& c : s)
-			//	p2p().send(c); //puis on envoie chaque caratère un a la fois
-			//p2p().end_stream();
-			const string& s = keyboard().getTextInput();
-			p2p(1) << s.size();
-			for (auto& c : s)
-				p2p(1) << c;
-			p2p(1) << net::send;
+		//if (!keyboard().getTextInput().empty() && keyboard().getTextInput().back() == '\n')
+		//{
+		//	
+		//	//p2p().start_stream(1); //BTW on peut pas envoyer directement des conteneurs (vector, string, etc) parce qu'ils ne contiennent pas vraiment les données, mais plutot des pointers VERS les données (qui ne seront pas valide sur lordinateur de lautre)
+		//	//p2p().send(s.size()); //on envoie la taille de la string
+		//	//for (auto& c : s)
+		//	//	p2p().send(c); //puis on envoie chaque caratère un a la fois
+		//	//p2p().end_stream();
+		//	const string& s = keyboard().getTextInput();
+		//	p2p(1) << s.size();
+		//	for (auto& c : s)
+		//		p2p(1) << c;
+		//	p2p(1) << net::send;
 
-			keyboard().getTextInput() = "";
+		//	keyboard().getTextInput() = "";
 
-			keyboard().closeTextInput();
-		}
+		//	keyboard().closeTextInput();
+		//}
 		
 		if (p2p().is_connected())
 		{
@@ -160,12 +164,7 @@ int main()
 				int i1 = r.range(0, 100);
 				int i2 = r.range(0, 100);
 				int i3 = r.range(0, 100);
-				//p2p().start_stream(0); //on commence un canal '0', puis on envoie les données
-				//p2p().send(i1);
-				//p2p().send(i2);
-				//p2p().send(i3);
-				//p2p().end_stream();
-				p2p(0) << i1 << i2 << i3 << net::send;
+				p2p(0) << i1 << i2 << i3 << net::send; //on commence un canal '0', puis on envoie les données
 				std::cout << i1 << " " << i2 << " " << i3 << " " << std::endl;
 			}
 

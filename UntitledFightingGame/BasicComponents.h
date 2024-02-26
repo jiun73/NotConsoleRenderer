@@ -3,7 +3,7 @@
 #include "Vec2D.h"
 #include "Color.h"
 
-#include "TileRenderer.h"
+#include "NotConsoleRenderer.h"
 #include "EntityX.h"
 
 #include <vector>
