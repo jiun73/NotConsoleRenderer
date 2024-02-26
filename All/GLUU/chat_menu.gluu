@@ -16,7 +16,7 @@ ROW CFIT SIZE 60 IF { state == 1 }
 			COL TEXTBOX { "Enter ip..." } 
 				{ 	
 					arg* string ip; 
-					success = { :chat_join ip @}; 
+					success = { :chat_join {ip @} "Peer"}; 
 					{ip @} = "";
 					$if success 
 					{
