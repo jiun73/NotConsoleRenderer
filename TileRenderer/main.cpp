@@ -41,6 +41,8 @@ int main()
 
 	Random r;
 
+	open_dialog();
+
 	while (run()) //boucle principale
 	{
 		pencil(COLOR_BLACK); //Permet d'enlever tout ce qui reste de la derniere frame

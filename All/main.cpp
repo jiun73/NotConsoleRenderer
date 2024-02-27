@@ -14,6 +14,6 @@ int main()
 
 	while (run())
 	{
-		menu->render();
+		//menu->render();
 	}
 }

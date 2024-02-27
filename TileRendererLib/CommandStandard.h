@@ -52,7 +52,7 @@ inline void add_regular_command_set()
 			GLUU::parser()->parse_new_sequence(args[1]).evaluate();
 		});
 
-	DefineCommand ff4("pause", [](__COMMAND_ARGS__)
+	NCR_DefineCommand ff4("pause", [](__COMMAND_ARGS__)
 		{
 			int* b = new int(0);
 
@@ -99,7 +99,7 @@ inline void add_regular_command_set()
 			Commands::get()->enter_space(space);
 		});
 
-	DefineCommand _ff_cmd("open watch", [&](CommandArguments& args)
+	NCR_DefineCommand _ff_cmd("open watch", [&](CommandArguments& args)
 		{
 			//PROCESS_INFORMATION processInformation;
 			//STARTUPINFO         startupInfo;

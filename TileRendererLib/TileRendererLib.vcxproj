@@ -188,6 +188,7 @@
     <ClInclude Include="NotConsoleRenderer.h" />
     <ClInclude Include="Vec2D.h" />
     <ClInclude Include="Vec3D.h" />
+    <ClInclude Include="File_win.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CommandPrompt.cpp" />
