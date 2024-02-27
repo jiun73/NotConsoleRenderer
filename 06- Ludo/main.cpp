@@ -1,7 +1,20 @@
 #include "ludo.h"
 
-vector<tile> carreaux;
+void draw_full_circle(V2d_i pos, int rayon)
+{
+	for (int i = pos.x - rayon; i <= pos.x + rayon; i++)
+	{
+		for (int n = pos.y - rayon; n <= pos.y + rayon; n++)
+		{
+			if (pow(i - pos.x,2) + pow(n - pos.y,2) < pow(rayon,2))
+			{
+				draw_pix({ i,n });
+			}
+		}
+	}
+}
 
+vector<tile> carreaux;
 vector<tile> get_tiles()
 {
 	vector<tile> tiles;
@@ -15,15 +28,29 @@ vector<tile> get_tiles()
 		for (int n = BEG_X_MAP; n <= END_X_MAP - xy; n += xy)
 		{
 			tiles.at(index).pos = { n,i };
+			tiles.at(index).numero = index;
 			index++;
 		}
 	}
 	return tiles;
 }
 
-void init_game(vector<tile>& carreaux)
+
+vector<int> chemin;
+vector<int> get_chemin()
+{
+	vector<int> chemin;
+
+	chemin = { 6,7,8,23,38,53,68, 83,99,100,101,102,103,104,119,134,133,132,131,130,129,143,158,173,188,203,218,217,216,
+			   201,186,171,156,141,125,124,123,122,121,120,105,90,91,92,93,94,95,81,66,51,36,21};
+
+	return chemin;
+}
+
+void init_game()
 {
 	carreaux = get_tiles();
+	chemin = get_chemin();
 }
 
 void draw_lines()
@@ -152,20 +179,36 @@ void draw_board()
 	draw_triangles();
 }
 
-
+pion test;
 int main()
 {
 	set_window_size(window);
 	set_window_resizable();
 	setlocale(LC_ALL, "");
 	init_players(rouge, bleu, jaune, vert);
-	init_game(carreaux);
-
+	init_game();
+	int ind = 0;
+	test.pos = carreaux.at(chemin.at(ind)).pos + xy / 2;
 	while (run())
 	{
 		pencil(COLOR_BLACK);
 		draw_clear();
-
 		draw_board();
+		for (int i = 0; i < carreaux.size(); i++)
+		{
+			pencil(COLOR_BLACK);
+			carreaux.at(i).show_num();
+		}
+		pencil(vert.couleur);
+		draw_full_circle(test.pos, test.rayon);
+		if (mouse_left_pressed())
+		{
+			ind++;
+			if (ind == chemin.size())
+			{
+				ind = 0;
+			}
+		}
+		test.pos = carreaux.at(chemin.at(ind)).pos + xy / 2;
 	}
 }

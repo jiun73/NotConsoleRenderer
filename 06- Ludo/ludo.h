@@ -3,6 +3,7 @@
 #include "NotConsoleRenderer.h"
 #include <map>
 #include <vector>
+#include "Strings.h"
 using namespace std;
 
 // taille de la console
@@ -27,13 +28,13 @@ const int squaresPerColumn = 15;
 const int xy = (END_X_MAP - BEG_X_MAP) / squaresPerColumn;
 const int yx = (END_Y_MAP - BEG_Y_MAP) / squaresPerRow;
 
-
-// BOARD COLORING
-	// maisons des couleurs
-	Rect le_bleu = { {BEG_X_MAP, BEG_Y_MAP}, { 6 * xy,6 * yx } };
-	Rect le_rouge = { {xy * 10, BEG_Y_MAP},{ 6 * xy,6 * yx } };
-	Rect le_vert = { {xy * 10, yx * 10},{ 6 * xy,6 * yx } };
-	Rect le_jaune = { {BEG_X_MAP, yx * 10},{ 6 * xy,6 * yx } };
+class pion
+{
+private:
+public:
+	int rayon = xy / 2;
+	V2d_i pos;
+};
 	 
 
 // Chacun des 4 joueurs
@@ -42,7 +43,6 @@ class player
 public:
 	string name;
 	Color couleur;
-	//vector<tile> tilesOccupied;
 };
 
 player rouge;
@@ -63,6 +63,7 @@ public:
 	V2d_i pos;
 	map<bool, player> occupation;
 	static vector<tile> tiles;
+	int numero;
 
 	void light()
 	{
@@ -71,5 +72,11 @@ public:
 		pencil(COLOR_BLACK);
 		draw_rect({ pos,xy });
 		pencil(actual);
+	}
+
+	void show_num()
+	{
+		pencil(COLOR_CYAN);
+		draw_simple_text(entier_en_chaine(numero), {pos.x + 10, pos.y + 10}, get_font(0));
 	}
 };
