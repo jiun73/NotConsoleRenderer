@@ -105,13 +105,17 @@ void draw_triangles()
 	V2d_i topright = { carreaux.at(99).pos.x, carreaux.at(99).pos.y };
 	V2d_i bottomright = { carreaux.at(144).pos.x, carreaux.at(144).pos.y };
 	pencil(rouge.couleur);
-	draw_full_triangle(topleft, bottomleft, centre);
+	draw_full_triangle(bottomleft, topleft, centre);
 	pencil(jaune.couleur);
 	draw_full_triangle(topright, topleft, centre);
 	pencil(vert.couleur);
-	draw_full_triangle(topright, bottomright, centre);
+	draw_full_triangle(bottomright, topright, centre);
 	pencil(bleu.couleur);
-	draw_full_triangle(bottomleft, bottomright, centre);
+	draw_full_triangle(bottomright, centre, bottomleft);
+	pencil(COLOR_BLACK);
+	draw_rect({ topleft, bottomright - topleft });
+	draw_line(topleft,bottomright);
+	draw_line(bottomleft, topright);
 }
 
 void draw_board()
