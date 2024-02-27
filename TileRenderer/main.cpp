@@ -15,6 +15,12 @@
 * ou si tu est plus ambitieux, tu peut essayer de le faire toi même
 * 
 * Juste a creer un nouveau proet dans la solution et copier les settings de 'exemple'
+* 
+* TODO:	GLUU styler
+*		GLUU better error handling
+*		GLUU++
+*		Chatroom
+*		AnimationMaker
 */
 
 int main() 
