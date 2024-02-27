@@ -19,6 +19,13 @@ namespace GLUU {
 		GLUU_ERROR_INVALID_FUNCTION_NAME,
 		GLUU_ERROR_INVALID_VARIABLE_NAME,
 		GLUU_ERROR_NOT_ENOUGH_ARGS,
+		GLUU_ERROR_EMPTY_SEQUENCE,
+		GLUU_ERROR_INVALID_DECLARATION,
+		GLUU_ERROR_INVALID_FUNCTION_DECLARATION,
+		GLUU_ERROR_KEYWORD_MISSING_ARGS,
+		GLUU_ERROR_INVALID_KEYWORD,
+		GLUU_ERROR_INVALID_TYPE,
+		GLUU_ERROR_INVALID_ROW,
 	};
 
 	struct Errorinfo 
@@ -252,43 +259,7 @@ namespace GLUU {
 
 		void register_class(shared_ptr <Widget> c);
 
-		void parse_function_keyword(string_ranges kw, vector<Expression>& constants, vector<Expression>& functions)
-		{
-			string flat = kw.flat();
-
-			output_seq("func " + flat);
-
-			Expression func;
-			func.root = false;
-			shared_generic var = variable_dictionnary()->get(flat);
-			if (var == nullptr) { add_error(GLUU_ERROR_INVALID_FUNCTION_NAME, "function '" + flat + "' doesn't exist in this scope", kw.begin()); return; } // error GLUU_ERROR_INVALID_FUNCTION_NAME
-			if (var->identity() == typeid(GenericFunction))
-			{
-				func.func = true;
-				func.function = std::reinterpret_pointer_cast<GenericFunction>(var);
-				func.func_name = flat;
-				if (func.function->arg_count() > 0)
-					functions.push_back(func);
-				else
-					constants.push_back(func);
-			}
-			else if (var->type() == typeid(Expression))
-			{
-				Expression& star = *(Expression*)var->raw_bytes();
-				func.constant = var;
-				func.user_func = true;
-				func.arg_count = star.args_name.size();
-
-				if (star.args_name.size() == 0)
-					constants.push_back(func);
-				else
-					functions.push_back(func);
-			}
-			else
-			{
-				add_error(GLUU_ERROR_INVALID_FUNCTION_NAME, "'" + flat + "' isn't a valid function type!", kw.begin()); return;
-			}
-		}
+		void parse_function_keyword(string_ranges kw, vector<Expression>& constants, vector<Expression>& functions);
 
 		bool parse_keyword(vector<string_ranges>::iterator& kw, vector<Expression>& constants, vector<Expression>& functions, bool& f, string_ranges full, size_t size, Expression& ret_val, vector<string_ranges>::iterator end);
 
@@ -324,7 +295,7 @@ namespace GLUU {
 
 			if (str.empty())
 			{
-				assert(false);
+				add_error(GLUU_ERROR_EMPTY_SEQUENCE, "Trying to parse an empty sequence (why?)", str.begin());
 				return {};
 			}
 
@@ -375,11 +346,11 @@ namespace GLUU {
 		{
 			vector<string_ranges> keywords = split_and_trim(dec);
 
-			if (keywords.size() < 2) return; //error GLUU_ERROR_INVALID_DECLARATION
+			if (keywords.size() < 2) { add_error(GLUU_ERROR_INVALID_DECLARATION, "'new' found with no declaration after", dec.begin()); return; } //error GLUU_ERROR_INVALID_DECLARATION
 
 			if (keywords.at(0).flat() == "function" || keywords.at(0).flat() == "init")
 			{
-				if (keywords.size() < 4) return;
+				if (keywords.size() < 4) { add_error(GLUU_ERROR_INVALID_FUNCTION_DECLARATION, "Invalid function declaraction (new function = [expr])", dec.begin()); return; } //error GLUU_ERROR_INVALID_FUNCTION_DECLARATION
 
 				string name = keywords.at(1).flat();
 				size_t eq = dec.flat().find('=');
@@ -396,7 +367,7 @@ namespace GLUU {
 			}
 			else
 			{
-				if (!current_scope->make(keywords.at(1).flat(), keywords.at(0).flat())) { std::cout << "Invalid variable type!" << std::endl; return; } //error GLUU_ERROR_INVALID_TYPE
+				if (!current_scope->make(keywords.at(1).flat(), keywords.at(0).flat())) { add_error(GLUU_ERROR_INVALID_TYPE, "type '" + keywords.at(0).flat() + "' doesn't exist or is not registered", dec.begin()); return; } //error GLUU_ERROR_INVALID_TYPE
 				std::cout << "made new variable " << keywords.at(0).flat() << " " << keywords.at(1).flat() << " in scope " << current_scope->name << std::endl;
 				if (keywords.size() > 3 && keywords.at(2).flat() == "=")
 				{
@@ -416,6 +387,26 @@ namespace GLUU {
 				}
 		}
 
+		vector<string_ranges> get_keyword_args(vector<string_ranges>& keywords, size_t cnt, size_t& i)
+		{
+			vector<string_ranges> args;
+			for (size_t y = 0; y < cnt; y++)
+			{
+				i++;
+				if (i >= keywords.size()) {
+					add_error(GLUU_ERROR_KEYWORD_MISSING_ARGS, "Not enough params for keyword '" + keywords.at(i - 1).flat() + "'", keywords.at(i - 1).begin());
+					return {};
+				}//error GLUU_ERROR_MISSING_ARGS
+
+				string_ranges current = range_trim(keywords.at(i), ' ');
+				if (current.empty()) {
+					y--;  continue;
+				}
+				args.push_back(current);
+			}
+			return args;
+		}
+
 		Element parse_header(string_ranges head)
 		{
 			head = range_trim(head, ' ');
@@ -428,48 +419,23 @@ namespace GLUU {
 			{
 				string current = range_trim(keywords.at(i), ' ').flat();
 
-				if (current.empty()) continue; //error GLUU_ERROR_INVALID_ROW_PARAM
+				if (current.empty()) { continue; } //error GLUU_ERROR_INVALID_ROW_PARAM
 
 				if (widgets.count(current))
 				{
 					size_t p = widgets.at(current)->fetch_keyword().first;
-					vector<string_ranges> args;
-					for (size_t y = 0; y < p; y++)
-					{
-						i++;
-						if (i >= keywords.size()) {
-							assert(false);
-							return row;
-							}//error GLUU_ERROR_MISSING_ARGS
-
-						string_ranges current = range_trim(keywords.at(i), ' ');
-						if (current.empty()) {
-							y--;  continue;
-						}
-						args.push_back(current);
-					}
-
+					vector<string_ranges> args = get_keyword_args(keywords, p, i);
 					row.widget = widgets.at(current)->make(args, *this);
 				}
 				else if (keywords_func.count(current))
 				{
 					auto& p = keywords_func.at(current);
-					vector<string_ranges> args;
-					for (size_t y = 0; y < p.first; y++)
-					{
-						i++;
-						if (i >= keywords.size()) return row; //error GLUU_ERROR_MISSING_ARGS
-
-						string_ranges current = range_trim(keywords.at(i), ' ');
-						if (current.empty()) {
-							y--;  continue;
-						}
-						args.push_back(current);
-					}
+					vector<string_ranges> args = get_keyword_args(keywords, p.first, i);
 					p.second(*this, row, args);
 				}
 				else
 				{
+					add_error(GLUU_ERROR_INVALID_KEYWORD, "Unrecognised keyword '" + current + "'", keywords.at(i).begin());
 					//std::cout << "Invalid param: " << current << std::endl; //error
 				}
 			}
@@ -518,6 +484,13 @@ namespace GLUU {
 
 		void parse_range(string_ranges range, const string& keyword, bool row)
 		{
+			range = range_trim(range, ' ');
+
+			/*if (range.empty()) {
+				add_error(GLUU_ERROR_INVALID_ROW, "Invalid row", range.begin());
+				return;
+			}*/
+
 			vector<string_ranges> sub_rows = range_delimiter(range, row_open, row_close);
 
 			for (auto it = sub_rows.begin(); it != sub_rows.end(); it += 2)

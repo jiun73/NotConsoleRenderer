@@ -43,9 +43,9 @@ int main()
 
 	std::cout << "int: " << operators::has_operator_equals<int, bool(int)>::value << std::endl;;
 
-	File file("anim_maker.gluu", FILE_READING_STRING);
+	File file("dummy.gluu", FILE_READING_STRING);
 
-	//GLUU::Compiled_ptr gluu_gfx = GLUU::parse_copy(file.getString());
+	GLUU::Compiled_ptr gluu_gfx = GLUU::parse_copy(file.getString());
 
 	Server server;
 
@@ -219,14 +219,14 @@ int main()
 		V2d_i p2 = { 90, 10 };
 		V2d_i p3 = { 50, 30 };
 
-		draw_triangle(p1, p2, p3);
+		//draw_triangle(p1, p2, p3);
 
 		pencil(COLOR_GREEN);
-		draw_line(p1, p2);
-		draw_line(p2, p3);
-		draw_line(p1, p3);
+		//draw_line(p1, p2);
+		//draw_line(p2, p3);
+		//draw_line(p1, p3);
 		
-		//gluu_gfx->render({ 0,get_logical_size() });
+		gluu_gfx->render({ 0,get_logical_size() });
 	}
 
 	return 0;
