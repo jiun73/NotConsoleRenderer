@@ -117,6 +117,9 @@ namespace GLUU
 			if (size < 3) {add_error(GLUU_ERROR_INVALID_ARG_FORMAT, "not enough params in arg expression -> (arg type name)", kw->begin()); return true; } //error GLUU_ERROR_INVALID_ARG_FORMAT
 			string type = next(kw)->flat();
 			string name = next(kw, 2)->flat();
+
+			if (!ClassFactory::get()->has(type)) { add_error(GLUU_ERROR_INVALID_TYPE, "type '" + type + "' does not exist or is not registered", kw->begin()); return true; }
+
 			ret_val.add_arg(name, type);
 			output_seq("arg '" + name + "' as " + type);
 			return true;
@@ -126,6 +129,9 @@ namespace GLUU
 			if (size < 3) { add_error(GLUU_ERROR_INVALID_ARG_FORMAT, "not enough params in arg ptr expression -> (arg* type name)", kw->begin()); return true; } //error GLUU_ERROR_INVALID_ARG_FORMAT
 			string type = next(kw)->flat();
 			string name = next(kw, 2)->flat();
+
+			if (!ClassFactory::get()->has(type)) { add_error(GLUU_ERROR_INVALID_TYPE, "type '" + type + "' does not exist or is not registered", kw->begin()); return true; }
+
 			ret_val.add_arg_ref(name, type);
 			output_seq("arg* '" + name + "' as " + type);
 			return true;

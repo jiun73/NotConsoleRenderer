@@ -461,14 +461,14 @@ namespace GLUU {
 		string_ranges extract_header(string_ranges& range, bool& error)
 		{
 			string_ranges head = range_until(range, "<");
-			range = { head.skip(), prev(range.end()) };
+			range = { head.skip(), range.end() };
 
-			if (head.end() == range.end())
+			/*if (head.end() == range.end())
 			{
 				add_error(GLUU_ERROR_INVALID_ROW, "Could not get a body for this row (could not find end)", range.begin());
 				error = true;
 				range = { range.begin(), range.begin() };
-			}
+			}*/
 
 			
 			return head;
@@ -535,7 +535,7 @@ namespace GLUU {
 				{
 					string_ranges column = { columns.at(1).begin(), in->end() }; 
 					column = range_trim(column, ' ');
-					column.end() -= 1;
+					//column.end() -= 1;
 					parse_graphic(column, row);
 				}
 			}
