@@ -1,4 +1,11 @@
-ROW BUTTON 
+new function :function = 
+{
+	arg* int int;
+	new size_t hi = 0;
+}
+
+ROW SIZE 100 CFIT
 <
-	
+	COL TEXT 100 <
+		ROW TEXT 100 <
 >

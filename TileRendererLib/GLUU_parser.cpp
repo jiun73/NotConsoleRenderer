@@ -150,6 +150,7 @@ namespace GLUU
 				}
 				else
 				{
+					if (!inspectors.count(var->type())) { add_error(GLUU_ERROR_INVALID_VARIABLE_NAME, "'" + string(var->type().name()) + "' has no members", kw->begin()); return true; }
 					var = inspectors.at(var->type())(var, s.flat());
 					if (var == nullptr) { add_error(GLUU_ERROR_INVALID_VARIABLE_NAME, "no member '" + s.flat() + "' ", kw->begin()); return true; }
 				}
