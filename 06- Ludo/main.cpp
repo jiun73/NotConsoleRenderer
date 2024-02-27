@@ -131,7 +131,7 @@ void draw_triangles()
 	V2d_i bottomleft = { carreaux.at(141).pos.x, carreaux.at(141).pos.y };
 	V2d_i topright = { carreaux.at(99).pos.x, carreaux.at(99).pos.y };
 	V2d_i bottomright = { carreaux.at(144).pos.x, carreaux.at(144).pos.y };
-	pencil(rouge.couleur);
+	pencil(rouge.couleur); 
 	draw_full_triangle(bottomleft, topleft, centre);
 	pencil(jaune.couleur);
 	draw_full_triangle(topright, topleft, centre);
