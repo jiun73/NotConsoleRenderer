@@ -57,6 +57,21 @@ using namespace hidden;
 Camera hidden::_camera;
 
 void set_window_size(V2d_i size) { window_size = size; }
+void set_window_windowed()
+{
+	SDL_SetWindowFullscreen(sdl_win, 0);
+}
+
+void set_window_fullscreen()
+{
+	SDL_SetWindowFullscreen(sdl_win, SDL_WINDOW_FULLSCREEN);
+}
+
+void set_window_borderless()
+{
+	SDL_SetWindowFullscreen(sdl_win, SDL_WINDOW_BORDERLESS);
+}
+
 void set_window_resizable() { window_flags = SDL_WindowFlags(window_flags | SDL_WINDOW_RESIZABLE); }
 
 V2d_d get_renderer_scale()
@@ -76,6 +91,12 @@ V2d_d get_window_size()
 V2d_d get_logical_size()
 {
 	return window_size;
+}
+
+void set_logical_size(V2d_d sz)
+{
+	window_size = sz;
+	SDL_RenderSetLogicalSize(sdl_ren, sz.x, sz.y);
 }
 
 V2d_d mouse_position()

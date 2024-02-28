@@ -34,6 +34,10 @@ void set_window_resizable();
 //À appeler AVANT 'run'
 void set_window_size(V2d_i size);
 
+void set_window_windowed();
+void set_window_fullscreen();
+void set_window_borderless();
+
 //Retourne le 'scale' par laquelle l'écran est multiplé
 //Par exemple, un écran qui est agrandi au double de sa taille originelle retourne 2
 //Correspond, si on veut, à la taille d'un pixel
@@ -43,6 +47,8 @@ V2d_d get_renderer_scale();
 V2d_d get_window_size();
 
 V2d_d get_logical_size();
+
+void set_logical_size(V2d_d sz);
 
 //----------------------------------------------------------SON-------------------------------------------------------------------------------
 
