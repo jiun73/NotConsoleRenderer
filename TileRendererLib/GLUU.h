@@ -5,6 +5,7 @@
 #include "GLUU_widgets.h"
 
 #include "Singleton.h"
+#include "File.h"
 
 namespace GLUU {
 	using std::unique_ptr;
@@ -15,6 +16,12 @@ namespace GLUU {
 
 	inline Compiled_ptr parse(string& str) { return parser()->parse(str); }
 	inline Compiled_ptr parse_copy(string str) { return parser()->parse(str); }
+
+	inline Compiled_ptr parse_file(const string& str)
+	{
+		File file(str, FILE_READING_STRING);
+		return parse_copy(file.getString());
+	}
 
 	template <typename T>
 	struct ImportFunction;
@@ -50,4 +57,4 @@ namespace GLUU {
 	inline ImportWidget<ButtonWidget> import_button;
 }
 
-#define GLUU_IMPORT_MAIN(n) GLUU::ImportFunction<decltype(n)> gluu_n##_import("$" + string(#n), n);
+#define GLUU_IMPORT_MAIN(n) inline GLUU::ImportFunction<decltype(n)> gluu_##n##_import("$" + string(#n), n);

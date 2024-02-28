@@ -1,0 +1,18 @@
+new int state = 0
+
+ROW SIZE 30 CFIT IF {state == 0}
+<
+	new callback $chatroom_cb = 
+	{
+		$if {state == 1}
+		{
+			$update_chatroom;
+		}
+	}
+
+	COL BUTTON chatroom 
+	{ 
+		$set_chatroom;
+		state = 1;
+	} <>
+>

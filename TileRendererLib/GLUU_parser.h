@@ -141,10 +141,18 @@ namespace GLUU {
 	struct Compiled
 	{
 		shared_ptr<VariableRegistry> compiled_scope;
+		vector<Expression> callbacks;
 		Element* current_row = nullptr;
 		Element base_row;
 
-		void render(Rect_d window) { base_row.render(window); base_row.update(); }
+		void render(Rect_d window) 
+		{ 
+			for (auto& c : callbacks)
+			{
+				c.evaluate();
+			}
+			base_row.render(window); base_row.update();
+		}
 		void update()
 		{
 			//base_row.update();
@@ -163,6 +171,8 @@ namespace GLUU {
 		shared_ptr<Compiled> graphics;
 
 		vector<Errorinfo> errors;
+		
+
 		string::iterator source_begin;
 		map<size_t, size_t> lines;
 		size_t line_cntr = 0;
@@ -350,7 +360,7 @@ namespace GLUU {
 			if (keywords.size() < 1) { add_error(GLUU_ERROR_INVALID_DECLARATION, "'new' found with no declaration after", dec.begin()); return; } //error GLUU_ERROR_INVALID_DECLARATION
 			if (keywords.size() < 1) { add_error(GLUU_ERROR_INVALID_DECLARATION, "'new' with no name for declaration", dec.begin()); return; } //error GLUU_ERROR_INVALID_DECLARATION
 
-			if (keywords.at(0).flat() == "function" || keywords.at(0).flat() == "init")
+			if (keywords.at(0).flat() == "function" || keywords.at(0).flat() == "init" || keywords.at(0).flat() == "callback")
 			{
 				if (keywords.size() < 4) { add_error(GLUU_ERROR_INVALID_FUNCTION_DECLARATION, "Invalid function declaraction (new function = [expr])", dec.begin()); return; } //error GLUU_ERROR_INVALID_FUNCTION_DECLARATION
 
@@ -363,6 +373,11 @@ namespace GLUU {
 				if (keywords.at(0).flat() == "init")
 				{
 					expr.evaluate();
+				}
+
+				if (keywords.at(0).flat() == "callback")
+				{
+					graphics->callbacks.push_back(expr);
 				}
 
 				std::cout << "Added new func as '" << name << "' in scope " << current_scope->name << std::endl;

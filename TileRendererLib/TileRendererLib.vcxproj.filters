@@ -203,6 +203,9 @@
     <ClCompile Include="Controls.cpp">
       <Filter>Header Files\Classes\Input</Filter>
     </ClCompile>
+    <ClCompile Include="GLUU_parser.cpp">
+      <Filter>Header Files\Generic\GLUU</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="EntityX.h">

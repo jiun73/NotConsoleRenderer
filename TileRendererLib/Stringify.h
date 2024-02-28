@@ -2,6 +2,7 @@
 //#include "Functions.h"
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <cstring>
 #include <map>
 #include "Vec2D.h"
