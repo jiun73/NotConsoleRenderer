@@ -34,9 +34,27 @@ namespace GLUU
 		Errorinfo info;
 		info.tot_ch = std::distance(source_begin, it);
 		auto line_it = lines.lower_bound(info.tot_ch);
-		auto prev_line_it = prev(lines.lower_bound(info.tot_ch));
-		info.line = line_it->second;
-		info.ch = info.tot_ch - prev_line_it->first;
+		auto prev_line_it = prev(line_it);
+
+		if (line_it == lines.end())
+		{
+			info.line = prev(line_it)->second;
+		}
+		else
+		{
+			info.line = line_it->second;
+		}
+
+		if (prev_line_it == lines.end())
+		{
+			info.ch = info.tot_ch;
+		}
+		else
+		{
+			info.ch = info.tot_ch - prev_line_it->first;
+		}
+
+		
 		info.message = message;
 		info.code = code;
 		errors.push_back(info);
@@ -47,7 +65,45 @@ namespace GLUU
 		widgets.emplace(c->fetch_keyword().second, c);
 	}
 
-	bool Parser::parse_keyword(vector<string_ranges>::iterator kw, vector<Expression>& constants, vector<Expression>& functions, bool& f, string_ranges full, size_t size, Expression& ret_val)
+	void Parser::parse_function_keyword(string_ranges kw, vector<Expression>& constants, vector<Expression>& functions)
+	{
+		string flat = kw.flat();
+
+		output_seq("func " + flat);
+
+		Expression func;
+		func.root = false;
+		shared_generic var = variable_dictionnary()->get(flat);
+		if (var == nullptr) { add_error(GLUU_ERROR_INVALID_FUNCTION_NAME, "function '" + flat + "' doesn't exist in this scope", kw.begin()); return; } // error GLUU_ERROR_INVALID_FUNCTION_NAME
+		if (var->identity() == typeid(GenericFunction))
+		{
+			func.func = true;
+			func.function = std::reinterpret_pointer_cast<GenericFunction>(var);
+			func.func_name = flat;
+			if (func.function->arg_count() > 0)
+				functions.push_back(func);
+			else
+				constants.push_back(func);
+		}
+		else if (var->type() == typeid(Expression))
+		{
+			Expression& star = *(Expression*)var->raw_bytes();
+			func.constant = var;
+			func.user_func = true;
+			func.arg_count = star.args_name.size();
+
+			if (star.args_name.size() == 0)
+				constants.push_back(func);
+			else
+				functions.push_back(func);
+		}
+		else
+		{
+			add_error(GLUU_ERROR_INVALID_FUNCTION_NAME, "'" + flat + "' isn't a valid function type!", kw.begin()); return;
+		}
+	}
+
+	bool Parser::parse_keyword(vector<string_ranges>::iterator& kw, vector<Expression>& constants, vector<Expression>& functions, bool& f, string_ranges full, size_t size, Expression& ret_val, vector<string_ranges>::iterator end)
 	{
 		string flat = kw->flat();
 
@@ -61,6 +117,9 @@ namespace GLUU
 			if (size < 3) {add_error(GLUU_ERROR_INVALID_ARG_FORMAT, "not enough params in arg expression -> (arg type name)", kw->begin()); return true; } //error GLUU_ERROR_INVALID_ARG_FORMAT
 			string type = next(kw)->flat();
 			string name = next(kw, 2)->flat();
+
+			if (!ClassFactory::get()->has(type)) { add_error(GLUU_ERROR_INVALID_TYPE, "type '" + type + "' does not exist or is not registered", kw->begin()); return true; }
+
 			ret_val.add_arg(name, type);
 			output_seq("arg '" + name + "' as " + type);
 			return true;
@@ -70,9 +129,45 @@ namespace GLUU
 			if (size < 3) { add_error(GLUU_ERROR_INVALID_ARG_FORMAT, "not enough params in arg ptr expression -> (arg* type name)", kw->begin()); return true; } //error GLUU_ERROR_INVALID_ARG_FORMAT
 			string type = next(kw)->flat();
 			string name = next(kw, 2)->flat();
+
+			if (!ClassFactory::get()->has(type)) { add_error(GLUU_ERROR_INVALID_TYPE, "type '" + type + "' does not exist or is not registered", kw->begin()); return true; }
+
 			ret_val.add_arg_ref(name, type);
 			output_seq("arg* '" + name + "' as " + type);
 			return true;
+		}
+		if (is_member(*kw))
+		{
+			output_seq("member '" + kw->flat() + "'");
+			string_ranges member_expr = *kw;
+
+			vector<string_ranges> split = chain(member_expr, range_until, ".");
+
+			shared_generic var;
+			bool b = true;
+			next_level();
+			for (auto& s : split)
+			{
+				output_seq(s.flat());
+				if (b)
+				{
+					var = variable_dictionnary()->get(s.flat());
+					if(var == nullptr) { add_error(GLUU_ERROR_INVALID_VARIABLE_NAME, "variable '" + s.flat() + "' doesn't exist in this scope", kw->begin()); return true; }
+				}
+				else
+				{
+					if (!inspectors.count(var->type())) { add_error(GLUU_ERROR_INVALID_VARIABLE_NAME, "'" + string(var->type().name()) + "' has no members", kw->begin()); return true; }
+					var = inspectors.at(var->type())(var, s.flat());
+					if (var == nullptr) { add_error(GLUU_ERROR_INVALID_VARIABLE_NAME, "no member '" + s.flat() + "' ", kw->begin()); return true; }
+				}
+				b = false;
+			}
+			prev_level();
+
+			Expression constant;
+			constant.root = false;
+			constant.constant = var;
+			constants.push_back(constant);
 		}
 		else if (flat == "this")
 		{
@@ -146,7 +241,7 @@ namespace GLUU
 				vector<string_ranges> keywords = subchain(chain(*it2, range_until, " "), range_until, ",");
 				for (auto kw = keywords.begin(); kw != keywords.end(); kw++)
 				{
-					if (parse_keyword(kw, constants, functions, f, str, keywords.size(), ret_val)) return;
+					if (parse_keyword(kw, constants, functions, f, str, keywords.size(), ret_val, keywords.end())) return;
 				}
 
 				if (!next(it2)->empty())

@@ -23,6 +23,7 @@ namespace GLUU {
 		void add_arg(const string& str, const string& type)
 		{
 			scope->add(ClassFactory::get()->make(type), str);
+
 			args_name.push_back(str);
 		}
 

@@ -48,4 +48,9 @@ namespace GLUU {
 		if (!isalnum(beg) && beg != '_') return true;
 		return false;
 	}
+
+	inline bool is_member(string_ranges range)
+	{	
+		return std::any_of(range.begin(), range.end(), [](char c) { return c == '.'; });
+	}
 }

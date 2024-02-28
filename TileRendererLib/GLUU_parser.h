@@ -9,6 +9,7 @@
 #include "GLUU_seqvar.h"
 #include "GLUU_wint.h"
 
+#include <typeindex>
 
 namespace GLUU {
 	enum Errors 
@@ -18,6 +19,14 @@ namespace GLUU {
 		GLUU_ERROR_INVALID_FUNCTION_NAME,
 		GLUU_ERROR_INVALID_VARIABLE_NAME,
 		GLUU_ERROR_NOT_ENOUGH_ARGS,
+		GLUU_ERROR_EMPTY_SEQUENCE,
+		GLUU_ERROR_INVALID_DECLARATION,
+		GLUU_ERROR_INVALID_FUNCTION_DECLARATION,
+		GLUU_ERROR_KEYWORD_MISSING_ARGS,
+		GLUU_ERROR_INVALID_KEYWORD,
+		GLUU_ERROR_INVALID_TYPE,
+		GLUU_ERROR_INVALID_ROW,
+		GLUU_ERROR_INVALID_STRING_TRANSLATION,
 	};
 
 	struct Errorinfo 
@@ -127,6 +136,7 @@ namespace GLUU {
 #include <map>
 	using std::map;
 	using std::make_pair;
+	using std::type_index;
 
 	struct Compiled
 	{
@@ -159,6 +169,8 @@ namespace GLUU {
 		size_t seq_level = 0;
 		size_t row_level = 0;
 
+		unordered_map<type_index, function<shared_generic(shared_generic, const string&)>> inspectors;
+
 	public:
 		const char row_open = '<';
 		const char row_close = '>';
@@ -169,6 +181,12 @@ namespace GLUU {
 
 		Parser();
 		~Parser() {}
+
+		template<typename T>
+		void register_inspector(function<shared_generic(shared_generic, const string&)> inspector)
+		{
+			inspectors.emplace(typeid(T), inspector);
+		}
 
 		void next_level()
 		{
@@ -242,45 +260,9 @@ namespace GLUU {
 
 		void register_class(shared_ptr <Widget> c);
 
-		void parse_function_keyword(string_ranges kw, vector<Expression>& constants, vector<Expression>& functions)
-		{
-			string flat = kw.flat();
+		void parse_function_keyword(string_ranges kw, vector<Expression>& constants, vector<Expression>& functions);
 
-			output_seq("func " + flat);
-
-			Expression func;
-			func.root = false;
-			shared_generic var = variable_dictionnary()->get(flat);
-			if (var == nullptr) { add_error(GLUU_ERROR_INVALID_FUNCTION_NAME, "function '" + flat + "' doesn't exist in this scope", kw.begin()); return; } // error GLUU_ERROR_INVALID_FUNCTION_NAME
-			if (var->identity() == typeid(GenericFunction))
-			{
-				func.func = true;
-				func.function = std::reinterpret_pointer_cast<GenericFunction>(var);
-				func.func_name = flat;
-				if (func.function->arg_count() > 0)
-					functions.push_back(func);
-				else
-					constants.push_back(func);
-			}
-			else if (var->type() == typeid(Expression))
-			{
-				Expression& star = *(Expression*)var->raw_bytes();
-				func.constant = var;
-				func.user_func = true;
-				func.arg_count = star.args_name.size();
-
-				if (star.args_name.size() == 0)
-					constants.push_back(func);
-				else
-					functions.push_back(func);
-			}
-			else
-			{
-				add_error(GLUU_ERROR_INVALID_FUNCTION_NAME, "'" + flat + "' isn't a valid function type!", kw.begin()); return;
-			}
-		}
-
-		bool parse_keyword(vector<string_ranges>::iterator kw, vector<Expression>& constants, vector<Expression>& functions, bool& f, string_ranges full, size_t size, Expression& ret_val);
+		bool parse_keyword(vector<string_ranges>::iterator& kw, vector<Expression>& constants, vector<Expression>& functions, bool& f, string_ranges full, size_t size, Expression& ret_val, vector<string_ranges>::iterator end);
 
 		void parse_expression(string_ranges str, Expression& ret_val);
 
@@ -314,7 +296,7 @@ namespace GLUU {
 
 			if (str.empty())
 			{
-				assert(false);
+				add_error(GLUU_ERROR_EMPTY_SEQUENCE, "Trying to parse an empty sequence (why?)", str.begin());
 				return {};
 			}
 
@@ -365,11 +347,12 @@ namespace GLUU {
 		{
 			vector<string_ranges> keywords = split_and_trim(dec);
 
-			if (keywords.size() < 2) return; //error GLUU_ERROR_INVALID_DECLARATION
+			if (keywords.size() < 1) { add_error(GLUU_ERROR_INVALID_DECLARATION, "'new' found with no declaration after", dec.begin()); return; } //error GLUU_ERROR_INVALID_DECLARATION
+			if (keywords.size() < 1) { add_error(GLUU_ERROR_INVALID_DECLARATION, "'new' with no name for declaration", dec.begin()); return; } //error GLUU_ERROR_INVALID_DECLARATION
 
 			if (keywords.at(0).flat() == "function" || keywords.at(0).flat() == "init")
 			{
-				if (keywords.size() < 4) return;
+				if (keywords.size() < 4) { add_error(GLUU_ERROR_INVALID_FUNCTION_DECLARATION, "Invalid function declaraction (new function = [expr])", dec.begin()); return; } //error GLUU_ERROR_INVALID_FUNCTION_DECLARATION
 
 				string name = keywords.at(1).flat();
 				size_t eq = dec.flat().find('=');
@@ -386,11 +369,22 @@ namespace GLUU {
 			}
 			else
 			{
-				if (!current_scope->make(keywords.at(1).flat(), keywords.at(0).flat())) { std::cout << "Invalid variable type!" << std::endl; return; } //error GLUU_ERROR_INVALID_TYPE
+				if (!current_scope->make(keywords.at(1).flat(), keywords.at(0).flat())) { add_error(GLUU_ERROR_INVALID_TYPE, "type '" + keywords.at(0).flat() + "' doesn't exist or is not registered", dec.begin()); return; } //error GLUU_ERROR_INVALID_TYPE
 				std::cout << "made new variable " << keywords.at(0).flat() << " " << keywords.at(1).flat() << " in scope " << current_scope->name << std::endl;
 				if (keywords.size() > 3 && keywords.at(2).flat() == "=")
 				{
-					current_scope->get(keywords.at(1).flat())->destringify(keywords.at(3).flat());
+					string type = keywords.at(0).flat();
+					string name = keywords.at(1).flat();
+					string str = keywords.at(3).flat();
+					int i = current_scope->get(name)->destringify(str);
+					if (i == -1)
+					{
+						add_error(GLUU_ERROR_INVALID_STRING_TRANSLATION, "could not convert '" + str + "' to type '" + type + "' (no translation)", dec.begin()); return;
+					}
+					else if (i == 0)
+					{
+						add_error(GLUU_ERROR_INVALID_STRING_TRANSLATION, "could not convert '" + str + "' to type '" + type + "' (invalid string)", dec.begin()); return;
+					}
 				}
 			}
 		}
@@ -406,6 +400,26 @@ namespace GLUU {
 				}
 		}
 
+		vector<string_ranges> get_keyword_args(vector<string_ranges>& keywords, size_t cnt, size_t& i)
+		{
+			vector<string_ranges> args;
+			for (size_t y = 0; y < cnt; y++)
+			{
+				i++;
+				if (i >= keywords.size()) {
+					add_error(GLUU_ERROR_KEYWORD_MISSING_ARGS, "Not enough params for keyword '" + keywords.at(i - 1).flat() + "'", keywords.at(i - 1).begin());
+					return {};
+				}//error GLUU_ERROR_MISSING_ARGS
+
+				string_ranges current = range_trim(keywords.at(i), ' ');
+				if (current.empty()) {
+					y--;  continue;
+				}
+				args.push_back(current);
+			}
+			return args;
+		}
+
 		Element parse_header(string_ranges head)
 		{
 			head = range_trim(head, ' ');
@@ -418,48 +432,25 @@ namespace GLUU {
 			{
 				string current = range_trim(keywords.at(i), ' ').flat();
 
-				if (current.empty()) continue; //error GLUU_ERROR_INVALID_ROW_PARAM
+				if (current.empty()) { continue; } //error GLUU_ERROR_INVALID_ROW_PARAM
 
 				if (widgets.count(current))
 				{
 					size_t p = widgets.at(current)->fetch_keyword().first;
-					vector<string_ranges> args;
-					for (size_t y = 0; y < p; y++)
-					{
-						i++;
-						if (i >= keywords.size()) {
-							assert(false);
-							return row;
-							}//error GLUU_ERROR_MISSING_ARGS
-
-						string_ranges current = range_trim(keywords.at(i), ' ');
-						if (current.empty()) {
-							y--;  continue;
-						}
-						args.push_back(current);
-					}
-
+					vector<string_ranges> args = get_keyword_args(keywords, p, i);
+					if (args.size() != p) return row;
 					row.widget = widgets.at(current)->make(args, *this);
 				}
 				else if (keywords_func.count(current))
 				{
 					auto& p = keywords_func.at(current);
-					vector<string_ranges> args;
-					for (size_t y = 0; y < p.first; y++)
-					{
-						i++;
-						if (i >= keywords.size()) return row; //error GLUU_ERROR_MISSING_ARGS
-
-						string_ranges current = range_trim(keywords.at(i), ' ');
-						if (current.empty()) {
-							y--;  continue;
-						}
-						args.push_back(current);
-					}
+					vector<string_ranges> args = get_keyword_args(keywords, p.first, i);
+					if (args.size() != p.first) return row;
 					p.second(*this, row, args);
 				}
 				else
 				{
+					add_error(GLUU_ERROR_INVALID_KEYWORD, "Unrecognised keyword '" + current + "'", keywords.at(i).begin());
 					//std::cout << "Invalid param: " << current << std::endl; //error
 				}
 			}
@@ -467,16 +458,32 @@ namespace GLUU {
 			return row;
 		}
 
-		string_ranges extract_header(string_ranges& range)
+		string_ranges extract_header(string_ranges& range, bool& error)
 		{
 			string_ranges head = range_until(range, "<");
-			range = { head.skip(), prev(range.end()) };
+			range = { head.skip(), range.end() };
+
+			/*if (head.end() == range.end())
+			{
+				add_error(GLUU_ERROR_INVALID_ROW, "Could not get a body for this row (could not find end)", range.begin());
+				error = true;
+				range = { range.begin(), range.begin() };
+			}*/
+
+			
 			return head;
 		}
 
 		void parse_graphic(string_ranges row, bool is_row)
 		{
-			string_ranges head = extract_header(row);
+			bool err = false;
+			string_ranges head = extract_header(row, err);
+
+			if (err)
+			{
+				return;
+			}
+			
 
 			for (size_t i = 0; i < row_level; i++)
 			{
@@ -508,6 +515,13 @@ namespace GLUU {
 
 		void parse_range(string_ranges range, const string& keyword, bool row)
 		{
+			range = range_trim(range, ' ');
+
+			/*if (range.empty()) {
+				add_error(GLUU_ERROR_INVALID_ROW, "Invalid row", range.begin());
+				return;
+			}*/
+
 			vector<string_ranges> sub_rows = range_delimiter(range, row_open, row_close);
 
 			for (auto it = sub_rows.begin(); it != sub_rows.end(); it += 2)
@@ -519,7 +533,9 @@ namespace GLUU {
 				get_declaractions(columns.front());
 				if (columns.size() > 1)
 				{
-					string_ranges column = { columns.at(1).begin(), in->end() };
+					string_ranges column = { columns.at(1).begin(), in->end() }; 
+					column = range_trim(column, ' ');
+					//column.end() -= 1;
 					parse_graphic(column, row);
 				}
 			}

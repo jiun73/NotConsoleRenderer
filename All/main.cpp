@@ -1,6 +1,13 @@
 #include "NotConsoleRenderer.h"
 #include "CommandStandard.h"
 
+int chatroom()
+{
+
+}
+
+GLUU_IMPORT_MAIN(chatroom);
+
 enum MessageTypes
 {
 	MESSAGE_IN,
