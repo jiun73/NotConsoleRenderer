@@ -1,18 +1,5 @@
 #include "ludo.h"
 
-void draw_full_circle(V2d_i pos, int rayon)
-{
-	for (int i = pos.x - rayon; i <= pos.x + rayon; i++)
-	{
-		for (int n = pos.y - rayon; n <= pos.y + rayon; n++)
-		{
-			if (pow(i - pos.x,2) + pow(n - pos.y,2) < pow(rayon,2))
-			{
-				draw_pix({ i,n });
-			}
-		}
-	}
-}
 
 vector<tile> carreaux;
 vector<tile> get_tiles()
@@ -81,7 +68,7 @@ void init_players(player& rouge, player& bleu, player& jaune, player& vert)
 
 void light_random_cases()
 {
-	pencil(rouge.couleur);
+	pencil(rouge->couleur);
 	carreaux.at(91).light();
 	carreaux.at(106).light();
 	carreaux.at(107).light();
@@ -89,7 +76,7 @@ void light_random_cases()
 	carreaux.at(109).light();
 	carreaux.at(110).light();
 
-	pencil(jaune.couleur);
+	pencil(jaune->couleur);
 	carreaux.at(22).light();
 	carreaux.at(23).light();
 	carreaux.at(37).light();
@@ -97,7 +84,7 @@ void light_random_cases()
 	carreaux.at(67).light();
 	carreaux.at(82).light();
 
-	pencil(bleu.couleur);
+	pencil(bleu->couleur);
 	carreaux.at(201).light();
 	carreaux.at(202).light();
 	carreaux.at(187).light();
@@ -105,7 +92,7 @@ void light_random_cases()
 	carreaux.at(157).light();
 	carreaux.at(142).light();
 
-	pencil(vert.couleur);
+	pencil((*vert).couleur);
 	carreaux.at(133).light();
 	carreaux.at(118).light();
 	carreaux.at(117).light();
@@ -131,13 +118,13 @@ void draw_triangles()
 	V2d_i bottomleft = { carreaux.at(141).pos.x, carreaux.at(141).pos.y };
 	V2d_i topright = { carreaux.at(99).pos.x, carreaux.at(99).pos.y };
 	V2d_i bottomright = { carreaux.at(144).pos.x, carreaux.at(144).pos.y };
-	pencil(rouge.couleur); 
+	pencil(rouge->couleur);
 	draw_full_triangle(bottomleft, topleft, centre);
-	pencil(jaune.couleur);
+	pencil(jaune->couleur);
 	draw_full_triangle(topright, topleft, centre);
-	pencil(vert.couleur);
+	pencil(vert->couleur);
 	draw_full_triangle(bottomright, topright, centre);
-	pencil(bleu.couleur);
+	pencil(bleu->couleur);
 	draw_full_triangle(bottomright, centre, bottomleft);
 	pencil(COLOR_BLACK);
 	draw_rect({ topleft, bottomright - topleft });
@@ -151,22 +138,22 @@ void draw_board()
 	{
 		if (trouver_colonne(i) < 6 && trouver_rangee(i) < 6)
 		{
-			pencil(rouge.couleur);
+			pencil(rouge->couleur);
 			carreaux.at(i).light();
 		}
 		else if (trouver_colonne(i) < 6 && trouver_rangee(i) >= 9)
 		{
-			pencil(bleu.couleur);
+			pencil(bleu->couleur);
 			carreaux.at(i).light();
 		}
 		else if (trouver_colonne(i) >= 9 && trouver_rangee(i) < 6)
 		{
-			pencil(jaune.couleur);
+			pencil(jaune->couleur);
 			carreaux.at(i).light();
 		}
 		else if (trouver_colonne(i) >= 9 && trouver_rangee(i) >= 9)
 		{
-			pencil(vert.couleur);
+			pencil(vert->couleur);
 			carreaux.at(i).light();
 		}
 		else
@@ -179,16 +166,15 @@ void draw_board()
 	draw_triangles();
 }
 
-pion test;
+pion* test = new pion(1,7);
 int main()
 {
 	set_window_size(window);
 	set_window_resizable();
 	setlocale(LC_ALL, "");
-	init_players(rouge, bleu, jaune, vert);
 	init_game();
 	int ind = 0;
-	test.pos = carreaux.at(chemin.at(ind)).pos + xy / 2;
+	test->pos = carreaux.at(chemin.at(ind)).pos + xy / 2;
 	while (run())
 	{
 		pencil(COLOR_BLACK);
@@ -199,8 +185,8 @@ int main()
 			pencil(COLOR_BLACK);
 			carreaux.at(i).show_num();
 		}
-		pencil(vert.couleur);
-		draw_full_circle(test.pos, test.rayon);
+		pencil(rgb(0,255,255));
+		draw_full_circle(test->pos, test->rayon);
 		if (mouse_left_pressed())
 		{
 			ind++;
@@ -209,6 +195,10 @@ int main()
 				ind = 0;
 			}
 		}
-		test.pos = carreaux.at(chemin.at(ind)).pos + xy / 2;
+		test->pos = carreaux.at(chemin.at(ind)).pos + xy / 2;
+		rouge->display_tokens(carreaux);
+		bleu->display_tokens(carreaux);
+		vert->display_tokens(carreaux);
+		jaune->display_tokens(carreaux);
 	}
 }
