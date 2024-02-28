@@ -76,7 +76,7 @@ public:
 	{
 		for (int i = 0; i < chemin.size(); i++)
 		{
-			if (carreaux.at(i).pos == pos)
+			if (chemin.at(i).pos == pos)
 			{
 				return i;
 			}
