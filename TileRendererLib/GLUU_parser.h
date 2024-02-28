@@ -134,9 +134,9 @@ namespace GLUU {
 	};
 
 #include <map>
-	using std::map;
-	using std::make_pair;
-	using std::type_index;
+	using ::std::map;
+	using ::std::make_pair;
+	using ::std::type_index;
 
 	struct Compiled
 	{

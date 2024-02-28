@@ -1,5 +1,10 @@
 new int state = 0
 
+ROW BUTTON CollisionX { $collisionx_main } SIZE 30 CFIT IF {state == 0} <>
+ROW BUTTON TicTacToe { $tictactoe_main } SIZE 30 CFIT IF {state == 0} <>
+ROW BUTTON { "Connect 4" } { $connect4_main } SIZE 30 CFIT IF {state == 0} <>
+
+
 ROW SIZE 30 CFIT IF {state == 0}
 <
 	new callback $chatroom_cb = 
@@ -10,7 +15,7 @@ ROW SIZE 30 CFIT IF {state == 0}
 		}
 	}
 
-	COL BUTTON chatroom 
+	COL BUTTON Chatroom 
 	{ 
 		$set_chatroom;
 		state = 1;

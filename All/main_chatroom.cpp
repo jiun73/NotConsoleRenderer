@@ -12,16 +12,16 @@ enum MessageTypes
 std::stringstream ss;
 map<size_t, string> usernames;
 GLUU::Compiled_ptr menu;
+Server* server;
 
 void set_chatroom()
 {
-	Server server;
-
+	server = new Server();
 	ss << "Start!" << std::endl;
 
 	GLUU::import_function<void()>(":chat_host", [&]()
 		{
-			server.open_session([](Server& server)
+			server->open_session([](Server& server)
 				{
 					auto& buffers = server.get_buffers();
 
@@ -60,23 +60,23 @@ void set_chatroom()
 				});
 
 			p2p().join();
-			string s = "Admin";
-			p2p(SET_NAME).wrtc(s) << net::send;
+			//string s = "Admin";
+			//p2p(SET_NAME).wrtc(s) << net::send;
 
 		});
 
 	GLUU::import_function<void()>(":chat_wait", [&]()
 		{
-			server.wait_for_peer();
+			server->wait_for_peer();
 		});
 
 	GLUU::import_function<bool(string&, string&)>(":chat_join", [&](string& b, string& a)
 		{
 			bool success = p2p().join(a);
-			if (success)
+			/*if (success)
 			{
 				p2p(SET_NAME).wrtc(b) << net::send;
-			}
+			}*/
 			return success;
 		});
 
@@ -92,7 +92,7 @@ void set_chatroom()
 
 	GLUU::import_function<int()>(":peercnt", [&]()
 		{
-			return server.peer_count();
+			return server->peer_count();
 		});
 
 	GLUU::import_function<void(string&)>(":chat_send", [&](string& s)
@@ -103,7 +103,7 @@ void set_chatroom()
 	menu = GLUU::parse_file("GLUU/chat_menu.gluu");
 }
 
-void update_chatroom()
+int update_chatroom()
 {
 	pencil(COLOR_BLACK);
 	draw_clear();
@@ -131,6 +131,8 @@ void update_chatroom()
 			usernames.emplace(id, s);
 		}
 	}
+
+	return 1;
 }
 
  GLUU::ImportFunction<decltype(set_chatroom)> gluu_set_chatroom_import("$" + string("set_chatroom"), set_chatroom);

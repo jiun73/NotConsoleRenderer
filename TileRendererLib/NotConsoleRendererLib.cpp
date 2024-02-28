@@ -50,6 +50,9 @@ namespace hidden {
 
 	Peer2Peer _net;
 	//ConsoleApp cApp; //lol
+
+	bool override_run = false;
+	function<void()> run_callback = nullptr;
 }
 
 using namespace hidden;
@@ -199,6 +202,11 @@ bool run()
 			}
 		}
 
+		if (run_callback)
+		{
+			run_callback();
+		}
+
 		EntX::get()->update();
 		Commands::get()->update();
 
@@ -212,7 +220,7 @@ bool run()
 		_inputs.keyboard.update();
 	}
 
-	if (!__run__)
+	if (!__run__ && !override_run)
 	{
 		SDL_DestroyRenderer(sdl_ren);
 		SDL_DestroyWindow(sdl_win);
@@ -234,7 +242,23 @@ bool run()
 
 	frameStart = SDL_GetTicks();
 
+	if (!__run__ && override_run)
+	{
+		__run__ = true;
+		return false;
+	}
+
 	return __run__;
+}
+
+void set_override_run(bool r)
+{
+	override_run = r;
+}
+
+void set_callback(function<void()> func)
+{
+	run_callback = func;
 }
 
 void close() { __run__ = false; }

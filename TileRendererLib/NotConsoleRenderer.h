@@ -71,6 +71,10 @@ void close();
 //Est appellé maximum 60 fois par secondes
 bool run();
 
+void set_override_run(bool r);
+
+void set_callback(function<void()> func);
+
 //----------------------------------------------------------CONTROLES-------------------------------------------------------------------------
 
 MultiInput& inputs();
