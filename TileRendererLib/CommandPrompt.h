@@ -190,15 +190,15 @@ public:
 };
 
 template<size_t I = 0>
-struct DefineCommand //Use this to define new commands
+struct NCR_DefineCommand //Use this to define new commands
 {
-	DefineCommand(string cmd, CommandFunc func) { Commands::get()->add(cmd, func); }
-	~DefineCommand() {}
+	NCR_DefineCommand(string cmd, CommandFunc func) { Commands::get()->add(cmd, func); }
+	~NCR_DefineCommand() {}
 };
 
 #define TOKENPASTE(x, y) x ## y
 #define TOKENPASTE2(x, y) TOKENPASTE(x, y)
-#define __NEW_COMMAND__(a, func) DefineCommand TOKENPASTE2(cmd_, __COUNTER__)(a, func)
+#define __NEW_COMMAND__(a, func) NCR_DefineCommand TOKENPASTE2(cmd_, __COUNTER__)(a, func)
 
 //----------------------------------------------------------------------------------------------
 

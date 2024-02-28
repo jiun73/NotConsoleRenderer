@@ -34,6 +34,10 @@ void set_window_resizable();
 //À appeler AVANT 'run'
 void set_window_size(V2d_i size);
 
+void set_window_windowed();
+void set_window_fullscreen();
+void set_window_borderless();
+
 //Retourne le 'scale' par laquelle l'écran est multiplé
 //Par exemple, un écran qui est agrandi au double de sa taille originelle retourne 2
 //Correspond, si on veut, à la taille d'un pixel
@@ -43,6 +47,8 @@ V2d_d get_renderer_scale();
 V2d_d get_window_size();
 
 V2d_d get_logical_size();
+
+void set_logical_size(V2d_d sz);
 
 //----------------------------------------------------------SON-------------------------------------------------------------------------------
 
@@ -112,6 +118,8 @@ Color rainbow(int speed, int delay = 0);
 
 //Change la couleur de dessin
 void pencil(Color color);
+
+Color get_pencil();
 
 //Dessine un simple pixel
 void draw_pix(V2d_i position);
@@ -212,7 +220,6 @@ typedef pair<string::const_iterator, string::const_iterator> string_range;
 
 namespace hidden
 {
-
 	template<typename... Ts>
 	inline vector<string_range> all_ranges(string_range range, string_range(range_func)(string_range, Ts...), Ts... extras)
 	{
@@ -249,6 +256,7 @@ bool point_in_rectangle(const V2d_i& point, const Rect& rectangle);
 
 //----------------------------------------------------------UTILITAIRE------------------------------------------------------------------------
 
+double rise(const V2d_i& p1, const V2d_i& p2); //
 double lerp(double a, double b, double t); //Linear interpolation formula
 double distance_square(const V2d_d& pos1, const V2d_d& pos2); //square of the distance between two points (to avoid using expensive sqrt)
 double distance(const V2d_d& pos1, const V2d_d& pos2); //real distance between points
@@ -266,4 +274,8 @@ inline T* entitity_system() { return EntX::get()->get_system<T>(); }
 
 Peer2Peer& p2p();
 Peer2Peer& p2p(size_t i);
+
+//---
+
+vector<string> open_dialog(const string& filter = "Images\0*.png\0Any\0*.*\0");
 

@@ -15,6 +15,12 @@
 * ou si tu est plus ambitieux, tu peut essayer de le faire toi même
 * 
 * Juste a creer un nouveau proet dans la solution et copier les settings de 'exemple'
+* 
+* TODO:	GLUU styler
+*		GLUU better error handling
+*		GLUU++
+*		Chatroom
+*		AnimationMaker
 */
 
 enum MessageTypes 
@@ -49,11 +55,13 @@ int main()
 
 	File file("file.txt", FILE_READING_STRING);
 
-	GLUU::Compiled_ptr gluu_gfx = GLUU::parse_copy(file.getString());
+	//GLUU::Compiled_ptr gluu_gfx = GLUU::parse_copy(file.getString());
 
 	Server server;
 
 	Random r;
+
+	open_dialog();
 
 	while (run()) //boucle principale
 	{
@@ -62,21 +70,21 @@ int main()
 
 		pencil(rgb(255, 255, 0)); //Couleur jaune
 
-		draw_line({ 10,0 }, { 0,10 }); //ligne
+		//draw_line({ 10,0 }, { 0,10 }); //ligne
 
-		draw_image("Images/chad.jpg", { {20,10},{50,25} }); // dessin de l'image (faut s'assurer que le nom est bon)
+		//draw_image("Images/chad.jpg", { {20,10},{50,25} }); // dessin de l'image (faut s'assurer que le nom est bon)
 
 		pencil(rainbow(1000)); //arc-en-ciel, boucle de 1000ms
 
-		draw_circle({ 75,5 }, 5); //cercle
+		//draw_circle({ 75,5 }, 5); //cercle
 
 		if (key_pressed(SDL_SCANCODE_SPACE))
 			pencil(COLOR_GREEN);
 		else
 			pencil(COLOR_PINK);
 
-		draw_full_rect({ 50,50 }); //rectangle plein
-		draw_rect({ {50,102 },50 }); //rectangle pas plein
+		//draw_full_rect({ 50,50 }); //rectangle plein
+		//draw_rect({ {50,102 },50 }); //rectangle pas plein
 
 		if (mouse_left_held())
 		{
@@ -95,8 +103,8 @@ int main()
 		}
 
 		int pos = (int)(sin((SDL_GetTicks() % 1000) / 100.0) * 100);
-		draw_simple_text("Gluu", { pos,60 }, get_font(1)); //get_font(1) voir 'Fonts/fonts.hint'
-		draw_simple_text("Worked " + strings::stringify(test_variable) + " times", { 0,120 }, get_font(0)); //get_font(0) voir 'Fonts/fonts.hint'
+		//draw_simple_text("Gluu", { pos,60 }, get_font(1)); //get_font(1) voir 'Fonts/fonts.hint'
+		//draw_simple_text("Worked " + strings::stringify(test_variable) + " times", { 0,120 }, get_font(0)); //get_font(0) voir 'Fonts/fonts.hint'
 
 		//Nouvelle fonctionnalité !
 		//Entrer la commande 'list all' :)
@@ -199,8 +207,19 @@ int main()
 				
 			}
 		}
+
+		V2d_i p1 = { 80, 60 };
+		V2d_i p2 = { 80, 10 };
+		V2d_i p3 = { 50, 30 };
+
+		pencil(COLOR_GREEN);
+		draw_line(p1, p2);
+		draw_line(p2, p3);
+		draw_line(p1, p3);
+
+		draw_full_triangle(p1, p2, p3);
 		
-		gluu_gfx->render({ 0,get_logical_size() });
+		//gluu_gfx->render({ 0,get_logical_size() });
 	}
 
 	return 0;

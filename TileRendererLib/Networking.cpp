@@ -45,7 +45,7 @@ void Peer2Peer::handle_events(ENetEvent& event) {
 		bool is_flag = read_packet(event.packet, data);
 
 		if (is_flag)
-			buffer.end(*(size_t*)(data));
+			buffer.end(*(ChannelID*)(data));
 		else
 			buffer.add(data);
 
@@ -94,12 +94,12 @@ void Peer2Peer::end_stream()
 {
 	if (net::verbose_net)
 	std::cout << "End of stream " << write_flag << std::endl;
-	send<size_t>(write_flag, true);
+	send<ChannelID>(write_flag, true);
 }
 
-bool Peer2Peer::has_stream(size_t flag) { return buffer.has(flag); }
+bool Peer2Peer::has_stream(ChannelID flag) { return buffer.has(flag); }
 
-void Peer2Peer::wait_for_stream(size_t channel)
+void Peer2Peer::wait_for_stream(ChannelID channel)
 {
 	while (!has_stream(channel)) { if (net::verbose_net) std::cout << "Waiting for stream " << channel << "\r"; }
 }
@@ -198,7 +198,7 @@ void Server::handle_events(ENetEvent& event) {
 
 		if (is_flag)
 		{
-			buffers[peerID].end(*(size_t*)(data));
+			buffers[peerID].end(*(ChannelID*)(data));
 		}
 		else
 			buffers[peerID].add(data);
@@ -253,7 +253,7 @@ void Server::open_session(function<void(Server&)> callback)
 	setup_listener();
 }
 
-void Server::start_stream(size_t channel)
+void Server::start_stream(ChannelID channel)
 {
 	if (net::verbose_net)
 	std::cout << "Start of stream " << channel << std::endl;
@@ -263,12 +263,12 @@ void Server::start_stream(size_t channel)
 void Server::end_stream()
 {
 	if(messaging)
-		send<size_t>(write_flag, current_peer, true);
+		send<ChannelID>(write_flag, current_peer, true);
 	else if (broadcasting)
 	{
 		for (auto& p : peers)
 		{
-			send<size_t>(write_flag, p.first, true);
+			send<ChannelID>(write_flag, p.first, true);
 		}
 	}
 
