@@ -16,6 +16,19 @@ namespace GLUU {
 	inline Compiled_ptr parse(string& str) { return parser()->parse(str); }
 	inline Compiled_ptr parse_copy(string str) { return parser()->parse(str); }
 
+	template <typename T>
+	struct ImportFunction;
+
+	template <typename R, typename... Ts>
+	struct ImportFunction <R(Ts...)>
+	{
+		ImportFunction(const string& name, function<R(Ts...)> func) 
+		{
+			import_function<R(Ts...)>(name, func);
+		}
+		~ImportFunction() {}
+	};
+
 	struct Import
 	{
 		Import(function<void()> callback) { callback(); }
@@ -36,3 +49,5 @@ namespace GLUU {
 	inline ImportWidget<TextboxWidget> import_textbox;
 	inline ImportWidget<ButtonWidget> import_button;
 }
+
+#define GLUU_IMPORT_MAIN(n) GLUU::ImportFunction<decltype(n)> gluu_n##_import("$" + string(#n), n);

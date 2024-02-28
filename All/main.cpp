@@ -1,6 +1,13 @@
 #include "NotConsoleRenderer.h"
 #include "CommandStandard.h"
 
+int chatroom()
+{
+
+}
+
+GLUU_IMPORT_MAIN(chatroom);
+
 int main() 
 {
 	set_window_size({ (int)(1920 * 0.75),(int)(1080 * 0.75) });
