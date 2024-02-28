@@ -21,12 +21,24 @@
     <ClCompile Include="Strings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Aleatoire.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilitaires.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ludo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Strings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Aleatoire.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilitaires.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -131,12 +131,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Aleatoire.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Strings.cpp" />
+    <ClCompile Include="Utilitaires.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Aleatoire.h" />
     <ClInclude Include="ludo.h" />
     <ClInclude Include="Strings.h" />
+    <ClInclude Include="Utilitaires.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

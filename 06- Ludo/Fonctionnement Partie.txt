@@ -1,0 +1,5 @@
+- Obtenir le numéro du dé
+- Trouver le joueur courant et accéder à ses pions
+- Laisser le joueur choisir le pion qu'il veut bouger
+- Bouger le bon pion
+- Gérer les interactions créées par le mouvement du pion

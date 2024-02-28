@@ -200,5 +200,7 @@ int main()
 		bleu->display_tokens(carreaux);
 		vert->display_tokens(carreaux);
 		jaune->display_tokens(carreaux);
+		int num = de::shuffle();
+		std::cout << num;
 	}
 }

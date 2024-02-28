@@ -43,7 +43,15 @@ void draw_full_circle(V2d_i pos, int rayon)
 	}
 }
 
-// chaque taille du plancher
+struct de
+{
+	static int shuffle()
+	{
+		return Random().frange(1, 7);
+	}
+};
+
+
 class tile
 {
 private:
@@ -88,10 +96,11 @@ class pion
 {
 private:
 public:
-	int rayon = xy / 2;
+	int rayon = xy / 2 - 5;
 	int numero;
 	int spawn;
 	int caseActuelle;
+	bool can_be_played = true;
 	V2d_i pos;
 
 	pion(int n, int s)
@@ -111,6 +120,15 @@ public:
 		pos = carreaux.at(caseActuelle).pos;
 		draw_full_circle(pos + xy / 2, rayon);
 		show_number();
+	}
+
+	void move(vector<tile> carreaux, int num)
+	{
+		caseActuelle += num;
+		for (int i = 0; i < carreaux.size(); i++)
+		{
+			de::shuffle();
+		}
 	}
 };
 
