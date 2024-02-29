@@ -27,7 +27,23 @@ const int squaresPerColumn = 15;
 
 const int xy = (END_X_MAP - BEG_X_MAP) / squaresPerColumn;
 const int yx = (END_Y_MAP - BEG_Y_MAP) / squaresPerRow;
+
+vector<int> chemin = { 6,7,8,23,38,53,68, 83,99,100,101,102,103,104,119,134,133,132,131,130,129,143,158,173,188,203,218,217,216,
+		   201,186,171,156,141,125,124,123,122,121,120,105,90,91,92,93,94,95,81,66,51,36,21 };
  
+
+template<typename T>
+T index_of(T el, vector<T> vect)
+{
+	for (int i = 0; i < vect.size(); i++)
+	{
+		if (el == vect.at(i))
+		{
+			return i;
+		}
+	}
+}
+
 
 void draw_full_circle(V2d_i pos, int rayon)
 {
@@ -89,19 +105,57 @@ public:
 				return i;
 			}
 		}
+		return -1;
 	}
 };
+
+
+vector<tile> carreaux;
+vector<tile> get_tiles()
+{
+	vector<tile> tiles;
+	for (int i = 0; i < 15 * 15; i++)
+	{
+		tiles.push_back(tile());
+	}
+	int index = 0;
+	for (int i = BEG_Y_MAP; i <= END_Y_MAP - yx; i += yx)
+	{
+		for (int n = BEG_X_MAP; n <= END_X_MAP - xy; n += xy)
+		{
+			tiles.at(index).pos = { n,i };
+			tiles.at(index).numero = index;
+			index++;
+		}
+	}
+	return tiles;
+}
+
+tile get_carreau(int index)
+{
+	return carreaux.at(index);
+}
 
 class pion
 {
 private:
+	int index_of()
+	{
+		for (int i = 0; i < chemin.size(); i++)
+		{
+			if (caseActuelle == chemin.at(i))
+			{
+				return i;
+			}
+		}
+		return 0;
+	}
 public:
 	int rayon = xy / 2 - 5;
 	int numero;
 	int spawn;
-	int caseActuelle;
-	bool can_be_played = true;
-	V2d_i pos;
+	int caseActuelle; // index du pion dans carreaux
+	bool outOfHome = false;
 
 	pion(int n, int s)
 	{
@@ -112,22 +166,27 @@ public:
 	void show_number()
 	{
 		pencil(COLOR_WHITE);
-		draw_simple_text(entier_en_chaine(numero), pos + xy / 2 - 5 , get_font(0));
+		draw_simple_text(entier_en_chaine(numero), carreaux.at(caseActuelle).pos + xy / 2 - 5 , get_font(0));
 	}
 
-	void display(vector<tile> carreaux)
+	void display()
 	{
-		pos = carreaux.at(caseActuelle).pos;
-		draw_full_circle(pos + xy / 2, rayon);
+		if (!outOfHome)
+		{
+			draw_full_circle(get_carreau(caseActuelle).pos + xy / 2, rayon);
+		}
+		else
+		{
+			draw_full_circle(get_carreau(chemin.at(caseActuelle)).pos + xy / 2, rayon);
+		}
 		show_number();
 	}
 
-	void move(vector<tile> carreaux, int num)
+	void move(int num)
 	{
-		caseActuelle += num;
-		for (int i = 0; i < carreaux.size(); i++)
+		if (outOfHome)
 		{
-			de::shuffle();
+			caseActuelle += num;
 		}
 	}
 };
@@ -175,21 +234,21 @@ public:
 		init_tokens();
 	}
 
-	void display_tokens(vector<tile> carreaux)
+	void display_tokens()
 	{
 		pencil(rgb(51,62,32));
-		token1->display(carreaux);
+		token1->display();
 		pencil(rgb(51, 62, 32));
-		token2->display(carreaux);
+		token2->display();
 		pencil(rgb(51, 62, 32));
-		token3->display(carreaux);
+		token3->display();
 		pencil(rgb(51, 62, 32));
-		token4->display(carreaux);
+		token4->display();
 	}
 };
 
 
-player* rouge = new player(rgb(255, 0, 0), "rouge", 16, 19, 61, 64, 91);
-player* bleu = new player(rgb(0, 0, 255), "bleu", 151, 154, 196, 199, 201);
-player* jaune = new player(rgb(255, 255, 0), "jaune", 25, 28, 70, 73, 23);
-player* vert = new player(rgb(0, 255, 0), "vert", 160, 163, 205, 208, 133);
+player* rouge = new player(rgb(255, 0, 0), "rouge", 16, 19, 61, 64, index_of(91, chemin));
+player* bleu = new player(rgb(0, 0, 255), "bleu", 151, 154, 196, 199, index_of(201, chemin));
+player* jaune = new player(rgb(255, 255, 0), "jaune", 25, 28, 70, 73, index_of(23, chemin));
+player* vert = new player(rgb(0, 255, 0), "vert", 160, 163, 205, 208, index_of(133, chemin));

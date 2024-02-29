@@ -1,43 +1,8 @@
 #include "ludo.h"
 
-
-vector<tile> carreaux;
-vector<tile> get_tiles()
-{
-	vector<tile> tiles;
-	for (int i = 0; i < 15 * 15; i++)
-	{
-		tiles.push_back(tile());
-	}
-	int index = 0;
-	for (int i = BEG_Y_MAP; i <= END_Y_MAP - yx; i += yx)
-	{
-		for (int n = BEG_X_MAP; n <= END_X_MAP - xy; n += xy)
-		{
-			tiles.at(index).pos = { n,i };
-			tiles.at(index).numero = index;
-			index++;
-		}
-	}
-	return tiles;
-}
-
-
-vector<int> chemin;
-vector<int> get_chemin()
-{
-	vector<int> chemin;
-
-	chemin = { 6,7,8,23,38,53,68, 83,99,100,101,102,103,104,119,134,133,132,131,130,129,143,158,173,188,203,218,217,216,
-			   201,186,171,156,141,125,124,123,122,121,120,105,90,91,92,93,94,95,81,66,51,36,21};
-
-	return chemin;
-}
-
 void init_game()
 {
 	carreaux = get_tiles();
-	chemin = get_chemin();
 }
 
 void draw_lines()
@@ -166,17 +131,22 @@ void draw_board()
 	draw_triangles();
 }
 
-pion* test = new pion(1,7);
+
 int main()
 {
 	set_window_size(window);
 	set_window_resizable();
 	setlocale(LC_ALL, "");
 	init_game();
-	int ind = 0;
-	test->pos = carreaux.at(chemin.at(ind)).pos + xy / 2;
+	int compteur = 0;
+	pion* test = new pion(1, 7);
+	bool fait = true;
+	int des;
+	test->caseActuelle = 61;
 	while (run())
 	{
+		des = de::shuffle();
+		compteur++;
 		pencil(COLOR_BLACK);
 		draw_clear();
 		draw_board();
@@ -185,22 +155,22 @@ int main()
 			pencil(COLOR_BLACK);
 			carreaux.at(i).show_num();
 		}
-		pencil(rgb(0,255,255));
-		draw_full_circle(test->pos, test->rayon);
-		if (mouse_left_pressed())
+		rouge->display_tokens();
+		bleu->display_tokens();
+		vert->display_tokens();
+		jaune->display_tokens();
+		std::cout << des;
+		pencil(rgb(0, 255, 255));
+		test->display();
+		if (compteur % 45 == 0)
 		{
-			ind++;
-			if (ind == chemin.size())
+			if (des == 6 && fait)
 			{
-				ind = 0;
+				test->outOfHome = true;
+				test->caseActuelle = 36;
+				fait = false;
 			}
+			test->move(des);
 		}
-		test->pos = carreaux.at(chemin.at(ind)).pos + xy / 2;
-		rouge->display_tokens(carreaux);
-		bleu->display_tokens(carreaux);
-		vert->display_tokens(carreaux);
-		jaune->display_tokens(carreaux);
-		int num = de::shuffle();
-		std::cout << num;
 	}
 }
