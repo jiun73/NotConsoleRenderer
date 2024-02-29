@@ -28,6 +28,9 @@
     <Filter Include="Fichiers sources\BounceX">
       <UniqueIdentifier>{9bc8cb4f-d559-4001-b405-74aa2a0469ec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers sources\USA-Simulator">
+      <UniqueIdentifier>{eef24ac2-b013-4af9-9b06-0a7b85fef08d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -54,6 +57,9 @@
     <ClCompile Include="Strings.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="usasim_main.cpp">
+      <Filter>Fichiers sources\USA-Simulator</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main_chatroom.h">
@@ -76,6 +82,9 @@
     </ClInclude>
     <ClInclude Include="Strings.h">
       <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="usasim_Shooting.h">
+      <Filter>Fichiers sources\USA-Simulator</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -139,6 +139,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="main_chatroom.cpp" />
     <ClCompile Include="Strings.cpp" />
+    <ClCompile Include="usasim_main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\01- CollisionX\collisionx_balls.h" />
@@ -148,6 +149,7 @@
     <ClInclude Include="bouncex_game.h" />
     <ClInclude Include="main_chatroom.h" />
     <ClInclude Include="Strings.h" />
+    <ClInclude Include="usasim_Shooting.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GLUU\main.gluu" />

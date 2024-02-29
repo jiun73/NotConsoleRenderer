@@ -1,24 +1,8 @@
 new int state = 0 
 
-ROW BUTTON CollisionX { $collisionx_main } SIZE 30 CFIT IF {state == 0} <>
-ROW BUTTON TicTacToe { $tictactoe_main } SIZE 30 CFIT IF {state == 0} <>
-ROW BUTTON { "Connect 4" } { $connect4_main } SIZE 30 CFIT IF {state == 0} <>
-ROW BUTTON { "BounceX" } { $bouncex_main } SIZE 30 CFIT IF {state == 0} <> 
-
-ROW SIZE 30 CFIT IF {state == 0}
-<
-	new callback $chatroom_cb = 
-	{
-		$if {state == 1}
-		{
-			:stuff;
-			$update_chatroom;
-		}
-	}
-
-	COL BUTTON Chatroom 
-	{ 
-		$set_chatroom;
-		state = 1;
-	} <>
->
+ROW BUTTON CollisionX			{ $collisionx_main }	SIZE 30 CFIT IF {state == 0} <>
+ROW BUTTON TicTacToe			{ $tictactoe_main }		SIZE 30 CFIT IF {state == 0} <>
+ROW BUTTON { "Connect 4" }		{ $connect4_main }		SIZE 30 CFIT IF {state == 0} <>
+ROW BUTTON BounceX				{ $bouncex_main }		SIZE 30 CFIT IF {state == 0} <> 
+ROW BUTTON { "USA Simulator" }	{ $usasim_main }		SIZE 30 CFIT IF {state == 0} <> 
+ROW BUTTON Chatroom				{ $chatroom_main }		SIZE 30 CFIT IF {state == 0} <> 
