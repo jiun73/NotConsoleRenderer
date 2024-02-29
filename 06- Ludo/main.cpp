@@ -142,7 +142,7 @@ int main()
 	pion* test = new pion(1, 7);
 	bool fait = true;
 	int des;
-	test->caseActuelle = 61;
+	test->caseActuelle = 71;
 	while (run())
 	{
 		des = de::shuffle();
@@ -167,7 +167,7 @@ int main()
 			if (des == 6 && fait)
 			{
 				test->outOfHome = true;
-				test->caseActuelle = 36;
+				test->caseActuelle = index_of(23, chemin);
 				fait = false;
 			}
 			test->move(des);
