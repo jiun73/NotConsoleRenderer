@@ -1,0 +1,13 @@
+﻿; Registering the package
+[$RootKey$\InstalledProducts\GLUU_HighilighterPackage]
+"Package"="{366bca69-c2e3-4d1f-9f1d-4cf25730d783}"
+[$RootKey$\BindingPaths\{366bca69-c2e3-4d1f-9f1d-4cf25730d783}]
+"$PackageFolder$"=""
+
+; Registering the TextMate grammar
+[$RootKey$\TextMate\Repositories]
+"GLUU_Highilighter"="$PackageFolder$\Syntaxes"
+
+; Match file extensions with icons. See full icon list at https://glyphlist.azurewebsites.net/knownmonikers/
+[$RootKey$\ShellFileAssociations\.gluu]
+"DefaultIconMoniker"="KnownMonikers.CD"
