@@ -25,6 +25,9 @@
     <Filter Include="Fichiers sources\Connect4">
       <UniqueIdentifier>{93c880b8-0110-408d-acbf-813b80a25da8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers sources\BounceX">
+      <UniqueIdentifier>{9bc8cb4f-d559-4001-b405-74aa2a0469ec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -45,6 +48,12 @@
     <ClCompile Include="..\03- Connect4\Strings.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="bouncex_main.cpp">
+      <Filter>Fichiers sources\BounceX</Filter>
+    </ClCompile>
+    <ClCompile Include="Strings.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main_chatroom.h">
@@ -62,5 +71,14 @@
     <ClInclude Include="..\03- Connect4\Strings.h">
       <Filter>Fichiers sources</Filter>
     </ClInclude>
+    <ClInclude Include="bouncex_game.h">
+      <Filter>Fichiers sources\BounceX</Filter>
+    </ClInclude>
+    <ClInclude Include="Strings.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="GLUU\main.gluu" />
   </ItemGroup>
 </Project>

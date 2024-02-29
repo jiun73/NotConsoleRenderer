@@ -1,9 +1,9 @@
-new int state = 0
+new int state = 0 new init string 
 
 ROW BUTTON CollisionX { $collisionx_main } SIZE 30 CFIT IF {state == 0} <>
 ROW BUTTON TicTacToe { $tictactoe_main } SIZE 30 CFIT IF {state == 0} <>
 ROW BUTTON { "Connect 4" } { $connect4_main } SIZE 30 CFIT IF {state == 0} <>
-
+ROW BUTTON { "Connect 4" } { $connect4_main } SIZE 30 CFIT IF {state == 0} <> //hgfhfghgf
 
 ROW SIZE 30 CFIT IF {state == 0}
 <

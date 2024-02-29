@@ -135,15 +135,22 @@
     <ClCompile Include="..\02- TicTacToe\tictactoe_main.cpp" />
     <ClCompile Include="..\03- Connect4\connect4_main.cpp" />
     <ClCompile Include="..\03- Connect4\Strings.cpp" />
+    <ClCompile Include="bouncex_main.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="main_chatroom.cpp" />
+    <ClCompile Include="Strings.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\01- CollisionX\collisionx_balls.h" />
     <ClInclude Include="..\02- TicTacToe\tictactoe_game.h" />
     <ClInclude Include="..\03- Connect4\connect4_game.h" />
     <ClInclude Include="..\03- Connect4\Strings.h" />
+    <ClInclude Include="bouncex_game.h" />
     <ClInclude Include="main_chatroom.h" />
+    <ClInclude Include="Strings.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="GLUU\main.gluu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
