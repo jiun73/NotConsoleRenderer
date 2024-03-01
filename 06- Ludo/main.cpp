@@ -148,7 +148,7 @@ void draw_board()
 	for (int i = 0; i < carreaux.size(); i++)
 	{
 		pencil(COLOR_BLACK);
-		carreaux.at(i).show_num();
+		//carreaux.at(i).show_num();
 	}
 }
 
@@ -273,7 +273,6 @@ int main()
 	setlocale(LC_ALL, "");
 	init_game();
 	int compteur = 0;
-	bool fait = true;
 	int des;
 	rouge->is_playing = true;
 
@@ -286,11 +285,10 @@ int main()
 
 		draw_simple_text(actual().name, {700,10}, get_font(0));
 		des = de::shuffle();
-		compteur++;
 		
 		jouer_son_tour(actual(), des);
+		display_tokens();
 		
-		pencil(rgb(0, 255, 255));
 		switch_turns();
 	}
 }

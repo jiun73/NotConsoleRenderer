@@ -166,7 +166,7 @@ public:
 	void show_number()
 	{
 		pencil(COLOR_WHITE);
-		draw_simple_text(entier_en_chaine(numero), carreaux.at(caseActuelle % 225).pos + xy / 2 - 5 , get_font(0));
+		//draw_simple_text(entier_en_chaine(numero), carreaux.at(caseActuelle % 225).pos + xy / 2 - 5 , get_font(0));
 	}
 
 	void display()
