@@ -143,6 +143,120 @@ void draw_board()
 	}
 	light_random_cases();
 	draw_triangles();
+	for (int i = 0; i < carreaux.size(); i++)
+	{
+		pencil(COLOR_BLACK);
+		carreaux.at(i).show_num();
+	}
+}
+
+void display_tokens()
+{
+	rouge->display_tokens();
+	bleu->display_tokens();
+	vert->display_tokens();
+	jaune->display_tokens();
+}
+
+void switch_turns()
+{
+	if (rouge->is_playing)
+	{
+		rouge->is_playing = false;
+		bleu->is_playing = true;
+	}
+	else if (bleu->is_playing)
+	{
+		bleu->is_playing = false;
+		vert->is_playing = true;
+	}
+	else if (vert->is_playing)
+	{
+		vert->is_playing = false;
+		jaune->is_playing = true;
+	}
+	else if (jaune->is_playing)
+	{
+		jaune->is_playing = false;
+		rouge->is_playing = true;
+	}
+}
+
+bool pion_sorti(player joueur)
+{
+	if (joueur.token1->outOfHome)
+	{
+		return true;
+	}
+	if (joueur.token2->outOfHome)
+	{
+		return true;
+	}
+	if (joueur.token3->outOfHome)
+	{
+		return true;
+	}
+	if (joueur.token4->outOfHome)
+	{
+		return true;
+	}
+	return false;
+}
+
+void click_on_token(player& joueur, bool& valid)
+{
+	const tile& token1 = carreaux.at(joueur.token1->caseActuelle);
+	const tile& token2 = carreaux.at(joueur.token2->caseActuelle);
+	const tile& token3 = carreaux.at(joueur.token3->caseActuelle);
+	const tile& token4 = carreaux.at(joueur.token4->caseActuelle);
+
+
+	
+	if (point_in_rectangle(mouse_position(), { token1.pos, token1.pos + xy / 2 }))
+	{
+		valid = true;
+		joueur.token1->caseActuelle = joueur.spawnTile;
+	}
+	else if (point_in_rectangle(mouse_position(), { token2.pos, token2.pos + xy / 2 }))
+	{
+		valid = true;
+		joueur.token2->caseActuelle = joueur.spawnTile;
+	}
+	else if (point_in_rectangle(mouse_position(), { token3.pos, token3.pos + xy / 2 }))
+	{
+		valid = true;
+		joueur.token3->caseActuelle = joueur.spawnTile;
+	}
+	else if (point_in_rectangle(mouse_position(), { token4.pos, token4.pos + xy / 2 }))
+	{
+		valid = true;
+		joueur.token4->caseActuelle = joueur.spawnTile;
+	}
+}
+
+int jouer_son_tour(player& joueur, int des)
+{
+	if (!pion_sorti(joueur))
+	{
+		if (des == 6)
+		{
+			draw_simple_text("Clickez sur un de vos pions ...", {10,10}, get_font(0));
+			while (true)
+			{
+				bool valid = false;
+				if (mouse_left_pressed())
+				{
+					click_on_token(joueur, valid);
+					if (valid)
+					{
+						return 1;
+					}
+				}
+			}
+		}
+		return -1;
+	}
+	return -1;
 }
 
 
@@ -157,35 +271,28 @@ int main()
 	bool fait = true;
 	int des;
 	test->caseActuelle = 61;
+	rouge->is_playing = true;
+
+
 	while (run())
 	{
-		des = de::shuffle();
-		compteur++;
 		pencil(COLOR_BLACK);
 		draw_clear();
 		draw_board();
-		for (int i = 0; i < carreaux.size(); i++)
-		{
-			pencil(COLOR_BLACK);
-			carreaux.at(i).show_num();
-		}
-		rouge->display_tokens();
-		bleu->display_tokens();
-		vert->display_tokens();
-		jaune->display_tokens();
+
+		draw_simple_text(actual().name, {700,10}, get_font(0));
+		des = de::shuffle();
+		compteur++;
+		
+		jouer_son_tour(actual(), des);
 		
 		pencil(rgb(0, 255, 255));
 		test->display();
-		if (compteur % 45 == 0)
+		if (compteur % 85 == 0)
 		{
-			if (des == 6 && fait)
-			{
-				test->outOfHome = true;
-				test->caseActuelle = 88;
-				fait = false;
-			}
 			std::cout << des;
 			test->move(des);
 		}
+		switch_turns();
 	}
 }

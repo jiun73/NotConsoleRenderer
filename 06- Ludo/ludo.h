@@ -90,7 +90,7 @@ public:
 	void show_num()
 	{
 		pencil(COLOR_CYAN);
-		//draw_simple_text(entier_en_chaine(numero), { pos.x + 10, pos.y + 10 }, get_font(0));
+		draw_simple_text(entier_en_chaine(numero), { pos.x + 10, pos.y + 10 }, get_font(0));
 	}
 
 	int index_of(vector<tile> chemin)
@@ -204,6 +204,7 @@ public:
 	string name;
 	Color couleur;
 	int spawnTile;
+	bool is_playing = false;
 
 	pion* token1 = new pion(1, 6);
 	pion* token2 = new pion(2, 6);
@@ -245,7 +246,27 @@ public:
 };
 
 
-player* rouge = new player(rgb(255, 0, 0), "rouge", 16, 19, 61, 64, index_of(91, chemin));
-player* bleu = new player(rgb(0, 0, 255), "bleu", 151, 154, 196, 199, index_of(201, chemin));
-player* jaune = new player(rgb(255, 255, 0), "jaune", 25, 28, 70, 73, index_of(23, chemin));
-player* vert = new player(rgb(0, 255, 0), "vert", 160, 163, 205, 208, index_of(133, chemin));
+player* rouge = new player(rgb(255, 0, 0), "rouge", 16, 19, 61, 64, 91);
+player* bleu = new player(rgb(0, 0, 255), "bleu", 151, 154, 196, 199, 201);
+player* jaune = new player(rgb(255, 255, 0), "jaune", 25, 28, 70, 73, 23);
+player* vert = new player(rgb(0, 255, 0), "vert", 160, 163, 205, 208, 133);
+
+player& actual()
+{
+	if (rouge->is_playing)
+	{
+		return *rouge;
+	}
+	if (bleu->is_playing)
+	{
+		return *bleu;
+	}
+	if (vert->is_playing)
+	{
+		return *vert;
+	}
+	if (jaune->is_playing)
+	{
+		return *jaune;
+	}
+}
