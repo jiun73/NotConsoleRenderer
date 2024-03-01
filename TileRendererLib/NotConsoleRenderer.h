@@ -162,6 +162,7 @@ void draw_clear();
 void load_texture(const string& path);
 V2d_i get_image_size(const string& path);
 void output_texture_pixels(const string path);
+SDL_Texture* get_sdl_texture(const string& path);
 
 //----------------------------------------------------------TEXTE-----------------------------------------------------------------------------
 

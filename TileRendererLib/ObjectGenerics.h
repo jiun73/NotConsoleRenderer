@@ -2,6 +2,13 @@
 #include "Generics.h"
 #include "Operators.h"
 
+template<typename, typename = void>
+constexpr bool is_type_complete_v = false;
+
+template<typename T>
+constexpr bool is_type_complete_v
+<T, std::void_t<decltype(sizeof(T))>> = true;
+
 struct GenericObject : public Generic
 {
 	virtual shared_generic dereference() = 0;
@@ -24,14 +31,31 @@ public:
 	~GenericRef() {}
 
 	char* raw_bytes() override { return (char*)(&(*_object_)); }
-	const type_info& type() override { return typeid(T); }
+	const type_info& type() override 
+	{ 
+		if constexpr (!is_type_complete_v<T>)
+		{
+			std::cout << "{type not complete}"; return typeid(void);
+		}
+		else return typeid(T);
+	}
 	const type_info& identity() override { return typeid(GenericObject); }
-	size_t size() override { return sizeof(T); }
+	size_t size() override 
+	{ 
+		
+		if constexpr (!is_type_complete_v<T>) 
+		{ 
+			std::cout << "{type not complete}"; return 0;
+		}
+		else return sizeof(T); 
+	}
 
 	void set(shared_generic value)
 	{
 		if (value->type() != type()) { std::cout << "{set: types do not match}"; return; }
-		if constexpr (std::is_copy_assignable_v<T>) *_object_ = *(T*)(value->raw_bytes());
+		if constexpr (!is_type_complete_v<T>) { std::cout << "{type not complete}"; return; }
+		else if constexpr (std::is_abstract_v<T>) { std::cout << "{type is abract}"; return; }
+		else if constexpr (std::is_copy_assignable_v<T>) *_object_ = *(T*)(value->raw_bytes());
 		else
 		{
 			std::cout << "not nothrow!!!" << std::endl;
@@ -77,10 +101,9 @@ public:
 			std::cout << "{set: types do not match }" << value->type().name() << " " << type().name() << std::endl; 
 			return; 
 		}
-		if constexpr (std::is_copy_assignable_v<T>) 
-		{ 
-			_object_ = *(T*)(value->raw_bytes());
-		}
+		if constexpr (!is_type_complete_v<T>) { std::cout << "{type not complete}"; return; }
+		else if constexpr (std::is_abstract_v<T>) { std::cout << "{type is abract}"; return; }
+		else if constexpr (std::is_copy_assignable_v<T>) _object_ = *(T*)(value->raw_bytes());
 		else
 		{
 			std::cout << "not nothrow!" << std::endl;
@@ -150,9 +173,13 @@ inline shared_ptr<GenericRef<T>> make_generic_ref(T& ref)
 template<typename T>
 inline shared_generic GenericRef<T>::dereference()
 {
-	if constexpr (is_pointer_v<T>) return make_shared < GenericRef<remove_pointer_t<T>>>(*this);
-	else return make_shared<GenericType<T>>(*_object_);
+	if constexpr (!is_type_complete_v<T>) { return make_shared < GenericRef<T>>(*this); }
+	else if constexpr (is_pointer_v<T>) return make_shared < GenericRef<remove_pointer_t<T>>>(*this);
+	else 
+	{
+		 return make_shared<GenericType<T>>(*_object_);
+	}
 }
 
 template<typename T>
-inline shared_generic GenericRef<T>::make() { return make_shared<GenericType<T>>(); }
+inline shared_generic GenericRef<T>::make() { return make_shared<GenericRef<T>>(); }

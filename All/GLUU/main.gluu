@@ -9,3 +9,4 @@ ROW CFIT BUTTON { "Connect 4" }		{ $connect4_main } <>
 ROW CFIT BUTTON BounceX				{ $bouncex_main } <> 
 ROW CFIT BUTTON { "USA Simulator" }	{ $usasim_main } <> 
 ROW CFIT BUTTON Chatroom			{ $chatroom_main } <> 
+ROW CFIT BUTTON AnimMaker			{ $animmaker_main } <> 

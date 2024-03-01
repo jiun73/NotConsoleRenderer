@@ -135,6 +135,7 @@
     <ClCompile Include="..\02- TicTacToe\tictactoe_main.cpp" />
     <ClCompile Include="..\03- Connect4\connect4_main.cpp" />
     <ClCompile Include="..\03- Connect4\Strings.cpp" />
+    <ClCompile Include="animmaker_main.cpp" />
     <ClCompile Include="bouncex_main.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="main_chatroom.cpp" />
@@ -152,6 +153,7 @@
     <ClInclude Include="usasim_Shooting.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="AnimMaker.gluu" />
     <None Include="GLUU\main.gluu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

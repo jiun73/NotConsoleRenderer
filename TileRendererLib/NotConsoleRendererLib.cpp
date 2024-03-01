@@ -382,6 +382,16 @@ void output_texture_pixels(const string path)
 	std::cout << ss.str() << std::endl;
 }
 
+SDL_Texture* get_sdl_texture(const string& path)
+{
+	if (!textures.count(path))
+	{
+		load_texture(path);
+	}
+
+	return textures.at(path);
+}
+
 Random& random()
 {
 	return _random;

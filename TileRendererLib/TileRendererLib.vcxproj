@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AnimationX.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ClassFactory.h" />
     <ClInclude Include="Color.h" />

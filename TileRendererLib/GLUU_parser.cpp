@@ -277,6 +277,7 @@ namespace GLUU
 				if (constants.empty())
 				{
 					add_error(GLUU_ERROR_NOT_ENOUGH_ARGS, "ran out of arguments for function '" + it->func_name + "' ", str.begin());
+					return;
 				}
 
 				it->recursive.push_back(constants.back());

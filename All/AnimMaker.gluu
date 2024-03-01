@@ -1,0 +1,42 @@
+new vector(AnimationX) animations
+new vector(string) paths
+new int current_frame = 0
+
+ROW SIZE 30 <
+	new callback cb = 
+	{
+		:cout paths;
+	}
+
+	COL SIZE 40 BUTTON { "Load images" }  
+	{
+		new vector(string) files;
+		files = $file;
+		new int index = 0;
+
+		:cout {(size_t-int) files -size};
+
+		$while {index /- {(size_t-int) files -size}} {
+			:get_tex {files -at index};
+			paths -pushb {files -at index};
+			index ++;
+			:cout { "index: " index};
+		};
+
+		:cout paths;
+		:cout {(size_t-int) paths -size};
+	} <>
+
+	COL SIZE 40 TEXT { # current_frame } <>
+
+	COL SIZE 40 BUTTON { "Prev" }  
+	{
+		$if {current_frame /+ 0} {current_frame --}
+	} <>
+
+	COL SIZE 40 BUTTON { "Next" }  
+	{
+		$if {current_frame /- {(size_t-int) paths -size}} 
+		{current_frame ++}
+	} <>
+>

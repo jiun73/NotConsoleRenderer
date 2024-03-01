@@ -168,6 +168,9 @@
     <ClInclude Include="Controls.h">
       <Filter>Header Files\Classes\Input</Filter>
     </ClInclude>
+    <ClInclude Include="AnimationX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NotConsoleRendererLib.cpp">

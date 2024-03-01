@@ -31,6 +31,9 @@
     <Filter Include="Fichiers sources\USA-Simulator">
       <UniqueIdentifier>{eef24ac2-b013-4af9-9b06-0a7b85fef08d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers sources\AnimationMaker">
+      <UniqueIdentifier>{050a2b0e-ceed-429e-8dc5-eef7e706c9be}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -59,6 +62,9 @@
     </ClCompile>
     <ClCompile Include="usasim_main.cpp">
       <Filter>Fichiers sources\USA-Simulator</Filter>
+    </ClCompile>
+    <ClCompile Include="animmaker_main.cpp">
+      <Filter>Fichiers sources\AnimationMaker</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -89,5 +95,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="GLUU\main.gluu" />
+    <None Include="AnimMaker.gluu">
+      <Filter>Fichiers sources\AnimationMaker</Filter>
+    </None>
   </ItemGroup>
 </Project>
