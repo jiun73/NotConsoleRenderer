@@ -1,29 +1,23 @@
 new vector(AnimationX) animations
+new vector(string) animation_names
 new vector(string) paths
 new int current_frame = 0
 
+new function :load_images = 
+{
+	new vector(string) files;
+	files = $file;
+	new int index = 0;
+
+	$while {index /- {files -sizei}} {
+		:get_tex {files -at index};
+		paths -pushb {files -at index};
+		index ++;
+	};
+}
+
 ROW SIZE 30 <
-	new callback cb = 
-	{
-		:cout paths;
-	}
-
-	COL SIZE 40 BUTTON { "Load images" }  
-	{
-		new vector(string) files;
-		files = $file;
-		new int index = 0;
-
-		$while {index /- {files -sizei}} {
-			:get_tex {files -at index};
-			paths -pushb {files -at index};
-			index ++;
-			:cout { "index: " index};
-		};
-
-		:cout paths;
-		:cout {paths -sizei};
-	} <>
+	COL SIZE 120 BUTTON { "Load images" } { :load_images } <>
 
 	COL SIZE 40 TEXT { # current_frame } <>
 
@@ -37,4 +31,30 @@ ROW SIZE 30 <
 		$if {current_frame /- {paths -sizei}} 
 		{current_frame ++}
 	} <>
+>
+
+
+
+ROW SIZE 30 <
+	new bool makingAnim = false 
+
+	COL SIZE 140 IF { :not makingAnim }	BUTTON	{"New Animation"}	{ makingAnim = :true } <>
+	COL SIZE 140 IF { makingAnim }		TEXTBOX {"Enter name..."}	
+	{ 
+		arg* string text; 
+
+		new AnimationX new_anim;
+		animation_names -pushb {text @};
+		animations -pushb new_anim;
+
+		:cout { "Added " {text @} " animation" };
+
+		makingAnim = :false; 
+		{text @} = ""; 
+	} 
+	<>
+	COL SIZE 140 IF { makingAnim }		BUTTON	{"Cancel"}			{ makingAnim = :false } <>
+
+	COL SIZE 140 TEXT { $if {animation_names} } <>
+	
 >

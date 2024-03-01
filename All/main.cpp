@@ -2,6 +2,7 @@
 #include "CommandStandard.h"
 #include "main_chatroom.h"
 
+
 int main() 
 {
 	set_window_size({ (int)(1920 * 0.75),(int)(1080 * 0.75) });
