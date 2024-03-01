@@ -14,9 +14,7 @@ ROW SIZE 30 <
 		files = $file;
 		new int index = 0;
 
-		:cout {(size_t-int) files -size};
-
-		$while {index /- {(size_t-int) files -size}} {
+		$while {index /- {files -sizei}} {
 			:get_tex {files -at index};
 			paths -pushb {files -at index};
 			index ++;
@@ -24,7 +22,7 @@ ROW SIZE 30 <
 		};
 
 		:cout paths;
-		:cout {(size_t-int) paths -size};
+		:cout {paths -sizei};
 	} <>
 
 	COL SIZE 40 TEXT { # current_frame } <>
@@ -36,7 +34,7 @@ ROW SIZE 30 <
 
 	COL SIZE 40 BUTTON { "Next" }  
 	{
-		$if {current_frame /- {(size_t-int) paths -size}} 
+		$if {current_frame /- {paths -sizei}} 
 		{current_frame ++}
 	} <>
 >

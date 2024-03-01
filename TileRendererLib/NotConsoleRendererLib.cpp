@@ -336,7 +336,12 @@ void load_texture(const string& path)
 {
 	SDL_Surface* sur = IMG_Load(path.c_str());
 
-	SDL_assert(sur);
+	if (!sur)
+	{
+		std::cout << SDL_GetError() << std::endl;
+		SDL_assert(sur);
+	}
+	
 
 	SDL_Texture* tex = SDL_CreateTextureFromSurface(sdl_ren, sur);
 
@@ -867,6 +872,7 @@ vector<string> open_dialog(const string& filter)
 		string sdir = string(dir.begin(), dir.end());
 		string spath = string(p.begin(), p.end());
 		ret.push_back(sdir + "\\" + spath);
+		std::cout << sdir + "\\" + spath << std::endl;
 	}
 
 	return ret;

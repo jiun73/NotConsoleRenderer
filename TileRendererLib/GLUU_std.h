@@ -106,7 +106,7 @@ namespace GLUU {
 
 		import_function<string(_sgen_)>(":type", [](_sgen_ a) {return a->type().name(); });
 		import_function<int(bool)>("(bool-int)", [](bool a) {return a; });
-		import_function<int(size_t)>("(size_t-int)", [](bool a) {return a; });
+		import_function<int(size_t)>("(size_t-int)", [](size_t a) {return (int)a; });
 		import_function<uint8_t(int)>("(u8)", [](int a) {return a; });
 		import_function<uint16_t(int)>("(u16)", [](int a) {return a; });
 		import_function<uint32_t(int)>("(u32)", [](int a) {return a; });
@@ -125,7 +125,7 @@ namespace GLUU {
 				if (!is_iden<GenericContainer>(a)) { std::cout << "Cannot push a non-container" << std::endl;; return; }
 
 				auto container = rein<GenericContainer>(a);
-				container->insert(b, container->size());
+				container->insert(b, container->container_size());
 			});
 
 		import_function<void(_sgen_, _sgen_)>("-pushf", [](_sgen_ b, _sgen_ a)
@@ -157,7 +157,15 @@ namespace GLUU {
 				if (!is_iden<GenericContainer>(a)) { std::cout << "Cannot at a non-container" << std::endl; return 0; }
 
 				auto container = rein<GenericContainer>(a);
-				return container->size();
+				return container->container_size();
+			});
+
+		import_function<int(_sgen_)>("-sizei", [](_sgen_ a)-> size_t
+			{
+				if (!is_iden<GenericContainer>(a)) { std::cout << "Cannot at a non-container" << std::endl; return 0; }
+
+				auto container = rein<GenericContainer>(a);
+				return (int)container->container_size();
 			});
 
 		import_function<_sgen_(_sgen_)>("@", [](_sgen_ a)-> _sgen_
