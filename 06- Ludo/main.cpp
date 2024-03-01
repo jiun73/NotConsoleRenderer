@@ -156,7 +156,7 @@ int main()
 	pion* test = new pion(1, 7);
 	bool fait = true;
 	int des;
-	test->caseActuelle = 71;
+	test->caseActuelle = 61;
 	while (run())
 	{
 		des = de::shuffle();
@@ -181,7 +181,7 @@ int main()
 			if (des == 6 && fait)
 			{
 				test->outOfHome = true;
-				test->caseActuelle = index_of(23, chemin);
+				test->caseActuelle = 88;
 				fait = false;
 			}
 			std::cout << des;
