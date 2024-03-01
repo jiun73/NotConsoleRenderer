@@ -217,22 +217,22 @@ void click_on_token(player& joueur, bool& valid)
 
 
 	
-	if (point_in_rectangle(mouse_position(), { token1.pos, token1.pos + xy / 2 }))
+	if (point_in_rectangle(mouse_position(), { token1.pos, xy / 2 }))
 	{
 		valid = true;
 		joueur.token1->caseActuelle = joueur.spawnTile;
 	}
-	else if (point_in_rectangle(mouse_position(), { token2.pos, token2.pos + xy / 2 }))
+	else if (point_in_rectangle(mouse_position(), { token2.pos, xy / 2 }))
 	{
 		valid = true;
 		joueur.token2->caseActuelle = joueur.spawnTile;
 	}
-	else if (point_in_rectangle(mouse_position(), { token3.pos, token3.pos + xy / 2 }))
+	else if (point_in_rectangle(mouse_position(), { token3.pos, xy / 2 }))
 	{
 		valid = true;
 		joueur.token3->caseActuelle = joueur.spawnTile;
 	}
-	else if (point_in_rectangle(mouse_position(), { token4.pos, token4.pos + xy / 2 }))
+	else if (point_in_rectangle(mouse_position(), { token4.pos, xy / 2 }))
 	{
 		valid = true;
 		joueur.token4->caseActuelle = joueur.spawnTile;
@@ -243,9 +243,9 @@ int jouer_son_tour(player& joueur, int des)
 {
 	if (!pion_sorti(joueur))
 	{
-		if (des == 6)
+		if (des <= 6)
 		{
-			draw_simple_text("Clickez sur un de vos pions ...", {10,10}, get_font(0));
+			draw_simple_text("Clickez \tsur un \tde vos pions", {10,10}, get_font(0));
 			/*while (true)
 			{
 				bool valid = false;
@@ -288,6 +288,16 @@ int main()
 		
 		jouer_son_tour(actual(), des);
 		display_tokens();
+
+		const tile& token1 = carreaux.at(actual().token1->caseActuelle);
+
+		if (mouse_left_pressed())
+		{
+			if (point_in_rectangle(mouse_position(), { token1.pos, xy / 2 }))
+			{
+				actual().token1->caseActuelle = actual().spawnTile;
+			}
+		}
 		
 		switch_turns();
 	}
