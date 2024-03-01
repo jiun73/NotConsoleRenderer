@@ -32,6 +32,12 @@ vector<int> chemin = { 6,7,8,23,38,53,68, 83,99,100,101,102,103,104,119,134,133,
 		   201,186,171,156,141,125,124,123,122,121,120,105,90,91,92,93,94,95,81,66,51,36,21 };
  
 
+int at(int index)
+{
+	int a =  index % chemin.size();
+	return chemin.at(a);
+}
+
 template<typename T>
 T index_of(T el, vector<T> vect)
 {
@@ -59,15 +65,6 @@ void draw_full_circle(V2d_i pos, int rayon)
 	}
 }
 
-struct de
-{
-	static int shuffle()
-	{
-		return Random().frange(1, 7);
-	}
-};
-
-
 class tile
 {
 private:
@@ -93,7 +90,7 @@ public:
 	void show_num()
 	{
 		pencil(COLOR_CYAN);
-		draw_simple_text(entier_en_chaine(numero), { pos.x + 10, pos.y + 10 }, get_font(0));
+		//draw_simple_text(entier_en_chaine(numero), { pos.x + 10, pos.y + 10 }, get_font(0));
 	}
 
 	int index_of(vector<tile> chemin)
@@ -108,7 +105,6 @@ public:
 		return -1;
 	}
 };
-
 
 vector<tile> carreaux;
 vector<tile> get_tiles()
@@ -131,10 +127,14 @@ vector<tile> get_tiles()
 	return tiles;
 }
 
-tile get_carreau(int index)
+struct de
 {
-	return carreaux.at(index);
-}
+	static int shuffle()
+	{
+		return Random().frange(1, 7);
+	}
+};
+
 
 class pion
 {
@@ -143,7 +143,7 @@ private:
 	{
 		for (int i = 0; i < chemin.size(); i++)
 		{
-			if (caseActuelle == chemin.at(i))
+			if (caseActuelle == at(i)) 
 			{
 				return i;
 			}
@@ -166,20 +166,20 @@ public:
 	void show_number()
 	{
 		pencil(COLOR_WHITE);
-		draw_simple_text(entier_en_chaine(numero), carreaux.at(caseActuelle).pos + xy / 2 - 5 , get_font(0));
+		draw_simple_text(entier_en_chaine(numero), carreaux.at(caseActuelle % 225).pos + xy / 2 - 5 , get_font(0));
 	}
 
 	void display()
 	{
 		if (!outOfHome)
-		{
-			draw_full_circle(get_carreau(caseActuelle).pos + xy / 2, rayon);
+		{ 
+			draw_full_circle(carreaux.at(caseActuelle).pos + xy / 2, rayon);
 		}
 		else
 		{
-			draw_full_circle(get_carreau(chemin.at(caseActuelle)).pos + xy / 2, rayon);
+			draw_full_circle(carreaux.at(at(caseActuelle)).pos + xy / 2, rayon);
 		}
-		show_number();
+		//show_number();
 	}
 
 	void move(int num)
@@ -236,13 +236,10 @@ public:
 
 	void display_tokens()
 	{
-		pencil(rgb(51,62,32));
+		pencil(couleur);
 		token1->display();
-		pencil(rgb(51, 62, 32));
 		token2->display();
-		pencil(rgb(51, 62, 32));
 		token3->display();
-		pencil(rgb(51, 62, 32));
 		token4->display();
 	}
 };

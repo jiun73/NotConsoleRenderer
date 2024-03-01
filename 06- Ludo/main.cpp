@@ -57,7 +57,7 @@ void light_random_cases()
 	carreaux.at(157).light();
 	carreaux.at(142).light();
 
-	pencil((*vert).couleur);
+	pencil(vert->couleur);
 	carreaux.at(133).light();
 	carreaux.at(118).light();
 	carreaux.at(117).light();
@@ -97,29 +97,43 @@ void draw_triangles()
 	draw_line(bottomleft, topright);
 }
 
+void draw_white_spots(int num)
+{
+	pencil(COLOR_WHITE);
+	draw_full_rect({ {carreaux.at(num).pos},{xy * 4, yx * 4}});
+}
+
 void draw_board()
 {
+	int ex = 0;
 	for (int i = 0; i < carreaux.size(); i++)
 	{
 		if (trouver_colonne(i) < 6 && trouver_rangee(i) < 6)
 		{
 			pencil(rouge->couleur);
 			carreaux.at(i).light();
+			draw_white_spots(16);
 		}
 		else if (trouver_colonne(i) < 6 && trouver_rangee(i) >= 9)
 		{
+			
 			pencil(bleu->couleur);
 			carreaux.at(i).light();
+			draw_white_spots(151);
 		}
 		else if (trouver_colonne(i) >= 9 && trouver_rangee(i) < 6)
 		{
+			
 			pencil(jaune->couleur);
 			carreaux.at(i).light();
+			draw_white_spots(25);
 		}
 		else if (trouver_colonne(i) >= 9 && trouver_rangee(i) >= 9)
 		{
+			
 			pencil(vert->couleur);
 			carreaux.at(i).light();
+			draw_white_spots(160);
 		}
 		else
 		{
@@ -159,7 +173,7 @@ int main()
 		bleu->display_tokens();
 		vert->display_tokens();
 		jaune->display_tokens();
-		std::cout << des;
+		
 		pencil(rgb(0, 255, 255));
 		test->display();
 		if (compteur % 45 == 0)
@@ -170,6 +184,7 @@ int main()
 				test->caseActuelle = 36;
 				fait = false;
 			}
+			std::cout << des;
 			test->move(des);
 		}
 	}
