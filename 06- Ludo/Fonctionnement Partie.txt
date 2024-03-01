@@ -10,3 +10,4 @@ Main
 Side quests
 - Initialiser et gérer les tours
 - Animer les pions
+- Gérer le networking
