@@ -1,5 +1,7 @@
 #include "ludo.h"
 
+environment jeu;
+
 void init_game()
 {
 	carreaux = get_tiles();
@@ -160,25 +162,28 @@ void display_tokens()
 
 void switch_turns()
 {
-	if (rouge->is_playing)
+	if (!jeu.pionMovement)
 	{
-		rouge->is_playing = false;
-		bleu->is_playing = true;
-	}
-	else if (bleu->is_playing)
-	{
-		bleu->is_playing = false;
-		vert->is_playing = true;
-	}
-	else if (vert->is_playing)
-	{
-		vert->is_playing = false;
-		jaune->is_playing = true;
-	}
-	else if (jaune->is_playing)
-	{
-		jaune->is_playing = false;
-		rouge->is_playing = true;
+		if (rouge->is_playing)
+		{
+			rouge->is_playing = false;
+			bleu->is_playing = true;
+		}
+		else if (bleu->is_playing)
+		{
+			bleu->is_playing = false;
+			vert->is_playing = true;
+		}
+		else if (vert->is_playing)
+		{
+			vert->is_playing = false;
+			jaune->is_playing = true;
+		}
+		else if (jaune->is_playing)
+		{
+			jaune->is_playing = false;
+			rouge->is_playing = true;
+		}
 	}
 }
 
@@ -241,7 +246,7 @@ int jouer_son_tour(player& joueur, int des)
 		if (des == 6)
 		{
 			draw_simple_text("Clickez sur un de vos pions ...", {10,10}, get_font(0));
-			while (true)
+			/*while (true)
 			{
 				bool valid = false;
 				if (mouse_left_pressed())
@@ -249,10 +254,11 @@ int jouer_son_tour(player& joueur, int des)
 					click_on_token(joueur, valid);
 					if (valid)
 					{
+						jeu.pionMouvement = false;
 						return 1;
 					}
 				}
-			}
+			}*/
 		}
 		return -1;
 	}
@@ -267,10 +273,8 @@ int main()
 	setlocale(LC_ALL, "");
 	init_game();
 	int compteur = 0;
-	pion* test = new pion(1, 7);
 	bool fait = true;
 	int des;
-	test->caseActuelle = 61;
 	rouge->is_playing = true;
 
 
@@ -287,12 +291,6 @@ int main()
 		jouer_son_tour(actual(), des);
 		
 		pencil(rgb(0, 255, 255));
-		test->display();
-		if (compteur % 85 == 0)
-		{
-			std::cout << des;
-			test->move(des);
-		}
 		switch_turns();
 	}
 }

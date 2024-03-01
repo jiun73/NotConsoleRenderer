@@ -270,3 +270,8 @@ player& actual()
 		return *jaune;
 	}
 }
+
+struct environment
+{
+	bool pionMovement = true;
+};
