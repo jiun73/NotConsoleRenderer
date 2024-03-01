@@ -27,6 +27,11 @@ namespace GLUU
 			{
 				gfx.fit() = true;
 			}));
+
+		keywords_func.emplace("AS", make_pair(1, [&](Parser& parser, Element& gfx, vector<string_ranges> s)
+			{
+				current_scope->add(make_generic_ref(gfx), s.at(0).flat());
+			}));
 	};
 
 	void Parser::add_error(Errors code, const string& message, string::iterator it)

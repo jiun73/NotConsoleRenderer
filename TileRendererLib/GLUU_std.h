@@ -102,11 +102,15 @@ namespace GLUU {
 				for (size_t i = 0; i < rein<GenericContainer>(a)->size(); i++) expr.evaluate();
 			});
 
+
+
 		import_function<string(_sgen_)>(":type", [](_sgen_ a) {return a->type().name(); });
+		import_function<int(bool)>("(bool-int)", [](bool a) {return a; });
 		import_function<uint8_t(int)>("(u8)", [](int a) {return a; });
 		import_function<uint16_t(int)>("(u16)", [](int a) {return a; });
 		import_function<uint32_t(int)>("(u32)", [](int a) {return a; });
 		import_function<uint64_t(int)>("(u64)", [](int a) {return a; });
+		import_function<size_t(int)>("(size_t)", [](int a) {return a; });
 		import_function<void(_sgen_)>(":cout", [](_sgen_ a) {std::cout << a->stringify() << std::endl; });
 		import_function<int()>(":ticks", []() { return (int)SDL_GetTicks(); });
 

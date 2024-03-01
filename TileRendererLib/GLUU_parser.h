@@ -564,6 +564,8 @@ namespace GLUU {
 			graphics->compiled_scope = variable_dictionnary()->make_temporary_scope("Global expression scope");
 			current_scope = graphics->compiled_scope;
 
+			current_scope->add(make_generic_ref(graphics->base_row), "BASE");
+
 			variable_dictionnary()->enter_scope(GLUU_scope);
 			variable_dictionnary()->enter_scope(current_scope);
 

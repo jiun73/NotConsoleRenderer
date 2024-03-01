@@ -1,8 +1,11 @@
-new int state = 0 
 
-ROW BUTTON CollisionX			{ $collisionx_main }	SIZE 30 CFIT IF {state == 0} <>
-ROW BUTTON TicTacToe			{ $tictactoe_main }		SIZE 30 CFIT IF {state == 0} <>
-ROW BUTTON { "Connect 4" }		{ $connect4_main }		SIZE 30 CFIT IF {state == 0} <>
-ROW BUTTON BounceX				{ $bouncex_main }		SIZE 30 CFIT IF {state == 0} <> 
-ROW BUTTON { "USA Simulator" }	{ $usasim_main }		SIZE 30 CFIT IF {state == 0} <> 
-ROW BUTTON Chatroom				{ $chatroom_main }		SIZE 30 CFIT IF {state == 0} <> 
+new init setup = {
+	BASE.fit = :true;
+}
+
+ROW CFIT BUTTON CollisionX			{ $collisionx_main } <>
+ROW CFIT BUTTON TicTacToe			{ $tictactoe_main } <>
+ROW CFIT BUTTON { "Connect 4" }		{ $connect4_main } <>
+ROW CFIT BUTTON BounceX				{ $bouncex_main } <> 
+ROW CFIT BUTTON { "USA Simulator" }	{ $usasim_main } <> 
+ROW CFIT BUTTON Chatroom			{ $chatroom_main } <> 
