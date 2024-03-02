@@ -11,3 +11,8 @@ Side quests
 - Initialiser et gérer les tours
 - Animer les pions
 - Gérer le networking
+
+
+On change les tours quand:
+- La valeur du dé a été obtenue ET
+- Le dernier joueur a joué son pion

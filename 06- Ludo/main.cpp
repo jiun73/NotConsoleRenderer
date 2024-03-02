@@ -2,6 +2,8 @@
 
 environment jeu;
 
+int des;
+
 void init_game()
 {
 	carreaux = get_tiles();
@@ -162,8 +164,9 @@ void display_tokens()
 
 void switch_turns()
 {
-	if (!jeu.pionMovement)
+	if (actual().pionJoue && !jeu.de_obtenu)
 	{
+		actual().pionJoue = false;
 		if (rouge->is_playing)
 		{
 			rouge->is_playing = false;
@@ -187,84 +190,109 @@ void switch_turns()
 	}
 }
 
-bool pion_sorti(player joueur)
+bool pion_sorti()
 {
-	if (joueur.token1->outOfHome)
+	if (actual().token1->outOfHome)
 	{
 		return true;
 	}
-	if (joueur.token2->outOfHome)
+	if (actual().token2->outOfHome)
 	{
 		return true;
 	}
-	if (joueur.token3->outOfHome)
+	if (actual().token3->outOfHome)
 	{
 		return true;
 	}
-	if (joueur.token4->outOfHome)
+	if (actual().token4->outOfHome)
 	{
 		return true;
 	}
 	return false;
 }
 
-void click_on_token(player& joueur, bool& valid)
+bool click_on_token()
 {
-	const tile& token1 = carreaux.at(joueur.token1->caseActuelle);
-	const tile& token2 = carreaux.at(joueur.token2->caseActuelle);
-	const tile& token3 = carreaux.at(joueur.token3->caseActuelle);
-	const tile& token4 = carreaux.at(joueur.token4->caseActuelle);
-
-
+	const tile& token1 = carreaux.at(actual().token1->caseActuelle);
+	const tile& token2 = carreaux.at(actual().token2->caseActuelle);
+	const tile& token3 = carreaux.at(actual().token3->caseActuelle);
+	const tile& token4 = carreaux.at(actual().token4->caseActuelle);
 	
 	if (point_in_rectangle(mouse_position(), { token1.pos, xy / 2 }))
 	{
-		valid = true;
-		joueur.token1->caseActuelle = joueur.spawnTile;
+		actual().token1->caseActuelle = actual().spawnTile;
+		actual().pionsEnMaison--;
+		return true;
 	}
 	else if (point_in_rectangle(mouse_position(), { token2.pos, xy / 2 }))
 	{
-		valid = true;
-		joueur.token2->caseActuelle = joueur.spawnTile;
+		actual().token2->caseActuelle = actual().spawnTile;
+		actual().pionsEnMaison--;
+		return true;
 	}
 	else if (point_in_rectangle(mouse_position(), { token3.pos, xy / 2 }))
 	{
-		valid = true;
-		joueur.token3->caseActuelle = joueur.spawnTile;
+		actual().token3->caseActuelle = actual().spawnTile;
+		actual().pionsEnMaison--;
+		return true;
 	}
 	else if (point_in_rectangle(mouse_position(), { token4.pos, xy / 2 }))
 	{
-		valid = true;
-		joueur.token4->caseActuelle = joueur.spawnTile;
+		actual().token4->caseActuelle = actual().spawnTile;
+		actual().pionsEnMaison--;
+		return true;
 	}
+	return false;
 }
 
-int jouer_son_tour(player& joueur, int des)
+void jouer_son_tour(int des)
 {
-	if (!pion_sorti(joueur))
+	draw_simple_text(actual().name, { 700,10 }, get_font(0));
+	if (actual().pionsEnMaison == 4)
 	{
-		if (des <= 6)
+		if (des == 6)
 		{
-			draw_simple_text("Clickez \tsur un \tde vos pions", {10,10}, get_font(0));
-			/*while (true)
+			draw_simple_text("Clickez sur un de vos pions", { 10,10 }, get_font(0));
+			if (mouse_left_pressed())
 			{
-				bool valid = false;
-				if (mouse_left_pressed())
+				if (click_on_token())
 				{
-					click_on_token(joueur, valid);
-					if (valid)
-					{
-						jeu.pionMouvement = false;
-						return 1;
-					}
+					actual().pionJoue = true;
 				}
-			}*/
+			}
 		}
-		return -1;
+		else
+		{
+			if (jeu.de_obtenu == true)
+			{
+				actual().pionJoue = true;
+			}
+			jeu.de_obtenu = false;
+			
+		}
 	}
-	return -1;
 }
 
+void obtenir_de()
+{
+	string txt = "Valeur du cube : " + entier_en_chaine(des);
+	draw_simple_text(txt, { 200, 10 }, get_font(0));
+	if (!jeu.de_obtenu)
+	{
+		pencil(COLOR_WHITE);
+		draw_simple_text(txt, { 200, 10 }, get_font(0));
+		Rect rect = { {500,10},{50,50} };
+		draw_full_rect(rect);
+		if (mouse_left_pressed())
+		{
+			if (point_in_rectangle(mouse_position(), rect))
+			{
+				des = de::shuffle();
+				jeu.de_obtenu = true;
+			}
+		}
+	}
+}
 
 int main()
 {
@@ -272,32 +300,19 @@ int main()
 	set_window_resizable();
 	setlocale(LC_ALL, "");
 	init_game();
-	int compteur = 0;
-	int des;
+	
 	rouge->is_playing = true;
-
 
 	while (run())
 	{
 		pencil(COLOR_BLACK);
 		draw_clear();
 		draw_board();
-
-		draw_simple_text(actual().name, {700,10}, get_font(0));
-		des = de::shuffle();
 		
-		jouer_son_tour(actual(), des);
+		obtenir_de();
+		// J'arrive pas à gérer le changement d'équipe ;(
+		jouer_son_tour(des);
 		display_tokens();
-
-		const tile& token1 = carreaux.at(actual().token1->caseActuelle);
-
-		if (mouse_left_pressed())
-		{
-			if (point_in_rectangle(mouse_position(), { token1.pos, xy / 2 }))
-			{
-				actual().token1->caseActuelle = actual().spawnTile;
-			}
-		}
 		
 		switch_turns();
 	}

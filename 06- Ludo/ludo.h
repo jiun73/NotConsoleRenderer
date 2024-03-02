@@ -205,6 +205,8 @@ public:
 	Color couleur;
 	int spawnTile;
 	bool is_playing = false;
+	int pionsEnMaison = 4;
+	bool pionJoue = false;
 
 	pion* token1 = new pion(1, 6);
 	pion* token2 = new pion(2, 6);
@@ -273,5 +275,7 @@ player& actual()
 
 struct environment
 {
-	bool pionMovement = true;
+	//bool pionMovement = true;
+
+	bool de_obtenu = false;
 };
