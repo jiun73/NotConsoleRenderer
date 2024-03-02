@@ -9,16 +9,62 @@ new function :load_images =
 	files = $file;
 	new int index = 0;
 
-	$while {index /- {files -sizei}} {
-		:get_tex {files -at index};
-		paths -pushb {files -at index};
+	$while {index /- files -size} {
+		:get_tex files -at index;
+		paths -push files -at index;
 		index ++;
 	};
 }
 
+new int current_animation = 0
+
 ROW SIZE 30 <
 	COL SIZE 120 BUTTON { "Load images" } { :load_images } <>
+>
 
+
+
+ROW SIZE 30 <
+	new bool makingAnim = false 
+
+	COL SIZE 140 IF { :not makingAnim }	BUTTON	{"New Animation"}	{ makingAnim = :true } <>
+	COL SIZE 170 IF { :not makingAnim } DROPBOX {animation_names} {current_animation} <>
+	COL SIZE 140 IF { makingAnim }		TEXTBOX {"Enter name..."}	
+	{ 
+		arg* string text; 
+
+		new AnimationX new_anim;
+		animation_names -push {text @};
+		animations -push new_anim;
+
+		:cout { "Added " {text @} " animation" };
+
+		makingAnim = :false; 
+		{text @} = ""; 
+	} 
+	<>
+	COL SIZE 140 IF { makingAnim }		BUTTON	{"Cancel"}			{ makingAnim = :false } <>
+	
+>
+
+new function :get_anim_frame_size = {
+	arg AnimationX anim;
+	anim.frames -size
+}
+
+ROW SIZE 30 IF 
+{ 
+	:cout {animations -size};
+
+	$if { {animations -size} /+ 0; } 
+	{
+		new int size;
+		size = {:get_anim_frame_size {animations -at current_animation} };
+		return {:not size == 0};
+	};
+
+	:false
+} <
 	COL SIZE 40 TEXT { # current_frame } <>
 
 	COL SIZE 40 BUTTON { "Prev" }  
@@ -28,33 +74,15 @@ ROW SIZE 30 <
 
 	COL SIZE 40 BUTTON { "Next" }  
 	{
-		$if {current_frame /- {paths -sizei}} 
+		$if {current_frame /- {paths -size} - 1} 
 		{current_frame ++}
 	} <>
->
 
-
-
-ROW SIZE 30 <
-	new bool makingAnim = false 
-
-	COL SIZE 140 IF { :not makingAnim }	BUTTON	{"New Animation"}	{ makingAnim = :true } <>
-	COL SIZE 140 IF { makingAnim }		TEXTBOX {"Enter name..."}	
-	{ 
-		arg* string text; 
-
-		new AnimationX new_anim;
-		animation_names -pushb {text @};
-		animations -pushb new_anim;
-
-		:cout { "Added " {text @} " animation" };
-
-		makingAnim = :false; 
-		{text @} = ""; 
-	} 
-	<>
-	COL SIZE 140 IF { makingAnim }		BUTTON	{"Cancel"}			{ makingAnim = :false } <>
-
-	COL SIZE 140 TEXT { $if {animation_names} } <>
-	
+	COL SIZE 80 TEXT 
+	{
+		$if :true {
+			return "IT RETURNED"
+		};
+		"... NOT"
+	} <>
 >

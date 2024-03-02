@@ -171,6 +171,12 @@
     <ClInclude Include="AnimationX.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GLUU_dropbox.h">
+      <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="QuickButton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NotConsoleRendererLib.cpp">

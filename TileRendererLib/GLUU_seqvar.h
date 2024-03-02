@@ -1,6 +1,8 @@
 #pragma once
 #include "GLUU_expr.h"
 
+#include <memory>
+
 namespace GLUU {
 	template<typename T>
 	class SeqVar
@@ -11,7 +13,7 @@ namespace GLUU {
 		bool is_seq = false;
 
 	public:
-		SeqVar() {}
+		SeqVar() : seq(std::make_shared<bool>()) {}
 		SeqVar(const T& df);
 		~SeqVar() {}
 
@@ -26,7 +28,16 @@ namespace GLUU {
 			if (!is_seq)
 				return *(T*)generic->raw_bytes();
 			else
-				return *(T*)seq.evaluate()->raw_bytes();
+			{
+				auto eval = seq.evaluate();
+
+				if (eval == nullptr)
+				{
+					assert(false); //Fatal error! Check returns for your function
+				}
+
+				return *(T*)eval->raw_bytes();
+			}
 		}
 
 		operator T() { return get(); }
@@ -35,7 +46,7 @@ namespace GLUU {
 	};
 
 	template<typename T>
-	inline SeqVar<T>::SeqVar(const T& df)
+	inline SeqVar<T>::SeqVar(const T& df) : seq(std::make_shared<bool>())
 	{
 		get() = df;
 	}
@@ -47,7 +58,7 @@ namespace GLUU {
 		{
 			if (*str.begin() == parser.expr_open && *prev(str.end()) == parser.expr_close)
 			{
-				seq = parser.parse_sequence_next(str);
+				seq = parser.parse_sequence_base(str);
 				is_seq = true;
 				return;
 			}

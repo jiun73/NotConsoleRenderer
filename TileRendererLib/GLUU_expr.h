@@ -9,16 +9,31 @@ namespace GLUU {
 	{
 		shared_ptr<VariableRegistry> scope;
 		vector<Expression> recursive;
-
-		bool root = true;
-		bool func = false;
-		bool user_func = false;
 		shared_generic constant = nullptr;
+		bool root = true;
+		
+		//Return handling
+		bool return_call = false;
+		shared_ptr<bool> ret_flag = nullptr;
+		
+		//Functions
 		shared_ptr<GenericFunction> function = nullptr;
-
+		Expression* func_base = nullptr;
 		vector<string> args_name;
 		string func_name;
 		size_t arg_count = 0;
+		bool func = false;
+		bool user_func = false;
+
+		Expression() { ret_flag = make_shared<bool>(); }
+		Expression(shared_ptr<bool> return_flag) : ret_flag(return_flag) {}
+		~Expression() {}
+
+		bool has_returned()
+		{
+			assert(ret_flag != nullptr); //Fatal error! There's a mistake in the parsing
+			return *ret_flag;
+		}
 
 		void add_arg(const string& str, const string& type)
 		{
@@ -55,12 +70,19 @@ namespace GLUU {
 			{
 				if (func_check && function->args_type(i) == typeid(Expression&))
 				{
-					shared_generic rec = make_shared<GenericRef<Expression>>(r);
+					auto rec = make_shared<GenericRef<Expression>>(r);
+					(*(Expression*)rec->raw_bytes()).func_base = this;
 					args.push_back(rec);
 				}
 				else
 				{
-					args.push_back(r.evaluate());
+					auto eval = r.evaluate_next();
+					args.push_back(eval);
+
+					if (has_returned())
+					{
+						return { eval };
+					}
 				}
 				i++;
 			}
@@ -79,15 +101,41 @@ namespace GLUU {
 			return args;
 		}
 
-		shared_generic evaluate()
+		shared_generic evaluate() 
 		{
+			*ret_flag = false;
+			return evaluate_next();
+		}
+
+		shared_generic evaluate_next()
+		{
+			if (return_call)
+			{
+				if (recursive.size() > 0) {
+					auto eval = recursive.at(0).evaluate_next();
+					*ret_flag = true;
+					return eval;;
+				}
+				else
+				{
+					*ret_flag = true;
+					return nullptr;
+				}
+			}
+
 			if (root)
 			{
 				vector<shared_generic> ret;
 
 				for (auto& r : recursive)
 				{
-					shared_generic eval = r.evaluate();
+					shared_generic eval = r.evaluate_next();
+
+					if (has_returned())
+					{
+						return eval;
+					}
+
 					if (eval != nullptr)
 						ret.push_back(eval);
 				}
@@ -118,8 +166,24 @@ namespace GLUU {
 			{
 				if (func)
 				{
-					if (function->args(generic_to_args(get_args_from_recursive(true))))
-						return function->call();
+					auto args = get_args_from_recursive(true);
+
+					if (has_returned())
+					{
+						return args.at(0);
+					}
+
+					if (function->args(generic_to_args(args)))
+					{
+						auto ret = function->call();
+
+						if (has_returned())
+						{
+							return constant;
+						}
+
+						return ret;
+					}
 					else
 						assert(false); //error GLUU_ERROR_COULD_NOT_SET_ARGS
 					return nullptr;
@@ -131,6 +195,12 @@ namespace GLUU {
 					if (star.args_name.size() > 0)
 					{
 						vector<shared_generic> args = get_args_from_recursive();
+
+						if (has_returned())
+						{
+							return args.at(0);
+						}
+
 						star.set_args(args);
 					}
 

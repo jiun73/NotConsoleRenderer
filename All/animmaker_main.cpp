@@ -46,7 +46,7 @@ namespace ANIMMAKER
 
 		while (run())
 		{
-			pencil(COLOR_BLACK);
+			pencil(COLOR_CYAN);
 			draw_clear();
 			menu->render({ 0,get_logical_size() });
 		}

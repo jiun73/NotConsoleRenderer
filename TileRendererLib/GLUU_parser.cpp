@@ -76,7 +76,7 @@ namespace GLUU
 
 		output_seq("func " + flat);
 
-		Expression func;
+		Expression func(return_flags.back());
 		func.root = false;
 		shared_generic var = variable_dictionnary()->get(flat);
 		if (var == nullptr) { add_error(GLUU_ERROR_INVALID_FUNCTION_NAME, "function '" + flat + "' doesn't exist in this scope", kw.begin()); return; } // error GLUU_ERROR_INVALID_FUNCTION_NAME
@@ -108,7 +108,7 @@ namespace GLUU
 		}
 	}
 
-	bool Parser::parse_keyword(vector<string_ranges>::iterator& kw, vector<Expression>& constants, vector<Expression>& functions, bool& f, string_ranges full, size_t size, Expression& ret_val, vector<string_ranges>::iterator end)
+	bool Parser::parse_keyword(vector<string_ranges>::iterator& kw, vector<Expression>& constants, vector<Expression>& functions, bool& f, string_ranges full, size_t size, Expression& ret_val, vector<string_ranges>::iterator end, bool&make_return)
 	{
 		string flat = kw->flat();
 
@@ -116,6 +116,11 @@ namespace GLUU
 		{
 			get_declaractions(full);
 			return true;
+		}
+		if (f && flat == "return")
+		{
+			make_return = true;
+			return false;
 		}
 		if (f && flat == "arg")
 		{
@@ -169,14 +174,14 @@ namespace GLUU
 			}
 			prev_level();
 
-			Expression constant;
+			Expression constant(return_flags.back());
 			constant.root = false;
 			constant.constant = var;
 			constants.push_back(constant);
 		}
 		else if (flat == "this")
 		{
-			Expression constant;
+			Expression constant(return_flags.back());
 			constant.root = false;
 			constant.constant = std::make_shared<GenericRef<Expression>>(ret_val);
 			constants.push_back(constant);
@@ -193,7 +198,7 @@ namespace GLUU
 		}
 		else if (is_num(*kw))
 		{
-			Expression constant;
+			Expression constant(return_flags.back());
 			constant.root = false;
 			constant.constant = make_generic<int>();
 			constant.constant->destringify(kw->flat());
@@ -205,9 +210,10 @@ namespace GLUU
 		{
 			output_seq("var " + kw->flat());
 
-			Expression constant;
+			Expression constant(return_flags.back());
 			constant.root = false;
 			shared_generic var = variable_dictionnary()->get(flat);
+
 			if (var == nullptr) { add_error(GLUU_ERROR_INVALID_VARIABLE_NAME, "variable '" + flat + "' doesn't exist in this scope", kw->begin()); return true; }
 			constant.constant = var;
 			constants.push_back(constant);
@@ -238,6 +244,8 @@ namespace GLUU
 		vector<Expression> functions;
 
 		bool f = true;
+		bool make_return = false;
+		
 		for (auto it = ignore.begin(); it != ignore.end(); it += 2)
 		{
 			vector<string_ranges> ignore2 = range_delimiter(*it, '"', '"');
@@ -246,7 +254,7 @@ namespace GLUU
 				vector<string_ranges> keywords = subchain(chain(*it2, range_until, " "), range_until, ",");
 				for (auto kw = keywords.begin(); kw != keywords.end(); kw++)
 				{
-					if (parse_keyword(kw, constants, functions, f, str, keywords.size(), ret_val, keywords.end())) return;
+					if (parse_keyword(kw, constants, functions, f, str, keywords.size(), ret_val, keywords.end(), make_return)) return;
 				}
 
 				if (!next(it2)->empty())
@@ -259,7 +267,6 @@ namespace GLUU
 
 			if (!next(it)->empty())
 			{
-				//output_seq(next(it)->flat());
 				Expression sub = parse_sequence_next(*next(it));
 				constants.push_back(sub);
 			}
@@ -290,6 +297,23 @@ namespace GLUU
 
 		for (auto& c : constants)
 			ret_val.recursive.push_back(c);
+
+		if (make_return)
+		{
+			if (ret_val.recursive.size() > 0)
+			{
+				Expression copy = ret_val;
+				ret_val = Expression(return_flags.back());
+				ret_val.return_call = true;
+				ret_val.recursive.push_back(copy);
+				ret_val.scope = copy.scope;
+			}
+			else
+			{
+				ret_val.return_call = true;
+				ret_val.ret_flag = return_flags.back();
+			}
+		}
 
 		prev_level();
 	}

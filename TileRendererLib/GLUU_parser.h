@@ -10,8 +10,11 @@
 #include "GLUU_wint.h"
 
 #include <typeindex>
+#include <queue>
 
 namespace GLUU {
+	using std::queue;
+
 	enum Errors 
 	{
 		GLUU_ERROR_INVALID_EXPRESSION_KEYWORD,
@@ -27,6 +30,7 @@ namespace GLUU {
 		GLUU_ERROR_INVALID_TYPE,
 		GLUU_ERROR_INVALID_ROW,
 		GLUU_ERROR_INVALID_STRING_TRANSLATION,
+		GLUU_ERROR_INVALID_RETURN,
 	};
 
 	struct Errorinfo 
@@ -171,7 +175,7 @@ namespace GLUU {
 		shared_ptr<Compiled> graphics;
 
 		vector<Errorinfo> errors;
-		
+		queue<shared_ptr<bool>> return_flags;		
 
 		string::iterator source_begin;
 		map<size_t, size_t> lines;
@@ -260,7 +264,7 @@ namespace GLUU {
 		template<typename T>
 		Expression make_const(const T& obj)
 		{
-			Expression constant;
+			Expression constant(return_flags.back());
 			constant.root = false;
 			constant.constant = make_generic<T>(obj);
 			return constant;
@@ -272,7 +276,7 @@ namespace GLUU {
 
 		void parse_function_keyword(string_ranges kw, vector<Expression>& constants, vector<Expression>& functions);
 
-		bool parse_keyword(vector<string_ranges>::iterator& kw, vector<Expression>& constants, vector<Expression>& functions, bool& f, string_ranges full, size_t size, Expression& ret_val, vector<string_ranges>::iterator end);
+		bool parse_keyword(vector<string_ranges>::iterator& kw, vector<Expression>& constants, vector<Expression>& functions, bool& f, string_ranges full, size_t size, Expression& ret_val, vector<string_ranges>::iterator end, bool& make_return);
 
 		void parse_expression(string_ranges str, Expression& ret_val);
 
@@ -294,10 +298,17 @@ namespace GLUU {
 			return parse_sequence_next(str);
 		}
 
+		Expression parse_sequence_base(string_ranges str)
+		{
+			return_flags.push(make_shared<bool>());
+			auto expr = parse_sequence_next(str);
+			return_flags.pop();
+			return expr;
+		}
+
 		Expression parse_sequence_next(string_ranges str)
 		{
-			
-			Expression ret;
+			Expression ret(return_flags.back());
 			ret.scope = std::make_shared< VariableRegistry>();
 			ret.scope->name = "Expr scope";
 			shared_ptr<VariableRegistry> old_scope = current_scope;
@@ -307,7 +318,7 @@ namespace GLUU {
 			if (str.empty())
 			{
 				add_error(GLUU_ERROR_EMPTY_SEQUENCE, "Trying to parse an empty sequence (why?)", str.begin());
-				return {};
+				return Expression(return_flags.back());
 			}
 
 			str = range_trim(str, ' ');
@@ -367,7 +378,7 @@ namespace GLUU {
 				string name = keywords.at(1).flat();
 				size_t eq = dec.flat().find('=');
 				string_ranges func = { dec.begin() + eq + 1, dec.end() };
-				Expression expr = parse_sequence_next(func);
+				Expression expr = parse_sequence_base(func);
 				current_scope->add(make_shared<GenericType<Expression>>(expr), name);
 
 				if (keywords.at(0).flat() == "init")
