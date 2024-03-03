@@ -190,26 +190,6 @@ void switch_turns()
 	}
 }
 
-bool pion_sorti()
-{
-	if (actual().token1->outOfHome)
-	{
-		return true;
-	}
-	if (actual().token2->outOfHome)
-	{
-		return true;
-	}
-	if (actual().token3->outOfHome)
-	{
-		return true;
-	}
-	if (actual().token4->outOfHome)
-	{
-		return true;
-	}
-	return false;
-}
 
 bool click_on_token()
 {
@@ -222,54 +202,96 @@ bool click_on_token()
 	{
 		actual().token1->caseActuelle = actual().spawnTile;
 		actual().pionsEnMaison--;
+		actual().token1->outOfHome = true;
 		return true;
 	}
 	else if (point_in_rectangle(mouse_position(), { token2.pos, xy / 2 }))
 	{
 		actual().token2->caseActuelle = actual().spawnTile;
 		actual().pionsEnMaison--;
+		actual().token2->outOfHome = true;
 		return true;
 	}
 	else if (point_in_rectangle(mouse_position(), { token3.pos, xy / 2 }))
 	{
 		actual().token3->caseActuelle = actual().spawnTile;
 		actual().pionsEnMaison--;
+		actual().token3->outOfHome = true;
 		return true;
 	}
 	else if (point_in_rectangle(mouse_position(), { token4.pos, xy / 2 }))
 	{
 		actual().token4->caseActuelle = actual().spawnTile;
 		actual().pionsEnMaison--;
+		actual().token4->outOfHome = true;
 		return true;
 	}
 	return false;
 }
 
-void jouer_son_tour(int des)
+void sortir_de_maison()
+{
+	draw_simple_text("Clickez sur un de vos pions", { 10,10 }, get_font(0));
+	if (mouse_left_pressed())
+	{
+		if (click_on_token())
+		{
+			actual().pionJoue = true;
+			jeu.de_obtenu = false;
+		}
+	}
+}
+
+void pions_en_maison()
+{
+	if (des == 6)
+	{
+		sortir_de_maison();
+	}
+	else
+	{
+		if (jeu.de_obtenu == true)
+		{
+			actual().pionJoue = true;
+		}
+		jeu.de_obtenu = false;
+	}
+}
+
+void pion_hors_maison()
+{
+	if (des < 6)
+	{
+		actual().pion_sorti().move(des);
+		actual().pionJoue = true;
+		jeu.de_obtenu = false;
+	}
+	else
+	{
+		sortir_de_maison();
+		if (actual().pionJoue == false && jeu.de_obtenu == true)
+		{
+			actual().pion_sorti().move(des);
+			actual().pionJoue = true;
+			jeu.de_obtenu = false;
+		}
+	}
+}
+
+void jouer_son_tour()
 {
 	draw_simple_text(actual().name, { 700,10 }, get_font(0));
 	if (actual().pionsEnMaison == 4)
 	{
-		if (des == 6)
-		{
-			draw_simple_text("Clickez sur un de vos pions", { 10,10 }, get_font(0));
-			if (mouse_left_pressed())
-			{
-				if (click_on_token())
-				{
-					actual().pionJoue = true;
-				}
-			}
-		}
-		else
-		{
-			if (jeu.de_obtenu == true)
-			{
-				actual().pionJoue = true;
-			}
-			jeu.de_obtenu = false;
-			
-		}
+		pions_en_maison();
+	}
+	else if (actual().pionsEnMaison == 3)
+	{
+		pion_hors_maison();
+	}
+	else
+	{
+		//pions_hors_maison();
 	}
 }
 
@@ -289,6 +311,7 @@ void obtenir_de()
 			{
 				des = de::shuffle();
 				jeu.de_obtenu = true;
+				actual().pionJoue = false;
 			}
 		}
 	}
@@ -308,10 +331,10 @@ int main()
 		pencil(COLOR_BLACK);
 		draw_clear();
 		draw_board();
-		
+		mirane->display_tokens();
 		obtenir_de();
-		// J'arrive pas à gérer le changement d'équipe ;(
-		jouer_son_tour(des);
+		// Petit bug dans l'affichage des pions
+		jouer_son_tour();
 		display_tokens();
 		
 		switch_turns();

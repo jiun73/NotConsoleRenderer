@@ -172,12 +172,20 @@ public:
 	void display()
 	{
 		if (!outOfHome)
-		{ 
+		{
+			Color col = get_pencil();
 			draw_full_circle(carreaux.at(caseActuelle).pos + xy / 2, rayon);
+			pencil(COLOR_BLACK);
+			draw_circle(carreaux.at(caseActuelle).pos + xy / 2, rayon);
+			pencil(col);
 		}
 		else
 		{
-			draw_full_circle(carreaux.at(at(caseActuelle)).pos + xy / 2, rayon);
+			Color col = get_pencil();
+			draw_full_circle(carreaux.at(at(caseActuelle % 225)).pos + xy / 2, rayon);
+			pencil(COLOR_BLACK);
+			draw_circle(carreaux.at(at(caseActuelle % 225)).pos + xy / 2, rayon);
+			pencil(col);
 		}
 		//show_number();
 	}
@@ -245,6 +253,27 @@ public:
 		token3->display();
 		token4->display();
 	}
+
+	// si le joueur a 3 pions en maison, cette fonction retourne le pion qui est sorti
+	pion& pion_sorti()
+	{
+		if (token1->outOfHome)
+		{
+			return *token1;
+		}
+		if (token2->outOfHome)
+		{
+			return *token2;
+		}
+		if (token3->outOfHome)
+		{
+			return *token3;
+		}
+		if (token4->outOfHome)
+		{
+			return *token4;
+		}
+	}
 };
 
 
@@ -252,6 +281,7 @@ player* rouge = new player(rgb(255, 0, 0), "rouge", 16, 19, 61, 64, 91);
 player* bleu = new player(rgb(0, 0, 255), "bleu", 151, 154, 196, 199, 201);
 player* jaune = new player(rgb(255, 255, 0), "jaune", 25, 28, 70, 73, 23);
 player* vert = new player(rgb(0, 255, 0), "vert", 160, 163, 205, 208, 133);
+player* mirane = new player(rgb(255, 192, 203), "mirane", 1, 1, 1, 1, 1);
 
 player& actual()
 {
