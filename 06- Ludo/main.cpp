@@ -278,6 +278,11 @@ void pion_hors_maison()
 	}
 }
 
+void pions_hors_maison()
+{
+
+}
+
 void jouer_son_tour()
 {
 	draw_simple_text(actual().name, { 700,10 }, get_font(0));
@@ -291,7 +296,7 @@ void jouer_son_tour()
 	}
 	else
 	{
-		//pions_hors_maison();
+		pions_hors_maison();
 	}
 }
 

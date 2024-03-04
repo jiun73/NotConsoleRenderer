@@ -281,6 +281,16 @@ player* rouge = new player(rgb(255, 0, 0), "rouge", 16, 19, 61, 64, 91);
 player* bleu = new player(rgb(0, 0, 255), "bleu", 151, 154, 196, 199, 201);
 player* jaune = new player(rgb(255, 255, 0), "jaune", 25, 28, 70, 73, 23);
 player* vert = new player(rgb(0, 255, 0), "vert", 160, 163, 205, 208, 133);
+//vector<player>* joueurs = new vector<player>(*rouge, *bleu, *jaune, vert);
+
+/*void ajouter_jueur()
+{
+	joueurs->push_back(*rouge);
+	joueurs->push_back(*bleu);
+	joueurs->push_back(*vert);
+	joueurs->push_back(*jaune);
+}*/
+
 player* mirane = new player(rgb(255, 192, 203), "mirane", 1, 1, 1, 1, 1);
 
 player& actual()
@@ -305,7 +315,5 @@ player& actual()
 
 struct environment
 {
-	//bool pionMovement = true;
-
 	bool de_obtenu = false;
 };
