@@ -142,6 +142,8 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="main_chatroom.cpp" />
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="pong_main.cpp" />
+    <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Strings.cpp" />
     <ClCompile Include="usasim_main.cpp" />
   </ItemGroup>
@@ -150,9 +152,13 @@
     <ClInclude Include="..\02- TicTacToe\tictactoe_game.h" />
     <ClInclude Include="..\03- Connect4\connect4_game.h" />
     <ClInclude Include="..\03- Connect4\Strings.h" />
+    <ClInclude Include="BasicComponents.h" />
+    <ClInclude Include="BasicSystems.h" />
     <ClInclude Include="bouncex_game.h" />
+    <ClInclude Include="ColliderSystem.h" />
     <ClInclude Include="main_chatroom.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Shape.h" />
     <ClInclude Include="Strings.h" />
     <ClInclude Include="usasim_Shooting.h" />
   </ItemGroup>

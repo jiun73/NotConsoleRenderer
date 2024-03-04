@@ -34,6 +34,9 @@
     <Filter Include="Fichiers sources\AnimationMaker">
       <UniqueIdentifier>{050a2b0e-ceed-429e-8dc5-eef7e706c9be}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers sources\Pong">
+      <UniqueIdentifier>{f9ca2ba5-ab7b-468a-bb0c-bc4ea02ad991}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -69,6 +72,12 @@
     <ClCompile Include="pch.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="pong_main.cpp">
+      <Filter>Fichiers sources\Pong</Filter>
+    </ClCompile>
+    <ClCompile Include="Shape.cpp">
+      <Filter>Fichiers sources\Pong</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main_chatroom.h">
@@ -97,6 +106,18 @@
     </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicComponents.h">
+      <Filter>Fichiers sources\Pong</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicSystems.h">
+      <Filter>Fichiers sources\Pong</Filter>
+    </ClInclude>
+    <ClInclude Include="ColliderSystem.h">
+      <Filter>Fichiers sources\Pong</Filter>
+    </ClInclude>
+    <ClInclude Include="Shape.h">
+      <Filter>Fichiers sources\Pong</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

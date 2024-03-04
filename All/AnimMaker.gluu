@@ -52,19 +52,11 @@ new function :get_anim_frame_size = {
 
 ROW SIZE 30 IF 
 { 
-	:cout {animations -size};
 
 	$if { {animations -size} /+ 0; } 
 	{
 		new int size;
 		size = {:get_anim_frame_size {animations -at current_animation} };
-
-		{
-			arg int i;
-		} size;
-
-		:cout {:not size == 0};
-
 		return {:not size == 0};
 	};
 
