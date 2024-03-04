@@ -298,7 +298,7 @@ void jouer_son_tour()
 void obtenir_de()
 {
 	string txt = "Valeur du cube : " + entier_en_chaine(des);
-	draw_simple_text(txt, { 200, 10 }, get_font(0));
+	draw_text(txt, 9999999, { 200, 10 }, get_font(0));
 	if (!jeu.de_obtenu)
 	{
 		pencil(COLOR_WHITE);
