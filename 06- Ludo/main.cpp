@@ -190,6 +190,15 @@ void switch_turns()
 	}
 }
 
+/*void click_sur_case(tile zone, pion& token)
+{
+	if (point_in_rectangle(mouse_position(), { zone.pos, xy / 2 }))
+	{
+		actual().token1->caseActuelle = actual().spawnTile;
+		actual().pionsEnMaison--;
+		actual().token1->outOfHome = true;
+	}
+}*/
 
 void sortir_de_maison()
 {
@@ -231,7 +240,17 @@ void jouer_son_tour()
 	{
 		if (actual().pionsEnMaison == 4 && des == 6)
 		{
-			sortir_de_maison();
+			if (mouse_left_pressed())
+			{
+				sortir_de_maison();
+			}
+		}
+		else
+		{
+			if (des == 6)
+			{
+
+			}
 		}
 	}
 }
@@ -251,6 +270,7 @@ void obtenir_de()
 			if (point_in_rectangle(mouse_position(), rect))
 			{
 				des = de::shuffle();
+				//des = 6;
 				jeu.de_obtenu = true;
 			}
 		}
