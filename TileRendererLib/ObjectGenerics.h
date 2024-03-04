@@ -22,12 +22,13 @@ class GenericType;
 template<typename T>
 class GenericRef : public GenericObject
 {
-private:
+protected:
 	T* _object_;
 
 public:
 	GenericRef() {}
 	GenericRef(T& copy) : _object_(&copy) {}
+	GenericRef(T* copy) : _object_(copy) {}
 	~GenericRef() {}
 
 	char* raw_bytes() override { return (char*)(&(*_object_)); }
@@ -81,7 +82,7 @@ public:
 template<typename T>
 class GenericType : public GenericObject
 {
-private:
+protected:
 	T _object_;
 
 public:

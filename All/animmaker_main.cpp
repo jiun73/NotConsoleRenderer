@@ -6,8 +6,8 @@ __REGISTER_CLASS__(AnimationX);
 GLUU::ImportInspector<AnimationX> anim_inpector([](shared_generic gen, const string& str) -> shared_generic
 	{
 		AnimationX& obj = *(AnimationX*)(gen->raw_bytes());
-		if (str == "frames") return make_generic_ref(obj.frames);
-		if (str == "textures") return make_generic_ref(obj.textures);
+		if (str == "frames") return make_generic_container_ref(obj.frames);
+		if (str == "textures") return make_generic_container_ref(obj.textures);
 		return nullptr;
 	});
 

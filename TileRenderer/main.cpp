@@ -23,6 +23,21 @@
 *		AnimationMaker
 */
 
+struct A {
+	void method() { std::cout << "A" << std::endl; }
+};
+
+struct B : public A
+{
+	int obj;
+	void method() { std::cout << "B" << std::endl; }
+};
+
+struct C : public B
+{
+	void method() { std::cout << "C" << std::endl; }
+};
+
 enum MessageTypes 
 {
 	MESSAGE_IN,
@@ -48,6 +63,28 @@ int main()
 	* En gros ca marche plus ou moins de la meme facon que le console renderer
 	* juste plus rapide et meilleur
 	*/
+
+	A a;
+	B b;
+	C c;
+
+	a.method();
+	b.method();
+	c.method();
+
+	A* ab = &b;
+	A* ac = &c;
+
+	ab->method();
+	ac->method();
+
+	B* bc = &c;
+
+	bc->method();
+
+	C* cb = static_cast<C*>(&b);
+
+	cb->method();
 
 	GLUU::parser()->register_inspector<Color>([](shared_generic gen, const string& str) -> shared_generic
 		{
