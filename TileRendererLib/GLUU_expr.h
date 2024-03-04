@@ -70,7 +70,7 @@ namespace GLUU {
 			{
 				if (func_check && function->args_type(i) == typeid(Expression&))
 				{
-					auto rec = make_shared<GenericRef<Expression>>(r);
+					auto rec = make_shared<GenericRef<Expression>>(&r);
 					(*(Expression*)rec->raw_bytes()).func_base = this;
 					args.push_back(rec);
 				}

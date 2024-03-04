@@ -183,7 +183,7 @@ namespace GLUU
 		{
 			Expression constant(return_flags.back());
 			constant.root = false;
-			constant.constant = std::make_shared<GenericRef<Expression>>(ret_val);
+			constant.constant = std::make_shared<GenericRef<Expression>>(&ret_val);
 			constants.push_back(constant);
 		}
 		else if (is_char(*kw))

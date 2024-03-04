@@ -1,4 +1,5 @@
 // Bibliothèque de manipulation de chaines de caractères
+#include "pch.h"
 #include <sstream>
 #include "Strings.h"
 

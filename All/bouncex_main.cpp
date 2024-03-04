@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "bouncex_game.h"
 #include <iomanip>
 
@@ -170,8 +171,6 @@ namespace BOUNCEX
 		}
 	}
 }
-
-#include "GLUU.h"
 
 namespace BOUNCEX
 {

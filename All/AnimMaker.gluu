@@ -22,8 +22,6 @@ ROW SIZE 30 <
 	COL SIZE 120 BUTTON { "Load images" } { :load_images } <>
 >
 
-
-
 ROW SIZE 30 <
 	new bool makingAnim = false 
 
@@ -60,6 +58,13 @@ ROW SIZE 30 IF
 	{
 		new int size;
 		size = {:get_anim_frame_size {animations -at current_animation} };
+
+		{
+			arg int i;
+		} size;
+
+		:cout {:not size == 0};
+
 		return {:not size == 0};
 	};
 

@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "NotConsoleRenderer.h"
 #include "CommandStandard.h"
 #include "main_chatroom.h"

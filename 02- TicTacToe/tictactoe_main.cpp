@@ -256,6 +256,6 @@ void tictactoe_main()
 	}
 }
 
-#include "GLUU.h"
+#include "pch.h"
 
 GLUU_IMPORT_MAIN(tictactoe_main);

@@ -27,7 +27,7 @@ protected:
 
 public:
 	GenericRef() {}
-	GenericRef(T& copy) : _object_(&copy) {}
+	//GenericRef(T& copy) : _object_(&copy) {}
 	GenericRef(T* copy) : _object_(copy) {}
 	~GenericRef() {}
 
@@ -74,7 +74,7 @@ public:
 	}
 
 	shared_generic dereference() override;
-	shared_generic reference() override { return std::make_shared<GenericRef<T>>(*_object_); }
+	shared_generic reference() override { return std::make_shared<GenericRef<T>>(&*_object_); }
 
 	shared_generic make() override;
 };
@@ -116,7 +116,7 @@ public:
 
 	shared_generic dereference() override
 	{
-		if constexpr (is_pointer_v<T>) return make_shared < GenericRef<remove_pointer_t<T>>>(*_object_);
+		if constexpr (is_pointer_v<T>) return make_shared < GenericRef<remove_pointer_t<T>>>(_object_);
 		else return make_shared<GenericType<T>>(*this);
 	}
 
@@ -167,19 +167,28 @@ inline shared_ptr<GenericType<T>> make_generic_from_string(const string& t)
 template<typename T>
 inline shared_ptr<GenericRef<T>> make_generic_ref(T& ref)
 {
-	shared_ptr<GenericRef<T>> ptr = std::make_shared<GenericRef<T>>(ref);
+	shared_ptr<GenericRef<T>> ptr = std::make_shared<GenericRef<T>>(&ref);
 	return ptr;
 }
 
 template<typename T>
 inline shared_generic GenericRef<T>::dereference()
 {
-	if constexpr (!is_type_complete_v<T>) { return make_shared < GenericRef<T>>(*this); }
-	else if constexpr (is_pointer_v<T>) return make_shared < GenericRef<remove_pointer_t<T>>>(*this);
-	else 
+	if constexpr (!is_type_complete_v<T>) { return make_shared < GenericRef<T>>(_object_); }
+
+	if constexpr (is_type_complete_v < remove_pointer_t<T>>)
+	{
+		if constexpr (std::is_abstract_v<remove_pointer_t<T>>) { return make_shared<GenericRef<T>>(_object_); }
+		if constexpr (is_pointer_v<T>) return make_shared < GenericRef<remove_pointer_t<T>>>(_object_);
+	}
+
+	
+	else if constexpr (is_type_complete_v<T>)
 	{
 		 return make_shared<GenericType<T>>(*_object_);
 	}
+
+	return make_shared < GenericRef<T>>(_object_);
 }
 
 template<typename T>

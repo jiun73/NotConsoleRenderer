@@ -106,6 +106,8 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)TileRendererLib;$(SolutionDir)External Libraries\ENet\include;$(SolutionDir)External Libraries\SDL2\include;$(SolutionDir)External Libraries\SDL2_mixer\SDL2_mixer-2.6.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,6 +141,7 @@
     <ClCompile Include="bouncex_main.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="main_chatroom.cpp" />
+    <ClCompile Include="pch.cpp" />
     <ClCompile Include="Strings.cpp" />
     <ClCompile Include="usasim_main.cpp" />
   </ItemGroup>
@@ -149,6 +152,7 @@
     <ClInclude Include="..\03- Connect4\Strings.h" />
     <ClInclude Include="bouncex_game.h" />
     <ClInclude Include="main_chatroom.h" />
+    <ClInclude Include="pch.h" />
     <ClInclude Include="Strings.h" />
     <ClInclude Include="usasim_Shooting.h" />
   </ItemGroup>

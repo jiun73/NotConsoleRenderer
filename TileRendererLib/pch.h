@@ -23,6 +23,7 @@
 #include "Controls.h"
 
 #include "ConsoleRenderer.h"
+#include "GLUU.h"
 //#include "Networking.h"
 
 #endif //PCH_H

@@ -57,7 +57,7 @@ class GenericContainerType;
 template<typename T>
 class GenericContainerRef : public GenericContainer
 {
-	static_assert(is_container<T>::value);
+	//static_assert(is_container<T>::value);
 
 	typename T::iterator iter_at(size_t i)
 	{
@@ -89,7 +89,7 @@ public:
 		}
 		else return typeid(T);
 	}
-	const type_info& identity() override { return typeid(GenericObject); }
+	const type_info& identity() override { return typeid(GenericContainer); }
 	size_t size() override
 	{
 
@@ -130,7 +130,7 @@ public:
 	shared_generic at(size_t i) override
 	{
 		typename T::iterator it = iter_at(i);
-		if (it != container->end()) return std::make_shared<GenericRef<typename T::value_type>>(*it);
+		if (it != container->end()) return std::make_shared<GenericRef<typename T::value_type>>(&(*it));
 		return nullptr;
 	}
 
@@ -221,7 +221,7 @@ public:
 	shared_generic at(size_t i) override 
 	{
 		typename T::iterator it = iter_at(i);
-		if (it != container.end()) return std::make_shared<GenericRef<typename T::value_type>>(*it);
+		if (it != container.end()) return std::make_shared<GenericRef<typename T::value_type>>(&(*it));
 		return nullptr;
 	}
 

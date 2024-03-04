@@ -168,4 +168,4 @@ public:
 };
 
 inline VariableDictionnary* variable_dictionnary() { return Singleton< VariableDictionnary>::get(); }
-template<typename T> inline void track_variable(T& var, const string& name) { variable_dictionnary()->global()->add(std::make_shared <GenericRef<T>>(var), name); }
+template<typename T> inline void track_variable(T& var, const string& name) { variable_dictionnary()->global()->add(std::make_shared <GenericRef<T>>(&var), name); }

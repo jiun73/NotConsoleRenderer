@@ -66,6 +66,9 @@
     <ClCompile Include="animmaker_main.cpp">
       <Filter>Fichiers sources\AnimationMaker</Filter>
     </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main_chatroom.h">
@@ -91,6 +94,9 @@
     </ClInclude>
     <ClInclude Include="usasim_Shooting.h">
       <Filter>Fichiers sources\USA-Simulator</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

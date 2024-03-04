@@ -6,6 +6,7 @@
 // sont tous dans le dossier Bruhuh. Pour ce qui est des settings, je dois les copier dans mon nouveau projet et changer la 
 // version de C++ (pour ce faire: Propriétés de configuration --> Généran -> Normes du languages --> C++17
 
+#include "pch.h"
 
 #include "collisionx_balls.h"
 #include "collisionx_Strings.h"
