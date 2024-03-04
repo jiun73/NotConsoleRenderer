@@ -34,6 +34,12 @@
     <Filter Include="Header Files\Debugging\ConsoleRenderer">
       <UniqueIdentifier>{5655e238-feea-4bc5-94c1-f472d1053769}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Classes\Input">
+      <UniqueIdentifier>{980c189c-ccad-4dfd-82c4-7122ef302ee7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Classes\Files">
+      <UniqueIdentifier>{904eadf9-8180-4cd1-8e44-cb3ab945f077}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -51,9 +57,6 @@
     <ClInclude Include="Vec2D.h">
       <Filter>Header Files\Classes</Filter>
     </ClInclude>
-    <ClInclude Include="Input.h">
-      <Filter>Header Files\Classes</Filter>
-    </ClInclude>
     <ClInclude Include="Sound.h">
       <Filter>Header Files\Classes</Filter>
     </ClInclude>
@@ -67,9 +70,6 @@
       <Filter>Header Files\Classes</Filter>
     </ClInclude>
     <ClInclude Include="Fonts.h">
-      <Filter>Header Files\Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="File.h">
       <Filter>Header Files\Classes</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
@@ -114,9 +114,6 @@
     <ClInclude Include="StringRanges.h">
       <Filter>Header Files\Strings</Filter>
     </ClInclude>
-    <ClInclude Include="Controls.h">
-      <Filter>Header Files\Classes</Filter>
-    </ClInclude>
     <ClInclude Include="Networking.h">
       <Filter>Header Files\Classes</Filter>
     </ClInclude>
@@ -159,6 +156,27 @@
     <ClInclude Include="NotConsoleRenderer.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="File.h">
+      <Filter>Header Files\Classes\Files</Filter>
+    </ClInclude>
+    <ClInclude Include="File_win.h">
+      <Filter>Header Files\Classes\Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Header Files\Classes\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls.h">
+      <Filter>Header Files\Classes\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_dropbox.h">
+      <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="QuickButton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NotConsoleRendererLib.cpp">
@@ -167,16 +185,10 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Input.cpp">
-      <Filter>Header Files\Classes</Filter>
-    </ClCompile>
     <ClCompile Include="Sound.cpp">
       <Filter>Header Files\Classes</Filter>
     </ClCompile>
     <ClCompile Include="EntityX.cpp">
-      <Filter>Header Files\Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="File.cpp">
       <Filter>Header Files\Classes</Filter>
     </ClCompile>
     <ClCompile Include="ThreadPool.cpp">
@@ -188,11 +200,20 @@
     <ClCompile Include="ConsoleRenderer.cpp">
       <Filter>Header Files\Debugging\ConsoleRenderer</Filter>
     </ClCompile>
-    <ClCompile Include="Controls.cpp">
-      <Filter>Header Files\Classes</Filter>
-    </ClCompile>
     <ClCompile Include="Networking.cpp">
       <Filter>Header Files\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="File.cpp">
+      <Filter>Header Files\Classes\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>Header Files\Classes\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls.cpp">
+      <Filter>Header Files\Classes\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUU_parser.cpp">
+      <Filter>Header Files\Generic\GLUU</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

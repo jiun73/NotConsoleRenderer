@@ -274,7 +274,9 @@ void Server::end_stream()
 
 	broadcasting = false;
 	messaging = false;
-	send<size_t>(write_flag, true);
+	
+	if (net::verbose_net)
+		std::cout << "Write end of stream " << write_flag << std::endl;
 }
 
 /*

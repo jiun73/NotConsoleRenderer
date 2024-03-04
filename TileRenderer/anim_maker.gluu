@@ -1,0 +1,17 @@
+new Color col 
+
+new init b = {
+	col.r = (u8) 100;
+	:cout col.r;
+}
+
+
+ROW SIZE 100 CFIT <
+	COL CFIT BUTTON {"load"} 
+	{ 
+		$foreach "path" :open_dialog
+		{
+
+		};
+	} <>
+>

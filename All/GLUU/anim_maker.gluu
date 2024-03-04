@@ -1,0 +1,12 @@
+
+ROW SIZE 100 CFIT <
+	new Color col
+	
+	COL CFIT BUTTON {"load"} 
+	{ 
+		$foreach "path" :open_dialog
+		{
+			member col.r; 
+		};
+	} <>
+>

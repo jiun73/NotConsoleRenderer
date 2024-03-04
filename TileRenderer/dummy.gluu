@@ -1,0 +1,11 @@
+new function :function = 
+{
+	arg* gfhfghfgh int;
+	new size_t hi = 0;
+}
+
+ROW SIZE 100 CFIT
+<
+	COL TEXT 100 <>
+	COL TEXT 100 <>
+>

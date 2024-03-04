@@ -13,10 +13,90 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Fichiers sources\Chatroom">
+      <UniqueIdentifier>{f7b57d7b-8bd6-4287-a669-765dc729a21c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\CollisionX">
+      <UniqueIdentifier>{0df2e11b-a240-453c-9364-5151952b5148}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\TicTacToe">
+      <UniqueIdentifier>{0633ef28-bb95-4f12-9e71-4533fc64cf18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Connect4">
+      <UniqueIdentifier>{93c880b8-0110-408d-acbf-813b80a25da8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\BounceX">
+      <UniqueIdentifier>{9bc8cb4f-d559-4001-b405-74aa2a0469ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\USA-Simulator">
+      <UniqueIdentifier>{eef24ac2-b013-4af9-9b06-0a7b85fef08d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\AnimationMaker">
+      <UniqueIdentifier>{050a2b0e-ceed-429e-8dc5-eef7e706c9be}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="main_chatroom.cpp">
+      <Filter>Fichiers sources\Chatroom</Filter>
+    </ClCompile>
+    <ClCompile Include="..\01- CollisionX\collisionx_main.cpp">
+      <Filter>Fichiers sources\CollisionX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\02- TicTacToe\tictactoe_main.cpp">
+      <Filter>Fichiers sources\TicTacToe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\03- Connect4\connect4_main.cpp">
+      <Filter>Fichiers sources\Connect4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\03- Connect4\Strings.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="bouncex_main.cpp">
+      <Filter>Fichiers sources\BounceX</Filter>
+    </ClCompile>
+    <ClCompile Include="Strings.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="usasim_main.cpp">
+      <Filter>Fichiers sources\USA-Simulator</Filter>
+    </ClCompile>
+    <ClCompile Include="animmaker_main.cpp">
+      <Filter>Fichiers sources\AnimationMaker</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="main_chatroom.h">
+      <Filter>Fichiers sources\Chatroom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\01- CollisionX\collisionx_balls.h">
+      <Filter>Fichiers sources\CollisionX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\02- TicTacToe\tictactoe_game.h">
+      <Filter>Fichiers sources\TicTacToe</Filter>
+    </ClInclude>
+    <ClInclude Include="..\03- Connect4\connect4_game.h">
+      <Filter>Fichiers sources\Connect4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\03- Connect4\Strings.h">
+      <Filter>Fichiers sources</Filter>
+    </ClInclude>
+    <ClInclude Include="bouncex_game.h">
+      <Filter>Fichiers sources\BounceX</Filter>
+    </ClInclude>
+    <ClInclude Include="Strings.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="usasim_Shooting.h">
+      <Filter>Fichiers sources\USA-Simulator</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="GLUU\main.gluu" />
+    <None Include="AnimMaker.gluu">
+      <Filter>Fichiers sources\AnimationMaker</Filter>
+    </None>
   </ItemGroup>
 </Project>

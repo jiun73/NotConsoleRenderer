@@ -105,6 +105,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)TileRendererLib;$(SolutionDir)External Libraries\ENet\include;$(SolutionDir)External Libraries\SDL2\include;$(SolutionDir)External Libraries\SDL2_mixer\SDL2_mixer-2.6.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -130,7 +131,30 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\01- CollisionX\collisionx_main.cpp" />
+    <ClCompile Include="..\02- TicTacToe\tictactoe_main.cpp" />
+    <ClCompile Include="..\03- Connect4\connect4_main.cpp" />
+    <ClCompile Include="..\03- Connect4\Strings.cpp" />
+    <ClCompile Include="animmaker_main.cpp" />
+    <ClCompile Include="bouncex_main.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="main_chatroom.cpp" />
+    <ClCompile Include="Strings.cpp" />
+    <ClCompile Include="usasim_main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\01- CollisionX\collisionx_balls.h" />
+    <ClInclude Include="..\02- TicTacToe\tictactoe_game.h" />
+    <ClInclude Include="..\03- Connect4\connect4_game.h" />
+    <ClInclude Include="..\03- Connect4\Strings.h" />
+    <ClInclude Include="bouncex_game.h" />
+    <ClInclude Include="main_chatroom.h" />
+    <ClInclude Include="Strings.h" />
+    <ClInclude Include="usasim_Shooting.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="AnimMaker.gluu" />
+    <None Include="GLUU\main.gluu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -71,7 +71,11 @@ struct Vector2D
 
 	void normalize() { T n = norm(); x = x / n; y = y / n; }
 
-	friend std::ostream& operator<<(std::ostream& os, const Vector2D& v) { os << "{" << v.x << "," << v.y << "}"; return os; } //set we can output vectors
+	friend std::ostream& operator<<(std::ostream& os, const Vector2D& v) 
+	{ 
+		os << "{" << v.x << "," << v.y << "}"; 
+		return os; 
+	} //set we can output vectors
 };
 
 template<class T> Vector2D<T> operator+(const Vector2D<T>& L, const Vector2D<T>& R) { return Vector2D<T>(L) += R; }

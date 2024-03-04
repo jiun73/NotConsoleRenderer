@@ -1,6 +1,8 @@
 #pragma once
 #include "GLUU_expr.h"
 
+#include <memory>
+
 namespace GLUU {
 	template<typename T>
 	class SeqVar
@@ -11,12 +13,12 @@ namespace GLUU {
 		bool is_seq = false;
 
 	public:
-		SeqVar() {}
+		SeqVar() : seq(std::make_shared<bool>()) {}
 		SeqVar(const T& df);
 		~SeqVar() {}
 
 		template<typename ParserType>
-		void set(const string& str, ParserType& parser);
+		void set(string_ranges str, ParserType& parser);
 		shared_generic get_gen() { return generic; }
 
 		T& get()
@@ -26,7 +28,16 @@ namespace GLUU {
 			if (!is_seq)
 				return *(T*)generic->raw_bytes();
 			else
-				return *(T*)seq.evaluate()->raw_bytes();
+			{
+				auto eval = seq.evaluate();
+
+				if (eval == nullptr)
+				{
+					assert(false); //Fatal error! Check returns for your function
+				}
+
+				return *(T*)eval->raw_bytes();
+			}
 		}
 
 		operator T() { return get(); }
@@ -35,26 +46,25 @@ namespace GLUU {
 	};
 
 	template<typename T>
-	inline SeqVar<T>::SeqVar(const T& df)
+	inline SeqVar<T>::SeqVar(const T& df) : seq(std::make_shared<bool>())
 	{
 		get() = df;
 	}
 
 	template<typename T>
 	template<typename ParserType>
-	inline void SeqVar<T>::set(const string& str, ParserType& parser) {
+	inline void SeqVar<T>::set(string_ranges str, ParserType& parser) {
 		if (!str.empty() && str.begin() != str.end())
 		{
 			if (*str.begin() == parser.expr_open && *prev(str.end()) == parser.expr_close)
 			{
-				string strcop = str;
-				seq = parser.parse_sequence(strcop);
+				seq = parser.parse_sequence_base(str);
 				is_seq = true;
 				return;
 			}
 		}
 
 		generic = make_generic<T>();
-		generic->destringify(str);
+		generic->destringify(str.flat());
 	}
 }

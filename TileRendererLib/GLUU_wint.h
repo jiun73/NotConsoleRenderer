@@ -16,6 +16,6 @@ namespace GLUU {
 	{
 		virtual pair<size_t, string> fetch_keyword() = 0;
 		virtual void update(Element& graphic) = 0;
-		virtual shared_ptr<Widget> make(const vector<string>& args, Parser& parser) = 0;
+		virtual shared_ptr<Widget> make(vector<string_ranges>& args, Parser& parser) = 0;
 	};
 }

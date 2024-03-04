@@ -54,6 +54,11 @@ inline string_ranges range_trim(string_ranges range, char c)
 	return { iter_front, iter_back  };
 }
 
+inline string_ranges range_shave(string_ranges range, int c = 1)
+{
+	return { range.begin() + c, range.end() - c};
+}
+
 inline string_ranges range_until(string_ranges range, const string& str)
 {
 	if (str.empty()) return range;
@@ -241,6 +246,22 @@ inline vector<string_ranges> split_and_delim(string_ranges range, char open, cha
 	}
 
 	return expressions;
+}
+
+inline vector<string_ranges> split_and_trim(string_ranges str)
+{
+	str = range_trim(str, ' ');
+
+	vector<string_ranges> keywords_range = chain(str, range_until, " ");
+	vector<string_ranges> keywords;
+
+	for (auto kw : keywords_range)
+	{
+		kw = range_trim(kw, ' ');
+		keywords.push_back(kw);
+	}
+
+	return keywords;
 }
 
 //template<typename T>

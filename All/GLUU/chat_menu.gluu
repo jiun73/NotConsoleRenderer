@@ -1,41 +1,50 @@
-new int state = 0;
+new int state = 0
+new bool is_host = false
 
-ROW IF {state == 0}
+ROW CFIT SIZE 60 IF { state == 0 }
 <
-	COL BUTTON {state = 1}
-	<
-		join
-	>
-	
-	COL BUTTON {:chat_begin; state = 2}
-	<
-		host
-	>
+	COL BUTTON { "Join " } { is_host = :false;  state = 1 } < >
+	COL BUTTON { "Host " } { is_host = :true; :chat_host; :chat_wait; state = 2 } < >
 >
 
-ROW IF {state == 1}
+ROW CFIT SIZE 60 IF { state == 1 }
 <
-	new string ip;
-	COL TEXTBOX { "Enter ip..." } { arg* string text; :net_join  text @; state = 2}
-	<
+	new bool success = true
+	
+	COL CFIT <
+		ROW CFIT <
+			COL TEXTBOX { "Enter ip..." } 
+				{ 	
+					arg* string ip; 
+					success = { :chat_join {ip @} "Peer"}; 
+					{ip @} = "";
+					$if success 
+					{
+						state = 2;
+					}
+				} 
+				< >
+			COL BUTTON { "Back" } {state = 0} < >
+		>
 		
+		ROW CFIT TEXT { "Failed..." } IF { :not success }<
+			
+		>
 	>
 	
-	COL BUTTON { "Back" } {state = 0}
-	<
+	
 
-	>
 >
 
-ROW IF <state == 2>
+ROW SIZE 30 CFIT IF { state == 2; }
 <
-	COL TEXT { :chat_msg }
-	<
-	>
+	COL TEXT { "Connected: " :peercnt } IF { is_host } <>
+	COL TEXTBOX { "Enter message..." } { arg* string ip; :chat_send ip @; {ip @} = "" } <>
+	COL BUTTON { "Back" } { :cout "huho!" } <>
 	
-	new string message;
-	COL TEXTBOX
-	<
-		:chat_send message;
-	>
+>
+
+ROW SIZE 110 CFIT
+<
+	COL TEXT { :chat_msg; } <>
 >

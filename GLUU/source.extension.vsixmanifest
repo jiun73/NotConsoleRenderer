@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+    <Metadata>
+        <Identity Id="GLUU_Highilighter.6690a153-5a55-483e-9c11-1c9214615232" Version="1.0" Language="en-US" Publisher="6227790" />
+        <DisplayName>GLUU_Highilighter</DisplayName>
+        <Description xml:space="preserve">GLUU Syntax Highlighting</Description>
+        <Icon>Resources\Icon128x128.png</Icon>
+        <PreviewImage>Resources\Icon128x128.png</PreviewImage>
+    </Metadata>
+    <Installation>
+        <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[15.0, 17.0)" />
+        <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0, 18.0)">
+            <ProductArchitecture>amd64</ProductArchitecture>
+        </InstallationTarget>
+    </Installation>
+    <Prerequisites>
+        <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,)" DisplayName="Visual Studio core editor" />
+    </Prerequisites>
+    <Assets>
+        <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="File" Path="Grammars.pkgdef" />
+    </Assets>
+</PackageManifest>

@@ -15,7 +15,27 @@
 * ou si tu est plus ambitieux, tu peut essayer de le faire toi même
 * 
 * Juste a creer un nouveau proet dans la solution et copier les settings de 'exemple'
+* 
+* TODO:	GLUU styler
+*		GLUU better error handling
+*		GLUU++
+*		Chatroom
+*		AnimationMaker
 */
+
+enum MessageTypes 
+{
+	MESSAGE_IN,
+	MESSAGE_OUT,
+	SET_NAME, //string
+	NAME_UPDATE
+};
+
+class Message 
+{
+	string content;
+	size_t peer;
+};
 
 int main() 
 {
@@ -29,17 +49,29 @@ int main()
 	* juste plus rapide et meilleur
 	*/
 
+	GLUU::parser()->register_inspector<Color>([](shared_generic gen, const string& str) -> shared_generic
+		{
+			Color& col = *(Color*)gen->raw_bytes();
+			if (str == "r") return make_generic_ref(col.r);
+			if (str == "g") return make_generic_ref(col.g);
+			if (str == "b") return make_generic_ref(col.b);
+			if (str == "a") return make_generic_ref(col.a);
+			return nullptr;
+		});
+
 	int test_variable = 1000;
 
 	std::cout << "int: " << operators::has_operator_equals<int, bool(int)>::value << std::endl;;
 
-	File file("file.txt", FILE_READING_STRING);
+	File file("dummy.gluu", FILE_READING_STRING);
 
-	//GLUU::Compiled_ptr gluu_gfx = GLUU::parse_copy(file.getString());
+	GLUU::Compiled_ptr gluu_gfx = GLUU::parse_copy(file.getString());
 
 	Server server;
 
 	Random r;
+
+	open_dialog();
 
 	while (run()) //boucle principale
 	{
@@ -137,25 +169,6 @@ int main()
 		}
 
 		draw_text(keyboard().getTextInput(), 500, 0, get_font(0));
-
-		//if (!keyboard().getTextInput().empty() && keyboard().getTextInput().back() == '\n')
-		//{
-		//	
-		//	//p2p().start_stream(1); //BTW on peut pas envoyer directement des conteneurs (vector, string, etc) parce qu'ils ne contiennent pas vraiment les données, mais plutot des pointers VERS les données (qui ne seront pas valide sur lordinateur de lautre)
-		//	//p2p().send(s.size()); //on envoie la taille de la string
-		//	//for (auto& c : s)
-		//	//	p2p().send(c); //puis on envoie chaque caratère un a la fois
-		//	//p2p().end_stream();
-		//	const string& s = keyboard().getTextInput();
-		//	p2p(1) << s.size();
-		//	for (auto& c : s)
-		//		p2p(1) << c;
-		//	p2p(1) << net::send;
-
-		//	keyboard().getTextInput() = "";
-
-		//	keyboard().closeTextInput();
-		//}
 		
 		if (p2p().is_connected())
 		{
@@ -205,7 +218,7 @@ int main()
 			}
 		}
 
-		V2d_i p1 = { 80, 60};
+		V2d_i p1 = { 80, 60 };
 		V2d_i p2 = { 80, 10 };
 		V2d_i p3 = { 50, 30 };
 

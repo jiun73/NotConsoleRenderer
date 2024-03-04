@@ -2,6 +2,7 @@
 //#include "Functions.h"
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <cstring>
 #include <map>
 #include "Vec2D.h"
@@ -55,10 +56,12 @@ namespace strings
 
 	inline std::string stringify(const int& x) { return std::to_string(x); }
 
+	
 	inline std::string stringify(const char& x) { std::string s;  s.push_back(x);  return s; }
 	inline std::string stringify(const unsigned int& x) { return std::to_string(x); }
 	inline std::string stringify(const bool& x) { return std::to_string(x); }
 	inline std::string stringify(const double& x) { return std::to_string(x); };
+	inline std::string stringify(const uint8_t& x) { return std::to_string(x); };
 	inline std::string stringify(const std::string& x) { return x; };
 
 	//void tolowerstring(std::string& s);

@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AnimationX.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ClassFactory.h" />
     <ClInclude Include="Color.h" />
@@ -158,6 +159,7 @@
     <ClInclude Include="Controls.h" />
     <ClInclude Include="GLUU.h" />
     <ClInclude Include="GLUU_button.h" />
+    <ClInclude Include="GLUU_dropbox.h" />
     <ClInclude Include="GLUU_parser.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Fonts.h" />
@@ -177,6 +179,7 @@
     <ClInclude Include="ObjectGenerics.h" />
     <ClInclude Include="Operators.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="QuickButton.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Rect.h" />
     <ClInclude Include="Singleton.h" />
@@ -188,6 +191,7 @@
     <ClInclude Include="NotConsoleRenderer.h" />
     <ClInclude Include="Vec2D.h" />
     <ClInclude Include="Vec3D.h" />
+    <ClInclude Include="File_win.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CommandPrompt.cpp" />
@@ -195,6 +199,7 @@
     <ClCompile Include="Controls.cpp" />
     <ClCompile Include="EntityX.cpp" />
     <ClCompile Include="File.cpp" />
+    <ClCompile Include="GLUU_parser.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Networking.cpp" />
     <ClCompile Include="pch.cpp">

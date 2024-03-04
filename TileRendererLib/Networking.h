@@ -73,6 +73,17 @@ struct ReadBuffer
 		return ret;
 	}
 
+	template<typename T>
+	ReadBuffer& rdc(size_t channel, T& ref)
+	{
+		size_t sz = read<size_t>(channel);
+		for (size_t i = 0; i < sz; i++)
+		{
+			ref.insert(ref.end(), read<typename T::value_type>(channel));
+		}
+		return *this;
+	}
+
 	template<size_t I>
 	void read_unfold(const deque<enet_uint8*>& data) {}
 
@@ -206,12 +217,33 @@ public:
 		}
 		return *this;
 	}
+
+	template<typename T>
+	Peer2Peer& wrtc(const T& object)
+	{
+		size_t i = 0;
+		for (auto& o : object) i++;
+		send(i);
+		for (auto& o : object) send(o);
+		return *this;
+	}
+
+	template<typename T>
+	Peer2Peer& rdc(T& ref)
+	{	
+		size_t sz = read<size_t>(write_flag);
+		for (size_t i = 0; i < sz; i++)
+		{
+			ref.insert(ref.end(), read<typename T::value_type>(write_flag));
+		}
+		return *this;
+	}
 };
 
-class Server 
+class Server
 {
 private:
-	ENetAddress address = {0,0};
+	ENetAddress address = { 0,0 };
 	ENetHost* client = nullptr;
 	map<size_t, ENetPeer*> peers;
 
@@ -242,8 +274,7 @@ public:
 	template<typename T>
 	void send(T data, size_t peerid, bool signal = false)
 	{
-		if (net::verbose_net)
-			std::cout << "Sending... " << bitset<sizeof(data) * 8>(*(size_t*)(&data)) << std::endl;
+		
 		enet_uint8* bytes = new enet_uint8[sizeof(data) + 1];
 		memcpy(bytes + 1, &data, sizeof(data));
 		memcpy(bytes, &signal, sizeof(bool));
@@ -254,6 +285,9 @@ public:
 
 		if (enet_peer_send(peers.at(peerid), 0, packet) != 0)
 			puts("Failed to send packet");
+
+		if (net::verbose_net)
+			std::cout << "Sending... " << bitset<sizeof(data) * 8>(*(size_t*)(&data)) << std::endl;
 	}
 
 	/*
@@ -276,8 +310,10 @@ public:
 	*/
 	void wait_for_peer()
 	{
-		while (peers.empty()) { if(net::verbose_net) std::cout << "Waiting for peer \r"; };
+		while (peers.empty()) { if (net::verbose_net) std::cout << "Waiting for peer \r"; };
 	}
+
+	int peer_count() { return peers.size(); }
 
 	bool is_connected() { return connected; }
 
@@ -289,6 +325,9 @@ public:
 	Server& broadcast(ChannelID channel)
 	{
 		write_flag = channel;
+		broadcasting = true;
+		messaging = false;
+
 		return *this;
 	}
 
@@ -296,6 +335,9 @@ public:
 	{
 		write_flag = channel;
 		current_peer = peerid;
+		messaging = true;
+		broadcasting = false;
+
 		return *this;
 	}
 
@@ -316,31 +358,19 @@ public:
 	template<typename T>
 	Server& operator<<(const T& object)
 	{
-		if (!broadcasting) 
+		if (broadcasting) 
 		{
-			std::cout << "not broadcasting!" << std::endl;
-			return *this;
+			for (auto& p : peers)
+			{
+				send(object, p.first);
+			}
 		}
 
-		for (auto& p : peers)
+		if (messaging)
 		{
-			send(object, p.first);
+			send(object, current_peer);
 		}
 		
-		return *this;
-	}
-
-	template<typename T>
-	Server& operator<(const T& object)
-	{
-		if (!messaging)
-		{
-			std::cout << "not messaging!" << std::endl;
-			return *this;
-		}
-
-		send(object, current_peer);
-
 		return *this;
 	}
 
@@ -349,8 +379,27 @@ public:
 		end_stream();
 	}
 
-	void operator<(const StreamEnd& end)
+	template<typename T>
+	Server& wrtc(const T& object)
 	{
-		end_stream();
+		if (messaging)
+		{
+			size_t i = 0;
+			for (auto& o : object) i++;
+			send(i, current_peer);
+			for (auto& o : object) send(o, current_peer);
+		}
+
+		if (broadcasting)
+		{
+			for (auto& p : peers)
+			{
+				size_t i = 0;
+				for (auto& o : object) i++;
+				send(i, p.first);
+				for (auto& o : object) send(o, p.first);
+			}
+		}
+		return *this;
 	}
 };

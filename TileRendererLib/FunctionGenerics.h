@@ -6,6 +6,7 @@
 using std::function;
 using std::vector;
 using std::tuple;
+using std::array;
 using std::conditional_t;
 using std::is_same_v;
 using std::remove_reference_t;

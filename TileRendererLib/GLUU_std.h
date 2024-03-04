@@ -2,6 +2,8 @@
 
 #include "GLUU_parser.h"
 
+#include "Color.h"
+
 namespace GLUU {
 
 
@@ -46,6 +48,7 @@ namespace GLUU {
 		__REGISTER_CLASS__(char);
 		__REGISTER_CLASS__(size_t);
 		__REGISTER_CLASS__(string);
+		__REGISTER_CLASS__(Color);
 		const FactoryManagerAdder<vector<string>>* vector_string__adder = new FactoryManagerAdder<vector<string>>("vector<string>", true);
 
 		import_function<void(_sgen_, _sgen_)>("=", [](_sgen_ b, _sgen_ a)
@@ -76,29 +79,50 @@ namespace GLUU {
 		import_function<bool()>(":false", []() {return false; });
 		import_function<bool(bool, bool)>(":or", [](bool b, bool a) {return a || b; });
 		import_function<bool(bool, bool)>(":and", [](bool b, bool a) {return a && b; });
+		import_function<bool(bool)>(":not", [](bool a) {return !a; });
 
 		import_function<void(Expression&, Expression&)>("$while", [](Expression& expr, Expression& condition)
 			{
 				while (true)
 				{
-					shared_generic gen = condition.evaluate();
+					shared_generic gen = condition.evaluate_next();
 
 					if (!is_type<bool>(gen)) { std::cout << "wrong type for while" << std::endl;  return; }
 					if (!conv_type<bool>(gen)) return;
 
-					expr.evaluate();
+					expr.func_base->constant = expr.evaluate_next();
+
+					if (expr.has_returned()) break;
 				}
 			});
 
-		import_function<void(Expression&, bool)>("$if", [](Expression& expr, bool b) {if (b) expr.evaluate(); });
+		import_function<void(Expression&, bool)>("$if", [](Expression& expr, bool b) 
+			{
+				if (b) 
+				{
+					expr.func_base->constant = expr.evaluate_next();
+				};
+			});
 
 		import_function<void(Expression&, shared_generic)>("$foreach", [](Expression& expr, shared_generic a)
 			{
 				if (!is_iden<GenericContainer>(a)) { std::cout << "Cannot foreach a non-container" << std::endl; ; return; }
-				for (size_t i = 0; i < rein<GenericContainer>(a)->size(); i++) expr.evaluate();
+				for (size_t i = 0; i < rein<GenericContainer>(a)->size(); i++)
+				{
+					expr.func_base->constant = expr.evaluate_next();
+				}
 			});
 
+
+
 		import_function<string(_sgen_)>(":type", [](_sgen_ a) {return a->type().name(); });
+		import_function<int(bool)>("(bool-int)", [](bool a) {return a; });
+		import_function<int(size_t)>("(size_t-int)", [](size_t a) {return (int)a; });
+		import_function<uint8_t(int)>("(u8)", [](int a) {return a; });
+		import_function<uint16_t(int)>("(u16)", [](int a) {return a; });
+		import_function<uint32_t(int)>("(u32)", [](int a) {return a; });
+		import_function<uint64_t(int)>("(u64)", [](int a) {return a; });
+		import_function<size_t(int)>("(size_t)", [](int a) {return a; });
 		import_function<void(_sgen_)>(":cout", [](_sgen_ a) {std::cout << a->stringify() << std::endl; });
 		import_function<int()>(":ticks", []() { return (int)SDL_GetTicks(); });
 
@@ -107,15 +131,15 @@ namespace GLUU {
 		import_function<string()>("##", []() { return "\n"; });
 		import_function<string(_sgen_)>("#", [](_sgen_ a) { return a->stringify(); });
 
-		import_function<void(_sgen_, _sgen_)>("-pushb", [](_sgen_ b, _sgen_ a)
+		import_function<void(_sgen_, _sgen_)>("-push", [](_sgen_ b, _sgen_ a)
 			{
 				if (!is_iden<GenericContainer>(a)) { std::cout << "Cannot push a non-container" << std::endl;; return; }
 
 				auto container = rein<GenericContainer>(a);
-				container->insert(b, container->size());
+				container->insert(b, container->container_size());
 			});
 
-		import_function<void(_sgen_, _sgen_)>("-pushf", [](_sgen_ b, _sgen_ a)
+		import_function<void(_sgen_, _sgen_)>("-append", [](_sgen_ b, _sgen_ a)
 			{
 				if (!is_iden<GenericContainer>(a)) { std::cout << "Cannot push a non-container" << std::endl;; return; }
 
@@ -123,7 +147,7 @@ namespace GLUU {
 				container->insert(b, 0);
 			});
 
-		import_function<void(int, _sgen_, _sgen_)>("-ins", [](size_t i, _sgen_ b, _sgen_ a)
+		import_function<void(int, _sgen_, _sgen_)>("-insert", [](size_t i, _sgen_ b, _sgen_ a)
 			{
 				if (!is_iden<GenericContainer>(a)) { std::cout << "Cannot push a non-container" << std::endl;; return; }
 
@@ -133,10 +157,34 @@ namespace GLUU {
 
 		import_function<_sgen_(int, _sgen_)>("-at", [](size_t i, _sgen_ a)-> _sgen_
 			{
-				if (!is_iden<GenericContainer>(a)) { std::cout << "Cannot at a non-container" << std::endl; return nullptr; }
+				if (!is_iden<GenericContainer>(a)) 
+				{ 
+					std::cout << "Cannot at a non-container" << std::endl; 
+					return nullptr; 
+				}
 
 				auto container = rein<GenericContainer>(a);
 				return container->at(i);
+			});
+
+		import_function<size_t(_sgen_)>("-longsize", [](_sgen_ a)-> size_t
+			{
+				if (!is_iden<GenericContainer>(a)) { std::cout << "Cannot longsize a non-container" << std::endl; return 0; }
+
+				auto container = rein<GenericContainer>(a);
+				return container->container_size();
+			});
+
+		import_function<int(_sgen_)>("-size", [](_sgen_ a)-> size_t
+			{
+				if (!is_iden<GenericContainer>(a)) 
+				{
+					std::cout << "Cannot size a non-container" << std::endl; 
+					return 0; 
+				}
+
+				auto container = rein<GenericContainer>(a);
+				return (int)container->container_size();
 			});
 
 		import_function<_sgen_(_sgen_)>("@", [](_sgen_ a)-> _sgen_
