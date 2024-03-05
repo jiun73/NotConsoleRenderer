@@ -183,9 +183,9 @@ public:
 		else
 		{
 			Color col = get_pencil();
-			draw_full_circle(carreaux.at(caseActuelle % 225).pos + xy / 2, rayon);
+			draw_full_circle(carreaux.at(at(caseActuelle)).pos + xy / 2, rayon);
 			pencil(COLOR_BLACK);
-			draw_circle(carreaux.at(caseActuelle % 225).pos + xy / 2, rayon);
+			draw_circle(carreaux.at(at(caseActuelle)).pos + xy / 2, rayon);
 			pencil(col);
 		}
 		pos = carreaux.at(caseActuelle % 225).pos;
@@ -296,8 +296,6 @@ public:
 			return *token4;
 		}
 	}
-
-	
 };
 
 

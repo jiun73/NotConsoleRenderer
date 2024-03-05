@@ -164,41 +164,41 @@ void display_tokens()
 
 void switch_turns()
 {
-	if (actual().pionJoue && !jeu.de_obtenu)
+	actual().pionJoue = false;
+	jeu.de_obtenu = false;
+	jeu.noDeTour = 1;
+	if (rouge->is_playing)
 	{
-		actual().pionJoue = false;
-		jeu.de_obtenu = false;
-		jeu.noDeTour = 1;
-		if (rouge->is_playing)
-		{
-			rouge->is_playing = false;
-			bleu->is_playing = true;
-		}
-		else if (bleu->is_playing)
-		{
-			bleu->is_playing = false;
-			vert->is_playing = true;
-		}
-		else if (vert->is_playing)
-		{
-			vert->is_playing = false;
-			jaune->is_playing = true;
-		}
-		else if (jaune->is_playing)
-		{
-			jaune->is_playing = false;
-			rouge->is_playing = true;
-		}
+		rouge->is_playing = false;
+		bleu->is_playing = true;
+	}
+	else if (bleu->is_playing)
+	{
+		bleu->is_playing = false;
+		vert->is_playing = true;
+	}
+	else if (vert->is_playing)
+	{
+		vert->is_playing = false;
+		jaune->is_playing = true;
+	}
+	else if (jaune->is_playing)
+	{
+		jaune->is_playing = false;
+		rouge->is_playing = true;
 	}
 }
 
 void click_sur_case(tile zone)
 {
-	if (point_in_rectangle(mouse_position(), { zone.pos, xy / 2 }))
+	if (mouse_left_pressed())
 	{
-		actual().pion_clique(zone.pos).caseActuelle = actual().spawnTile;
-		actual().pionsEnMaison--;
-		actual().pion_clique(zone.pos).outOfHome = true;
+		if (point_in_rectangle(mouse_position(), { zone.pos, xy / 2 }))
+		{
+			actual().pion_clique(zone.pos).caseActuelle = actual().spawnTile;
+			actual().pionsEnMaison--;
+			actual().pion_clique(zone.pos).outOfHome = true;
+		}
 	}
 }
 
@@ -215,53 +215,29 @@ void sortir_de_maison()
 	click_sur_case(token4);
 }
 
-void un_pion_sorti()
+void bouger_un_pion()
 {
-	if (actual().pionsEnMaison == 3 && !actual().pionJoue)
-	{
-		actual().pion_sorti().move(des);
-		if (des != 6)
-		{ 
-			switch_turns();
-		}
-		else
-		{
-			jeu.noDeTour++;
-		}
-	}
-}
-
-void plus_dun_pion_sorti()
-{
-	if (actual().pionsEnMaison < 3 && !actual().pionJoue)
-	{
-		vector<V2d_i> p = { actual().token1->pos, actual().token2->pos, actual().token3->pos, actual().token4->pos };
-		for (int i = 0; i < p.size(); i++)
-		{
-			if (point_in_rectangle(mouse_position(), { p.at(i), xy}))
-			{
-				actual().pion_clique(p.at(i)).move(des);
-				if (des != 6)
-				{
-					switch_turns();
-				}
-			}
-		}
-	}
-}
-
-void tous_pions_en_maison()
-{
-	if (actual().pionsEnMaison == 4 && des == 6)
+	vector<V2d_i> p = { actual().token1->pos, actual().token2->pos, actual().token3->pos, actual().token4->pos };
+	for (int i = 0; i < p.size(); i++)
 	{
 		if (mouse_left_pressed())
 		{
-			sortir_de_maison();
+			if (point_in_rectangle(mouse_position(), { p.at(i), xy }))
+			{
+				if (actual().pion_clique(p.at(i)).outOfHome)
+				{
+					actual().pion_clique(p.at(i)).move(des);
+					if (des != 6)
+					{
+						switch_turns();
+					}
+					else
+					{
+						jeu.de_obtenu = false;
+					}
+				}
+			}
 		}
-	}
-	else if (actual().pionsEnMaison == 4 && des != 6)
-	{
-		switch_turns();
 	}
 }
 
@@ -270,9 +246,21 @@ void jouer_son_tour()
 	draw_simple_text(actual().name, { 700,10 }, get_font(0));
 	if (jeu.de_obtenu && !actual().pionJoue)
 	{
-		tous_pions_en_maison();
-		un_pion_sorti();
-		plus_dun_pion_sorti();
+		if (des == 6)
+		{
+			if (actual().pionsEnMaison > 0)
+			{
+				sortir_de_maison();
+			}
+		}
+		if (actual().pionsEnMaison < 4)
+		{
+			bouger_un_pion();
+		}
+		else if (actual().pionsEnMaison == 4 && des != 6)
+		{
+			switch_turns();
+		}
 	}
 }
 
@@ -291,7 +279,6 @@ void obtenir_de()
 			if (point_in_rectangle(mouse_position(), rect))
 			{
 				des = de::shuffle();
-				//des = 6;
 				jeu.de_obtenu = true;
 			}
 		}

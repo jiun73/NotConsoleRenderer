@@ -1,0 +1,3 @@
+Mouvements possibles:
+- sortir de maison (exclusivement si dé == 6) --> pionsEnMaison-- ; outOfHome = true;
+- avancer (si pionCliqué().outOfHome == true)
