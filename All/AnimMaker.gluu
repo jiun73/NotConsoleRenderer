@@ -19,7 +19,17 @@ new function :load_images =
 new int current_animation = 0
 
 ROW SIZE 30 <
+	new int current_image = 0
 	COL SIZE 120 BUTTON { "Load images" } { :load_images } <>
+	COL SIZE 900 DROPBOX {paths} {current_image} <>
+	COL SIZE 120 IF 
+	{
+		{animations -size} /+ 0 
+	} 
+	BUTTON { "Add image" } 
+	{
+		{animations -at current_animation} .frames -push :get_tex paths -at current_image;
+	} <>
 >
 
 ROW SIZE 30 <
@@ -45,10 +55,13 @@ ROW SIZE 30 <
 	
 >
 
-//new function :get_anim_frame_size = {
-//	arg AnimationX anim;
-//	anim.frames -size
-//}
+ROW SIZE 30 IF 
+{ 
+	{animations -size} /+ 0 
+}
+<
+	COL SIZE 300 BUTTON { "dsfsdfsd" } <>
+>
 
 ROW SIZE 30 IF 
 { 
