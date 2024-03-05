@@ -116,7 +116,30 @@ namespace GLUU
 
 		if (flat.front() == '.')
 		{
+			output_seq("member '" + kw->flat() + "'");
+
+			if (constants.empty())
+			{
+				add_error(GLUU_ERROR_INVALID_MEMBER_EXPRESSION, "Cannot call " + flat + " on nothing", kw->begin());
+			}
+
+			Expression copy = constants.back();
+
+			if (copy.get_type() != typeid(shared_generic))
+			{
+				if(!inspectors.count(copy.get_type())) add_error(GLUU_ERROR_INVALID_VARIABLE_NAME, "'" + string(var->type().name()) + "' has no members", kw->begin());
+
+				inspectors.at()
+			}
 			
+
+			
+			Expression inspector_expr(return_flags.back());
+			inspector_expr.is_inspector = true;
+			inspector_expr.inspectors = &inspectors;
+			inspector_expr.recursive.push_back(copy);
+			constants.pop_back();
+			constants.push_back(inspector_expr);
 		}
 		if (f && flat == "new")
 		{
@@ -152,7 +175,7 @@ namespace GLUU
 			output_seq("arg* '" + name + "' as " + type);
 			return true;
 		}
-		if (is_member(*kw))
+		/*if (is_member(*kw))
 		{
 			output_seq("member '" + kw->flat() + "'");
 			string_ranges member_expr = *kw;
@@ -185,7 +208,8 @@ namespace GLUU
 			constant.constant = var;
 			constants.push_back(constant);
 		}
-		else if (flat == "this")
+		else */
+		if (flat == "this")
 		{
 			Expression constant(return_flags.back());
 			constant.root = false;

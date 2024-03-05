@@ -56,7 +56,7 @@ ROW SIZE 30 IF
 	$if { {animations -size} /+ 0; } 
 	{
 		new int size;
-		size = { {animations -at current_animation}.frames -size };
+		size = { {animations -at current_animation} .frames -size };
 		return {:not size == 0};
 	};
 

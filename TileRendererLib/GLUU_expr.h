@@ -38,7 +38,8 @@ namespace GLUU {
 
 		//Inspection
 		bool is_inspector = false;
-		Inspector* inspector;
+		string member;
+		unordered_map<type_index,Inspector>* inspectors = nullptr;
 
 		Expression() { ret_flag = make_shared<bool>(); }
 		Expression(shared_ptr<bool> return_flag) : ret_flag(return_flag) {}
@@ -250,6 +251,17 @@ namespace GLUU {
 					}
 
 					return star.evaluate();
+				}
+				else if (is_inspector)
+				{
+					shared_generic eval = recursive.at(0).evaluate_next();
+
+					if (has_returned())
+					{
+						return eval;
+					}
+
+					return inspectors->at(eval->type()).inspect(eval, member);
 				}
 				else
 				{
