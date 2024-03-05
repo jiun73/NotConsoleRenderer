@@ -156,6 +156,7 @@ public:
 	int spawn;
 	int caseActuelle; // index du pion dans carreaux
 	bool outOfHome = false;
+	V2d_i pos;
 
 	pion(int n, int s)
 	{
@@ -187,6 +188,7 @@ public:
 			draw_circle(carreaux.at(caseActuelle % 225).pos + xy / 2, rayon);
 			pencil(col);
 		}
+		pos = carreaux.at(caseActuelle % 225).pos;
 		//show_number();
 	}
 
@@ -274,6 +276,28 @@ public:
 			return *token4;
 		}
 	}
+
+	pion& pion_clique(V2d_i pos)
+	{
+		if (pos == token1->pos)
+		{
+			return *token1;
+		}
+		if (pos == token2->pos)
+		{
+			return *token2;
+		}
+		if (pos == token3->pos)
+		{
+			return *token3;
+		}
+		if (pos == token4->pos)
+		{
+			return *token4;
+		}
+	}
+
+	
 };
 
 
@@ -316,4 +340,5 @@ player& actual()
 struct environment
 {
 	bool de_obtenu = false;
+	int noDeTour = 1;
 };

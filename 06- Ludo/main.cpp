@@ -167,6 +167,8 @@ void switch_turns()
 	if (actual().pionJoue && !jeu.de_obtenu)
 	{
 		actual().pionJoue = false;
+		jeu.de_obtenu = false;
+		jeu.noDeTour = 1;
 		if (rouge->is_playing)
 		{
 			rouge->is_playing = false;
@@ -190,15 +192,15 @@ void switch_turns()
 	}
 }
 
-/*void click_sur_case(tile zone, pion& token)
+void click_sur_case(tile zone)
 {
 	if (point_in_rectangle(mouse_position(), { zone.pos, xy / 2 }))
 	{
-		actual().token1->caseActuelle = actual().spawnTile;
+		actual().pion_clique(zone.pos).caseActuelle = actual().spawnTile;
 		actual().pionsEnMaison--;
-		actual().token1->outOfHome = true;
+		actual().pion_clique(zone.pos).outOfHome = true;
 	}
-}*/
+}
 
 void sortir_de_maison()
 {
@@ -207,29 +209,59 @@ void sortir_de_maison()
 	const tile& token3 = carreaux.at(actual().token3->caseActuelle);
 	const tile& token4 = carreaux.at(actual().token4->caseActuelle);
 	
-	if (point_in_rectangle(mouse_position(), { token1.pos, xy / 2 }))
+	click_sur_case(token1);
+	click_sur_case(token2);
+	click_sur_case(token3);
+	click_sur_case(token4);
+}
+
+void un_pion_sorti()
+{
+	if (actual().pionsEnMaison == 3 && !actual().pionJoue)
 	{
-		actual().token1->caseActuelle = actual().spawnTile;
-		actual().pionsEnMaison--;
-		actual().token1->outOfHome = true;
+		actual().pion_sorti().move(des);
+		if (des != 6)
+		{ 
+			switch_turns();
+		}
+		else
+		{
+			jeu.noDeTour++;
+		}
 	}
-	else if (point_in_rectangle(mouse_position(), { token2.pos, xy / 2 }))
+}
+
+void plus_dun_pion_sorti()
+{
+	if (actual().pionsEnMaison < 3 && !actual().pionJoue)
 	{
-		actual().token2->caseActuelle = actual().spawnTile;
-		actual().pionsEnMaison--;
-		actual().token2->outOfHome = true;
+		vector<V2d_i> p = { actual().token1->pos, actual().token2->pos, actual().token3->pos, actual().token4->pos };
+		for (int i = 0; i < p.size(); i++)
+		{
+			if (point_in_rectangle(mouse_position(), { p.at(i), xy}))
+			{
+				actual().pion_clique(p.at(i)).move(des);
+				if (des != 6)
+				{
+					switch_turns();
+				}
+			}
+		}
 	}
-	else if (point_in_rectangle(mouse_position(), { token3.pos, xy / 2 }))
+}
+
+void tous_pions_en_maison()
+{
+	if (actual().pionsEnMaison == 4 && des == 6)
 	{
-		actual().token3->caseActuelle = actual().spawnTile;
-		actual().pionsEnMaison--;
-		actual().token3->outOfHome = true;
+		if (mouse_left_pressed())
+		{
+			sortir_de_maison();
+		}
 	}
-	else if (point_in_rectangle(mouse_position(), { token4.pos, xy / 2 }))
+	else if (actual().pionsEnMaison == 4 && des != 6)
 	{
-		actual().token4->caseActuelle = actual().spawnTile;
-		actual().pionsEnMaison--;
-		actual().token4->outOfHome = true;
+		switch_turns();
 	}
 }
 
@@ -238,20 +270,9 @@ void jouer_son_tour()
 	draw_simple_text(actual().name, { 700,10 }, get_font(0));
 	if (jeu.de_obtenu && !actual().pionJoue)
 	{
-		if (actual().pionsEnMaison == 4 && des == 6)
-		{
-			if (mouse_left_pressed())
-			{
-				sortir_de_maison();
-			}
-		}
-		else
-		{
-			if (des == 6)
-			{
-
-			}
-		}
+		tous_pions_en_maison();
+		un_pion_sorti();
+		plus_dun_pion_sorti();
 	}
 }
 
@@ -295,6 +316,6 @@ int main()
 		jouer_son_tour();
 		display_tokens();
 		
-		switch_turns();
+		//switch_turns();
 	}
 }
