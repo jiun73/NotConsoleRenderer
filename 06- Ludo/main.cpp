@@ -193,7 +193,7 @@ void click_sur_case(tile zone)
 {
 	if (mouse_left_pressed())
 	{
-		if (point_in_rectangle(mouse_position(), { zone.pos, xy / 2 }))
+		if (point_in_rectangle(mouse_position(), { zone.pos, xy }))
 		{
 			actual().pion_clique(zone.pos).caseActuelle = actual().spawnTile;
 			actual().pionsEnMaison--;

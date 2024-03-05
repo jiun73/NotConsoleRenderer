@@ -138,18 +138,6 @@ struct de
 
 class pion
 {
-private:
-	int index_of()
-	{
-		for (int i = 0; i < chemin.size(); i++)
-		{
-			if (caseActuelle == at(i)) 
-			{
-				return i;
-			}
-		}
-		return 0;
-	}
 public:
 	int rayon = xy / 2 - 5;
 	int numero;
@@ -183,9 +171,9 @@ public:
 		else
 		{
 			Color col = get_pencil();
-			draw_full_circle(carreaux.at(at(caseActuelle)).pos + xy / 2, rayon);
+			draw_full_circle(carreaux.at(caseActuelle).pos + xy / 2, rayon);
 			pencil(COLOR_BLACK);
-			draw_circle(carreaux.at(at(caseActuelle)).pos + xy / 2, rayon);
+			draw_circle(carreaux.at(caseActuelle).pos + xy / 2, rayon);
 			pencil(col);
 		}
 		pos = carreaux.at(caseActuelle % 225).pos;
