@@ -183,7 +183,7 @@ namespace GLUU {
 		size_t seq_level = 0;
 		size_t row_level = 0;
 
-		unordered_map<type_index, function<shared_generic(shared_generic, const string&)>> inspectors;
+		unordered_map<type_index, Inspector> inspectors;
 
 	public:
 		const char row_open = '<';
@@ -199,7 +199,9 @@ namespace GLUU {
 		template<typename T>
 		void register_inspector(function<shared_generic(shared_generic, const string&)> inspector)
 		{
-			inspectors.emplace(typeid(T), inspector);
+			Inspector inspect;
+			inspect.inspect = inspector;
+			inspectors.emplace(typeid(T), inspect);
 		}
 
 		void next_level()

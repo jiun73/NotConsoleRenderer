@@ -45,10 +45,10 @@ ROW SIZE 30 <
 	
 >
 
-new function :get_anim_frame_size = {
-	arg AnimationX anim;
-	anim.frames -size
-}
+//new function :get_anim_frame_size = {
+//	arg AnimationX anim;
+//	anim.frames -size
+//}
 
 ROW SIZE 30 IF 
 { 
@@ -56,7 +56,7 @@ ROW SIZE 30 IF
 	$if { {animations -size} /+ 0; } 
 	{
 		new int size;
-		size = {:get_anim_frame_size {animations -at current_animation} };
+		size = { {animations -at current_animation}.frames -size };
 		return {:not size == 0};
 	};
 

@@ -112,6 +112,12 @@ namespace GLUU
 	{
 		string flat = kw->flat();
 
+		if (flat.empty()) return false;
+
+		if (flat.front() == '.')
+		{
+			
+		}
 		if (f && flat == "new")
 		{
 			get_declaractions(full);
@@ -167,7 +173,7 @@ namespace GLUU
 				else
 				{
 					if (!inspectors.count(var->type())) { add_error(GLUU_ERROR_INVALID_VARIABLE_NAME, "'" + string(var->type().name()) + "' has no members", kw->begin()); return true; }
-					var = inspectors.at(var->type())(var, s.flat());
+					var = inspectors.at(var->type()).inspect(var, s.flat());
 					if (var == nullptr) { add_error(GLUU_ERROR_INVALID_VARIABLE_NAME, "no member '" + s.flat() + "' ", kw->begin()); return true; }
 				}
 				b = false;

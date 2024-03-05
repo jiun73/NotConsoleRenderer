@@ -4,7 +4,18 @@
 
 #define GLUU_Make(_args, _name) pair<size_t, string> fetch_keyword() override {return { _args, _name };} shared_ptr<Widget> make(vector<string_ranges>& args, Parser& parser) override
 
+#include <typeindex>
+
 namespace GLUU {
+
+
+	using std::type_index;
+
+	struct Inspector
+	{
+		function<shared_generic(shared_generic, const string&)> inspect;
+	};
+
 	struct Expression
 	{
 		shared_ptr<VariableRegistry> scope;
@@ -25,9 +36,43 @@ namespace GLUU {
 		bool func = false;
 		bool user_func = false;
 
+		//Inspection
+		bool is_inspector = false;
+		Inspector* inspector;
+
 		Expression() { ret_flag = make_shared<bool>(); }
 		Expression(shared_ptr<bool> return_flag) : ret_flag(return_flag) {}
 		~Expression() {}
+
+		type_index get_type()
+		{
+			if (root)
+			{
+				vector<type_index> types;
+				for (auto r : recursive)
+				{
+					type_index type = r.get_type();
+
+					if (type == typeid(void))
+						continue;
+					else
+						types.push_back(type);
+				}
+				if (types.size() == 0) return typeid(void);
+				if (types.size() == 1) return types.at(0);
+				if (types.size() > 1) return typeid(string);
+			}
+			else if (func)
+			{
+				return function->return_type();
+			}
+			else if (user_func)
+			{
+				Expression& star = *(Expression*)(constant->raw_bytes());
+				return star.get_type();
+			}
+			else return constant->type();
+		}
 
 		bool has_returned()
 		{
