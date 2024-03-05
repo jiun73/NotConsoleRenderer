@@ -1,6 +1,6 @@
 
 new init setup = {
-	BASE.fit = :true;
+	BASE .fit = :true;
 }
 
 ROW CFIT BUTTON CollisionX			{ $collisionx_main } <>

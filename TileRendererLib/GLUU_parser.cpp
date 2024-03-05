@@ -114,33 +114,7 @@ namespace GLUU
 
 		if (flat.empty()) return false;
 
-		if (flat.front() == '.')
-		{
-			output_seq("member '" + kw->flat() + "'");
-
-			if (constants.empty())
-			{
-				add_error(GLUU_ERROR_INVALID_MEMBER_EXPRESSION, "Cannot call " + flat + " on nothing", kw->begin());
-			}
-
-			Expression copy = constants.back();
-
-			if (copy.get_type() != typeid(shared_generic))
-			{
-				if(!inspectors.count(copy.get_type())) add_error(GLUU_ERROR_INVALID_VARIABLE_NAME, "'" + string(var->type().name()) + "' has no members", kw->begin());
-
-				inspectors.at()
-			}
-			
-
-			
-			Expression inspector_expr(return_flags.back());
-			inspector_expr.is_inspector = true;
-			inspector_expr.inspectors = &inspectors;
-			inspector_expr.recursive.push_back(copy);
-			constants.pop_back();
-			constants.push_back(inspector_expr);
-		}
+		
 		if (f && flat == "new")
 		{
 			get_declaractions(full);
@@ -247,6 +221,35 @@ namespace GLUU
 			if (var == nullptr) { add_error(GLUU_ERROR_INVALID_VARIABLE_NAME, "variable '" + flat + "' doesn't exist in this scope", kw->begin()); return true; }
 			constant.constant = var;
 			constants.push_back(constant);
+		}
+		else if (flat.front() == '.')
+		{
+			output_seq("member '" + kw->flat() + "'");
+
+			if (constants.empty())
+			{
+				add_error(GLUU_ERROR_INVALID_MEMBER_EXPRESSION, "Cannot call " + flat + " on nothing", kw->begin());
+			}
+
+			Expression copy = constants.back();
+
+			if (copy.get_type() != typeid(shared_generic))
+			{
+				if (!inspectors.count(copy.get_type()))
+				{
+					add_error(GLUU_ERROR_INVALID_VARIABLE_NAME, "'" + string(copy.get_type().name()) + "' has no members", kw->begin());
+					return false;
+				};
+			}
+
+			Expression inspector_expr(return_flags.back());
+			inspector_expr.root = false;
+			inspector_expr.is_inspector = true;
+			inspector_expr.inspectors = &inspectors;
+			inspector_expr.recursive.push_back(copy);
+			inspector_expr.member = flat.substr(1);
+			constants.pop_back();
+			constants.push_back(inspector_expr);
 		}
 		else if (is_func_name(*kw))
 		{

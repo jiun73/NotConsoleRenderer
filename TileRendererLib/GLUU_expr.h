@@ -260,8 +260,12 @@ namespace GLUU {
 					{
 						return eval;
 					}
+					shared_generic ret = inspectors->at(eval->type()).inspect(eval, member);
 
-					return inspectors->at(eval->type()).inspect(eval, member);
+					if (ret == nullptr)
+						assert(false); //invalid member name
+					else
+						return ret;
 				}
 				else
 				{

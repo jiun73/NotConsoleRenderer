@@ -57,7 +57,7 @@ ROW SIZE 30 IF
 	{
 		new int size;
 		size = { {animations -at current_animation} .frames -size };
-		return {:not size == 0};
+		return { :not size == 0 };
 	};
 
 	:false
