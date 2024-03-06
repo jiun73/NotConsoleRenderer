@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "tictactoe_game.h"
 
 // Débuté le 14/01/2024
@@ -256,6 +257,5 @@ void tictactoe_main()
 	}
 }
 
-#include "pch.h"
 
 GLUU_IMPORT_MAIN(tictactoe_main);

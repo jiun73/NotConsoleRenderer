@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "usasim_Shooting.h"
 
 namespace USASIM
@@ -55,7 +56,7 @@ namespace USASIM
 	}
 }
 
-#include "pch.h"
+
 
 namespace USASIM
 {

@@ -518,12 +518,23 @@ struct ComponentXAdder
 	~ComponentXAdder() {}
 };
 
+
+
 template<size_t L, typename T, typename... Reqs>
 struct SystemXAdder
 {
 	SystemXAdder() { EntX::get()->register_system<T, Reqs...>(L); }
 	~SystemXAdder() {}
 };
+
+template<size_t L, typename T, typename F>
+struct QuickSystemXAdderHelper;
+
+template<size_t L, typename T, typename R, typename... Ts>
+struct QuickSystemXAdderHelper<L, T, R(T::*)(Ts*...)> : public SystemXAdder<L, T, Ts...> {};
+
+template<size_t L, typename T>
+struct QuickSystemXAdder : public QuickSystemXAdderHelper<L, T, decltype(&T::update)> {};
 
 template<size_t L, typename T, typename... Reqs>
 struct SystemXManagerAdder

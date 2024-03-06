@@ -7,7 +7,8 @@ enum CollisionTypes
 	CTYPE_PUSH,
 	CTYPE_DESTROY,
 	CTYPE_HURT,
-	CTYPE_BOUNCE
+	CTYPE_BOUNCE,
+	CTYPE_BOUNCESP
 };
 
 enum ColliderTags
@@ -185,10 +186,41 @@ struct Collision_system
 
 							break;
 
+						case CTYPE_BOUNCESP:
+						{
+							V2d_d dis = gjk.EPA(**it1, **it2);
+							size_t id = ids.at(y);
+							size_t id2 = ids.at(i);
+							positions.at(y)->position += dis;
+
+							if (EntX::get()->entity_has_component<Angle_x>(id2))
+							{
+								Angle_x* angle = EntX::get()->get_entity_component < Angle_x>(id2);
+								Random r;
+								angle->angle = r.frange(0, 2 * M_PI);
+							}
+
+							if (EntX::get()->entity_has_component<Physics_x>(id))
+							{
+								Physics_x* physics = EntX::get()->get_entity_component < Physics_x>(id);
+
+								double velang = (-physics->velocity).orientation();
+								double normang = dis.orientation();
+
+								double angdiff = normang - velang;
+								physics->velocity.polar(3.0, velang + angdiff * 2);
+							}
+							else
+							{
+								std::cout << "kys" << std::endl;
+							}
+						}
+						break;
 						case CTYPE_BOUNCE:
 						{
 							V2d_d dis = gjk.EPA(**it1, **it2);
 							size_t id = ids.at(y);
+							size_t id2 = ids.at(i);
 							positions.at(y)->position += dis;
 
 							if (EntX::get()->entity_has_component<Physics_x>(id))
@@ -199,7 +231,7 @@ struct Collision_system
 								double normang = dis.orientation();
 
 								double angdiff = normang - velang;
-								physics->velocity.polar(1.0, velang + angdiff * 2);
+								physics->velocity.polar(3.0, velang + angdiff * 2);
 							}
 							else
 							{

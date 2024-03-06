@@ -106,7 +106,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)TileRendererLib;$(SolutionDir)External Libraries\ENet\include;$(SolutionDir)External Libraries\SDL2\include;$(SolutionDir)External Libraries\SDL2_mixer\SDL2_mixer-2.6.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
@@ -141,7 +141,9 @@
     <ClCompile Include="bouncex_main.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="main_chatroom.cpp" />
-    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="pong_main.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Strings.cpp" />

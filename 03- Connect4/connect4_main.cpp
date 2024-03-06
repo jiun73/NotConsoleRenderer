@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "connect4_game.h"
 #include "Strings.h"
 
@@ -402,8 +403,6 @@ namespace CONNECT4
 
 	
 }
-
-#include "pch.h"
 
 namespace CONNECT4 
 {
