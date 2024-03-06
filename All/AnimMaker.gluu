@@ -28,7 +28,8 @@ ROW SIZE 30 <
 	} 
 	BUTTON { "Add image" } 
 	{
-		{animations -at current_animation} .frames -push :get_tex paths -at current_image;
+		{ {animations -at current_animation} .textures} -push {:get_tex paths -at current_image};
+		:cout {"Image added (" { {animations -at current_animation} .textures -size } ")"};
 	} <>
 >
 
@@ -60,7 +61,7 @@ ROW SIZE 30 IF
 	{animations -size} /+ 0 
 }
 <
-	COL SIZE 300 BUTTON { "dsfsdfsd" } <>
+	COL SIZE 300 BUTTON { "dsfsdfsd" } {} <>
 >
 
 ROW SIZE 30 IF 
@@ -69,7 +70,7 @@ ROW SIZE 30 IF
 	$if { {animations -size} /+ 0; } 
 	{
 		new int size;
-		size = { {animations -at current_animation} .frames -size };
+		size = {animations -at current_animation} .frames -size ;
 		return { :not size == 0 };
 	};
 

@@ -143,7 +143,11 @@ public:
 
 	void insert(shared_generic value, size_t i) override
 	{
-		if (value->type() != typeid(value_type)) return;
+		if (value->type() != typeid(value_type))
+		{
+			std::cout << "{ insert types do not match '" << value->type().name() << "' with container type '" << typeid(value_type).name() << "' }" << std::endl;
+			return;
+		}
 
 		const value_type& cast = *(value_type*)value->raw_bytes();
 

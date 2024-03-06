@@ -229,6 +229,7 @@ namespace GLUU
 			if (constants.empty())
 			{
 				add_error(GLUU_ERROR_INVALID_MEMBER_EXPRESSION, "Cannot call " + flat + " on nothing", kw->begin());
+				return false;
 			}
 
 			Expression copy = constants.back();
@@ -287,11 +288,13 @@ namespace GLUU
 				vector<string_ranges> keywords = subchain(chain(*it2, range_until, " "), range_until, ",");
 				for (auto kw = keywords.begin(); kw != keywords.end(); kw++)
 				{
+					std::cout << kw->flat() << std::endl;
 					if (parse_keyword(kw, constants, functions, f, str, keywords.size(), ret_val, keywords.end(), make_return)) return;
 				}
 
 				if (!next(it2)->empty())
 				{
+					std::cout << next(it2)->flat() << std::endl;
 					string_ranges r2 = *next(it2);
 					output_seq(r2.flat());
 					constants.push_back(make_const<string>(range_shave(r2).flat()));
@@ -300,6 +303,7 @@ namespace GLUU
 
 			if (!next(it)->empty())
 			{
+				std::cout << next(it)->flat() << std::endl;
 				Expression sub = parse_sequence_next(*next(it));
 				constants.push_back(sub);
 			}
