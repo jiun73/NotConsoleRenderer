@@ -11,7 +11,7 @@ struct Shape_system
 	{
 		shape->angle = angle->angle;
 		shape->position = pos->position;
-		ECSX::EntX::get()->add_callback([shape, angle, pos](ECSX::EntityID)
+		ECSX::EntX::get()->add_callback([shape, angle, pos](ECSX::Manager&, ECSX::EntityID)
 			{
 				shape->angle = angle->angle;
 				shape->position = pos->position;
@@ -28,7 +28,7 @@ struct GFX_system
 	{
 
 		pencil(gfx->col);
-		ECSX::EntX::get()->add_callback([shape](ECSX::EntityID)
+		ECSX::EntX::get()->add_callback([shape](ECSX::Manager&, ECSX::EntityID)
 			{
 				//draw_rect(shape->r);
 				shape->draw(camera());

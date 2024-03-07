@@ -1,9 +1,11 @@
 #pragma once
+#include <new>
 #include <type_traits>
 #include <vector>
 #include <tuple>
 
 namespace ECSX {
+	using std::launder;
 	using std::vector;
 	using std::tuple;
 	using std::tuple_element_t;
@@ -12,6 +14,24 @@ namespace ECSX {
 	const size_t MAX_COMPONENT = 32;
 	typedef uint32_t ComponentBytes;
 	typedef size_t ComponentID;
+
+	template<typename T>
+	class TypeId
+	{
+	private:
+		static size_t current;
+
+	public:
+		template<typename U>
+		static const size_t id()
+		{
+			assert(current < MAX_COMPONENT);
+			static const size_t count = current++;
+			return count;
+		}
+	};
+
+	template<class T> size_t TypeId<T>::current = 0;
 
 	struct ComponentX
 	{

@@ -6,7 +6,7 @@
 
 #include "NotConsoleRenderer.h"
 #include "SDL_image.h"
-#include "EntityX.h"
+#include "ECSX.h"
 #include "Fonts.h"
 #include "Camera.h"
 #include "CommandPrompt.h"

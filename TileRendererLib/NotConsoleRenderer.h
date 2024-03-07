@@ -267,9 +267,9 @@ double distance_square(const V2d_d& pos1, const V2d_d& pos2); //square of the di
 double distance(const V2d_d& pos1, const V2d_d& pos2); //real distance between points
 
 //----------------------------------------------------------ENTITYX---------------------------------------------------------------------------
-#include "EntityX.h"
+#include "ECSX.h"
 
-inline ECSX::EntityManagerX* entities() { return ECSX::EntX::get(); }
+inline ECSX::Manager* entities() { return ECSX::EntX::get(); }
 
 template<typename T>
 inline T* entitity_system() { return ECSX::EntX::get()->get_system<T>(); }

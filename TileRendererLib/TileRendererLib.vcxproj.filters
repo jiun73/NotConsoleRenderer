@@ -186,6 +186,12 @@
     <ClInclude Include="ECSX_typeid.h">
       <Filter>Header Files\Classes\ECSX</Filter>
     </ClInclude>
+    <ClInclude Include="ECSX_Archetype.h">
+      <Filter>Header Files\Classes\ECSX</Filter>
+    </ClInclude>
+    <ClInclude Include="ECSX_Manager.h">
+      <Filter>Header Files\Classes\ECSX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NotConsoleRendererLib.cpp">
@@ -221,12 +227,15 @@
     <ClCompile Include="GLUU_parser.cpp">
       <Filter>Header Files\Generic\GLUU</Filter>
     </ClCompile>
-    <ClCompile Include="EntityX.cpp">
+    <ClCompile Include="ECSX_Manager.cpp">
+      <Filter>Header Files\Classes\ECSX</Filter>
+    </ClCompile>
+    <ClCompile Include="ECSX_System.h">
       <Filter>Header Files\Classes\ECSX</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="EntityX.h">
+    <None Include="ECSX.h">
       <Filter>Header Files\Classes\ECSX</Filter>
     </None>
   </ItemGroup>

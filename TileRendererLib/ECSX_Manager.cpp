@@ -1,8 +1,9 @@
-#include "EntityX.h"
 #include "pch.h"
+#include "ECSX_Manager.h"
+
 
 namespace ECSX {
-	void EntityManagerX::add_system(uint8_t layer, SystemX* system, SystemID id)
+	void Manager::add_system(uint8_t layer, SystemX* system, SystemID id)
 	{
 		system->create();
 		systems.emplace(layer, system);
@@ -10,7 +11,7 @@ namespace ECSX {
 		std::cout << "System " << std::bitset<32>(system->key()) << " added" << std::endl;
 	}
 
-	inline void EntityManagerX::add_archetype(ComponentBytes key)
+	inline void Manager::add_archetype(ComponentBytes key)
 	{
 		archetypes.emplace(key, ArchetypeX());
 		ArchetypeX& arch = archetypes.at(key);
@@ -18,14 +19,14 @@ namespace ECSX {
 		std::cout << "Archetype " << std::bitset<32>(key) << " added" << std::endl;
 	}
 
-	bool EntityManagerX::entity_has_component(EntityID eid, ComponentID cid)
+	bool Manager::entity_has_component(EntityID eid, ComponentID cid)
 	{
 		size_t key = entities.at(eid);
 
 		return (key & (1ull << cid));
 	}
 
-	void EntityManagerX::remove_tag_pair(EntityTag tag, EntityID eid)
+	void Manager::remove_tag_pair(EntityTag tag, EntityID eid)
 	{
 		entity_tags_reversed.erase(eid);
 
@@ -41,7 +42,7 @@ namespace ECSX {
 		}
 	}
 
-	ComponentData EntityManagerX::get_entity_component_data(EntityID eid, ComponentID cid)
+	ComponentData Manager::get_entity_component_data(EntityID eid, ComponentID cid)
 	{
 		size_t key = entities.at(eid);
 
@@ -54,7 +55,7 @@ namespace ECSX {
 		return &data[index * size];
 	}
 
-	void EntityManagerX::remove_entity(EntityID eid)
+	void Manager::remove_entity(EntityID eid)
 	{
 		size_t key = entities.at(eid);
 		ArchetypeX& archetype = archetypes.at((ComponentBytes)key);
@@ -105,7 +106,7 @@ namespace ECSX {
 		//std::cout << "Entity " << eid << " destroyed" << std::endl;
 	}
 
-	EntityID EntityManagerX::add_entity(const vector<ComponentID>& list)
+	EntityID Manager::add_entity(const vector<ComponentID>& list)
 	{
 		ComponentBytes byteform = get_bytes_from_list(list);
 
@@ -159,7 +160,7 @@ namespace ECSX {
 		return new_id;
 	}
 
-	EntityID EntityManagerX::add_entity_tagged(const vector<ComponentID>& list, EntityTag tag)
+	EntityID Manager::add_entity_tagged(const vector<ComponentID>& list, EntityTag tag)
 	{
 		EntityID eid = add_entity(list);
 
@@ -168,12 +169,12 @@ namespace ECSX {
 		return eid;
 	}
 
-	void EntityManagerX::add_callback(function<void(EntityID)> function, EntityID eid)
+	void Manager::add_callback(function<void(Manager&, EntityID)> function, EntityID eid)
 	{
 		callbacks.push_back({ eid, function });
 	}
 
-	void EntityManagerX::update()
+	void Manager::update()
 	{
 		for (auto& pair : systems)
 		{
@@ -209,11 +210,11 @@ namespace ECSX {
 		do_callbacks();
 	}
 
-	void EntityManagerX::do_callbacks()
+	void Manager::do_callbacks()
 	{
 		for (auto& pair : callbacks)
 		{
-			pair.second(pair.first);
+			pair.second(*this, pair.first);
 		}
 
 		callbacks.clear();

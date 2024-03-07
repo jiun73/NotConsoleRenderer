@@ -1,5 +1,5 @@
 #pragma once
-#include "EntityX.h"
+#include "ECSX.h"
 #include "Vec2D.h"
 #include "NotConsoleRenderer.h"
 

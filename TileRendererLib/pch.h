@@ -17,7 +17,7 @@
 #include "File.h"
 #include "CommandPrompt.h"
 #include "ThreadPool.h"
-#include "EntityX.h"
+#include "ECSX.h"
 #include "Camera.h"
 #include "Generics.h"
 #include "Controls.h"

@@ -118,11 +118,11 @@ namespace GLUU {
 		import_function<string(_sgen_)>(":type", [](_sgen_ a) {return a->type().name(); });
 		import_function<int(bool)>("(bool-int)", [](bool a) {return a; });
 		import_function<int(size_t)>("(size_t-int)", [](size_t a) {return (int)a; });
-		import_function<uint8_t(int)>("(u8)", [](int a) {return a; });
-		import_function<uint16_t(int)>("(u16)", [](int a) {return a; });
-		import_function<uint32_t(int)>("(u32)", [](int a) {return a; });
-		import_function<uint64_t(int)>("(u64)", [](int a) {return a; });
-		import_function<size_t(int)>("(size_t)", [](int a) {return a; });
+		import_function<uint8_t(int)>("(u8)", [](int a) {return (uint8_t)a; });
+		import_function<uint16_t(int)>("(u16)", [](int a) {return (uint16_t)a; });
+		import_function<uint32_t(int)>("(u32)", [](int a) {return (uint32_t)a; });
+		import_function<uint64_t(int)>("(u64)", [](int a) {return (uint64_t)a; });
+		import_function<size_t(int)>("(size_t)", [](int a) {return (size_t)a; });
 		import_function<void(_sgen_)>(":cout", [](_sgen_ a) {std::cout << a->stringify() << std::endl; });
 		import_function<int()>(":ticks", []() { return (int)SDL_GetTicks(); });
 
@@ -175,7 +175,7 @@ namespace GLUU {
 				return container->container_size();
 			});
 
-		import_function<int(_sgen_)>("-size", [](_sgen_ a)-> size_t
+		import_function<int(_sgen_)>("-size", [](_sgen_ a) -> int
 			{
 				if (!is_iden<GenericContainer>(a)) 
 				{

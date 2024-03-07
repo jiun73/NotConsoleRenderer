@@ -4,7 +4,7 @@
 #include "Color.h"
 
 #include "NotConsoleRenderer.h"
-#include "EntityX.h"
+#include "ECSX.h"
 
 #include <vector>
 #include <functional>
