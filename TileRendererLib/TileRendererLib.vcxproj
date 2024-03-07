@@ -154,9 +154,11 @@
     <ClInclude Include="CommandDictionnary.h" />
     <ClInclude Include="CommandPrompt.h" />
     <ClInclude Include="CommandStandard.h" />
+    <ClInclude Include="ECSX_ComponentX.h" />
     <ClInclude Include="ConsoleRenderer.h" />
     <ClInclude Include="ContainerGenerics.h" />
     <ClInclude Include="Controls.h" />
+    <ClInclude Include="ECSX_typeid.h" />
     <ClInclude Include="GLUU.h" />
     <ClInclude Include="GLUU_button.h" />
     <ClInclude Include="GLUU_dropbox.h" />

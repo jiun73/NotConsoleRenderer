@@ -245,6 +245,7 @@ bool run()
 	if (!__run__ && override_run)
 	{
 		__run__ = true;
+		ECSX::EntX::get()->clean();
 		return false;
 	}
 

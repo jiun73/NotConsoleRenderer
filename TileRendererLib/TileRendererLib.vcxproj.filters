@@ -40,6 +40,9 @@
     <Filter Include="Header Files\Classes\Files">
       <UniqueIdentifier>{904eadf9-8180-4cd1-8e44-cb3ab945f077}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Classes\ECSX">
+      <UniqueIdentifier>{c4e45bb1-1d80-4fd8-9a21-c2918fb62d1f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -177,6 +180,12 @@
     <ClInclude Include="QuickButton.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ECSX_ComponentX.h">
+      <Filter>Header Files\Classes\ECSX</Filter>
+    </ClInclude>
+    <ClInclude Include="ECSX_typeid.h">
+      <Filter>Header Files\Classes\ECSX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NotConsoleRendererLib.cpp">
@@ -186,9 +195,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Sound.cpp">
-      <Filter>Header Files\Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="EntityX.cpp">
       <Filter>Header Files\Classes</Filter>
     </ClCompile>
     <ClCompile Include="ThreadPool.cpp">
@@ -215,10 +221,13 @@
     <ClCompile Include="GLUU_parser.cpp">
       <Filter>Header Files\Generic\GLUU</Filter>
     </ClCompile>
+    <ClCompile Include="EntityX.cpp">
+      <Filter>Header Files\Classes\ECSX</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="EntityX.h">
-      <Filter>Header Files\Classes</Filter>
+      <Filter>Header Files\Classes\ECSX</Filter>
     </None>
   </ItemGroup>
 </Project>
