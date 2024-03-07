@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "AnimationX.h"
 
+#define __IMPORT_MAKE_REF__(n) if (str == #n) return make_generic_ref(obj.##n)
+
 
 __REGISTER_CLASS__(AnimationX);
 GLUU::ImportInspector<AnimationX> anim_inpector([](shared_generic gen, const string& str) -> shared_generic
@@ -25,6 +27,24 @@ GLUU::ImportInspector<AnimationFrameX> animf_inpector([](shared_generic gen, con
 		if (str == "full_source") return make_generic_ref(obj.full_source);
 		if (str == "origin") return make_generic_ref(obj.origin);
 		if (str == "source") return make_generic_ref(obj.source);
+		return nullptr;
+	});
+
+__REGISTER_CLASS__(V2d_i);
+GLUU::ImportInspector<V2d_i> animf2_inpector([](shared_generic gen, const string& str) -> shared_generic
+	{
+		V2d_i& obj = *(V2d_i*)(gen->raw_bytes());
+		if (str == "x") return make_generic_ref(obj.x);
+		if (str == "y") return make_generic_ref(obj.y);
+		return nullptr;
+	});
+
+__REGISTER_CLASS__(Rect);
+GLUU::ImportInspector<Rect> animf3_inpector([](shared_generic gen, const string& str) -> shared_generic
+	{
+		Rect& obj = *(Rect*)(gen->raw_bytes());
+		if (str == "pos") return make_generic_ref(obj.pos);
+		if (str == "sz") return make_generic_ref(obj.sz);
 		return nullptr;
 	});
 

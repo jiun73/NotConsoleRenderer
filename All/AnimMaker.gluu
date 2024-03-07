@@ -2,6 +2,7 @@ new vector(AnimationX) animations
 new vector(string) animation_names
 new vector(string) paths
 new int current_frame = 0
+new int current_animation = 0
 
 new function :load_images = 
 {
@@ -16,16 +17,31 @@ new function :load_images =
 	};
 }
 
-new int current_animation = 0
+new function :has_anim = { { animations -size } /+ 0 }
+
+new function :has_frames = 
+{
+	$if :has_anim  
+	{
+		return { { { animations -at current_animation } .frames -size } /+ 0 } 
+	};
+	:false;
+}
+
+new function :has_textures = 
+{
+	$if :has_anim 
+	{
+		return { { { animations -at current_animation } .textures -size } /+ 0 }
+	};
+	:false;
+}
 
 ROW SIZE 30 <
 	new int current_image = 0
 	COL SIZE 120 BUTTON { "Load images" } { :load_images } <>
 	COL SIZE 900 DROPBOX {paths} {current_image} <>
-	COL SIZE 120 IF 
-	{
-		{animations -size} /+ 0 
-	} 
+	COL SIZE 120 IF { :has_anim } 
 	BUTTON { "Add image" } 
 	{
 		{ {animations -at current_animation} .textures} -push {:get_tex paths -at current_image};
@@ -56,26 +72,15 @@ ROW SIZE 30 <
 	
 >
 
-ROW SIZE 30 IF 
-{ 
-	{animations -size} /+ 0 
-}
+ROW SIZE 100 IF { :has_anim }
 <
-	COL SIZE 300 BUTTON { "dsfsdfsd" } {} <>
+	COL BUTTON { "Add frame" } 
+	{
+
+	} <>
 >
 
-ROW SIZE 30 IF 
-{ 
-
-	$if { {animations -size} /+ 0; } 
-	{
-		new int size;
-		size = {animations -at current_animation} .frames -size ;
-		return { :not size == 0 };
-	};
-
-	:false
-} <
+ROW SIZE 30 IF { :has_frames } <
 	COL SIZE 40 TEXT { # current_frame } <>
 
 	COL SIZE 40 BUTTON { "Prev" }  

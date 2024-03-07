@@ -261,6 +261,7 @@ namespace GLUU {
 					{
 						return eval;
 					}
+
 					shared_generic ret = inspectors->at(eval->type()).inspect(eval, member);
 
 					if (ret == nullptr)
