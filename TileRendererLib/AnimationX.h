@@ -8,8 +8,8 @@ using std::map;
 using std::vector;
 using std::string;
 
-#undef min;
-#undef max;
+#undef min
+#undef max
 
 struct AnimationFrameX
 {

@@ -85,8 +85,8 @@ void circle_on_axis(square& main, V2d_i axisPosition, double radius, int& angle)
 	double angleInRad = newAngle * 3.14159265 / 180.0000000;
 	double sinus = sin(angleInRad);
 	double cosinus = cos(angleInRad);
-	int x = cosinus * radius + axisPosition.x;
-	int y = sinus * radius + axisPosition.y;
+	int x = cosinus * radius + (double)axisPosition.x;
+	int y = sinus * radius + (double)axisPosition.y;
 	main.get_pos().x = x;
 	main.get_pos().y = y;
 	angle++;

@@ -15,7 +15,7 @@ namespace GLUU {
 
 		void update(Element& graphic) override
 		{
-			draw_special_text(text(), graphic.last_dest.sz.x, graphic.last_dest.pos, get_font(0));
+			draw_special_text(text(), (int)graphic.last_dest.sz.x, (V2d_i)graphic.last_dest.pos, get_font(0));
 		}
 	};
 }

@@ -3,13 +3,13 @@
 
 bool net::verbose_net = true;
 
-bool ReadBuffer::has(size_t channel)
+bool ReadBuffer::has(ChannelID channel)
 {
 	if (read_buffer.count(channel) == 0) return false;
 	return !read_buffer[channel].empty();
 }
 
-void ReadBuffer::end(size_t channel)
+void ReadBuffer::end(ChannelID channel)
 {
 	DataStream* stream = new DataStream();
 	stream->flag = channel;
@@ -83,7 +83,7 @@ Peer2Peer::Peer2Peer() : address({0,0}), peer(nullptr), current_peer(0), write_f
 	atexit(enet_deinitialize);
 }
 
-void Peer2Peer::start_stream(size_t channel)
+void Peer2Peer::start_stream(ChannelID channel)
 {
 	if (net::verbose_net)
 	std::cout << "Start of stream " << channel << std::endl;

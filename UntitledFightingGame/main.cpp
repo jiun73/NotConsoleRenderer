@@ -10,21 +10,21 @@
 #include "ContainerGenerics.h"
 #include "GLUU_parser.h"
 
-static ComponentXAdder<Shape_x> shape_adder;
-static ComponentXAdder<Collider_x> coll_adder;
+static ECSX::ComponentXAdder<Shape_x> shape_adder;
+static ECSX::ComponentXAdder<Collider_x> coll_adder;
 
-SystemXAdder<9, Shape_system, Position_x, Angle_x, Shape_x> shape_system_adder;
-SystemXAdder<10, GFX_system, GFX_x, Shape_x> polygon_gfx_system_adder;
-SystemXAdder<8, Controller_system, Position_x, Controller_x, Physics_x, Collider_x> controller_system_adder;
+ECSX::SystemXAdder<9, Shape_system, Position_x, Angle_x, Shape_x> shape_system_adder;
+ECSX::SystemXAdder<10, GFX_system, GFX_x, Shape_x> polygon_gfx_system_adder;
+ECSX::SystemXAdder<8, Controller_system, Position_x, Controller_x, Physics_x, Collider_x> controller_system_adder;
 //SystemXAdder<1, Shooter_system, Shooter_x, Position_x, Angle_x> shooter_system_adder;
-SystemXAdder<7, Physics_system, Physics_x, Position_x, Angle_x> physics_system_adder;
-SystemXAdder<0, Lifetime_system, Lifetime_x> lifetime_system_adder;
-SystemXAdder<1, Particle_system, ParticleEmitter_x, Position_x> particle_system_adder;
+ECSX::SystemXAdder<7, Physics_system, Physics_x, Position_x, Angle_x> physics_system_adder;
+ECSX::SystemXAdder<0, Lifetime_system, Lifetime_x> lifetime_system_adder;
+ECSX::SystemXAdder<1, Particle_system, ParticleEmitter_x, Position_x> particle_system_adder;
 //SystemXAdder<0, PlayerMoveParticle_system, ParticleEmitter_x, Controller_x> player_particle_system_adder;
 //SystemXAdder<1, Distorter_system, Distorter_x, Shape_x> distorter_system_adder;
 //SystemXAdder<1, AI_system, AI_x, Angle_x, Position_x, Physics_x> ai_system_adder;
-SystemXAdder<1, Health_system, Health_x> health_system_adder;
-SystemXManagerAdder<0, Collision_system, Shape_x, Collider_x, Position_x> collision_system_adder;
+ECSX::SystemXAdder<1, Health_system, Health_x> health_system_adder;
+ECSX::SystemXManagerAdder<0, Collision_system, Shape_x, Collider_x, Position_x> collision_system_adder;
 
 enum Tags
 {
@@ -40,9 +40,9 @@ enum cTags
 
 int main()
 {
-	TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Controller_x, Collider_x, Physics_x> player;
-	TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Controller_x, Collider_x, Physics_x> player2;
-	TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Collider_x> floor;
+	ECSX::TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Controller_x, Collider_x, Physics_x> player;
+	ECSX::TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Controller_x, Collider_x, Physics_x> player2;
+	ECSX::TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Collider_x> floor;
 
 	Rect_d player_square = { -5,5 };
 	player.create({ 25 }, { 0 }, { rgb(100,100,100) }, { player_square }, { "p1_" }, { PLAYER }, { 0,0,{0,0.03} });

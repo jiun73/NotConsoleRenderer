@@ -172,7 +172,7 @@ namespace strings
 		{
 			T obj;
 			int err = strings::destringify(obj, arg);
-			if (err == true)
+			if (err == 1)
 				vec.push_back(obj);
 			else
 			{

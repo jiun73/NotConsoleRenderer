@@ -33,9 +33,9 @@ namespace GLUU {
 		{
 			if (index() >= 0 && index() < list().size() && !list().empty())
 				text = list().at(index());
-			box.pos.x = graphic.last_dest.sz.x + graphic.last_dest.pos.x - box.sz.x;
-			box.pos.y = graphic.last_dest.pos.y;
-			box.sz.y = graphic.last_dest.sz.y;
+			box.pos.x = (int)(graphic.last_dest.sz.x + graphic.last_dest.pos.x - (double)box.sz.x);
+			box.pos.y = (int)graphic.last_dest.pos.y;
+			box.sz.y = (int)graphic.last_dest.sz.y;
 			but.box = box;
 			but.update();
 
@@ -49,8 +49,8 @@ namespace GLUU {
 				{
 					QuickButton but2;
 					but2.box.sz = graphic.last_dest.sz;
-					but2.box.pos.y = (i + 1) * graphic.last_dest.sz.y + graphic.last_dest.pos.y;
-					but2.box.pos.x = graphic.last_dest.pos.x;
+					but2.box.pos.y = (i + 1) * (int)(graphic.last_dest.sz.y + graphic.last_dest.pos.y);
+					but2.box.pos.x = (int)graphic.last_dest.pos.x;
 					choices.push_back(but2);
 					i++;
 				}
@@ -83,7 +83,7 @@ namespace GLUU {
 			pencil(COLOR_WHITE);
 			draw_rect(box);
 
-			draw_text(text, graphic.last_dest.sz.x, graphic.last_dest.pos, get_font(0));
+			draw_text(text, (int)graphic.last_dest.sz.x, (V2d_i)graphic.last_dest.pos, get_font(0));
 
 			if (open)
 			{

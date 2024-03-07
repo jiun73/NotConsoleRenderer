@@ -55,7 +55,7 @@ struct Lifetime_system
 		}
 		else if (lifetime->life == 0)
 		{
-			EntX::get()->destroy_this();
+			ECSX::EntX::get()->destroy_this();
 		}
 	}
 };
@@ -98,7 +98,7 @@ struct Health_system
 	void update(Health_x* health)
 	{
 		if (health->health <= 0)
-			EntX::get()->destroy_this();
+			ECSX::EntX::get()->destroy_this();
 	}
 };
 

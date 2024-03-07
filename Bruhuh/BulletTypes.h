@@ -16,10 +16,10 @@ inline WeaponBullet get_bullet_from_type(BulletTypes type)
 	case BULLET_SIZABLE:
 		return { { {"SIZE", {}}}, [](WeaponBullet& b, size_t playerid)
 			{
-				Position_x* pos = EntX::get()->get_entity_component<Position_x>(playerid);
-				Angle_x* angle = EntX::get()->get_entity_component<Angle_x>(playerid);
+				Position_x* pos = ECSX::EntX::get()->get_entity_component<Position_x>(playerid);
+				Angle_x* angle = ECSX::EntX::get()->get_entity_component<Angle_x>(playerid);
 
-				EntityX<Position_x, Angle_x, GFX_x, Shape_x, Physics_x, Lifetime_x, Collider_x> bullet;
+				ECSX::EntityX<Position_x, Angle_x, GFX_x, Shape_x, Physics_x, Lifetime_x, Collider_x> bullet;
 				WeaponRegister& size_reg = b.registers.at("SIZE");
 				int size = size_reg.value + 1;
 				size_reg.value = 0;

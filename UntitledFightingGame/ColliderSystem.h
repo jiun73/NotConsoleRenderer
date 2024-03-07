@@ -73,7 +73,7 @@ struct Collision_system
 
 	map< ColliderTag, ColliderKey> masks;
 	map< ColliderPair, CollisionTypes> types;
-	map< ColliderPair, std::function<void(EntityID, EntityID)>> customs;
+	map< ColliderPair, std::function<void(ECSX::EntityID, ECSX::EntityID)>> customs;
 
 	void add_pairing(ColliderTag tag, ColliderTag collidesWith, CollisionTypes type = CTYPE_CUSTOM)
 	{
@@ -93,7 +93,7 @@ struct Collision_system
 		std::cout << "Collider tag " << std::bitset<32>(tag) << " now " << std::bitset<32>(masks[tag]) << std::endl;
 	}
 
-	void update(vector<Shape_x*>& shapes, vector<Collider_x*>& colliders, vector<Position_x*>& positions, vector<EntityID>& ids)
+	void update(vector<Shape_x*>& shapes, vector<Collider_x*>& colliders, vector<Position_x*>& positions, vector<ECSX::EntityID>& ids)
 	{
 		size_t i = 0;
 
@@ -133,9 +133,9 @@ struct Collision_system
 							size_t id = ids.at(y);
 							positions.at(y)->position += dis;
 
-							if (EntX::get()->entity_has_component<Physics_x>(id))
+							if (ECSX::EntX::get()->entity_has_component<Physics_x>(id))
 							{
-								Physics_x* physics = EntX::get()->get_entity_component < Physics_x>(id);
+								Physics_x* physics = ECSX::EntX::get()->get_entity_component < Physics_x>(id);
 
 								if (dis.y < 0 && physics->velocity.y > 0) 
 								{ 
@@ -152,12 +152,12 @@ struct Collision_system
 						}
 							break;
 						case CTYPE_DESTROY:
-							EntX::get()->destroy_this(ids.at(y));
+							ECSX::EntX::get()->destroy_this(ids.at(y));
 							break;
 						case CTYPE_HURT:
-							if (EntX::get()->entity_has_component<Health_x>(ids.at(y)))
+							if (ECSX::EntX::get()->entity_has_component<Health_x>(ids.at(y)))
 							{
-								EntX::get()->get_entity_component < Health_x>(ids.at(y))->health--;
+								ECSX::EntX::get()->get_entity_component < Health_x>(ids.at(y))->health--;
 							}
 
 							break;

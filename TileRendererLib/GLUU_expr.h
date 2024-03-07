@@ -73,6 +73,7 @@ namespace GLUU {
 				return star.get_type();
 			}
 			else return constant->type();
+			return typeid(void);
 		}
 
 		bool has_returned()
@@ -272,6 +273,7 @@ namespace GLUU {
 					return constant;
 				}
 			}
+			return nullptr;
 		}
 	};
 }

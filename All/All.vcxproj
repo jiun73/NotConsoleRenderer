@@ -136,7 +136,6 @@
     <ClCompile Include="..\01- CollisionX\collisionx_main.cpp" />
     <ClCompile Include="..\02- TicTacToe\tictactoe_main.cpp" />
     <ClCompile Include="..\03- Connect4\connect4_main.cpp" />
-    <ClCompile Include="..\03- Connect4\Strings.cpp" />
     <ClCompile Include="animmaker_main.cpp" />
     <ClCompile Include="bouncex_main.cpp" />
     <ClCompile Include="main.cpp" />

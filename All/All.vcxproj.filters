@@ -54,9 +54,6 @@
     <ClCompile Include="..\03- Connect4\connect4_main.cpp">
       <Filter>Fichiers sources\Connect4</Filter>
     </ClCompile>
-    <ClCompile Include="..\03- Connect4\Strings.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
     <ClCompile Include="bouncex_main.cpp">
       <Filter>Fichiers sources\BounceX</Filter>
     </ClCompile>

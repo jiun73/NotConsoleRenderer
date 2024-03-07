@@ -269,16 +269,16 @@ double distance(const V2d_d& pos1, const V2d_d& pos2); //real distance between p
 //----------------------------------------------------------ENTITYX---------------------------------------------------------------------------
 #include "EntityX.h"
 
-inline EntityManagerX* entities() { return EntX::get(); }
+inline ECSX::EntityManagerX* entities() { return ECSX::EntX::get(); }
 
 template<typename T>
-inline T* entitity_system() { return EntX::get()->get_system<T>(); }
+inline T* entitity_system() { return ECSX::EntX::get()->get_system<T>(); }
 
 //----------------------------------------------------------NETWORKING------------------------------------------------------------------------
 #include "Networking.h"
 
 Peer2Peer& p2p();
-Peer2Peer& p2p(size_t i);
+Peer2Peer& p2p(ChannelID i);
 
 //---
 

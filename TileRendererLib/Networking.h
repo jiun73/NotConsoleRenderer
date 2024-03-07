@@ -57,8 +57,8 @@ struct ReadBuffer
 	deque<enet_uint8*> data_buffer;
 	map<size_t, queue<DataStream*>> read_buffer;
 
-	bool has(size_t channel);
-	void end(size_t channel);
+	bool has(ChannelID channel);
+	void end(ChannelID channel);
 	void add(enet_uint8* data);
 
 	template<typename T>
@@ -133,7 +133,7 @@ public:
 	Peer2Peer();
 	~Peer2Peer() { }
 
-	void start_stream(size_t channel);
+	void start_stream(ChannelID channel);
 	void end_stream();
 
 	template<typename T>
@@ -250,7 +250,7 @@ private:
 	map<size_t, ReadBuffer> buffers;
 
 	size_t counter = 0;
-	size_t write_flag = 0;
+	ChannelID write_flag = 0;
 	size_t current_peer = 0;
 
 	bool open = false;
@@ -313,7 +313,7 @@ public:
 		while (peers.empty()) { if (net::verbose_net) std::cout << "Waiting for peer \r"; };
 	}
 
-	int peer_count() { return peers.size(); }
+	size_t peer_count() { return peers.size(); }
 
 	bool is_connected() { return connected; }
 
@@ -353,6 +353,7 @@ public:
 			if (address.host == p.second->address.host && address.port == p.second->address.port)
 				return p.first;
 		}
+		return -1;
 	}
 
 	template<typename T>

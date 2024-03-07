@@ -76,11 +76,11 @@ struct Health_x
 	int health = 10;
 };
 
-static ComponentXAdder<Position_x> pos_adder;
-static ComponentXAdder<Angle_x> angle_adder;
-static ComponentXAdder<GFX_x> gfx_adder;
-static ComponentXAdder<Controller_x> controller_adder;
-static ComponentXAdder<Physics_x> physics_adder;
-static ComponentXAdder<Lifetime_x> lifetime_adder;
-static ComponentXAdder<ParticleEmitter_x> emitter_adder;
-static ComponentXAdder<Health_x> health_adder;
+static ECSX::ComponentXAdder<Position_x> pos_adder;
+static ECSX::ComponentXAdder<Angle_x> angle_adder;
+static ECSX::ComponentXAdder<GFX_x> gfx_adder;
+static ECSX::ComponentXAdder<Controller_x> controller_adder;
+static ECSX::ComponentXAdder<Physics_x> physics_adder;
+static ECSX::ComponentXAdder<Lifetime_x> lifetime_adder;
+static ECSX::ComponentXAdder<ParticleEmitter_x> emitter_adder;
+static ECSX::ComponentXAdder<Health_x> health_adder;

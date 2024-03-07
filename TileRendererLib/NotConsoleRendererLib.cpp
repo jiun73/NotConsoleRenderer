@@ -99,7 +99,7 @@ V2d_d get_logical_size()
 void set_logical_size(V2d_d sz)
 {
 	window_size = sz;
-	SDL_RenderSetLogicalSize(sdl_ren, sz.x, sz.y);
+	SDL_RenderSetLogicalSize(sdl_ren, (int)sz.x, (int)sz.y);
 }
 
 V2d_d mouse_position()
@@ -144,10 +144,10 @@ void init()
 					_fonts.set_glyph_effect([](SDL_Rect& dest)
 						{
 							double x = ((SDL_GetTicks() % 1000) / 1000.0 * 2 * M_PI + (double)(dest.x * 7)) ;
-							int xdis = sin(x) * 5.0;
-							int ydis = cos(x) * 5.0;
-							dest.x += xdis;
-							dest.y += ydis;
+							double xdis = sin(x) * 5.0;
+							double ydis = cos(x) * 5.0;
+							dest.x += (int)xdis;
+							dest.y += (int)ydis;
 							std::cout << xdis << ydis << std::endl;
 						});
 				});
@@ -207,7 +207,7 @@ bool run()
 			run_callback();
 		}
 
-		EntX::get()->update();
+		ECSX::EntX::get()->update();
 		Commands::get()->update();
 
 		SDL_RenderPresent(sdl_ren);
@@ -425,7 +425,7 @@ double distance(const V2d_d& pos1, const V2d_d& pos2)
 
 Peer2Peer& p2p() { return hidden::_net; }
 
-Peer2Peer& p2p(size_t i) { return hidden::_net[i]; }
+Peer2Peer& p2p(ChannelID i) { return hidden::_net[i]; }
 
 void draw_image(const string& path, Rect destination)
 {
@@ -498,7 +498,7 @@ void draw_flat_triangle(V2d_i p1, int flat_y, int x1, int x2)
 	int miny = (std::min)(p1.y, flat_y);
 	int maxy = (std::max)(p1.y, flat_y);
 
-	for (size_t y = miny; y < maxy; y++)
+	for (int y = (int)floor(miny); y < (int)floor(maxy); y++)
 	{
 		double xx1 = 0;
 		double xx2 = 0;
@@ -536,7 +536,7 @@ void draw_flat_triangle(V2d_i p1, int flat_y, int x1, int x2)
 		double minx = (std::min)(xx1, xx2);
 		double maxx = (std::max)(xx1, xx2);
 
-		for (size_t x = minx; x < maxx; x++)
+		for (int x = (int)floor(minx); x < (int)floor(maxx); x++)
 		{
 			SDL_RenderDrawPoint(sdl_ren, x, y);
 		}
@@ -582,8 +582,8 @@ void draw_full_triangle(V2d_i p1, V2d_i p2, V2d_i p3)
 		flat_x = (mid.y - b) / a;
 	}
 
-	draw_flat_triangle(top, mid.y, mid.x, flat_x);
-	draw_flat_triangle(bot, mid.y, mid.x, flat_x);
+	draw_flat_triangle(top, mid.y, mid.x, (int)flat_x);
+	draw_flat_triangle(bot, mid.y, mid.x, (int)flat_x);
 }
 
 FontsManager& fonts()
@@ -818,7 +818,6 @@ vector<string> open_dialog(const string& filter)
 
 	OPENFILENAME ofn;       // common dialog box structure
 	wchar_t szFile[255];       // buffer for file name
-	HANDLE hf;              // file handle
 
 	// Initialize OPENFILENAME
 	ZeroMemory(&ofn, sizeof(ofn));

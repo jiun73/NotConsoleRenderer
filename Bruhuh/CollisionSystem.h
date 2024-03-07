@@ -25,7 +25,7 @@ struct Collision_system
 		std::cout << "Collider tag " << std::bitset<32>(tag) << " now " << std::bitset<32>(masks[tag]) << std::endl;
 	}
 
-	void update(vector<Shape_x*>& shapes, vector<Collider_x*>& colliders, vector<Position_x*>& positions, vector<EntityID>& ids)
+	void update(vector<Shape_x*>& shapes, vector<Collider_x*>& colliders, vector<Position_x*>& positions, vector<ECSX::EntityID>& ids)
 	{
 		size_t i = 0;
 		for (auto it1 = shapes.begin(); it1 != shapes.end(); it1++) //TODO: shitty way to do this
@@ -52,12 +52,12 @@ struct Collision_system
 							positions.at(y)->position += gjk.EPA(**it1, **it2);
 							break;
 						case CTYPE_DESTROY:
-							EntX::get()->destroy_this(ids.at(y));
+							ECSX::EntX::get()->destroy_this(ids.at(y));
 							break;
 						case CTYPE_HURT:
-							if (EntX::get()->entity_has_component<Health_x>(ids.at(y)))
+							if (ECSX::EntX::get()->entity_has_component<Health_x>(ids.at(y)))
 							{
-								EntX::get()->get_entity_component < Health_x>(ids.at(y))->health--;
+								ECSX::EntX::get()->get_entity_component < Health_x>(ids.at(y))->health--;
 
 								//if (ids.at(y) == player.get_id())
 								//{

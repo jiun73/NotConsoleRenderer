@@ -48,7 +48,7 @@ namespace GLUU {
 		vector<Element> nested;
 		shared_ptr<VariableRegistry> scope;
 		SeqVar<size_t> size = 10;
-		SeqVar<bool> condition;
+		SeqVar<bool> condition = true;
 		SeqVar<bool> fit = false;
 		Rect_d last_dest;
 
@@ -60,7 +60,7 @@ namespace GLUU {
 			for (auto& n : nested)
 			{
 				if(n.condition())
-					i += n.size();
+					i += (int)n.size();
 			}
 
 			return i;
@@ -84,7 +84,7 @@ namespace GLUU {
 			}
 			else
 			{
-				return other.size();
+				return (double)other.size();
 			}
 
 		}

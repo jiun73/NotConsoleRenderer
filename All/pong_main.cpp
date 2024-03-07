@@ -2,36 +2,22 @@
 #include "BasicSystems.h"
 #include "ColliderSystem.h"
 
-template<typename T>
-struct test;
-
-template<typename C, typename T, typename... Args>
-struct test<T(C::*)(Args...)> {};
-
 namespace PONG
 {
-	static ComponentXAdder<Shape_x> shape_adder;
-	static ComponentXAdder<Collider_x> coll_adder;
-	static ComponentXAdder<Position_x> pos_adder;
-	static ComponentXAdder<Angle_x> angle_adder;
-	static ComponentXAdder<GFX_x> gfx_adder;
-	static ComponentXAdder<Controller_x> controller_adder;
-	static ComponentXAdder<Physics_x> physics_adder;
-	static ComponentXAdder<Lifetime_x> lifetime_adder;
-	static ComponentXAdder<ParticleEmitter_x> emitter_adder;
-	static ComponentXAdder<Health_x> health_adder;
-
-	//SystemXAdder<9, Shape_system, Position_x, Angle_x, Shape_x> shape_system_adder;
-	SystemXAdder<10, GFX_system, GFX_x, Shape_x> polygon_gfx_system_adder;
-	SystemXAdder<8, Controller_system, Position_x, Controller_x, Collider_x, Angle_x> controller_system_adder;
-	SystemXAdder<7, Physics_system, Physics_x, Position_x, Angle_x> physics_system_adder;
-	SystemXAdder<0, Lifetime_system, Lifetime_x> lifetime_system_adder;
-	SystemXAdder<1, Particle_system, ParticleEmitter_x, Position_x> particle_system_adder;
-	SystemXAdder<1, Health_system, Health_x> health_system_adder;
-	SystemXManagerAdder<0, Collision_system, Shape_x, Collider_x, Position_x> collision_system_adder;
-
-	QuickSystemXAdder<9, Shape_system> shape_system_adder;
-	//QuickSystemXAdderHelper<0, int, int(string)> dsd;
+	ECSX::SystemXManagerAdder<0, Collision_system, Shape_x, Collider_x, Position_x> collision_system_adder;
+	
+	//__REGISTER_ENTITYX_SYSTEM_MANAGER__(0, Collision_system);
+	__REGISTER_ENTITYX_SYSTEM__(0, Lifetime_system);
+	__REGISTER_ENTITYX_SYSTEM__(1, Particle_system);
+	__REGISTER_ENTITYX_SYSTEM__(1, Health_system);
+	__REGISTER_ENTITYX_SYSTEM__(2, Physics_system);
+	__REGISTER_ENTITYX_SYSTEM__(3, Controller_system);
+	__REGISTER_ENTITYX_SYSTEM__(4, Shape_system);
+	__REGISTER_ENTITYX_SYSTEM__(5, GFX_system);
+	
+	
+	
+	
 
 	enum Tags
 	{
@@ -40,23 +26,19 @@ namespace PONG
 
 	enum cTags
 	{
-		SOLID = 0b1,
-		PAD = 0b1000,
-		PLAYER = 0b10,
-		PLAYER2 = 0b100
+		SOLID =		0b1,	
+		PLAYER =	0b10,
+		PLAYER2 =	0b100,
+		PAD =		0b1000,
 	};
 
 	void pong_main()
 	{
-		TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Controller_x, Collider_x> player;
-		TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Controller_x, Collider_x> player2;
-		TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Collider_x, Physics_x> ball;
-		TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Collider_x> wall1;
-		TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Collider_x> wall2;
-
-		//test<decltype(&Shape_system::update)> test;
-
-		//std::cout << typeid(decltype(Shape_system::update)).name() << std::endl;
+		ECSX::TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Controller_x, Collider_x> player;
+		ECSX::TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Controller_x, Collider_x> player2;
+		ECSX::TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Collider_x, Physics_x> ball;
+		ECSX::TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Collider_x> wall1;
+		ECSX::TaggedEntityX<TAG_PLAYERS, Position_x, Angle_x, GFX_x, Shape_x, Collider_x> wall2;
 
 		Rect_d floor = { 0, {700, 10} };
 		wall1.create({ {0, 400} }, { 0 }, { rgb(100,100,100) }, { floor }, { PLAYER });
@@ -80,7 +62,6 @@ namespace PONG
 
 		entitity_system<Collision_system>()->add_pairing(PLAYER, SOLID, CTYPE_BOUNCE);
 		entitity_system<Collision_system>()->add_pairing(PAD, SOLID, CTYPE_BOUNCESP);
-		//entitity_system<Collision_system>()->add_pairing(PLAYER, PLAYER, CTYPE_PUSH);
 
 		while (run())
 		{

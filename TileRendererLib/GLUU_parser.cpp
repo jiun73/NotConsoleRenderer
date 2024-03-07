@@ -288,7 +288,6 @@ namespace GLUU
 				vector<string_ranges> keywords = subchain(chain(*it2, range_until, " "), range_until, ",");
 				for (auto kw = keywords.begin(); kw != keywords.end(); kw++)
 				{
-					std::cout << kw->flat() << std::endl;
 					if (parse_keyword(kw, constants, functions, f, str, keywords.size(), ret_val, keywords.end(), make_return)) return;
 				}
 
@@ -303,7 +302,6 @@ namespace GLUU
 
 			if (!next(it)->empty())
 			{
-				std::cout << next(it)->flat() << std::endl;
 				Expression sub = parse_sequence_next(*next(it));
 				constants.push_back(sub);
 			}

@@ -32,7 +32,7 @@ namespace GLUU {
 			draw_full_rect(graphic.last_dest);
 			pencil(rgb(100, 100, 100));
 			draw_rect(graphic.last_dest);
-			draw_text(text(), graphic.last_dest.sz.x, graphic.last_dest.pos, get_font(0));
+			draw_text(text(), (int)graphic.last_dest.sz.x, (V2d_i)graphic.last_dest.pos, get_font(0));
 		}
 	};
 }

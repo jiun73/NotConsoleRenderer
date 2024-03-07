@@ -11,7 +11,7 @@ struct Shape_system
 	{
 		shape->angle = angle->angle;
 		shape->position = pos->position;
-		EntX::get()->add_callback([shape, angle, pos](EntityID)
+		ECSX::EntX::get()->add_callback([shape, angle, pos](ECSX::EntityID)
 			{
 				shape->angle = angle->angle;
 				shape->position = pos->position;
@@ -28,7 +28,7 @@ struct GFX_system
 	{
 
 		pencil(gfx->col);
-		EntX::get()->add_callback([shape](EntityID)
+		ECSX::EntX::get()->add_callback([shape](ECSX::EntityID)
 			{
 				//draw_rect(shape->r);
 				shape->draw(camera());
@@ -71,7 +71,7 @@ struct Lifetime_system
 		}
 		else if (lifetime->life == 0)
 		{
-			EntX::get()->destroy_this();
+			ECSX::EntX::get()->destroy_this();
 		}
 	}
 };
@@ -114,7 +114,7 @@ struct Health_system
 	void update(Health_x* health)
 	{
 		if (health->health <= 0)
-			EntX::get()->destroy_this();
+			ECSX::EntX::get()->destroy_this();
 	}
 };
 

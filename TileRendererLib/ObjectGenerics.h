@@ -23,7 +23,7 @@ template<typename T>
 class GenericRef : public GenericObject
 {
 protected:
-	T* _object_;
+	T* _object_ = nullptr;
 
 public:
 	GenericRef() {}
@@ -83,7 +83,7 @@ template<typename T>
 class GenericType : public GenericObject
 {
 protected:
-	T _object_;
+	T _object_ = T();
 
 public:
 	GenericType() {}
