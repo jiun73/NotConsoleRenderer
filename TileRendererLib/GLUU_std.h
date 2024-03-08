@@ -73,6 +73,7 @@ namespace GLUU {
 		import_function<int(int, int)>("*", [](int b, int a) {return a * b; });
 		import_function<int(int, int)>("+", [](int b, int a) {return a + b; });
 		import_function<int(int, int)>("-", [](int b, int a) {return a - b; });
+		import_function<int(int, int)>("*-", [](int b, int a) {return b - a; });
 		import_function<bool(int, int)>("/-", [](int b, int a) {return a < b; });
 		import_function<bool(int, int)>("/+", [](int b, int a) {return a > b; });
 		import_function<bool()>(":true", []() {return true; });

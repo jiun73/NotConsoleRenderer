@@ -50,17 +50,23 @@ GLUU::ImportInspector<Rect> animf3_inpector([](shared_generic gen, const string&
 
 class Custom_FrameCreatorWidget : public GLUU::Widget
 {
-	GLUU_Make(0, "FRAME_CREATOR")
+	GLUU::SeqVar<AnimationX> animation;
+	GLUU::SeqVar<string> current_image;
+	GLUU::SeqVar<int> current_frame;
+
+	GLUU_Make(1, "FRAME_CREATOR")
 	{
 		auto ptr = make_shared<Custom_FrameCreatorWidget>();
 
+		ptr->current_image.set(args.at(0), parser);
 
 		return ptr;
 	}
 
 	void update(GLUU::Element& graphic) override
 	{
-		
+		std::cout << current_image() << std::endl;
+		draw_image(current_image(), graphic.last_dest);
 	}
 };
 

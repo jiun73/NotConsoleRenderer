@@ -3,6 +3,7 @@ new vector(string) animation_names
 new vector(string) paths
 new int current_frame = 0
 new int current_animation = 0
+new int current_image = 0
 
 new function :load_images = 
 {
@@ -17,7 +18,9 @@ new function :load_images =
 	};
 }
 
-new function :has_anim = { { animations -size } /+ 0 }
+new function :has_image = { 0 /- paths -size }
+new function :has_anim = { 0 /- animations -size }
+new function :animation_size =  { {animations -at current_animation} .frames -size }
 
 new function :has_frames = 
 {
@@ -37,16 +40,18 @@ new function :has_textures =
 	:false;
 }
 
-ROW SIZE 30 <
-	new int current_image = 0
+
+
+ROW SIZE 30 CFIT <
+	
 	COL SIZE 120 BUTTON { "Load images" } { :load_images } <>
 	COL SIZE 900 DROPBOX {paths} {current_image} <>
-	COL SIZE 120 IF { :has_anim } 
-	BUTTON { "Add image" } 
-	{
-		{ {animations -at current_animation} .textures} -push {:get_tex paths -at current_image};
-		:cout {"Image added (" { {animations -at current_animation} .textures -size } ")"};
-	} <>
+	//COL SIZE 120 IF { :has_anim } 
+	//BUTTON { "Add image" } 
+	//{
+	//	{ {animations -at current_animation} .textures} -push {:get_tex paths -at current_image};
+	//	:cout {"Image added (" { {animations -at current_animation} .textures -size } ")"};
+	//} <>
 >
 
 ROW SIZE 30 <
@@ -69,40 +74,35 @@ ROW SIZE 30 <
 	} 
 	<>
 	COL SIZE 140 IF { makingAnim }		BUTTON	{"Cancel"}			{ makingAnim = :false } <>
-	
+
+	COL SIZE 150 IF { :has_anim :and :has_image } BUTTON { "Add frame" } 
+			{
+
+
+				new AnimationFrameX frame;
+
+				{animations -at current_animation} .frames -push frame;
+			} <>
+
+	COL CFIT <
+		ROW SIZE 30 IF { :has_frames } <
+			COL SIZE 70 TEXT { current_frame " / " 1 *- :animation_size } <>
+
+			COL SIZE 40 BUTTON { "Prev" }  
+			{
+				$if {current_frame /+ 0} {current_frame --}
+			} <>
+
+			COL SIZE 40 BUTTON { "Next" }  
+			{
+				$if {current_frame /-  1 *- :animation_size } 
+				{current_frame ++}
+			} <>
+		>
+	>
 >
 
-ROW SIZE 30 IF { :has_anim }
-<
-	COL SIZE 150 BUTTON { "Add frame" } 
-	{
-
-	} <>
+ROW SIZE 400 CFIT IF { :has_image :and :has_frames } <
+	COL FRAME_CREATOR { paths -at current_image } <>
 >
 
-ROW SIZE 400 IF { :has_textures } <
-	COL FRAME_CREATOR <>
->
-
-ROW SIZE 30 IF { :has_frames } <
-	COL SIZE 40 TEXT { # current_frame } <>
-
-	COL SIZE 40 BUTTON { "Prev" }  
-	{
-		$if {current_frame /+ 0} {current_frame --}
-	} <>
-
-	COL SIZE 40 BUTTON { "Next" }  
-	{
-		$if {current_frame /- {paths -size} - 1} 
-		{current_frame ++}
-	} <>
-
-	COL SIZE 80 TEXT 
-	{
-		$if :true {
-			return "IT RETURNED"
-		};
-		"... NOT"
-	} <>
->
