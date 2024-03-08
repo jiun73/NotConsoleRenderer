@@ -1,5 +1,4 @@
 #include "NotConsoleRenderer.h"
-#include "EntityX.h"
 #include "BasicSystems.h"
 #include "ColliderSystem.h"
 #include "Shape.h"

@@ -250,7 +250,6 @@ namespace GLUU {
 				}
 
 				auto container = rein<GenericContainer>(a);
-				int count = 0;
 
 				for (size_t i = 0; i < container->container_size(); i++)
 				{
@@ -258,7 +257,7 @@ namespace GLUU {
 					if (!is_iden<GenericObject>(at)) { return -1; }
 
 					auto obj_at = rein<GenericObject>(at);
-					if (obj_at->equals(b)) return count;
+					if (obj_at->equals(b)) return i;
 				}
 
 				return -1;

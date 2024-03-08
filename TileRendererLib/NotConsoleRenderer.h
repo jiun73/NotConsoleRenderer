@@ -270,8 +270,8 @@ double distance(const V2d_d& pos1, const V2d_d& pos2); //real distance between p
 //----------------------------------------------------------ENTITYX---------------------------------------------------------------------------
 #include "ECSX.h"
 
-inline ECSX::Manager* entities() { return ECSX::EntX::get(); }
-
+inline ::ECSX::Manager* entities() { return ECSX::EntX::get(); }
+ 
 template<typename T>
 inline T* entitity_system() { return ECSX::EntX::get()->get_system<T>(); }
 

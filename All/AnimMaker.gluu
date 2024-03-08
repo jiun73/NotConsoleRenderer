@@ -5,11 +5,21 @@ new int current_frame = 0
 new int current_animation = 0
 new int current_image = 0
 
+new function :curanim = 
+{
+	{animations -at current_animation}
+}
+
+new init setup = {
+	BASE .fit = :true;
+}
+
 new function :load_images = 
 {
 	new vector(string) files;
 	files = $file;
-	new int index = 0;
+	new int index;
+	index = 0;
 
 	$while {index /- files -size} {
 		:get_tex files -at index;
@@ -20,13 +30,13 @@ new function :load_images =
 
 new function :has_image = { 0 /- paths -size }
 new function :has_anim = { 0 /- animations -size }
-new function :animation_size =  { {animations -at current_animation} .frames -size }
+new function :animation_size =  { :curanim .frames -size }
 
 new function :has_frames = 
 {
 	$if :has_anim  
 	{
-		return { { { animations -at current_animation } .frames -size } /+ 0 } 
+		return { { :curanim .frames -size } /+ 0 } 
 	};
 	:false;
 }
@@ -35,7 +45,7 @@ new function :has_textures =
 {
 	$if :has_anim 
 	{
-		return { { { animations -at current_animation } .textures -size } /+ 0 }
+		return { { :curanim .textures -size } /+ 0 }
 	};
 	:false;
 }
@@ -91,6 +101,7 @@ ROW SIZE 30 <
 				new AnimationFrameX frame;
 
 				frame .tex = (size_t) pos;
+				frame .time = (u32) 100;
 
 				:cout pos;
 
@@ -115,7 +126,11 @@ ROW SIZE 30 <
 	>
 >
 
-ROW SIZE 400 CFIT IF { :has_frames } <
-	COL FRAME_CREATOR { animations -at current_animation } { {animations -at current_animation} .frames -at current_frame } <>
+ROW SIZE 800 CFIT  <
+	COL IF { :has_frames } FRAME_CREATOR 
+	{ animations -at current_animation } 
+	{ {animations -at current_animation} .frames -at current_frame } <>
+
+	COL IF { :has_frames } ANIMATION_PREVIEW { :curanim } <>
 >
 

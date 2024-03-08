@@ -59,7 +59,7 @@ namespace GLUU {
 			int i = 0;
 			for (auto& n : nested)
 			{
-				if(n.condition())
+				if (n.condition())
 					i += (int)n.size();
 			}
 
@@ -77,9 +77,9 @@ namespace GLUU {
 
 			if (fit)
 			{
-				if(!vert)
+				if (!vert)
 					return other.map_size(dest.sz.x, get_size_max());
-				else 
+				else
 					return other.map_size(dest.sz.y, get_size_max());
 			}
 			else
@@ -136,6 +136,19 @@ namespace GLUU {
 				n.update();
 			}
 		}
+
+		void update_l2() 
+		{
+			if (!condition()) return;
+
+			if (widget != nullptr)
+				widget->update_l2(*this);
+
+			for (auto& n : nested)
+			{
+				n.update_l2();
+			}
+		}
 	};
 
 #include <map>
@@ -156,7 +169,9 @@ namespace GLUU {
 			{
 				c.evaluate();
 			}
-			base_row.render(window); base_row.update();
+			base_row.render(window); 
+			base_row.update();
+			base_row.update_l2();
 		}
 		void update()
 		{

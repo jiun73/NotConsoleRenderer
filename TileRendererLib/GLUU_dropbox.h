@@ -49,7 +49,7 @@ namespace GLUU {
 				{
 					QuickButton but2;
 					but2.box.sz = graphic.last_dest.sz;
-					but2.box.pos.y = (i + 1) * (int)(graphic.last_dest.sz.y + graphic.last_dest.pos.y);
+					but2.box.pos.y = ((i + 1.0) * graphic.last_dest.sz.y) + graphic.last_dest.pos.y;
 					but2.box.pos.x = (int)graphic.last_dest.pos.x;
 					choices.push_back(but2);
 					i++;
@@ -85,6 +85,11 @@ namespace GLUU {
 
 			draw_text(text, (int)graphic.last_dest.sz.x, (V2d_i)graphic.last_dest.pos, get_font(0));
 
+			
+		}
+
+		void update_l2(Element& graphic) override
+		{
 			if (open)
 			{
 				int i = 0;

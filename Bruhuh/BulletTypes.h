@@ -1,6 +1,5 @@
 #pragma once
 #include "WeaponParser.h"
-#include "EntityX.h"
 #include "BasicComponents.h"
 #include "CollisionComponent.h"
 

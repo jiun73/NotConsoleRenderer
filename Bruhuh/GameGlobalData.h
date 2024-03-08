@@ -1,5 +1,4 @@
 #pragma once
-#include "EntityX.h"
 #include "BasicComponents.h"
 #include "CollisionComponent.h"
 

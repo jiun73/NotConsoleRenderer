@@ -823,7 +823,7 @@ vector<string> open_dialog(const string& filter)
 	HWND hwnd = wmInfo.info.win.window;
 
 	OPENFILENAME ofn;       // common dialog box structure
-	wchar_t szFile[255];       // buffer for file name
+	wchar_t szFile[2550];       // buffer for file name
 
 	// Initialize OPENFILENAME
 	ZeroMemory(&ofn, sizeof(ofn));

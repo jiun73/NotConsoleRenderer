@@ -1,5 +1,5 @@
 #include "NotConsoleRenderer.h"
-#include "EntityX.h"
+
 #include "Vec3D.h"
 #include "Shape_x.h"
 #include "Utility.h"
@@ -83,7 +83,7 @@ struct AI_system
 
 			if (ai->counter >= ai->random)
 			{
-				ECSX::EntX::get()->add_callback_current([position, angle](ECSX::EntityID)
+				ECSX::EntX::get()->add_callback_current([position, angle](ECSX::Manager&, ECSX::EntityID)
 					{
 						ECSX::EntityX<Position_x, Angle_x, GFX_x, Shape_x, Physics_x, Lifetime_x, Collider_x> bullet;
 
@@ -188,7 +188,7 @@ struct Shooter_system
 		if (mouse_left_held())
 		{
 			parser.load(shooter->computer, shooter->inventory);
-			ECSX::EntX::get()->add_callback_current([shooter](ECSX::EntityID eid) {
+			ECSX::EntX::get()->add_callback_current([shooter](ECSX::Manager&, ECSX::EntityID eid) {
 				shooter->computer.tick(eid);
 				}
 			);
@@ -200,7 +200,7 @@ struct Shooter_system
 			shooter->computer.clockLast = SDL_GetTicks() - shooter->computer.settings.clockSpeed * 2 - shooter->computer.settings.bootSpeed;
 			
 
-			ECSX::EntX::get()->add_callback_current([shooter](ECSX::EntityID eid) {
+			ECSX::EntX::get()->add_callback_current([shooter](ECSX::Manager& ,ECSX::EntityID eid) {
 					shooter->computer.tick(eid);
 				}
 			);
