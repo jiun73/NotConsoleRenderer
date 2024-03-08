@@ -76,4 +76,4 @@ namespace GLUU {
 		});
 }
 
-#define GLUU_IMPORT_MAIN(n) inline GLUU::ImportFunction<decltype(n)> gluu_##n##_import("$" + string(#n), n);
+#define GLUU_IMPORT_MAIN(n) inline ::GLUU::ImportFunction<decltype(n)> gluu_##n##_import("$" + string(#n), n);

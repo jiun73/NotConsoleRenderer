@@ -48,6 +48,24 @@ GLUU::ImportInspector<Rect> animf3_inpector([](shared_generic gen, const string&
 		return nullptr;
 	});
 
+class Custom_FrameCreatorWidget : public GLUU::Widget
+{
+	GLUU_Make(0, "FRAME_CREATOR")
+	{
+		auto ptr = make_shared<Custom_FrameCreatorWidget>();
+
+
+		return ptr;
+	}
+
+	void update(GLUU::Element& graphic) override
+	{
+		
+	}
+};
+
+inline GLUU::ImportWidget<Custom_FrameCreatorWidget> imported_widget;
+
 namespace ANIMMAKER
 {
 	void animmaker_main() 
@@ -60,9 +78,6 @@ namespace ANIMMAKER
 		GLUU::import_function<SDL_Texture* (const string&)>(":get_tex", get_sdl_texture);
 
 		GLUU::Compiled_ptr menu = GLUU::parse_file("AnimMaker.gluu");
-
-		
-		
 
 		while (run())
 		{

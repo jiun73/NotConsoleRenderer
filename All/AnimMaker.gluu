@@ -72,12 +72,16 @@ ROW SIZE 30 <
 	
 >
 
-ROW SIZE 100 IF { :has_anim }
+ROW SIZE 30 IF { :has_anim }
 <
-	COL BUTTON { "Add frame" } 
+	COL SIZE 150 BUTTON { "Add frame" } 
 	{
 
 	} <>
+>
+
+ROW SIZE 400 IF { :has_textures } <
+	COL FRAME_CREATOR <>
 >
 
 ROW SIZE 30 IF { :has_frames } <

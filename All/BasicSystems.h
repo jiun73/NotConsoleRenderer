@@ -26,7 +26,6 @@ struct GFX_system
 
 	void update(GFX_x* gfx, Shape_x* shape)
 	{
-
 		pencil(gfx->col);
 		ECSX::EntX::get()->add_callback([shape](ECSX::Manager&, ECSX::EntityID)
 			{
