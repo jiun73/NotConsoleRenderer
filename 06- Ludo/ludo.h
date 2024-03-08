@@ -38,6 +38,7 @@ int at(int index)
 	return chemin.at(a);
 }
 
+
 template<typename T>
 T index_of(T el, vector<T> vect)
 {
@@ -127,6 +128,17 @@ vector<tile> get_tiles()
 	return tiles;
 }
 
+int index_dans_carreaux(int nombre)
+{
+	for (int i = 0; i < carreaux.size(); i++)
+	{
+		if (nombre % carreaux.size() == carreaux.at(i).numero)
+		{
+			return i;
+		}
+	}
+}
+
 struct de
 {
 	static int shuffle()
@@ -171,9 +183,9 @@ public:
 		else
 		{
 			Color col = get_pencil();
-			draw_full_circle(carreaux.at(caseActuelle).pos + xy / 2, rayon);
+			draw_full_circle(carreaux.at(index_dans_carreaux(at(caseActuelle))).pos + xy / 2, rayon);
 			pencil(COLOR_BLACK);
-			draw_circle(carreaux.at(caseActuelle).pos + xy / 2, rayon);
+			draw_circle(carreaux.at(index_dans_carreaux(at(caseActuelle))).pos + xy / 2, rayon);
 			pencil(col);
 		}
 		pos = carreaux.at(caseActuelle % 225).pos;
