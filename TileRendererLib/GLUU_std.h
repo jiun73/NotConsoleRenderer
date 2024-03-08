@@ -73,7 +73,6 @@ namespace GLUU {
 		import_function<int(int, int)>("*", [](int b, int a) {return a * b; });
 		import_function<int(int, int)>("+", [](int b, int a) {return a + b; });
 		import_function<int(int, int)>("-", [](int b, int a) {return a - b; });
-		import_function<int(int, int)>("*-", [](int b, int a) {return b - a; });
 		import_function<bool(int, int)>("/-", [](int b, int a) {return a < b; });
 		import_function<bool(int, int)>("/+", [](int b, int a) {return a > b; });
 		import_function<bool()>(":true", []() {return true; });
@@ -194,6 +193,75 @@ namespace GLUU {
 
 				shared_ptr<GenericObject> obj = std::reinterpret_pointer_cast<GenericObject>(a);
 				return obj->dereference();
+			});
+
+		import_function<int(_sgen_, _sgen_)>("-count", [](_sgen_ b, _sgen_ a) -> int
+			{
+				if (!is_iden<GenericContainer>(a))
+				{
+					std::cout << "Cannot size a non-container" << std::endl;
+					return 0;
+				}
+
+				auto container = rein<GenericContainer>(a);
+				int count = 0;
+
+				for (size_t i = 0; i < container->container_size(); i++)
+				{
+					_sgen_ at = container->at(i);
+					if (!is_iden<GenericObject>(at)) { return 0;  }
+
+					auto obj_at = rein<GenericObject>(at);
+					if(obj_at->equals(b)) count++;
+				}
+
+				return count;
+			});
+
+		import_function<bool(_sgen_, _sgen_)>("-has", [](_sgen_ b, _sgen_ a)
+			{
+				if (!is_iden<GenericContainer>(a))
+				{
+					std::cout << "Cannot size a non-container" << std::endl;
+					return false;
+				}
+
+				auto container = rein<GenericContainer>(a);
+				int count = 0;
+
+				for (size_t i = 0; i < container->container_size(); i++)
+				{
+					_sgen_ at = container->at(i);
+					if (!is_iden<GenericObject>(at)) { return false; }
+
+					auto obj_at = rein<GenericObject>(at);
+					if (obj_at->equals(b)) count++;
+				}
+
+				return (count > 0);
+			});
+
+		import_function<int(_sgen_, _sgen_)>("-find", [](_sgen_ b, _sgen_ a) -> int
+			{
+				if (!is_iden<GenericContainer>(a))
+				{
+					std::cout << "Cannot size a non-container" << std::endl;
+					return -1;
+				}
+
+				auto container = rein<GenericContainer>(a);
+				int count = 0;
+
+				for (size_t i = 0; i < container->container_size(); i++)
+				{
+					_sgen_ at = container->at(i);
+					if (!is_iden<GenericObject>(at)) { return -1; }
+
+					auto obj_at = rein<GenericObject>(at);
+					if (obj_at->equals(b)) return count;
+				}
+
+				return -1;
 			});
 	}
 }

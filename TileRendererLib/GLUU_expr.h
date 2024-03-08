@@ -35,6 +35,7 @@ namespace GLUU {
 		size_t arg_count = 0;
 		bool func = false;
 		bool user_func = false;
+		bool reversed = false;
 
 		//Inspection
 		bool is_inspector = false;
@@ -109,29 +110,52 @@ namespace GLUU {
 			}
 		}
 
+		shared_generic get_arg(vector<shared_generic>& args, size_t i, bool func_check, GLUU::Expression& expr)
+		{
+			if (func_check && function->args_type(i) == typeid(Expression&))
+			{
+				auto rec = make_shared<GenericRef<Expression>>(&expr);
+				(*(Expression*)rec->raw_bytes()).func_base = this;
+				args.push_back(rec);
+			}
+			else
+			{
+				auto eval = expr.evaluate_next();
+				args.push_back(eval);
+
+				if (has_returned())
+				{
+					return { eval };
+				}
+			}
+			return nullptr;
+		}
+
 		vector<shared_generic> get_args_from_recursive(bool func_check = false)
 		{
 			vector<shared_generic> args;
 			size_t i = 0;
-			for (auto& r : recursive)
+			if (!reversed)
 			{
-				if (func_check && function->args_type(i) == typeid(Expression&))
+				for (auto& r : recursive)
 				{
-					auto rec = make_shared<GenericRef<Expression>>(&r);
-					(*(Expression*)rec->raw_bytes()).func_base = this;
-					args.push_back(rec);
-				}
-				else
-				{
-					auto eval = r.evaluate_next();
-					args.push_back(eval);
+					auto eval = get_arg(args, i, func_check, r);
 
-					if (has_returned())
-					{
-						return { eval };
-					}
+					if (eval != nullptr) return { eval };
+
+					i++;
 				}
-				i++;
+			}
+			else
+			{
+				for (auto it = recursive.rbegin(); it != recursive.rend(); it++)
+				{
+					auto eval = get_arg(args, i, func_check, *it);
+
+					if (eval != nullptr) return { eval };
+
+					i++;
+				}
 			}
 			return args;
 		}

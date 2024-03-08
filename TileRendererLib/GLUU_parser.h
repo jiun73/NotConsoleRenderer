@@ -277,7 +277,7 @@ namespace GLUU {
 
 		void register_class(shared_ptr <Widget> c);
 
-		void parse_function_keyword(string_ranges kw, vector<Expression>& constants, vector<Expression>& functions);
+		void parse_function_keyword(string_ranges kw, vector<Expression>& constants, vector<Expression>& functions, bool rev);
 
 		bool parse_keyword(vector<string_ranges>::iterator& kw, vector<Expression>& constants, vector<Expression>& functions, bool& f, string_ranges full, size_t size, Expression& ret_val, vector<string_ranges>::iterator end, bool& make_return);
 

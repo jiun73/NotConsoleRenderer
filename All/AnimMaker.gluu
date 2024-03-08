@@ -77,16 +77,29 @@ ROW SIZE 30 <
 
 	COL SIZE 150 IF { :has_anim :and :has_image } BUTTON { "Add frame" } 
 			{
+				$if { :not {animations -at current_animation} .textures -has  :get_tex paths -at current_image }
+				{
+					:cout "allo!" ;
+					:cout :get_tex paths -at current_image;
+					{ animations -at current_animation } .textures -push :get_tex paths -at current_image ;
+				};
 
+				new int pos = 0;
+
+				pos = { animations -at current_animation } .textures -find :get_tex paths -at current_image;
 
 				new AnimationFrameX frame;
+
+				frame .tex = (size_t) pos;
+
+				:cout pos;
 
 				{animations -at current_animation} .frames -push frame;
 			} <>
 
 	COL CFIT <
 		ROW SIZE 30 IF { :has_frames } <
-			COL SIZE 70 TEXT { current_frame " / " 1 *- :animation_size } <>
+			COL SIZE 70 TEXT { current_frame " / " 1 `- :animation_size } <>
 
 			COL SIZE 40 BUTTON { "Prev" }  
 			{
@@ -95,14 +108,14 @@ ROW SIZE 30 <
 
 			COL SIZE 40 BUTTON { "Next" }  
 			{
-				$if {current_frame /-  1 *- :animation_size } 
+				$if {current_frame /-  1 `- :animation_size } 
 				{current_frame ++}
 			} <>
 		>
 	>
 >
 
-ROW SIZE 400 CFIT IF { :has_image :and :has_frames } <
-	COL FRAME_CREATOR { paths -at current_image } <>
+ROW SIZE 400 CFIT IF { :has_frames } <
+	COL FRAME_CREATOR { animations -at current_animation } { {animations -at current_animation} .frames -at current_frame } <>
 >
 

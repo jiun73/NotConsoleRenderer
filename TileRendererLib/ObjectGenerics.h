@@ -69,6 +69,11 @@ public:
 	bool equals(shared_generic gen) override
 	{
 		if (gen->type() != type()) return false;
+		if constexpr (is_pointer_v<T>) 
+		{ 
+			std::cout << *(T*)gen->raw_bytes() << " " << *_object_;
+			return *(T*)gen->raw_bytes() == *_object_; 
+		}
 		if constexpr (!operators::has_operator_equals<T, bool(T)>::value && !std::is_arithmetic_v<T>) { return false; }
 		else return (*(T*)gen->raw_bytes() == *_object_);
 	}
@@ -129,6 +134,7 @@ public:
 	bool equals(shared_generic gen) override
 	{
 		if (gen->type() != type()) return false;
+		if constexpr (is_pointer_v<T>) { return *(T*)gen->raw_bytes() == _object_; }
 		if constexpr (!operators::has_operator_equals<bool, T, T>::value && !std::is_arithmetic_v<T>) return false;
 		else return (*(T*)gen->raw_bytes() == _object_);
 	}

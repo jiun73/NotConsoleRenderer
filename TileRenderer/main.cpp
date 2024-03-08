@@ -84,6 +84,13 @@ int main()
 
 	C* cb = static_cast<C*>(&b);
 
+	int ra = 0;
+	int rb = 0;
+	int* aa = &ra;
+	int* bb = &rb;
+
+	aa == bb;
+
 	cb->method();
 
 	GLUU::parser()->register_inspector<Color>([](shared_generic gen, const string& str) -> shared_generic

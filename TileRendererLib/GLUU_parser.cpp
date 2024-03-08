@@ -70,14 +70,15 @@ namespace GLUU
 		widgets.emplace(c->fetch_keyword().second, c);
 	}
 
-	void Parser::parse_function_keyword(string_ranges kw, vector<Expression>& constants, vector<Expression>& functions)
+	void Parser::parse_function_keyword(string_ranges kw, vector<Expression>& constants, vector<Expression>& functions, bool rev = false)
 	{
 		string flat = kw.flat();
 
-		output_seq("func " + flat);
+		output_seq("func " + flat + (rev ? "(reversed)" : ""));
 
 		Expression func(return_flags.back());
 		func.root = false;
+		func.reversed = rev;
 		shared_generic var = variable_dictionnary()->get(flat);
 		if (var == nullptr) { add_error(GLUU_ERROR_INVALID_FUNCTION_NAME, "function '" + flat + "' doesn't exist in this scope", kw.begin()); return; } // error GLUU_ERROR_INVALID_FUNCTION_NAME
 		if (var->identity() == typeid(GenericFunction))
@@ -95,6 +96,7 @@ namespace GLUU
 			Expression& star = *(Expression*)var->raw_bytes();
 			func.constant = var;
 			func.user_func = true;
+			
 			func.arg_count = star.args_name.size();
 
 			if (star.args_name.size() == 0)
@@ -251,6 +253,10 @@ namespace GLUU
 			inspector_expr.member = flat.substr(1);
 			constants.pop_back();
 			constants.push_back(inspector_expr);
+		}
+		else if (flat.front() == '`' && flat.size() > 1 && is_func_name({kw->begin() + 1, kw->end()}))
+		{
+			parse_function_keyword({ kw->begin() + 1, kw->end() }, constants, functions, true);
 		}
 		else if (is_func_name(*kw))
 		{

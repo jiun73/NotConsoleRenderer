@@ -398,6 +398,11 @@ SDL_Texture* get_sdl_texture(const string& path)
 	return textures.at(path);
 }
 
+SDL_Renderer* get_sdl_ren()
+{
+	return sdl_ren;
+}
+
 Random& random()
 {
 	return _random;
