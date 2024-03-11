@@ -226,6 +226,8 @@ bool run()
 		SDL_DestroyWindow(sdl_win);
 	}
 
+	_inputs.update();
+
 	while (SDL_PollEvent(&sdl_event))
 	{
 		if (sdl_event.type == SDL_QUIT) return false;
@@ -238,7 +240,7 @@ bool run()
 	}
 
 
-	_inputs.update();
+	
 
 	frameStart = SDL_GetTicks();
 

@@ -116,6 +116,9 @@
     <ClInclude Include="Shape.h">
       <Filter>Fichiers sources\Pong</Filter>
     </ClInclude>
+    <ClInclude Include="EditorPlane.h">
+      <Filter>Fichiers sources\AnimationMaker</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="GLUU\main.gluu" />

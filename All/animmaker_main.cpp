@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "AnimationX.h"
+#include "EditorPlane.h"
 
 #define __IMPORT_MAKE_REF__(n) if (str == #n) return make_generic_ref(obj.##n)
 
@@ -53,8 +54,7 @@ class Custom_FrameCreatorWidget : public GLUU::Widget
 	GLUU::SeqVar<AnimationX> animation;
 	GLUU::SeqVar<AnimationFrameX> current_frame;
 
-	V2d_d pos = 0;
-	double scale = 1;
+	EditorPlane plane;
 
 	GLUU_Make(2, "FRAME_CREATOR")
 	{
@@ -68,38 +68,15 @@ class Custom_FrameCreatorWidget : public GLUU::Widget
 
 	void update(GLUU::Element& graphic) override
 	{
-		if (key_pressed(SDL_SCANCODE_LEFT))
-		{
-			pos.x += 1;
-		}
-		if (key_pressed(SDL_SCANCODE_RIGHT))
-		{
-			pos.x -= 1;
-		}
-		if (key_pressed(SDL_SCANCODE_UP))
-		{
-			pos.y += 1;
-		}
-		if (key_pressed(SDL_SCANCODE_DOWN))
-		{
-			pos.y -= 1;
-		}
-
-		if (key_pressed(SDL_SCANCODE_1))
-		{
-			scale += 0.1;
-		}
-
-		if (key_pressed(SDL_SCANCODE_2))
-		{
-			scale -= 0.1;
-		}
+		plane.dest = graphic.last_dest;
+		plane.draw_checkered_background();
+		plane.update();
 
 		SDL_Texture* tex = animation().textures.at(current_frame().tex);
 		SDL_RenderSetClipRect(get_sdl_ren(), graphic.last_dest.SDL());
 		int x, y;
 		SDL_QueryTexture(tex, NULL, NULL, &x, &y);
-		Rect image = { graphic.last_dest.pos + pos, {(int)(x * scale),(int)(y * scale)}};
+		Rect image = plane.project({ 0, {x,y} });
 
 		SDL_RenderCopy(get_sdl_ren(), tex, NULL, image.SDL());
 		SDL_RenderSetClipRect(get_sdl_ren(), NULL);
@@ -124,8 +101,13 @@ class Custom_AnimationPrewiewWidget : public GLUU::Widget
 
 	void update(GLUU::Element& graphic) override
 	{
-		animation().render(get_sdl_ren());
+		double maxscalex = graphic.last_dest.sz.x / (double)animation().max_animation_size().x;
+		double maxscaley = graphic.last_dest.sz.y / (double)animation().max_animation_size().y;
+
+		animation().scale = std::min(maxscalex, maxscaley);
 		animation().position = graphic.last_dest.pos;
+		animation().render(get_sdl_ren());
+		
 	}
 };
 

@@ -107,7 +107,7 @@ namespace GLUU {
 		import_function<void(Expression&, shared_generic)>("$foreach", [](Expression& expr, shared_generic a)
 			{
 				if (!is_iden<GenericContainer>(a)) { std::cout << "Cannot foreach a non-container" << std::endl; ; return; }
-				for (size_t i = 0; i < rein<GenericContainer>(a)->size(); i++)
+				for (size_t i = 0; i < rein<GenericContainer>(a)->container_size(); i++)
 				{
 					expr.func_base->constant = expr.evaluate_next();
 				}
@@ -193,6 +193,14 @@ namespace GLUU {
 
 				shared_ptr<GenericObject> obj = std::reinterpret_pointer_cast<GenericObject>(a);
 				return obj->dereference();
+			});
+
+		import_function<_sgen_(_sgen_)>("&", [](_sgen_ a)-> _sgen_
+			{
+				if (!is_iden<GenericObject>(a)) { std::cout << "Cannot reference a non-object!" << std::endl; return nullptr; }
+
+				shared_ptr<GenericObject> obj = std::reinterpret_pointer_cast<GenericObject>(a);
+				return obj->reference();
 			});
 
 		import_function<int(_sgen_, _sgen_)>("-count", [](_sgen_ b, _sgen_ a) -> int

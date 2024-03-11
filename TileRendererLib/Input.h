@@ -62,13 +62,12 @@ class MouseInput
 private:
 	Uint32 last = 0;
 	Uint32 current = 0;
-	SDL_Event event = SDL_Event();
 	int scrolly = 0;
 
 public:
 	bool locked = false;
 	//must be called before mouse function are used
-	void events(SDL_Event e);
+	void events(const SDL_Event& e);
 	void update();
 
 	bool held(int key); //0 = gauche 1 = droite 2 = millieu je pense

@@ -50,7 +50,27 @@ new function :has_textures =
 	:false;
 }
 
+new function :add_frame =
+{
+	arg string path;
+	arg* AnimationX anim;
 
+	$if { :not {anim @} .textures -has :get_tex path }
+	{
+		 {anim @} .textures -push :get_tex path ;
+	};
+
+	new int pos = 0;
+
+	pos = { anim @ } .textures -find :get_tex path;
+
+	new AnimationFrameX frame;
+
+	frame .tex = (size_t) pos;
+	frame .time = (u32) 100;
+
+	{ anim @ } .frames -push frame;
+}
 
 ROW SIZE 30 CFIT <
 	
@@ -87,26 +107,20 @@ ROW SIZE 30 <
 
 	COL SIZE 150 IF { :has_anim :and :has_image } BUTTON { "Add frame" } 
 			{
-				$if { :not {animations -at current_animation} .textures -has  :get_tex paths -at current_image }
-				{
-					:cout "allo!" ;
-					:cout :get_tex paths -at current_image;
-					{ animations -at current_animation } .textures -push :get_tex paths -at current_image ;
-				};
-
-				new int pos = 0;
-
-				pos = { animations -at current_animation } .textures -find :get_tex paths -at current_image;
-
-				new AnimationFrameX frame;
-
-				frame .tex = (size_t) pos;
-				frame .time = (u32) 100;
-
-				:cout pos;
-
-				{animations -at current_animation} .frames -push frame;
+				{ & :curanim } :add_frame paths -at current_image;
 			} <>
+
+	COL SIZE 150 IF { :has_anim :and :has_image } BUTTON { "Add all images" } 
+	{
+		new int i;
+		i = 0;
+		$foreach paths 
+		{
+			{& :curanim } :add_frame paths -at i;
+			i ++;
+		};
+		
+	} <>
 
 	COL CFIT <
 		ROW SIZE 30 IF { :has_frames } <
@@ -127,10 +141,16 @@ ROW SIZE 30 <
 >
 
 ROW SIZE 800 CFIT  <
-	COL IF { :has_frames } FRAME_CREATOR 
-	{ animations -at current_animation } 
-	{ {animations -at current_animation} .frames -at current_frame } <>
+	COL SIZE 4 IF { :has_frames } FRAME_CREATOR 
+	{ :curanim } 
+	{ :curanim .frames -at current_frame } <>
 
-	COL IF { :has_frames } ANIMATION_PREVIEW { :curanim } <>
+	COL CFIT SIZE 1 IF { :has_frames } 
+	<
+		ROW ANIMATION_PREVIEW { :curanim } <>
+		ROW CFIT < COL < 
+			ROW SIZE 30 BUTTON { "All frames" } { } <>
+		>>
+	>
 >
 

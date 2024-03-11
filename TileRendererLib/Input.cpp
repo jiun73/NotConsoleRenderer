@@ -2,7 +2,7 @@
 #include "pch.h"
 
 //must be called before mouse function are used
-void MouseInput::events(SDL_Event e)
+void MouseInput::events(const SDL_Event& e)
 {
 	/*for (size_t i = 0; i < 4; i++)
 		last_mouse_state[i] = current_mouse_state[i];*/
@@ -14,29 +14,32 @@ void MouseInput::events(SDL_Event e)
 			else if (event.type == SDL_MOUSEBUTTONUP && event.button.button == i)
 				current_mouse_state[i] = false;*/
 
-	if (event.type == SDL_MOUSEWHEEL)
-		scrolly = event.wheel.y;
+	if (e.type == SDL_MOUSEWHEEL)
+	{
+		scrolly = e.wheel.y;
+
+	}
+
+	
 }
 
 void MouseInput::update()
 {
 	last = current;
 	current = SDL_GetMouseState(NULL, NULL);
+	
+	scrolly = 0;
 }
 
 bool MouseInput::scrollup()
 {
-	if (event.type == SDL_MOUSEWHEEL)
-		if (event.wheel.y > 0)
-			return true;
+	
 	return false;
 }
 
 bool MouseInput::scrolldown()
 {
-	if (event.type == SDL_MOUSEWHEEL)
-		if (event.wheel.y < 0)
-			return true;
+	
 	return false;
 }
 
