@@ -36,8 +36,9 @@ public:
 	V2d_i position = 0;
 
 public:
-	void write_to_file(File& file) 
+	void readwrite(File& file) 
 	{
+		
 	}
 
 	SDL_Texture* frame_texture(const AnimationFrameX& frame)

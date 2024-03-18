@@ -47,7 +47,6 @@ private:
 
 	char readFileChar();
 
-
 	template <typename T>
 	void readFile(T& data);
 

@@ -158,6 +158,7 @@
     <ClInclude Include="bouncex_game.h" />
     <ClInclude Include="ColliderSystem.h" />
     <ClInclude Include="EditorPlane.h" />
+    <ClInclude Include="FileChannel.h" />
     <ClInclude Include="main_chatroom.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Shape.h" />
