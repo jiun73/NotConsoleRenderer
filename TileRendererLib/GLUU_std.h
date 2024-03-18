@@ -81,6 +81,15 @@ namespace GLUU {
 		import_function<bool(bool, bool)>(":and", [](bool b, bool a) {return a && b; });
 		import_function<bool(bool)>(":not", [](bool a) {return !a; });
 
+		import_function<void(double&)>("!++", [](double& a) {a++; });
+		import_function<void(double&)>("!--", [](double& a) {a--; });
+		import_function<double(double, double)>("!/", [](double b, double a) {return a / b; });
+		import_function<double(double, double)>("!*", [](double b, double a) {return a * b; });
+		import_function<double(double, double)>("!+", [](double b, double a) {return a + b; });
+		import_function<double(double, double)>("!-", [](double b, double a) {return a - b; });
+		import_function<bool(double, double)>("!/-", [](double b, double a) {return a < b; });
+		import_function<bool(double, double)>("!/+", [](double b, double a) {return a > b; });
+
 		import_function<void(Expression&, Expression&)>("$while", [](Expression& expr, Expression& condition)
 			{
 				while (true)
@@ -110,6 +119,7 @@ namespace GLUU {
 				for (size_t i = 0; i < rein<GenericContainer>(a)->container_size(); i++)
 				{
 					expr.func_base->constant = expr.evaluate_next();
+					if (expr.has_returned()) break;
 				}
 			});
 
@@ -118,6 +128,8 @@ namespace GLUU {
 		import_function<string(_sgen_)>(":type", [](_sgen_ a) {return a->type().name(); });
 		import_function<int(bool)>("(bool-int)", [](bool a) {return a; });
 		import_function<int(size_t)>("(size_t-int)", [](size_t a) {return (int)a; });
+		import_function<double(int)>("(.)", [](int a) {return (double)a; });
+		import_function<int(double)>("(~)", [](double a) {return (int)a; });
 		import_function<uint8_t(int)>("(u8)", [](int a) {return (uint8_t)a; });
 		import_function<uint16_t(int)>("(u16)", [](int a) {return (uint16_t)a; });
 		import_function<uint32_t(int)>("(u32)", [](int a) {return (uint32_t)a; });

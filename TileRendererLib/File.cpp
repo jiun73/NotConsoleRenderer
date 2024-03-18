@@ -1,5 +1,6 @@
 #include "File.h"
 #include "pch.h"
+#include <filesystem>
 
 #include <WinSock2.h>
 #define no_init_all deprecated
@@ -166,6 +167,31 @@ void File::open(const std::string& path, FileXMode mode)
 
 	if (file.fail())
 	{
+		// Get the error code
+		std::ios_base::iostate state = file.rdstate();
+
+		// Check for specific error bits
+		if (state & std::ios_base::eofbit)
+		{
+			std::cout << "End of file reached." << std::endl;
+		}
+		if (state & std::ios_base::failbit)
+		{
+			std::cout << "Non-fatal I/O error occurred." << std::endl;
+		}
+		if (state & std::ios_base::badbit)
+		{
+			std::cout << "Fatal I/O error occurred." << std::endl;
+		}
+
+		// Print system error message
+		std::perror("Error: ");
+		std::filesystem::path p = std::filesystem::current_path();
+
+		std::cout << "The current path " << p << " decomposes into:\n"
+			<< "root name " << p.root_name() << '\n'
+			<< "root directory " << p.root_directory() << '\n'
+			<< "relative path " << p.relative_path() << '\n';
 		std::cerr << "Error while opening file (Wrong path? : " << path << ") " << cursor << " SDL says:" << SDL_GetError() << std::endl;
 		assert(0);
 	}

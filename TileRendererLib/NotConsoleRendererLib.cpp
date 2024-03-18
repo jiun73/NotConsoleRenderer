@@ -811,9 +811,12 @@ int get_text_draw_size(const string& text, const Font& font)
 #include "Windows.h"
 #include <commdlg.h> 
 #include "SDL_syswm.h"
+#include <filesystem>
 
 vector<string> open_dialog(const string& filter)
 {
+	std::filesystem::path p = std::filesystem::current_path();
+
 	std::wstring wfilter = std::wstring(filter.begin(), filter.end());
 	std::wstring dir;
 	vector<std::wstring> paths;
@@ -881,6 +884,8 @@ vector<string> open_dialog(const string& filter)
 		ret.push_back(sdir + "\\" + spath);
 		std::cout << sdir + "\\" + spath << std::endl;
 	}
+
+	std::filesystem::current_path(p);
 
 	return ret;
 }

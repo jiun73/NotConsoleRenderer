@@ -72,6 +72,11 @@ class Custom_FrameCreatorWidget : public GLUU::Widget
 		plane.draw_checkered_background();
 		plane.update();
 
+		if (plane.is_pressed())
+		{
+			current_frame().origin = plane.deproject(mouse_position());
+		}
+
 		SDL_Texture* tex = animation().textures.at(current_frame().tex);
 		SDL_RenderSetClipRect(get_sdl_ren(), graphic.last_dest.SDL());
 		int x, y;
@@ -80,6 +85,19 @@ class Custom_FrameCreatorWidget : public GLUU::Widget
 
 		SDL_RenderCopy(get_sdl_ren(), tex, NULL, image.SDL());
 		SDL_RenderSetClipRect(get_sdl_ren(), NULL);
+		V2d_i origin = ((V2d_d)(current_frame().origin) * plane.scale) + (V2d_d)image.pos;
+		V2d_i origin_vt = { origin.x, origin.y - 5 };
+		V2d_i origin_vb = { origin.x, origin.y + 5 };
+		V2d_i origin_ht = { origin.x - 5, origin.y };
+		V2d_i origin_hb = { origin.x + 5, origin.y };
+
+		pencil(COLOR_BLACK);
+		draw_line(origin_vt + 1, origin_vb + 1);
+		draw_line(origin_ht + 1, origin_hb + 1);
+
+		pencil(COLOR_PINK);
+		draw_line(origin_vt, origin_vb);
+		draw_line(origin_ht, origin_hb);
 	}
 };
 
@@ -106,8 +124,7 @@ class Custom_AnimationPrewiewWidget : public GLUU::Widget
 
 		animation().scale = std::min(maxscalex, maxscaley);
 		animation().position = graphic.last_dest.pos;
-		animation().render(get_sdl_ren());
-		
+		animation().render(get_sdl_ren(), true);
 	}
 };
 
@@ -124,6 +141,12 @@ namespace ANIMMAKER
 			});
 
 		GLUU::import_function<SDL_Texture* (const string&)>(":get_tex", get_sdl_texture);
+		GLUU::import_function<V2d_i(SDL_Texture*)>(":get_tex_sz", [](SDL_Texture* tex) -> V2d_i
+			{
+				int x, y;
+				SDL_QueryTexture(tex, NULL, NULL, &x, &y);
+				return { x,y };
+			});
 
 		GLUU::Compiled_ptr menu = GLUU::parse_file("AnimMaker.gluu");
 

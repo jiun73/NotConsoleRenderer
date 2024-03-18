@@ -15,9 +15,17 @@ namespace GLUU {
 
 		SeqVar<string> text;
 		Expression expr;
+		bool lock = false;
 
 		void update(Element& graphic) override
 		{
+			if (lock)
+			{
+				if(mouse_left_released()) return;
+				lock = false;
+				return;
+			}
+
 			if (point_in_rectangle(mouse_position(), graphic.last_dest))
 			{
 				if (mouse_left_held())
@@ -25,7 +33,10 @@ namespace GLUU {
 				else
 					pencil(COLOR_GREEN);
 				if (mouse_left_released())
+				{
 					expr.evaluate();
+					lock = true;
+				}
 			}
 			else
 				pencil(COLOR_BLACK);

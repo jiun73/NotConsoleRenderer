@@ -13,6 +13,7 @@ namespace GLUU {
 
 	struct Inspector
 	{
+		shared_generic type_factory;
 		function<shared_generic(shared_generic, const string&)> inspect;
 	};
 
@@ -72,6 +73,21 @@ namespace GLUU {
 			{
 				Expression& star = *(Expression*)(constant->raw_bytes());
 				return star.get_type();
+			}
+			else if (is_inspector)
+			{
+				std::type_index type = recursive.at(0).get_type();
+
+				if (type == typeid(shared_generic)) { return type; }
+
+				if (!inspectors->count(type))
+				{
+					assert(false); //Varaible has no members
+					return typeid(void);
+				};
+
+				auto& inspector = inspectors->at(recursive.at(0).get_type());
+				return inspector.inspect(inspector.type_factory, member)->type(); 
 			}
 			else return constant->type();
 			return typeid(void);

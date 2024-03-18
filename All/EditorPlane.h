@@ -8,10 +8,27 @@ struct EditorPlane
 	V2d_d offset = 0;
 	double scale = 1;
 
+	V2d_i deproject(const V2d_i& pos)
+	{
+		return pos - dest.pos - (V2d_i)offset;
+	}
+
 	Rect project(const Rect& r) 
 	{
 		Rect rect = { r.pos + (V2d_i)offset + dest.pos, {(int)((double)r.sz.x * scale), (int)((double)r.sz.y * scale)} };
 		return rect;
+	}
+
+	bool is_pressed(bool left = true)
+	{
+		if (point_in_rectangle(mouse_position(), dest))
+		{
+			if ((left && mouse_left_pressed()) || (!left && mouse_right_pressed()))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	void draw_ck_background_square(double x, double y, double square_sz = 50)
@@ -136,19 +153,19 @@ struct EditorPlane
 			std::cout << pos_f << offset << std::endl;
 		}
 
-		if (key_pressed(SDL_SCANCODE_LEFT))
+		if (key_held(SDL_SCANCODE_LEFT))
 		{
 			offset.x += 1.0 / scale;
 		}
-		if (key_pressed(SDL_SCANCODE_RIGHT))
+		if (key_held(SDL_SCANCODE_RIGHT))
 		{
 			offset.x -= 1.0 / scale;
 		}
-		if (key_pressed(SDL_SCANCODE_UP))
+		if (key_held(SDL_SCANCODE_UP))
 		{
 			offset.y += 1.0 / scale;
 		}
-		if (key_pressed(SDL_SCANCODE_DOWN))
+		if (key_held(SDL_SCANCODE_DOWN))
 		{
 			offset.y -= 1.0 / scale;
 		}

@@ -49,6 +49,8 @@ namespace GLUU {
 		shared_ptr<VariableRegistry> scope;
 		SeqVar<size_t> size = 10;
 		SeqVar<bool> condition = true;
+		SeqVar<bool> absolute = false;
+		SeqVar<Rect> destination = Rect(0,0);
 		SeqVar<bool> fit = false;
 		Rect_d last_dest;
 
@@ -217,6 +219,7 @@ namespace GLUU {
 		{
 			Inspector inspect;
 			inspect.inspect = inspector;
+			inspect.type_factory = make_generic<T>();
 			inspectors.emplace(typeid(T), inspect);
 		}
 

@@ -36,6 +36,10 @@ public:
 	V2d_i position = 0;
 
 public:
+	void write_to_file(File& file) 
+	{
+	}
+
 	SDL_Texture* frame_texture(const AnimationFrameX& frame)
 	{
 		return textures.at(frame.tex);
@@ -149,7 +153,7 @@ public:
 		last = SDL_GetTicks();
 	}
 
-	void render(SDL_Renderer* ren)
+	void render(SDL_Renderer* ren, bool always_top_left = false)
 	{
 		update();
 
@@ -158,7 +162,10 @@ public:
 		AnimationFrameX& frame = current_frame();
 		SDL_Texture* tex = frame_texture(frame);
 		Rect dest;
-		dest.pos = V2d_d(position) - (V2d_d(frame.origin) * scale);
+		if(always_top_left)
+			dest.pos = V2d_d(position);
+		else
+			dest.pos = V2d_d(position) - (V2d_d(frame.origin) * scale);
 		dest.sz = V2d_d(frame_size(frame)) * scale;
 
 		SDL_RenderCopy(ren, tex, NULL, dest.SDL());

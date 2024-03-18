@@ -10,6 +10,11 @@ new function :curanim =
 	{animations -at current_animation}
 }
 
+new function :curframe = 
+{
+	:curanim .frames -at current_frame
+}
+
 new init setup = {
 	BASE .fit = :true;
 }
@@ -72,6 +77,22 @@ new function :add_frame =
 	{ anim @ } .frames -push frame;
 }
 
+new function :set_origins_ratio = {
+	arg double ratioY;
+	arg double ratioX;
+
+	new int i;
+	i = 0;
+	$foreach { :curanim .frames }
+	{
+		new V2d_i tex_size;
+		tex_size = :get_tex_sz { :curanim .textures -at (size_t-int) { :curanim .frames -at i } .tex };
+		{ :curanim .frames -at i } .origin .x = (~) ratioX !* (.) tex_size .x ;
+		{ :curanim .frames -at i } .origin .y = (~) ratioY !* (.) tex_size .y;
+		i ++;
+	};
+}
+
 ROW SIZE 30 CFIT <
 	
 	COL SIZE 120 BUTTON { "Load images" } { :load_images } <>
@@ -116,7 +137,7 @@ ROW SIZE 30 <
 		i = 0;
 		$foreach paths 
 		{
-			{& :curanim } :add_frame paths -at i;
+			{ & :curanim } :add_frame paths -at i;
 			i ++;
 		};
 		
@@ -141,16 +162,64 @@ ROW SIZE 30 <
 >
 
 ROW SIZE 800 CFIT  <
-	COL SIZE 4 IF { :has_frames } FRAME_CREATOR 
-	{ :curanim } 
-	{ :curanim .frames -at current_frame } <>
+	COL SIZE 4 IF { :has_frames } FRAME_CREATOR { :curanim } { :curframe } <>
 
-	COL CFIT SIZE 1 IF { :has_frames } 
+	new bool state = false
+
+	COL CFIT SIZE 1 CFIT IF { :has_frames } 
 	<
 		ROW ANIMATION_PREVIEW { :curanim } <>
-		ROW CFIT < COL < 
-			ROW SIZE 30 BUTTON { "All frames" } { } <>
+		ROW CFIT < COL CFIT < 
+			ROW TEXT { "Size: " :get_tex_sz { :curanim .textures -at (size_t-int) :curframe .tex } } <>
+			ROW TEXTBOX { "Origin: " :curframe .origin } { 
+				arg* string text; 
+				:curframe .origin #= @ text;
+				{text @} = ""; 
+			} <> 
+			ROW TEXTBOX { "Speed: " :curframe .time } { 
+				arg* string text; 
+				:curframe .time #= @ text;
+				{text @} = ""; 
+			} <>
+			ROW IF { :not state } BUTTON { "More... " } { state = :true; } <>
+			ROW IF { state } BUTTON { "Close" } { state = :false; } <>
+			ROW IF { state } BUTTON { "Copy settings to all frames" } 
+			{
+				new int i;
+				i = 0;
+				$foreach { :curanim .frames }
+				{
+					{ :curanim .frames -at i } .origin = :curframe .origin;
+					i ++;
+				};
+			} <>
+
+			new double ZERO = 0
+			new double HALF = 0.5
+			new double ONE = 1
+
+			ROW CFIT IF { state }
+			<
+				COL BUTTON { "*" } { :set_origins_ratio ZERO ZERO } <>
+				COL BUTTON { "*" } { :set_origins_ratio HALF ZERO } <>
+				COL BUTTON { "*" } { :set_origins_ratio ONE ZERO } <>
+			>
+
+			ROW CFIT IF { state }
+			<
+				COL BUTTON { "*" } { :set_origins_ratio ZERO HALF } <>
+				COL BUTTON { "*" } { :set_origins_ratio HALF HALF } <>
+				COL BUTTON { "*" } { :set_origins_ratio ONE HALF } <>
+			>
+
+			ROW CFIT IF { state }
+			<
+				COL BUTTON { "*" } { :set_origins_ratio ZERO ONE } <>
+				COL BUTTON { "*" } { :set_origins_ratio HALF ONE } <>
+				COL BUTTON { "*" } { :set_origins_ratio ONE ONE } <>
+			>
 		>>
+
 	>
 >
 
