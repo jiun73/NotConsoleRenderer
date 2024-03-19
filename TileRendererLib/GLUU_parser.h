@@ -296,6 +296,13 @@ namespace GLUU {
 
 		void parse_declaration(string_ranges dec);
 
+		shared_generic get_variable_from_scope(string_ranges name)
+		{
+			shared_generic var = variable_dictionnary()->get(name.flat());
+			if (var == nullptr) { add_error(GLUU_ERROR_INVALID_VARIABLE_NAME, "variable '" + name.flat() + "' doesn't exist in this scope", name.begin()); }
+			return var;
+		}
+
 		Expression parse_expression(string_ranges expression);
 
 		void get_declaractions(string_ranges row)
@@ -492,6 +499,13 @@ namespace GLUU {
 			variable_dictionnary()->exit_scope();
 			variable_dictionnary()->exit_scope();
 
+			output_errors();
+
+			return graphics;
+		}
+
+		bool output_errors() 
+		{
 			if (!errors.empty())
 			{
 				std::cout << "Errors during compilation: " << std::endl;
@@ -500,9 +514,9 @@ namespace GLUU {
 					std::cout << "At line " << e.line << " character " << e.ch << std::endl;
 					std::cout << e.message << std::endl;
 				}
+				return true;
 			}
-
-			return graphics;
+			return false;
 		}
 
 		void render(Rect_d windowSize)

@@ -6,6 +6,7 @@ namespace GLUU {
 	Expression ExpressionParser::parse_sequence_next(string_ranges str)
 	{
 		Expression ret(return_flags.back());
+		ret.root = true;
 		ret.scope = std::make_shared< VariableRegistry>();
 		ret.scope->name = "Expr scope";
 		shared_ptr<VariableRegistry> old_scope = parser->current_scope;

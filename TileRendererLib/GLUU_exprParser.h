@@ -35,6 +35,9 @@ namespace GLUU {
 			return_flags.push(make_shared<bool>());
 			auto expr = parse_sequence_next(str);
 			return_flags.pop();
+
+			parser->output_errors();
+			
 			return expr;
 		}
 	};

@@ -22,7 +22,7 @@ namespace GLUU {
 		shared_ptr<VariableRegistry> scope;
 		vector<Expression> recursive;
 		shared_generic constant = nullptr;
-		bool root = true;
+		bool root = false;
 		
 		//Return handling
 		bool return_call = false;
@@ -44,7 +44,7 @@ namespace GLUU {
 		unordered_map<type_index,Inspector>* inspectors = nullptr;
 
 		Expression() { ret_flag = make_shared<bool>(); }
-		Expression(shared_ptr<bool> return_flag) : ret_flag(return_flag) {}
+		Expression(shared_ptr<bool> return_flag, bool root = false) : ret_flag(return_flag), root(root) {}
 		~Expression() {}
 
 		type_index get_type()

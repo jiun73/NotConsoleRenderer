@@ -97,6 +97,17 @@ inline void string_to_upper(string& str)
 	for (auto& c : str) c = std::toupper(c);
 }
 
+inline bool starts_with(const string& str, const string& comp) 
+{
+	if (str.size() < comp.size()) return false;
+
+	for (size_t i = 0; i < comp.size(); i++)
+	{
+		if (str.at(i) != comp.at(i)) return false;
+	}
+	return true;
+}
+
 //TODO: fix this shit function
 inline void split2(std::vector<std::string>& vec, std::string str, char delim = ' ', char d1 = '"', char d2 = '"') 
 {
