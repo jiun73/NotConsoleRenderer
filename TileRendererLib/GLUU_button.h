@@ -9,7 +9,9 @@ namespace GLUU {
 			auto ptr = make_shared<ButtonWidget>();
 
 			ptr->text.set(args.at(0), parser);
-			ptr->expr = parser.parse_sequence_base(args.at(1));
+
+			ExpressionParser expression_parser(&parser);
+			ptr->expr = expression_parser.parse(args.at(1));
 			return ptr;
 		}
 

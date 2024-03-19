@@ -49,7 +49,7 @@ inline void add_regular_command_set()
 
 	__NEW_COMMAND__("GLUU ***", [&](__COMMAND_ARGS__)
 		{
-			GLUU::parser()->parse_new_sequence(args[1]).evaluate();
+			//GLUU::parser()->parse_new_sequence(args[1]).evaluate();
 		});
 
 	NCR_DefineCommand ff4("pause", [](__COMMAND_ARGS__)

@@ -164,6 +164,8 @@
     <ClInclude Include="GLUU.h" />
     <ClInclude Include="GLUU_button.h" />
     <ClInclude Include="GLUU_dropbox.h" />
+    <ClInclude Include="GLUU_exprParser.h" />
+    <ClInclude Include="GLUU_lineParser.h" />
     <ClInclude Include="GLUU_parser.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Fonts.h" />
@@ -204,6 +206,8 @@
     <ClCompile Include="ECSX_System.h" />
     <ClCompile Include="ECSX_Manager.cpp" />
     <ClCompile Include="File.cpp" />
+    <ClCompile Include="GLUU_exprParser.cpp" />
+    <ClCompile Include="GLUU_lineParser.cpp" />
     <ClCompile Include="GLUU_parser.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Networking.cpp" />

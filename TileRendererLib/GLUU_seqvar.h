@@ -58,7 +58,7 @@ namespace GLUU {
 		{
 			if (*str.begin() == parser.expr_open && *prev(str.end()) == parser.expr_close)
 			{
-				seq = parser.parse_sequence_base(str);
+				seq = parser.parse_expression(str);
 				is_seq = true;
 				return;
 			}

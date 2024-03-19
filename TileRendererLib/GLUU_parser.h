@@ -15,6 +15,9 @@
 namespace GLUU {
 	using std::queue;
 
+	class ExpressionParser;
+	class LineParser;
+
 	enum Errors 
 	{
 		GLUU_ERROR_INVALID_EXPRESSION_KEYWORD,
@@ -183,6 +186,9 @@ namespace GLUU {
 
 	class Parser
 	{
+		friend ExpressionParser;
+		friend LineParser;
+
 	private:
 		shared_ptr<VariableRegistry> GLUU_scope;
 
@@ -193,7 +199,7 @@ namespace GLUU {
 		shared_ptr<Compiled> graphics;
 
 		vector<Errorinfo> errors;
-		queue<shared_ptr<bool>> return_flags;		
+		
 
 		string::iterator source_begin;
 		map<size_t, size_t> lines;
@@ -282,159 +288,15 @@ namespace GLUU {
 			}
 		}
 
-		template<typename T>
-		Expression make_const(const T& obj)
-		{
-			Expression constant(return_flags.back());
-			constant.root = false;
-			constant.constant = make_generic<T>(obj);
-			return constant;
-		}
+		
 
 		void add_error(Errors code, const string& message, string::iterator it);
 
 		void register_class(shared_ptr <Widget> c);
 
-		void parse_function_keyword(string_ranges kw, vector<Expression>& constants, vector<Expression>& functions, bool rev);
+		void parse_declaration(string_ranges dec);
 
-		bool parse_keyword(vector<string_ranges>::iterator& kw, vector<Expression>& constants, vector<Expression>& functions, bool& f, string_ranges full, size_t size, Expression& ret_val, vector<string_ranges>::iterator end, bool& make_return);
-
-		void parse_expression(string_ranges str, Expression& ret_val);
-
-		Expression parse_new_sequence(string& str)
-		{
-			source_begin = str.begin();
-			variable_dictionnary()->enter_scope(GLUU_scope);
-			Expression e = parse_sequence(str);
-			variable_dictionnary()->exit_scope();
-			return e;
-		}
-
-		Expression parse_sequence(string& str)
-		{
-			str += '\n';
-			remove_all_range(str, "//", "\n", false);
-			remove_all_range(str, "/*", "*/", true);
-			change_whitespace_to_space(str);
-			return parse_sequence_next(str);
-		}
-
-		Expression parse_sequence_base(string_ranges str)
-		{
-			return_flags.push(make_shared<bool>());
-			auto expr = parse_sequence_next(str);
-			return_flags.pop();
-			return expr;
-		}
-
-		Expression parse_sequence_next(string_ranges str)
-		{
-			Expression ret(return_flags.back());
-			ret.scope = std::make_shared< VariableRegistry>();
-			ret.scope->name = "Expr scope";
-			shared_ptr<VariableRegistry> old_scope = current_scope;
-			current_scope = ret.scope;
-			variable_dictionnary()->enter_scope(current_scope);
-
-			if (str.empty())
-			{
-				add_error(GLUU_ERROR_EMPTY_SEQUENCE, "Trying to parse an empty sequence (why?)", str.begin());
-				return Expression(return_flags.back());
-			}
-
-			str = range_trim(str, ' ');
-
-			if (*str.begin() == expr_open && *(str.end() - 1) == expr_close)
-			{
-				str.begin() += 1;
-				str.end() -= 1;
-			}
-
-			vector<string_ranges> subseq = range_delimiter(str, expr_open, expr_close);
-			vector<string_ranges> expressions;
-			for (auto it = subseq.begin(); it != subseq.end(); it += 2)
-			{
-				vector<string_ranges> escape_str = split_escape_delim(*it, '"', '"', ";");
-				bool f = true;
-				for (auto& e : escape_str)
-				{
-					if (f)
-					{
-						if (!expressions.empty())
-							expressions.back() = { expressions.back().begin(), e.end() };
-						else
-							expressions.push_back(e);
-						f = false;
-					}
-					else
-						expressions.push_back(e);
-				}
-				if (!expressions.empty())
-					expressions.back() = { expressions.back().begin(), next(it)->end() };
-			}
-
-			for (auto& e : expressions)
-			{
-				parse_expression(e, ret);
-			}
-
-			variable_dictionnary()->exit_scope();
-			current_scope = old_scope;
-
-			
-			return ret;
-		}
-
-		void parse_declaration(string_ranges dec)
-		{
-			vector<string_ranges> keywords = split_and_trim(dec);
-
-			if (keywords.size() < 1) { add_error(GLUU_ERROR_INVALID_DECLARATION, "'new' found with no declaration after", dec.begin()); return; } //error GLUU_ERROR_INVALID_DECLARATION
-			if (keywords.size() < 1) { add_error(GLUU_ERROR_INVALID_DECLARATION, "'new' with no name for declaration", dec.begin()); return; } //error GLUU_ERROR_INVALID_DECLARATION
-
-			if (keywords.at(0).flat() == "function" || keywords.at(0).flat() == "init" || keywords.at(0).flat() == "callback")
-			{
-				if (keywords.size() < 4) { add_error(GLUU_ERROR_INVALID_FUNCTION_DECLARATION, "Invalid function declaraction (new function = [expr])", dec.begin()); return; } //error GLUU_ERROR_INVALID_FUNCTION_DECLARATION
-
-				string name = keywords.at(1).flat();
-				size_t eq = dec.flat().find('=');
-				string_ranges func = { dec.begin() + eq + 1, dec.end() };
-				Expression expr = parse_sequence_base(func);
-				current_scope->add(make_shared<GenericType<Expression>>(expr), name);
-
-				if (keywords.at(0).flat() == "init")
-				{
-					expr.evaluate();
-				}
-
-				if (keywords.at(0).flat() == "callback")
-				{
-					graphics->callbacks.push_back(expr);
-				}
-
-				std::cout << "Added new func as '" << name << "' in scope " << current_scope->name << std::endl;
-			}
-			else
-			{
-				if (!current_scope->make(keywords.at(1).flat(), keywords.at(0).flat())) { add_error(GLUU_ERROR_INVALID_TYPE, "type '" + keywords.at(0).flat() + "' doesn't exist or is not registered", dec.begin()); return; } //error GLUU_ERROR_INVALID_TYPE
-				std::cout << "made new variable " << keywords.at(0).flat() << " " << keywords.at(1).flat() << " in scope " << current_scope->name << std::endl;
-				if (keywords.size() > 3 && keywords.at(2).flat() == "=")
-				{
-					string type = keywords.at(0).flat();
-					string name = keywords.at(1).flat();
-					string str = keywords.at(3).flat();
-					int i = current_scope->get(name)->destringify(str);
-					if (i == -1)
-					{
-						add_error(GLUU_ERROR_INVALID_STRING_TRANSLATION, "could not convert '" + str + "' to type '" + type + "' (no translation)", dec.begin()); return;
-					}
-					else if (i == 0)
-					{
-						add_error(GLUU_ERROR_INVALID_STRING_TRANSLATION, "could not convert '" + str + "' to type '" + type + "' (invalid string)", dec.begin()); return;
-					}
-				}
-			}
-		}
+		Expression parse_expression(string_ranges expression);
 
 		void get_declaractions(string_ranges row)
 		{
