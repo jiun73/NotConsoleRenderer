@@ -25,6 +25,32 @@ namespace GLUU {
 		LineParser(Parser* parser, ExpressionParser* expression_parser, queue<shared_ptr<bool>>* return_flags) : parser(parser), return_flags(return_flags), expression_parser(expression_parser) , full(dummy){}
 		~LineParser() {};
 
+		void move_const_to_arg()
+		{
+			if (functions.empty()) return;
+
+			if (functions.back().all_args_set())
+			{
+				constants.push_back(functions.back());
+				functions.pop_back();
+				std::cout << "full! " << std::endl;
+			}
+
+			while (!functions.empty() && !constants.empty())
+			{
+				bool full = functions.back().set_next_arg(constants.back());
+				std::cout << "moved 1 " << std::endl;
+				constants.pop_back();
+
+				if (full)
+				{
+					constants.push_back(functions.back());
+					functions.pop_back();
+					std::cout << "full! " << std::endl;
+				}
+			}
+		}
+
 		void parse_function_keyword(string_ranges kw, vector<Expression>& constants, vector<Expression>& functions, bool rev = false);
 
 		void add_variable_constant(shared_generic variable)
@@ -225,12 +251,9 @@ namespace GLUU {
 				}
 			}
 
-			for (auto it = functions.rbegin(); it != functions.rend(); it++)
+			/*for (auto it = functions.rbegin(); it != functions.rend(); it++)
 			{
-				size_t count = 0;
-
-				if (it->func) count = it->function->arg_count();
-				else count = it->arg_count;
+				size_t count = it->get_args_count();
 
 				for (size_t i = 0; i < count; i++)
 				{
@@ -246,6 +269,11 @@ namespace GLUU {
 
 				constants.push_back(*it);
 
+			}*/
+			if(!functions.empty())
+			{
+				parser->add_error(GLUU_ERROR_NOT_ENOUGH_ARGS, "ran out of arguments for function '" + functions.back().func_name + "' ", str.begin());
+				return;
 			}
 
 			for (auto& c : constants)

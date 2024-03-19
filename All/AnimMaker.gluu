@@ -7,7 +7,7 @@ new int current_image = 0
 
 new function :curanim = 
 {
-	{animations -at current_animation}
+	animations -at current_animation
 }
 
 new function :curframe = 

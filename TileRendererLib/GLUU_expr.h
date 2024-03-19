@@ -23,17 +23,18 @@ namespace GLUU {
 		vector<Expression> recursive;
 		shared_generic constant = nullptr;
 		bool root = false;
-		
+
 		//Return handling
 		bool return_call = false;
 		shared_ptr<bool> ret_flag = nullptr;
-		
+
 		//Functions
 		shared_ptr<GenericFunction> function = nullptr;
 		Expression* func_base = nullptr;
 		vector<string> args_name;
 		string func_name;
 		size_t arg_count = 0;
+		size_t arg_counter = 0;
 		bool func = false;
 		bool user_func = false;
 		bool reversed = false;
@@ -46,6 +47,11 @@ namespace GLUU {
 		Expression() { ret_flag = make_shared<bool>(); }
 		Expression(shared_ptr<bool> return_flag, bool root = false) : ret_flag(return_flag), root(root) {}
 		~Expression() {}
+
+		bool all_args_set()
+		{
+			return arg_counter == get_args_count();
+		}
 
 		type_index get_type()
 		{
@@ -102,7 +108,6 @@ namespace GLUU {
 		void add_arg(const string& str, const string& type)
 		{
 			scope->add(ClassFactory::get()->make(type), str);
-
 			args_name.push_back(str);
 		}
 
@@ -119,11 +124,26 @@ namespace GLUU {
 			for (auto& name : args_name)
 			{
 				scope->add(args.at(i), name);
-				//*(scope->get(name)) = *args.at(i);
-				//scope->get(name).swap(args.at(i));
 				scope->get(name)->set(args.at(i));
 				i++;
 			}
+		}
+
+		bool set_next_arg(const Expression& variable)
+		{
+			if (recursive.size() != get_args_count())
+			{
+				recursive.push_back(variable);
+				arg_counter++;
+			}
+			
+			return all_args_set();
+		}
+
+		size_t get_args_count()
+		{
+			if (func) return function->arg_count();
+			else return arg_count;
 		}
 
 		shared_generic get_arg(vector<shared_generic>& args, size_t i, bool func_check, GLUU::Expression& expr)
@@ -153,9 +173,9 @@ namespace GLUU {
 			size_t i = 0;
 			if (!reversed)
 			{
-				for (auto& r : recursive)
+				for (auto it = recursive.rbegin(); it != recursive.rend(); it++)
 				{
-					auto eval = get_arg(args, i, func_check, r);
+					auto eval = get_arg(args, i, func_check, *it);
 
 					if (eval != nullptr) return { eval };
 
@@ -164,9 +184,9 @@ namespace GLUU {
 			}
 			else
 			{
-				for (auto it = recursive.rbegin(); it != recursive.rend(); it++)
+				for (auto& r : recursive)
 				{
-					auto eval = get_arg(args, i, func_check, *it);
+					auto eval = get_arg(args, i, func_check, r);
 
 					if (eval != nullptr) return { eval };
 

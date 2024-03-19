@@ -39,5 +39,7 @@ void GLUU::LineParser::parse_function_keyword(string_ranges kw, vector<Expressio
 	{
 		parser->add_error(GLUU_ERROR_INVALID_FUNCTION_NAME, "'" + flat + "' isn't a valid function type!", kw.begin()); return;
 	}
+
+	move_const_to_arg();
 }
 
