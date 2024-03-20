@@ -11,7 +11,7 @@ void GLUU::LineParser::parse_function_keyword(string_ranges kw, vector<Expressio
 	func.root = false;
 	func.reversed = rev;
 	shared_generic var = variable_dictionnary()->get(flat);
-	if (var == nullptr) { parser->add_error(GLUU_ERROR_INVALID_FUNCTION_NAME, "function '" + flat + "' doesn't exist in this scope", kw.begin()); return; } // error GLUU_ERROR_INVALID_FUNCTION_NAME
+	if (var == nullptr) { parser->add_error(GLUU_ERROR_INVALID_FUNCTION_NAME, "function '" + flat + "' doesn't exist in this scope", current_keyword->begin()); return; } // error GLUU_ERROR_INVALID_FUNCTION_NAME
 	if (var->identity() == typeid(GenericFunction))
 	{
 		func.func = true;

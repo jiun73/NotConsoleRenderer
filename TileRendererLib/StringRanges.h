@@ -80,42 +80,42 @@ inline string_ranges range_until(string_ranges range, const string& str)
 	return range;
 }
 
-inline string_ranges range_outside(string_ranges range, char open, char end)
+inline string_ranges range_outside(string_ranges range, string open, string end)
 {
 	bool out = true;
 	int level = 0;
 	string_iter iter_open;
 	for (auto it = range.begin(); it != range.end(); it++)
 	{
-		if (*it == end) level--;
+		if (end.find(*it ) != end.npos) level--;
 
-		if (*it == end && !out && level <= 0) return { range.begin(), iter_open, next(it) };
+		if (end.find(*it) != end.npos && !out && level <= 0) return { range.begin(), iter_open, next(it) };
 
-		if (*it == open && out && level <= 0)
+		if (open.find(*it) != open.npos && out && level <= 0)
 		{
 			iter_open = it;
 			out = false;
 		}
 
-		if (*it == open) level++;
+		if (open.find(*it) != open.npos) level++;
 	}
 
 	if (out) return range;
 	else return { range.begin(), iter_open, range.end() };
 }
 
-inline string_ranges range_inside(string_ranges range, char open, char end)
+inline string_ranges range_inside(string_ranges range, string open, string end)
 {
 	int level = 0;
 	bool in = false;
 	for (auto it = range.begin(); it != range.end(); it++)
 	{
-		if (*it == end && in)
+		if (end.find(*it) != end.npos && in)
 		{
 			level--;
 		}
 
-		if (*it == end && in)
+		if (end.find(*it) != end.npos && in)
 		{
 			if (level == 0)
 				return { range.begin(), it + 1 };
@@ -123,7 +123,7 @@ inline string_ranges range_inside(string_ranges range, char open, char end)
 			continue;
 		}
 
-		if (*it == open)
+		if (open.find(*it) != open.npos)
 		{
 			level++; in = true; continue;
 		}
@@ -132,7 +132,7 @@ inline string_ranges range_inside(string_ranges range, char open, char end)
 	return range;
 }
 
-inline vector<string_ranges> range_delimiter(string_ranges range, char open, char end)
+inline vector<string_ranges> range_delimiter(string_ranges range, string open, string end)
 {
 	vector<string_ranges> ret;
 	string_iter iter = range.begin();
@@ -191,7 +191,7 @@ inline vector<string_ranges> subchain(const vector<string_ranges>& ranges, strin
 	return ret;
 }
 
-inline vector<string_ranges> split_escape_delim(string_ranges range, char open, char end, string sp = ";")
+inline vector<string_ranges> split_escape_delim(string_ranges range, string open, string end, string sp = ";")
 {
 	vector<string_ranges> strings = range_delimiter(range, open, end);
 	vector<string_ranges> expressions;
@@ -227,7 +227,7 @@ inline vector<string_ranges> split_escape_delim(string_ranges range, char open, 
 	return expressions;
 }
 
-inline vector<string_ranges> split_and_delim(string_ranges range, char open, char end, string sp = ";")
+inline vector<string_ranges> split_and_delim(string_ranges range, string open, string end, string sp = ";")
 {
 	vector<string_ranges> strings = range_delimiter(range, open, end);
 	vector<string_ranges> expressions;

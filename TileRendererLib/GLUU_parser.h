@@ -210,10 +210,10 @@ namespace GLUU {
 		unordered_map<type_index, Inspector> inspectors;
 
 	public:
-		const char row_open = '<';
-		const char row_close = '>';
-		const char expr_open = '{';
-		const char expr_close = '}';
+		const string row_open = "<";
+		const string row_close = ">";
+		const string expr_open = "{";
+		const string expr_close = "}";
 
 		shared_ptr<VariableRegistry> get_scope() { return GLUU_scope; }
 
@@ -376,24 +376,60 @@ namespace GLUU {
 
 		string_ranges extract_header(string_ranges& range, bool& error)
 		{
-			string_ranges head = range_until(range, "<");
-			range = { head.skip(), range.end() };
+			vector<string_ranges> ranges = range_delimiter(range, expr_open, expr_close);
 
-			/*if (head.end() == range.end())
+			for (auto it = ranges.begin(); it != ranges.end(); it += 2)
 			{
-				add_error(GLUU_ERROR_INVALID_ROW, "Could not get a body for this row (could not find end)", range.begin());
-				error = true;
-				range = { range.begin(), range.begin() };
-			}*/
+				string_ranges sub_head = range_until(*it, "<");
 
+				if (it->end() == sub_head.end())
+				{
+					continue;
+				}
+
+				auto begin = range.begin();
+
+				range = { sub_head.skip(), range.end() };
+
+				return { begin, sub_head.end() };
+			}
+
+			auto copy = range;
+			range = { range.begin(), range.begin() };
 			
-			return head;
+			return copy;
+		}
+
+		string_ranges extract_tail(string_ranges& range, bool& error)
+		{
+			vector<string_ranges> ranges = range_delimiter(range, row_open + expr_open, row_close + expr_close);
+
+			for (auto it = ranges.begin(); it != ranges.end(); it += 2)
+			{
+				string_ranges sub_head = range_until(*it, ">");
+
+				if (it->end() == sub_head.end())
+				{
+					continue;
+				}
+
+				auto end = range.end();
+
+				range = { range.begin(), sub_head.end()};
+
+				return { sub_head.skip(), end };
+			}
+
+			return {range.begin(), range.begin()};
 		}
 
 		void parse_graphic(string_ranges row, bool is_row)
 		{
 			bool err = false;
 			string_ranges head = extract_header(row, err);
+			string_ranges tail = extract_tail(row, err);
+
+			
 
 			if (err)
 			{
@@ -405,7 +441,10 @@ namespace GLUU {
 			{
 				std::cout << "\t";
 			}
-			std::cout << head.flat() << std::endl;
+			std::cout << "HEAD " + head.flat() << std::endl;
+			std::cout << "BODY " + row.flat() << std::endl;
+			std::cout << "TAIL " + tail.flat() << std::endl;
+
 
 			Element row_obj = parse_header(head);
 			shared_ptr<VariableRegistry> old_scope = current_scope;
@@ -427,6 +466,8 @@ namespace GLUU {
 			current_scope = old_scope;
 
 			graphics->current_row->nested.push_back(row_obj);
+
+			get_declaractions(tail);
 		}
 
 		void parse_range(string_ranges range, const string& keyword, bool row)
@@ -438,23 +479,75 @@ namespace GLUU {
 				return;
 			}*/
 
-			vector<string_ranges> sub_rows = range_delimiter(range, row_open, row_close);
 
-			for (auto it = sub_rows.begin(); it != sub_rows.end(); it += 2)
+
+			vector<string_ranges> sub_rows = split_escape_delim(range, expr_open, expr_close, keyword);
+
+			if (sub_rows.empty()) return;
+
+			get_declaractions(sub_rows.front());
+
+			for (auto it = sub_rows.begin() + 1; it != sub_rows.end(); it ++)
 			{
-				auto in = next(it);
+				/*vector<string_ranges> sub_sub_rows = split_escape_delim(*it, row_open, row_close, keyword);
 
-				vector<string_ranges> columns = chain(*it, range_until, keyword);
- 
-				get_declaractions(columns.front());
-				if (columns.size() > 1)
+				if (sub_sub_rows.empty()) return;
+
+				for (auto it2 = sub_sub_rows.begin() + 1; it2 != sub_sub_rows.end(); it2++)
 				{
-					string_ranges column = { columns.at(1).begin(), in->end() }; 
+					parse_graphic(*it2, row);
+				}*/
+
+				//std::cout << "SPLIT" << it->flat() << std::endl;
+
+				vector<string_ranges> sub_sub_rows = range_delimiter(*it, row_open, row_close);
+				bool even = true;
+				for (auto it2 = sub_sub_rows.begin(); it2 != sub_sub_rows.end(); it2 += 2)
+				{
+					auto in = next(it2);
+
+					string_ranges column = { it2->begin(), in->end() };
 					column = range_trim(column, ' ');
-					//column.end() -= 1;
-					parse_graphic(column, row);
+
+					if (even)
+					{
+						
+
+						if (column.empty()) continue;
+
+						std::cout << ":: '" << column.flat() << "' " << std::endl;
+						parse_graphic(column, row);
+						even = false;
+					}
+					else
+					{
+						std::cout << "?? '" << column.flat() << "' " << std::endl;
+
+						get_declaractions(column);
+
+						even = true;
+					}
 				}
+				
 			}
+
+			//vector<string_ranges> sub_rows = range_delimiter(range, row_open, row_close);
+
+			//for (auto it = sub_rows.begin(); it != sub_rows.end(); it += 2)
+			//{
+			//	auto in = next(it);
+
+			//	vector<string_ranges> columns = chain(*it, range_until, keyword);
+ 
+			//	
+			//	if (columns.size() > 1)
+			//	{
+			//		string_ranges column = { columns.at(1).begin(), in->end() }; 
+			//		column = range_trim(column, ' ');
+			//		//column.end() -= 1;
+			//		parse_graphic(column, row);
+			//	}
+			//}
 		}
 
 		shared_ptr<Compiled> parse(string& str)
@@ -514,6 +607,7 @@ namespace GLUU {
 					std::cout << "At line " << e.line << " character " << e.ch << std::endl;
 					std::cout << e.message << std::endl;
 				}
+				errors.clear();
 				return true;
 			}
 			return false;

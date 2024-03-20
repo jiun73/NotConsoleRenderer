@@ -21,7 +21,7 @@ namespace GLUU {
 
 		str = range_trim(str, ' ');
 
-		if (*str.begin() == parser->expr_open && *(str.end() - 1) == parser->expr_close)
+		if (*str.begin() == parser->expr_open.at(0) && *(str.end() - 1) == parser->expr_close.at(0))
 		{
 			str.begin() += 1;
 			str.end() -= 1;
@@ -31,7 +31,7 @@ namespace GLUU {
 		vector<string_ranges> expressions;
 		for (auto it = subseq.begin(); it != subseq.end(); it += 2)
 		{
-			vector<string_ranges> escape_str = split_escape_delim(*it, '"', '"', ";");
+			vector<string_ranges> escape_str = split_escape_delim(*it, "\"", "\"", ";");
 			bool f = true;
 			for (auto& e : escape_str)
 			{

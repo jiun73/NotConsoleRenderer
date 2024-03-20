@@ -56,7 +56,7 @@ namespace GLUU {
 	inline void SeqVar<T>::set(string_ranges str, ParserType& parser) {
 		if (!str.empty() && str.begin() != str.end())
 		{
-			if (*str.begin() == parser.expr_open && *prev(str.end()) == parser.expr_close)
+			if (*str.begin() == parser.expr_open.at(0) && *prev(str.end()) == parser.expr_close.at(0))
 			{
 				seq = parser.parse_expression(str);
 				is_seq = true;

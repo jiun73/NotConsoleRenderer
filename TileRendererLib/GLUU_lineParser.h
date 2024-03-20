@@ -33,20 +33,17 @@ namespace GLUU {
 			{
 				constants.push_back(functions.back());
 				functions.pop_back();
-				std::cout << "full! " << std::endl;
 			}
 
 			while (!functions.empty() && !constants.empty())
 			{
 				bool full = functions.back().set_next_arg(constants.back());
-				std::cout << "moved 1 " << std::endl;
 				constants.pop_back();
 
 				if (full)
 				{
 					constants.push_back(functions.back());
 					functions.pop_back();
-					std::cout << "full! " << std::endl;
 				}
 			}
 		}
@@ -65,28 +62,30 @@ namespace GLUU {
 		{
 			if (!is_first) return false;
 
+			
+
 			if (flat_keyword == "new")
 			{
 				parser->get_declaractions(full);
 				do_break = true;
 				return true;
 			}
-			else if (flat_keyword == "declare")
+			else if (ClassFactory::get()->has(flat_keyword))
 			{
 				
-				if (keywords.size() < 3) { parser->add_error(GLUU_ERROR_INVALID_DECLARATION, "not enough params in arg expression -> (arg type name)", current_keyword->begin()); return true; }
-				string type = next(current_keyword)->flat();
-				string name = next(current_keyword, 2)->flat();
+				if (keywords.size() < 2) { parser->add_error(GLUU_ERROR_INVALID_DECLARATION, "not enough params in arg expression -> (arg type name)", current_keyword->begin()); return true; }
+				string type = flat_keyword;
+				string name = next(current_keyword)->flat();
 
 				if (!parser->current_scope->make(name, type)) { parser->add_error(GLUU_ERROR_INVALID_TYPE, "type '" + keywords.at(0).flat() + "' doesn't exist or is not registered", next(current_keyword)->begin()); do_break = true; return true;} //error GLUU_ERROR_INVALID_TYPE
 
 				parser->output_seq("declared variable '" + name + "' as " + type + " in scope " + parser->current_scope->name);
 
-				shared_generic var = parser->get_variable_from_scope(*current_keyword);
+				shared_generic var = parser->get_variable_from_scope(name);
 				if (var == nullptr) { do_break = true; return true; }
 				add_variable_constant(var);
 
-				current_keyword += 2;
+				current_keyword += 1;
 
 				do_break = false;
 				return true;
@@ -186,8 +185,8 @@ namespace GLUU {
 				inspector_expr.inspectors = &parser->inspectors;
 				inspector_expr.recursive.push_back(copy);
 				inspector_expr.member = flat.substr(1);
-				constants.pop_back();
-				constants.push_back(inspector_expr);
+				constants.pop_back(); 
+				add_constant(inspector_expr);
 			}
 			else if (flat.front() == '`' && flat.size() > 1 && is_func_name({ keyword.begin() + 1,  keyword.end() }))
 			{
@@ -209,6 +208,7 @@ namespace GLUU {
 		void add_constant(const Expression& constant)
 		{
 			constants.push_back(constant);
+			move_const_to_arg();
 		}
 
 		void parse_expression(string_ranges str, Expression& ret_val) 
@@ -225,14 +225,13 @@ namespace GLUU {
 
 			for (auto it = ignore.begin(); it != ignore.end(); it += 2)
 			{
-				vector<string_ranges> ignore2 = range_delimiter(*it, '"', '"');
+				vector<string_ranges> ignore2 = range_delimiter(*it, "\"", "\"");
 				for (auto it2 = ignore2.begin(); it2 != ignore2.end(); it2 += 2)
 				{
 					keywords = subchain(chain(*it2, range_until, " "), range_until, ",");
-					for (auto kw = keywords.begin(); kw != keywords.end(); kw++)
+					for (current_keyword = keywords.begin(); current_keyword != keywords.end(); current_keyword++)
 					{
-						current_keyword = kw;
-						if (parse_keyword(*kw)) return;
+						if (parse_keyword(*current_keyword)) return;
 					}
 
 					if (!next(it2)->empty())
@@ -240,16 +239,19 @@ namespace GLUU {
 						std::cout << next(it2)->flat() << std::endl;
 						string_ranges r2 = *next(it2);
 						parser->output_seq(r2.flat());
-						constants.push_back(make_const<string>(range_shave(r2).flat()));
+						add_constant(make_const<string>(range_shave(r2).flat()));
 					}
 				}
 
 				if (!next(it)->empty())
 				{
 					Expression sub = expression_parser->parse_sequence_next(*next(it));
-					constants.push_back(sub);
+					add_constant(sub);
+
 				}
 			}
+
+			move_const_to_arg();
 
 			/*for (auto it = functions.rbegin(); it != functions.rend(); it++)
 			{

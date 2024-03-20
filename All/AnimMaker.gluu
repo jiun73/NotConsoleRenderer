@@ -15,33 +15,29 @@ new function :curframe =
 	:curanim .frames -at current_frame
 }
 
-new init setup = {
-	BASE .fit = :true;
-}
+new init setup = { BASE .fit = :true; }
 
 new function :load_images = 
 {
-	new vector(string) files;
-	files = $file;
-	new int index;
-	index = 0;
+	vector(string) files = $file;
+	int index = 0;
 
-	$while {index /- files -size} {
-		:get_tex files -at index;
-		paths -push files -at index;
+	$while { index /- -size files } {
+		files -at index :get_tex;
+		paths -push {files -at index};
 		index ++;
 	};
 }
 
-new function :has_image = { 0 /- paths -size }
-new function :has_anim = { 0 /- animations -size }
+new function :has_image = { paths -size /+ 0  }
+new function :has_anim = { animations -size /+ 0 }
 new function :animation_size =  { :curanim .frames -size }
 
 new function :has_frames = 
 {
 	$if :has_anim  
 	{
-		return { { :curanim .frames -size } /+ 0 } 
+		return { :curanim .frames -size /+ 0 } 
 	};
 	:false;
 }
@@ -50,7 +46,7 @@ new function :has_textures =
 {
 	$if :has_anim 
 	{
-		return { { :curanim .textures -size } /+ 0 }
+		return { :curanim .textures -size /+ 0 }
 	};
 	:false;
 }
@@ -60,41 +56,39 @@ new function :add_frame =
 	arg string path;
 	arg* AnimationX anim;
 
-	$if { :not {anim @} .textures -has :get_tex path }
-	{
-		 {anim @} .textures -push :get_tex path ;
+	$if { @ anim .textures -has :get_tex path :not }
+	{ 
+		 @ anim .textures -push :get_tex path ;
 	};
 
-	new int pos = 0;
+	int pos = { @ anim .textures -find :get_tex path };
 
-	pos = { anim @ } .textures -find :get_tex path;
-
-	new AnimationFrameX frame;
+	AnimationFrameX frame;
 
 	frame .tex = (size_t) pos;
 	frame .time = (u32) 100;
 
-	{ anim @ } .frames -push frame;
+	@ anim .frames -push frame;
 }
 
 new function :set_origins_ratio = {
 	arg double ratioY;
 	arg double ratioX;
 
-	new int i;
-	i = 0;
+	int i = 0;
+
 	$foreach { :curanim .frames }
 	{
-		new V2d_i tex_size;
-		tex_size = :get_tex_sz { :curanim .textures -at (size_t-int) { :curanim .frames -at i } .tex };
-		{ :curanim .frames -at i } .origin .x = (~) ratioX !* (.) tex_size .x ;
-		{ :curanim .frames -at i } .origin .y = (~) ratioY !* (.) tex_size .y;
+		V2d_i tex_size = { :curanim .textures -at (size_t-int) { :curanim .frames -at i .tex } :get_tex_sz };
+
+		:curanim .frames -at i .origin .x = {tex_size .x (.) !* ratioX (~)};
+		:curanim .frames -at i .origin .y = {tex_size .y (.) !* ratioY (~)};
+
 		i ++;
 	};
 }
 
 ROW SIZE 30 CFIT <
-	
 	COL SIZE 120 BUTTON { "Load images" } { :load_images } <>
 	COL SIZE 900 DROPBOX {paths} {current_image} <>
 	//COL SIZE 120 IF { :has_anim } 
@@ -114,21 +108,21 @@ ROW SIZE 30 <
 	{ 
 		arg* string text; 
 
-		new AnimationX new_anim;
-		animation_names -push {text @};
+		AnimationX new_anim;
+		animation_names -push @ text;
 		animations -push new_anim;
 
-		:cout { "Added " {text @} " animation" };
+		:cout { "Added " @ text " animation" };
 
 		makingAnim = :false; 
-		{text @} = ""; 
+		@ text = ""; 
 	} 
 	<>
 	COL SIZE 140 IF { makingAnim }		BUTTON	{"Cancel"}			{ makingAnim = :false } <>
 
 	COL SIZE 150 IF { :has_anim :and :has_image } BUTTON { "Add frame" } 
 			{
-				{ & :curanim } :add_frame paths -at current_image;
+				& :curanim :add_frame { paths -at current_image} ;
 			} <>
 
 	COL SIZE 150 IF { :has_anim :and :has_image } BUTTON { "Add all images" } 
@@ -137,7 +131,7 @@ ROW SIZE 30 <
 		i = 0;
 		$foreach paths 
 		{
-			{ & :curanim } :add_frame paths -at i;
+			& :curanim :add_frame { paths -at i };
 			i ++;
 		};
 		
@@ -145,7 +139,7 @@ ROW SIZE 30 <
 
 	COL CFIT <
 		ROW SIZE 30 IF { :has_frames } <
-			COL SIZE 70 TEXT { current_frame " / " 1 `- :animation_size } <>
+			COL SIZE 70 TEXT { current_frame " / " {:animation_size - 1} } <>
 
 			COL SIZE 40 BUTTON { "Prev" }  
 			{
@@ -154,42 +148,43 @@ ROW SIZE 30 <
 
 			COL SIZE 40 BUTTON { "Next" }  
 			{
-				$if {current_frame /-  1 `- :animation_size } 
+				$if {current_frame /-  {:animation_size - 1} } 
 				{current_frame ++}
 			} <>
 		>
 	>
 >
 
+new bool state = false
+
 ROW SIZE 800 CFIT  <
 	COL SIZE 4 IF { :has_frames } FRAME_CREATOR { :curanim } { :curframe } <>
 
-	new bool state = false
+	
 
 	COL CFIT SIZE 1 CFIT IF { :has_frames } 
 	<
 		ROW ANIMATION_PREVIEW { :curanim } <>
 		ROW CFIT < COL < 
-			ROW SIZE 30 TEXT { "Size: " :get_tex_sz { :curanim .textures -at (size_t-int) :curframe .tex } } <>
+			ROW SIZE 30 TEXT { "Size: " {:get_tex_sz { :curanim .textures -at (size_t-int) {:curframe .tex} } } } <>
 			ROW SIZE 30 TEXTBOX { "Origin: " :curframe .origin } { 
 				arg* string text; 
 				:curframe .origin #= @ text;
-				{text @} = ""; 
+				@ text = ""; 
 			} <> 
 			ROW SIZE 30 TEXTBOX { "Speed: " :curframe .time } { 
 				arg* string text; 
 				:curframe .time #= @ text;
-				{text @} = ""; 
+				@ text  = ""; 
 			} <>
 			ROW SIZE 30 IF { :not state } BUTTON { "More... " } { state = :true; } <>
 			ROW SIZE 30 IF { state } BUTTON { "Close" } { state = :false; } <>
 			ROW SIZE 30 IF { state } BUTTON { "Copy settings to all frames" } 
 			{
-				new int i;
-				i = 0;
+				int i = 0;
 				$foreach { :curanim .frames }
 				{
-					{ :curanim .frames -at i } .origin = :curframe .origin;
+					:curanim .frames -at i .origin = { :curframe .origin } ;
 					i ++;
 				};
 			} <>
