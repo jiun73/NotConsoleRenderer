@@ -8,7 +8,7 @@ namespace GLUU {
 		Expression expr;
 		bool lock = false;
 
-		GLUU_Make(2, "TEXTBOX") 
+		GLUU_Make(2, "textbox") 
 		{
 			auto ptr = make_shared<TextboxWidget>();
 			ptr->default_text.set(args.at(0), parser);

@@ -16,7 +16,7 @@ namespace GLUU {
 
 		InputLock ilock;
 
-		GLUU_Make(2, "DROPBOX")
+		GLUU_Make(2, "dropbox")
 		{
 			auto ptr = make_shared<DropboxWidget>();
 

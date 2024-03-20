@@ -84,24 +84,33 @@ inline string_ranges range_until(string_ranges range, const string& str)
 inline string_ranges range_outside(string_ranges range, string open, string end)
 {
 	bool out = true;
-	std::valarray<int> levels(open.size());
+	int level = 0;
+	size_t last_i = 0;
 	string_iter iter_open;
 	for (auto it = range.begin(); it != range.end(); it++)
 	{
 		size_t endi = end.find(*it);
 		size_t openi = open.find(*it);
 
-		bool is_end = endi != end.npos;
-		bool is_open = openi != open.npos;
+		bool is_end_f = endi != end.npos;
+		bool is_open_f = openi != open.npos;
+
+		if (level == 0 && is_end_f)
+			last_i = endi;
+		if (level == 0 && is_open_f)
+			last_i = openi;
+
+		bool is_end = (endi == last_i && is_end_f);
+		bool is_open = (openi == last_i && is_open_f);
 
 		if (is_end)
-		{
-			levels[endi]--;
-		}
+		{			
+			level--;
+		}			
 
-		if (is_end && !out && levels.sum() <= 0) return { range.begin(), iter_open, next(it) };
+		if (is_end && !out && level <= 0) return { range.begin(), iter_open, next(it) };
 
-		if (is_open && out && levels.sum() <= 0)
+		if (is_open && out && level <= 0)
 		{
 			iter_open = it;
 			out = false;
@@ -109,7 +118,7 @@ inline string_ranges range_outside(string_ranges range, string open, string end)
 
 		if (is_open) 
 		{
-			levels[openi]++;
+			level++;
 		}
 	}
 
@@ -119,7 +128,8 @@ inline string_ranges range_outside(string_ranges range, string open, string end)
 
 inline string_ranges range_inside(string_ranges range, string open, string end)
 {
-	std::valarray<int> levels(open.size());
+	int level = 0;
+	size_t last_i = 0;
 	bool in = false;
 	for (auto it = range.begin(); it != range.end(); it++)
 	{
@@ -128,17 +138,25 @@ inline string_ranges range_inside(string_ranges range, string open, string end)
 		size_t endi = end.find(*it);
 		size_t openi = open.find(*it);
 
-		bool is_end = endi != end.npos;
-		bool is_open = openi != open.npos;
+		bool is_end_f = endi != end.npos;
+		bool is_open_f = openi != open.npos;
+
+		if (level == 0 && is_end_f)
+			last_i = endi;
+		if (level == 0 && is_open_f)
+			last_i = openi;
+
+		bool is_end = (endi == last_i && is_end_f);
+		bool is_open = (openi == last_i && is_open_f);
 
 		if (is_end && in)
 		{
-			levels[endi]--;
+			level--;
 		}
 
 		if (is_end && in)
 		{
-			if (levels.sum() == 0)
+			if (level == 0)
 				return { range.begin(), it + 1 };
 
 			continue;
@@ -146,7 +164,7 @@ inline string_ranges range_inside(string_ranges range, string open, string end)
 
 		if (is_open)
 		{
-			levels[openi]++; in = true; continue;
+			level++; in = true; continue;
 		}
 	}
 

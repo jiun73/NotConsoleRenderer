@@ -15,29 +15,29 @@ new function :curframe =
 	:curanim .frames -at current_frame
 }
 
-new init setup = { BASE .fit = :true; }
+new init setup = { BASE .fit = false; }
 
 new function :load_images = 
 {
 	vector(string) files = $file;
 	int index = 0;
 
-	$while { index /- -size files } {
+	$while { index < -size files } {
 		files -at index :get_tex;
 		paths -push {files -at index};
 		index ++;
 	};
 }
 
-new function :has_image = { paths -size /+ 0  }
-new function :has_anim = { animations -size /+ 0 }
+new function :has_image = { paths -size > 0  }
+new function :has_anim = { animations -size > 0 }
 new function :animation_size =  { :curanim .frames -size }
 
 new function :has_frames = 
 {
 	$if :has_anim  
 	{
-		return { :curanim .frames -size /+ 0 } 
+		return { :curanim .frames -size > 0 } 
 	};
 	:false;
 }
@@ -46,7 +46,7 @@ new function :has_textures =
 {
 	$if :has_anim 
 	{
-		return { :curanim .textures -size /+ 0 }
+		return { :curanim .textures -size > 0 }
 	};
 	:false;
 }
@@ -88,23 +88,17 @@ new function :set_origins_ratio = {
 	};
 }
 
-ROW SIZE 30 CFIT <
-	COL SIZE 120 BUTTON { "Load images" } { :load_images } <>
-	COL SIZE 900 DROPBOX {paths} {current_image} <>
-	//COL SIZE 120 IF { :has_anim } 
-	//BUTTON { "Add image" } 
-	//{
-	//	{ {animations -at current_animation} .textures} -push {:get_tex paths -at current_image};
-	//	:cout {"Image added (" { {animations -at current_animation} .textures -size } ")"};
-	//} <>
+== # 30 <
+	|| $ # 120 button { "Load images" } { :load_images } <>
+	|| $ # 900 dropbox {paths} {current_image} <>
 >
 
-ROW SIZE 30 <
+== # 30 $ <
 	new bool makingAnim = false 
 
-	COL SIZE 140 IF { :not makingAnim }	BUTTON	{"New Animation"}	{ makingAnim = :true } <>
-	COL SIZE 170 IF { :not makingAnim } DROPBOX {animation_names} {current_animation} <>
-	COL SIZE 140 IF { makingAnim }		TEXTBOX {"Enter name..."}	
+	|| # 140 if { :not makingAnim }	button	{"New Animation"}	{ makingAnim = :true } <>
+	|| # 170 if { :not makingAnim } dropbox {animation_names} {current_animation} <>
+	|| # 140 if { makingAnim }		textbox {"Enter name..."}	
 	{ 
 		arg* string text; 
 
@@ -118,14 +112,14 @@ ROW SIZE 30 <
 		@ text = ""; 
 	} 
 	<>
-	COL SIZE 140 IF { makingAnim }		BUTTON	{"Cancel"}			{ makingAnim = :false } <>
+	|| $ # 140 if { makingAnim }		button	{"Cancel"}			{ makingAnim = :false } <>
 
-	COL SIZE 150 IF { :has_anim :and :has_image } BUTTON { "Add frame" } 
+	|| $ # 150 if { :has_anim :and :has_image } button { "Add frame" } 
 			{
 				& :curanim :add_frame { paths -at current_image} ;
 			} <>
 
-	COL SIZE 150 IF { :has_anim :and :has_image } BUTTON { "Add all images" } 
+	|| $ # 150 if { :has_anim :and :has_image } button { "Add all images" } 
 	{
 		new int i;
 		i = 0;
@@ -137,18 +131,18 @@ ROW SIZE 30 <
 		
 	} <>
 
-	COL CFIT <
-		ROW SIZE 30 IF { :has_frames } <
-			COL SIZE 70 TEXT { current_frame " / " {:animation_size - 1} } <>
+	|| $ <
+		== $ # 30 if { :has_frames } <
+			|| # 70 text { current_frame " / " {:animation_size - 1} } <>
 
-			COL SIZE 40 BUTTON { "Prev" }  
+			|| # 40 button { "Prev" }  
 			{
-				$if {current_frame /+ 0} {current_frame --}
+				$if {current_frame > 0} {current_frame --}
 			} <>
 
-			COL SIZE 40 BUTTON { "Next" }  
+			|| # 40 button { "Next" }  
 			{
-				$if {current_frame /-  {:animation_size - 1} } 
+				$if {current_frame <  {:animation_size - 1} } 
 				{current_frame ++}
 			} <>
 		>
@@ -157,29 +151,31 @@ ROW SIZE 30 <
 
 new bool state = false
 
-ROW SIZE 800 CFIT  <
-	COL SIZE 4 IF { :has_frames } FRAME_CREATOR { :curanim } { :curframe } <>
+== # 800 <
+	|| $ # 4 if { :has_frames } FRAME_CREATOR { :curanim } { :curframe } <>
 
-	
 
-	COL CFIT SIZE 1 CFIT IF { :has_frames } 
+	|| # 1 if { :has_frames } 
 	<
-		ROW ANIMATION_PREVIEW { :curanim } <>
-		ROW CFIT < COL < 
-			ROW SIZE 30 TEXT { "Size: " {:get_tex_sz { :curanim .textures -at (size_t-int) {:curframe .tex} } } } <>
-			ROW SIZE 30 TEXTBOX { "Origin: " :curframe .origin } { 
+		== $ ANIMATION_PREVIEW { :curanim } <>
+		== < || $ < 
+			== # 30 text { "Size: " {:get_tex_sz { :curanim .textures -at (size_t-int) {:curframe .tex} } } } <>
+
+			== # 30 textbox { "Origin: " :curframe .origin } { 
 				arg* string text; 
 				:curframe .origin #= @ text;
 				@ text = ""; 
 			} <> 
-			ROW SIZE 30 TEXTBOX { "Speed: " :curframe .time } { 
+
+			== # 30 textbox { "Speed: " :curframe .time } { 
 				arg* string text; 
 				:curframe .time #= @ text;
 				@ text  = ""; 
 			} <>
-			ROW SIZE 30 IF { :not state } BUTTON { "More... " } { state = :true; } <>
-			ROW SIZE 30 IF { state } BUTTON { "Close" } { state = :false; } <>
-			ROW SIZE 30 IF { state } BUTTON { "Copy settings to all frames" } 
+
+			== # 30 if { :not state } button { "More... " } { state = :true; } <>
+			== # 30 if { state } button { "Close" } { state = :false; } <>
+			== # 30 if { state } button { "Copy settings to all frames" } 
 			{
 				int i = 0;
 				$foreach { :curanim .frames }
@@ -193,25 +189,25 @@ ROW SIZE 800 CFIT  <
 			new double HALF = 0.5
 			new double ONE = 1
 
-			ROW SIZE 30 CFIT IF { state }
+			== # 30 if { state }
 			<
-				COL BUTTON { "*" } { :set_origins_ratio ZERO ZERO } <>
-				COL BUTTON { "*" } { :set_origins_ratio HALF ZERO } <>
-				COL BUTTON { "*" } { :set_origins_ratio ONE ZERO } <>
+				|| button { "*" } { :set_origins_ratio ZERO ZERO } <>
+				|| button { "*" } { :set_origins_ratio HALF ZERO } <>
+				|| button { "*" } { :set_origins_ratio ONE ZERO } <>
 			>
 
-			ROW SIZE 30 CFIT IF { state }
+			== # 30 if { state }
 			<
-				COL BUTTON { "*" } { :set_origins_ratio ZERO HALF } <>
-				COL BUTTON { "*" } { :set_origins_ratio HALF HALF } <>
-				COL BUTTON { "*" } { :set_origins_ratio ONE HALF } <>
+				|| button { "*" } { :set_origins_ratio ZERO HALF } <>
+				|| button { "*" } { :set_origins_ratio HALF HALF } <>
+				|| button { "*" } { :set_origins_ratio ONE HALF } <>
 			>
 
-			ROW SIZE 30 CFIT IF { state }
+			== # 30 if { state }
 			<
-				COL BUTTON { "*" } { :set_origins_ratio ZERO ONE } <>
-				COL BUTTON { "*" } { :set_origins_ratio HALF ONE } <>
-				COL BUTTON { "*" } { :set_origins_ratio ONE ONE } <>
+				|| button { "*" } { :set_origins_ratio ZERO ONE } <>
+				|| button { "*" } { :set_origins_ratio HALF ONE } <>
+				|| button { "*" } { :set_origins_ratio ONE ONE } <>
 			>
 		>>
 

@@ -54,7 +54,7 @@ namespace GLUU {
 		SeqVar<bool> condition = true;
 		SeqVar<bool> absolute = false;
 		SeqVar<Rect> destination = Rect(0,0);
-		SeqVar<bool> fit = false;
+		SeqVar<bool> fit = true;
 		Rect_d last_dest;
 
 		bool is_row = false;
@@ -210,6 +210,9 @@ namespace GLUU {
 		unordered_map<type_index, Inspector> inspectors;
 
 	public:
+		const string row_keyword = "==";
+		const string col_keyword = "||";
+
 		const string row_open = "<";
 		const string row_close = ">";
 		const string expr_open = "{";
@@ -442,9 +445,6 @@ namespace GLUU {
 				std::cout << "\t";
 			}
 			std::cout << "HEAD " + head.flat() << std::endl;
-			std::cout << "BODY " + row.flat() << std::endl;
-			std::cout << "TAIL " + tail.flat() << std::endl;
-
 
 			Element row_obj = parse_header(head);
 			shared_ptr<VariableRegistry> old_scope = current_scope;
@@ -458,7 +458,7 @@ namespace GLUU {
 			variable_dictionnary()->enter_scope(current_scope);
 			row_level++;
 
-			parse_range(row, is_row ? "COL" : "ROW", !is_row);
+			parse_range(row, is_row ? col_keyword : row_keyword, !is_row);
 
 			row_level--;
 			variable_dictionnary()->exit_scope();
@@ -567,7 +567,6 @@ namespace GLUU {
 			variable_dictionnary()->enter_scope(current_scope);
 
 			graphics->current_row = &graphics->base_row;
-			string row_keyword = "ROW";
 			str += '\n';
 			remove_all_range(str, "//", "\n", false);
 			remove_all_range(str, "/*", "*/", true);

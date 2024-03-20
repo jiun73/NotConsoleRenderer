@@ -4,7 +4,7 @@
 namespace GLUU {
 	class TextWidget : public Widget
 	{
-		GLUU_Make(1, "TEXT")
+		GLUU_Make(1, "text")
 		{
 			auto ptr = make_shared<TextWidget>();
 			ptr->text.set(args.at(0), parser);

@@ -8,27 +8,27 @@ namespace GLUU
 	{
 		GLUU_scope = variable_dictionnary()->make_new_scope("GLUU");
 
-		keywords_func.emplace("SIZE", make_pair(1, [](Parser& parser, Element& gfx, vector<string_ranges> s)
+		keywords_func.emplace("#", make_pair(1, [](Parser& parser, Element& gfx, vector<string_ranges> s)
 			{
 				gfx.size.set(s.at(0), parser);
 			}));
 
-		keywords_func.emplace("IF", make_pair(1, [](Parser& parser, Element& gfx, vector<string_ranges> s)
+		keywords_func.emplace("if", make_pair(1, [](Parser& parser, Element& gfx, vector<string_ranges> s)
 			{
 				gfx.condition.set(s.at(0), parser);
 			}));
 
-		keywords_func.emplace("FIT", make_pair(1, [](Parser& parser, Element& gfx, vector<string_ranges> s)
+		keywords_func.emplace("fit", make_pair(1, [](Parser& parser, Element& gfx, vector<string_ranges> s)
 			{
 				gfx.fit.set(s.at(0), parser);
 			}));
 
-		keywords_func.emplace("CFIT", make_pair(0, [](Parser& parser, Element& gfx, vector<string_ranges> s)
+		keywords_func.emplace("$", make_pair(0, [](Parser& parser, Element& gfx, vector<string_ranges> s)
 			{
-				gfx.fit() = true;
+				gfx.fit() = false;
 			}));
 
-		keywords_func.emplace("AS", make_pair(1, [&](Parser& parser, Element& gfx, vector<string_ranges> s)
+		keywords_func.emplace("as", make_pair(1, [&](Parser& parser, Element& gfx, vector<string_ranges> s)
 			{
 				current_scope->add(make_generic_ref(gfx), s.at(0).flat());
 			}));

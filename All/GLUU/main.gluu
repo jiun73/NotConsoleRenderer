@@ -1,52 +1,13 @@
 
 new init setup = {
-	BASE .fit = :true;
-
-	int index = 0;
-
-	$while { index < 10 }
-	{
-		:cout "allo!";
-		index ++;
-	};
+	BASE .fit = true;
 }
 
-ROW CFIT BUTTON CollisionX			{ $collisionx_main } <  >
-
-ROW CFIT 
-<
-
-
-	COL BUTTON TicTacToe			{ $tictactoe_main }  <>
-
-	COL CFIT 
-	<
-
-
-		ROW BUTTON TicTacToe			{ $tictactoe_main }  <>
-
-		new init test = 
-		{
-			:cout "Hello!";
-		}
-
-		ROW TEXT hi
-	>
-
-	new init test = 
-	{
-		:cout "Hello!";
-	}
-
-	COL TEXT hi
->
-
-ROW CFIT BUTTON { "Connect 4" }		{ $connect4_main } <>
-
-ROW CFIT BUTTON BounceX				{ $bouncex_main } <>
-
-
-ROW CFIT BUTTON { "USA Simulator" }	{ $usasim_main } <>
-ROW CFIT BUTTON Chatroom			{ $chatroom_main } <> 
-ROW CFIT BUTTON AnimMaker			{ $animmaker_main } <>
-ROW CFIT BUTTON Pong				{ $pong_main }  <>
+== button CollisionX			{ $collisionx_main }
+== button TicTacToe			{ $tictactoe_main }
+== button { "Connect 4" }		{ $connect4_main } 
+== button BounceX				{ $bouncex_main } 
+== button { "USA Simulator" }	{ $usasim_main } 
+== button Chatroom				{ $chatroom_main } 
+== button AnimMaker			{ $animmaker_main } 
+== button Pong					{ $pong_main }  

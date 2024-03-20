@@ -130,8 +130,17 @@ namespace GLUU {
 			{
 				return do_break;
 			}
-
-			if (is_char(flat))
+			else if (flat == "false")
+			{
+				parser->output_seq("bool " + flat);
+				add_constant(make_const<bool>(false));
+			}
+			else if (flat == "true")
+			{
+				parser->output_seq("bool " + flat);
+				add_constant(make_const<bool>(true));
+			}
+			else if (is_char(flat))
 			{
 				//TODO: GLUU_ERROR_INVALID_CHAR_DECLARATION
 

@@ -4,7 +4,7 @@
 namespace GLUU {
 	class ButtonWidget : public Widget
 	{
-		GLUU_Make(2, "BUTTON")
+		GLUU_Make(2, "button")
 		{
 			auto ptr = make_shared<ButtonWidget>();
 
