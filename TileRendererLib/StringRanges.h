@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <valarray>
 
 using std::string;
 using std::vector;
@@ -83,21 +84,33 @@ inline string_ranges range_until(string_ranges range, const string& str)
 inline string_ranges range_outside(string_ranges range, string open, string end)
 {
 	bool out = true;
-	int level = 0;
+	std::valarray<int> levels(open.size());
 	string_iter iter_open;
 	for (auto it = range.begin(); it != range.end(); it++)
 	{
-		if (end.find(*it ) != end.npos) level--;
+		size_t endi = end.find(*it);
+		size_t openi = open.find(*it);
 
-		if (end.find(*it) != end.npos && !out && level <= 0) return { range.begin(), iter_open, next(it) };
+		bool is_end = endi != end.npos;
+		bool is_open = openi != open.npos;
 
-		if (open.find(*it) != open.npos && out && level <= 0)
+		if (is_end)
+		{
+			levels[endi]--;
+		}
+
+		if (is_end && !out && levels.sum() <= 0) return { range.begin(), iter_open, next(it) };
+
+		if (is_open && out && levels.sum() <= 0)
 		{
 			iter_open = it;
 			out = false;
 		}
 
-		if (open.find(*it) != open.npos) level++;
+		if (is_open) 
+		{
+			levels[openi]++;
+		}
 	}
 
 	if (out) return range;
@@ -106,26 +119,34 @@ inline string_ranges range_outside(string_ranges range, string open, string end)
 
 inline string_ranges range_inside(string_ranges range, string open, string end)
 {
-	int level = 0;
+	std::valarray<int> levels(open.size());
 	bool in = false;
 	for (auto it = range.begin(); it != range.end(); it++)
 	{
-		if (end.find(*it) != end.npos && in)
+		
+
+		size_t endi = end.find(*it);
+		size_t openi = open.find(*it);
+
+		bool is_end = endi != end.npos;
+		bool is_open = openi != open.npos;
+
+		if (is_end && in)
 		{
-			level--;
+			levels[endi]--;
 		}
 
-		if (end.find(*it) != end.npos && in)
+		if (is_end && in)
 		{
-			if (level == 0)
+			if (levels.sum() == 0)
 				return { range.begin(), it + 1 };
 
 			continue;
 		}
 
-		if (open.find(*it) != open.npos)
+		if (is_open)
 		{
-			level++; in = true; continue;
+			levels[openi]++; in = true; continue;
 		}
 	}
 
@@ -191,10 +212,13 @@ inline vector<string_ranges> subchain(const vector<string_ranges>& ranges, strin
 	return ret;
 }
 
+
+
 inline vector<string_ranges> split_escape_delim(string_ranges range, string open, string end, string sp = ";")
 {
 	vector<string_ranges> strings = range_delimiter(range, open, end);
 	vector<string_ranges> expressions;
+	
 
 	bool add = false;
 

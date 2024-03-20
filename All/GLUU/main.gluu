@@ -4,7 +4,7 @@ new init setup = {
 
 	int index = 0;
 
-	$while { index /- 10 }
+	$while { index < 10 }
 	{
 		:cout "allo!";
 		index ++;

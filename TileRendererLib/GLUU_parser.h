@@ -481,55 +481,58 @@ namespace GLUU {
 
 
 
-			vector<string_ranges> sub_rows = split_escape_delim(range, expr_open, expr_close, keyword);
+			vector<string_ranges> sub_rows = split_escape_delim(range, expr_open + row_open, expr_close + row_close, keyword);
 
 			if (sub_rows.empty()) return;
 
 			get_declaractions(sub_rows.front());
 
-			for (auto it = sub_rows.begin() + 1; it != sub_rows.end(); it ++)
+			for (auto it = sub_rows.begin() + 1; it != sub_rows.end(); it++)
 			{
+				parse_graphic(*it, row);
+			}
+
 				/*vector<string_ranges> sub_sub_rows = split_escape_delim(*it, row_open, row_close, keyword);
 
 				if (sub_sub_rows.empty()) return;
 
 				for (auto it2 = sub_sub_rows.begin() + 1; it2 != sub_sub_rows.end(); it2++)
 				{
-					parse_graphic(*it2, row);
+					
 				}*/
 
-				//std::cout << "SPLIT" << it->flat() << std::endl;
+			//	//std::cout << "SPLIT" << it->flat() << std::endl;
 
-				vector<string_ranges> sub_sub_rows = range_delimiter(*it, row_open, row_close);
-				bool even = true;
-				for (auto it2 = sub_sub_rows.begin(); it2 != sub_sub_rows.end(); it2 += 2)
-				{
-					auto in = next(it2);
+			//	vector<string_ranges> sub_sub_rows = range_delimiter(*it, row_open, row_close);
+			//	bool even = true;
+			//	for (auto it2 = sub_sub_rows.begin(); it2 != sub_sub_rows.end(); it2 += 2)
+			//	{
+			//		auto in = next(it2);
 
-					string_ranges column = { it2->begin(), in->end() };
-					column = range_trim(column, ' ');
+			//		string_ranges column = { it2->begin(), in->end() };
+			//		column = range_trim(column, ' ');
 
-					if (even)
-					{
-						
+			//		if (even)
+			//		{
+			//			
 
-						if (column.empty()) continue;
+			//			if (column.empty()) continue;
 
-						std::cout << ":: '" << column.flat() << "' " << std::endl;
-						parse_graphic(column, row);
-						even = false;
-					}
-					else
-					{
-						std::cout << "?? '" << column.flat() << "' " << std::endl;
+			//			std::cout << ":: '" << column.flat() << "' " << std::endl;
+			//			parse_graphic(column, row);
+			//			even = false;
+			//		}
+			//		else
+			//		{
+			//			std::cout << "?? '" << column.flat() << "' " << std::endl;
 
-						get_declaractions(column);
+			//			get_declaractions(column);
 
-						even = true;
-					}
-				}
-				
-			}
+			//			even = true;
+			//		}
+			//	}
+			//	
+			//}
 
 			//vector<string_ranges> sub_rows = range_delimiter(range, row_open, row_close);
 
