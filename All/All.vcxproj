@@ -146,6 +146,7 @@
     <ClCompile Include="pong_main.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Strings.cpp" />
+    <ClCompile Include="temp.cpp" />
     <ClCompile Include="usasim_main.cpp" />
   </ItemGroup>
   <ItemGroup>

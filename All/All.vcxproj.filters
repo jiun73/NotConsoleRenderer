@@ -75,6 +75,9 @@
     <ClCompile Include="Shape.cpp">
       <Filter>Fichiers sources\Pong</Filter>
     </ClCompile>
+    <ClCompile Include="temp.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main_chatroom.h">
