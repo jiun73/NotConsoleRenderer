@@ -146,7 +146,6 @@
     <ClCompile Include="pong_main.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Strings.cpp" />
-    <ClCompile Include="temp.cpp" />
     <ClCompile Include="usasim_main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +168,9 @@
   <ItemGroup>
     <None Include="AnimMaker.gluu" />
     <None Include="GLUU\main.gluu" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="gluusyntax.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

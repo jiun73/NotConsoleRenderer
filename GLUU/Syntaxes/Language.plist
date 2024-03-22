@@ -40,7 +40,7 @@
 						<key>match</key>
 						<string>(:[^\s\x{003b}\x{007b}\x{007d}\x{003c}\x{003e}]+)</string>
 						<key>name</key>
-						<string>constant.numeric.mysample</string>
+						<string>constant.numeri.mysample</string>
 					</dict>
 					<dict>
 						<key>match</key>

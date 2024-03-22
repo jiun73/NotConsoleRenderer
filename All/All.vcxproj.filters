@@ -75,9 +75,6 @@
     <ClCompile Include="Shape.cpp">
       <Filter>Fichiers sources\Pong</Filter>
     </ClCompile>
-    <ClCompile Include="temp.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main_chatroom.h">
@@ -131,5 +128,8 @@
     <None Include="AnimMaker.gluu">
       <Filter>Fichiers sources\AnimationMaker</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="gluusyntax.txt" />
   </ItemGroup>
 </Project>

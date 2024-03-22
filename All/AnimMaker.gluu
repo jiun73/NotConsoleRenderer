@@ -96,9 +96,9 @@ new function :set_origins_ratio = {
 == # 30 $ <
 	new bool makingAnim = false 
 
-	|| # 140 if { :not makingAnim }	button	{"New Animation"}	{ makingAnim = :true } <>
+	|| # 140 if { :not makingAnim }	button	{ "New Animation" }	{ makingAnim = :true } <>
 	|| # 170 if { :not makingAnim } dropbox {animation_names} {current_animation} <>
-	|| # 140 if { makingAnim }		textbox {"Enter name..."}	
+	|| # 140 if { makingAnim }		textbox { "Enter name..." }	
 	{ 
 		arg* string text; 
 
@@ -142,7 +142,7 @@ new function :set_origins_ratio = {
 
 			|| # 40 button { "Next" }  
 			{
-				$if {current_frame <  {:animation_size - 1} } 
+				$if {current_frame <  { :animation_size - 1} } 
 				{current_frame ++}
 			} <>
 		>
