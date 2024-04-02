@@ -47,12 +47,13 @@ namespace NCR {
 			vector < map<string, Chunk>> branches;
 			size_t index = 0;
 			size_t last_size = 0;
+			bool compress_size = true;
 			vector<pair<char*, size_t>> data;
 
 			Chunk(File* file) : file(file) {}
 			~Chunk() {}
 
-			size_t get_current_index_size();
+			size_t get_index_size(size_t i);
 			void get_total_size();
 
 			Chunk& operator()(size_t i);

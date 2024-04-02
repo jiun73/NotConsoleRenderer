@@ -27,10 +27,10 @@ int main()
 	file["test"]["sub"] << 789 << 1 << 6542 << 543534;
 	file["test"]["sub2"] << 1234.534<< 564645.34 << 543543.655344;
 	file["test"] << NCR::Files::next;
-	file["test"]["sub"] << 543 << 654  << 865;
+	file["test"]["sub"] << 543 << 654 << 565  << 865;
 	file["test"]["sub2"] << 2.3 << 5.9 << 64.9;
 	file["test"] << NCR::Files::next;
-	file["zzz"] << "this will be the last chunk";
+	file["xxx"] << "this will be the last chunk this will be the last chunk this will be the last chunk this will be the last chunk this will be the last chunk this will be the last chunk this will be the last chunkthis will be the last chunkthis will be the last chunkthis will be the last chunkthis will be the last chunkthis will be the last chunkthis will be the last chunkthis will be the last chunkthis will be the last chunkthis will be the last chunkthis will be the last chunkthis will be the last chunkthis will be the last chunk";
 	file.close();
 
 	NCR::File in("file.dat", NCR::Files::FILE_READING);

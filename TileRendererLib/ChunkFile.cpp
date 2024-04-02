@@ -18,14 +18,14 @@ namespace NCR {
 
 		if (index == 0)
 		{
-			last_size = get_current_index_size();
+			last_size = get_index_size(index);
 			index++;
 			return *this;
 		}
 
-		if (last_size != get_current_index_size())
+		if (last_size != get_index_size(index))
 		{
-			assert(false); //Size of indexes must be equal!
+			compress_size = false;
 		}
 
 		index++;		
@@ -53,12 +53,12 @@ namespace NCR {
 		}
 	}
 
-	size_t Files::Chunk::get_current_index_size()
+	size_t Files::Chunk::get_index_size(size_t i)
 	{
 		if (mode != FILE_CHUNK_BRANCH) return 0;
 
 		size_t ret = 0;
-		for (auto& c : branches[index])
+		for (auto& c : branches[i])
 		{
 			c.second.get_total_size();
 			ret += c.second.size;
@@ -143,6 +143,12 @@ namespace NCR {
 			}
 			break;
 		case FILE_CHUNK_BRANCH:
+			if(index < branches.size())
+				if (last_size != get_index_size(index))
+				{
+					compress_size = false;
+				}
+
 			file->write_data("\1", 1);
 			for (auto& c : branches.at(0)) //write header for the first indexed chunk
 			{
@@ -150,8 +156,21 @@ namespace NCR {
 				file->write_data(str, strlen(str) + 1);
 				file->write_encoded_size(c.second.size);
 			}
-			file->write_data("\0", 1);
-			file->write_encoded_size(branches.size()); //write number of indexed chunks
+
+			if (compress_size) //size is the same for all, we can compress it
+			{
+				file->write_data("\0", 1);
+				file->write_encoded_size(branches.size()); //write number of indexed chunks
+			}
+			else //size is not the same for all, we need to specify the size for each, so that we can read it
+			{
+				file->write_data("\0", 2);
+				for (size_t i = 0; i < branches.size(); i++)
+				{
+					file->write_encoded_size(branches.size());
+				}
+			}
+
 			for (auto& sub : branches)
 				for (auto& c : sub)
 				{
