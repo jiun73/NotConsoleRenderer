@@ -210,8 +210,8 @@ namespace GLUU {
 		unordered_map<type_index, Inspector> inspectors;
 
 	public:
-		const string row_keyword = "==";
-		const string col_keyword = "||";
+		const string row_keyword = "row";
+		const string col_keyword = "col";
 
 		const string row_open = "<";
 		const string row_close = ">";

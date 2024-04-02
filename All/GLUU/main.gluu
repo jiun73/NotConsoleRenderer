@@ -3,11 +3,11 @@ new init setup = {
 	BASE .fit = true;
 }
 
-== button CollisionX			{ $collisionx_main }
-== button TicTacToe			{ $tictactoe_main }
-== button { "Connect 4" }		{ $connect4_main } 
-== button BounceX				{ $bouncex_main } 
-== button { "USA Simulator" }	{ $usasim_main } 
-== button Chatroom				{ $chatroom_main } 
-== button AnimMaker			{ $animmaker_main } 
-== button Pong					{ $pong_main }  
+row button CollisionX			{ $collisionx_main }
+row button TicTacToe			{ $tictactoe_main }
+row button { "Connect 4" }		{ $connect4_main } 
+row button BounceX				{ $bouncex_main } 
+row button { "USA Simulator" }	{ $usasim_main } 
+row button Chatroom				{ $chatroom_main } 
+row button AnimMaker			{ $animmaker_main } 
+row button Pong					{ $pong_main }  

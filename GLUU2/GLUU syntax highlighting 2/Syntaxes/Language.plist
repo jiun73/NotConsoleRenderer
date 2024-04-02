@@ -119,7 +119,7 @@
 					</dict>
 					<dict>
 						<key>match</key>
-						<string>(\B==\B|\s\|\|\s|\#\s|\$\s|\bif\b)</string>
+						<string>(\brow\b|\bcol\b|\bpx\b|\bfixed\b|\bif\b|\bfit\b)</string>
 						<key>name</key>
 						<string>entity.name.type.mysample</string>
 					</dict>

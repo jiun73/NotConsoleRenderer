@@ -103,7 +103,7 @@ inline string_ranges range_outside(string_ranges range, string open, string end)
 		bool is_end = (endi == last_i && is_end_f);
 		bool is_open = (openi == last_i && is_open_f);
 
-		if (is_end)
+		if (is_end && level != 0)
 		{			
 			level--;
 		}			
@@ -149,7 +149,7 @@ inline string_ranges range_inside(string_ranges range, string open, string end)
 		bool is_end = (endi == last_i && is_end_f);
 		bool is_open = (openi == last_i && is_open_f);
 
-		if (is_end && in)
+		if (is_end && in && level != 0)
 		{
 			level--;
 		}

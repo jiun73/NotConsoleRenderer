@@ -353,6 +353,79 @@ void load_texture(const string& path)
 	textures.emplace(path, tex);
 }
 
+void save_texture(string path, SDL_Texture* texture)
+{
+	SDL_Texture* ren_tex;
+	SDL_Surface* surf;
+	int st = 0;
+	int w = 0;
+	int h = 0;
+	int format;
+	void* pixels;
+
+	pixels = NULL;
+	surf = NULL;
+	ren_tex = NULL;
+	format = SDL_PIXELFORMAT_RGBA32;
+
+	/* Get information about texture we want to save */
+	st = SDL_QueryTexture(texture, NULL, NULL, &w, &h);
+	if (st != 0) {
+		SDL_Log("Failed querying texture: %s\n", SDL_GetError());
+		goto cleanup;
+	}
+
+	/*
+	 * Initialize our canvas, then copy texture to a target whose pixel data we
+	 * can access
+	 */
+	st = SDL_SetRenderTarget(sdl_ren, texture);
+	if (st != 0) {
+		SDL_Log("Failed setting render target: %s\n", SDL_GetError());
+		goto cleanup;
+	}
+
+	st = SDL_RenderCopy(sdl_ren, texture, NULL, NULL);
+	if (st != 0) {
+		SDL_Log("Failed copying texture data: %s\n", SDL_GetError());
+		goto cleanup;
+	}
+
+	/* Create buffer to hold texture data and load it */
+	pixels = malloc(w * h * SDL_BYTESPERPIXEL(format));
+	if (!pixels) {
+		SDL_Log("Failed allocating memory\n");
+		goto cleanup;
+	}
+
+	st = SDL_RenderReadPixels(sdl_ren, NULL, format, pixels, w * SDL_BYTESPERPIXEL(format));
+	if (st != 0) {
+		SDL_Log("Failed reading pixel data: %s\n", SDL_GetError());
+		goto cleanup;
+	}
+
+	/* Copy pixel data over to surface */
+	surf = SDL_CreateRGBSurfaceWithFormatFrom(pixels, w, h, SDL_BITSPERPIXEL(format), w * SDL_BYTESPERPIXEL(format), format);
+	if (!surf) {
+		SDL_Log("Failed creating new surface: %s\n", SDL_GetError());
+		goto cleanup;
+	}
+
+	/* Save result to an image */
+	st = IMG_SavePNG(surf, path.c_str());
+	if (st != 0) {
+		SDL_Log("Failed saving image: %s\n", SDL_GetError());
+		goto cleanup;
+	}
+
+	SDL_Log("Saved texture as BMP to \"%s\"\n", path.c_str());
+
+cleanup:
+	SDL_FreeSurface(surf);
+	free(pixels);
+	SDL_DestroyTexture(ren_tex);
+}
+
 V2d_i get_image_size(const string& path)
 {
 	SDL_Texture* tex = textures.at(path);

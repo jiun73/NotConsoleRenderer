@@ -119,9 +119,6 @@
     <ClInclude Include="EditorPlane.h">
       <Filter>Fichiers sources\AnimationMaker</Filter>
     </ClInclude>
-    <ClInclude Include="FileChannel.h">
-      <Filter>Fichiers sources\AnimationMaker</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="GLUU\main.gluu" />

@@ -198,6 +198,9 @@
     <ClInclude Include="GLUU_exprParser.h">
       <Filter>Header Files\Generic\GLUU</Filter>
     </ClInclude>
+    <ClInclude Include="ChunkFile.h">
+      <Filter>Header Files\Classes\Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NotConsoleRendererLib.cpp">
@@ -244,6 +247,9 @@
     </ClCompile>
     <ClCompile Include="GLUU_lineParser.cpp">
       <Filter>Header Files\Generic\GLUU</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkFile.cpp">
+      <Filter>Header Files\Classes\Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

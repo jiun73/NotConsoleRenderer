@@ -88,17 +88,17 @@ new function :set_origins_ratio = {
 	};
 }
 
-== # 30 <
-	|| $ # 120 button { "Load images" } { :load_images } <>
-	|| $ # 900 dropbox {paths} {current_image} <>
+row px 30 <
+	col fixed px 120 button { "Load images" } { :load_images } <>
+	col fixed px 900 dropbox {paths} {current_image} <>
 >
 
-== # 30 $ <
+row px 30 fixed <
 	new bool makingAnim = false 
 
-	|| # 140 if { :not makingAnim }	button	{ "New Animation" }	{ makingAnim = :true } <>
-	|| # 170 if { :not makingAnim } dropbox {animation_names} {current_animation} <>
-	|| # 140 if { makingAnim }		textbox { "Enter name..." }	
+	col px 140 if { :not makingAnim }	button	{ "New Animation" }	{ makingAnim = :true } <>
+	col px 170 if { :not makingAnim } dropbox {animation_names} {current_animation} <>
+	col px 140 if { makingAnim }		textbox { "Enter name..." }	
 	{ 
 		arg* string text; 
 
@@ -112,14 +112,14 @@ new function :set_origins_ratio = {
 		@ text = ""; 
 	} 
 	<>
-	|| $ # 140 if { makingAnim }		button	{"Cancel"}			{ makingAnim = :false } <>
+	col fixed px 140 if { makingAnim }		button	{"Cancel"}			{ makingAnim = :false } <>
 
-	|| $ # 150 if { :has_anim :and :has_image } button { "Add frame" } 
+	col fixed px 150 if { :has_anim :and :has_image } button { "Add frame" } 
 			{
 				& :curanim :add_frame { paths -at current_image} ;
 			} <>
 
-	|| $ # 150 if { :has_anim :and :has_image } button { "Add all images" } 
+	col fixed px 150 if { :has_anim :and :has_image } button { "Add all images" } 
 	{
 		new int i;
 		i = 0;
@@ -131,56 +131,68 @@ new function :set_origins_ratio = {
 		
 	} <>
 
-	|| $ <
-		== $ # 30 if { :has_frames } <
-			|| # 70 text { current_frame " / " {:animation_size - 1} } <>
+	col <
+		row fixed px 30 if { :has_frames } <
+			col px 70 text { current_frame " / " { :animation_size - 1} } <>
 
-			|| # 40 button { "Prev" }  
+			col px 40 button { "Prev" }  
 			{
-				$if {current_frame > 0} {current_frame --}
+				$if { current_frame > 0 } 
+				{ current_frame -- }
 			} <>
 
-			|| # 40 button { "Next" }  
+
+			col px 40 button { "Next" }  
 			{
 				$if {current_frame <  { :animation_size - 1} } 
 				{current_frame ++}
 			} <>
+
+			
+			
 		>
 	>
 >
 
 new bool state = false
 
-== # 800 <
-	|| $ # 4 if { :has_frames } FRAME_CREATOR { :curanim } { :curframe } <>
+row px 800 <
+	col fixed px 4 if { :has_frames } FRAME_CREATOR { :curanim } { :curframe } <>
 
 
-	|| # 1 if { :has_frames } 
+	col px 1 if { :has_frames } 
 	<
-		== $ ANIMATION_PREVIEW { :curanim } <>
-		== < || $ < 
-			== # 30 text { "Size: " {:get_tex_sz { :curanim .textures -at (size_t-int) {:curframe .tex} } } } <>
+		row fixed ANIMATION_PREVIEW { :curanim } <>
+		row < col fixed < 
+			
 
-			== # 30 textbox { "Origin: " :curframe .origin } { 
+			row px 30 if { :not state } text { "Size: " { :get_tex_sz { :curanim .textures -at (size_t-int) { :curframe .tex} } } } <>
+
+			row px 30 if { :not state } textbox { "Origin: " :curframe .origin } { 
 				arg* string text; 
 				:curframe .origin #= @ text;
 				@ text = ""; 
 			} <> 
 
-			== # 30 textbox { "Speed: " :curframe .time } { 
-				arg* string text; 
-				:curframe .time #= @ text;
-				@ text  = ""; 
-			} <>
+			row px 30 if { :not state }
+			<
+				col px 5 textbox { "Speed: " :curframe .time } { 
+					arg* string text; 
+					:curframe .time #= @ text;
+					@ text  = ""; 
+				} <>
+			>
 
-			== # 30 if { :not state } button { "More... " } { state = :true; } <>
-			== # 30 if { state } button { "Close" } { state = :false; } <>
-			== # 30 if { state } button { "Copy settings to all frames" } 
+			row px 30 if { :not state } button { "More... " } { state = :true; } <>
+			row px 30 if { state } button { "Close" } { state = :false; } <>
+			row px 30 if { state } button { "Copy settings to all frames" } 
 			{
 				int i = 0;
 				$foreach { :curanim .frames }
 				{
 					:curanim .frames -at i .origin = { :curframe .origin } ;
+					:curanim .frames -at i .time = { :curframe .time } ;
+
 					i ++;
 				};
 			} <>
@@ -189,25 +201,25 @@ new bool state = false
 			new double HALF = 0.5
 			new double ONE = 1
 
-			== # 30 if { state }
+			row px 30 if { state }
 			<
-				|| button { "*" } { :set_origins_ratio ZERO ZERO } <>
-				|| button { "*" } { :set_origins_ratio HALF ZERO } <>
-				|| button { "*" } { :set_origins_ratio ONE ZERO } <>
+				col button { "*" } { :set_origins_ratio ZERO ZERO } <>
+				col button { "*" } { :set_origins_ratio HALF ZERO } <>
+				col button { "*" } { :set_origins_ratio ONE ZERO } <>
 			>
 
-			== # 30 if { state }
+			row px 30 if { state }
 			<
-				|| button { "*" } { :set_origins_ratio ZERO HALF } <>
-				|| button { "*" } { :set_origins_ratio HALF HALF } <>
-				|| button { "*" } { :set_origins_ratio ONE HALF } <>
+				col button { "*" } { :set_origins_ratio ZERO HALF } <>
+				col button { "*" } { :set_origins_ratio HALF HALF } <>
+				col button { "*" } { :set_origins_ratio ONE HALF } <>
 			>
 
-			== # 30 if { state }
+			row px 30 if { state }
 			<
-				|| button { "*" } { :set_origins_ratio ZERO ONE } <>
-				|| button { "*" } { :set_origins_ratio HALF ONE } <>
-				|| button { "*" } { :set_origins_ratio ONE ONE } <>
+				col button { "*" } { :set_origins_ratio ZERO ONE } <>
+				col button { "*" } { :set_origins_ratio HALF ONE } <>
+				col button { "*" } { :set_origins_ratio ONE ONE } <>
 			>
 		>>
 

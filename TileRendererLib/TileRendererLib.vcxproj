@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClInclude Include="AnimationX.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ChunkFile.h" />
     <ClInclude Include="ClassFactory.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="CommandDictionnary.h" />
@@ -200,6 +201,7 @@
     <ClInclude Include="File_win.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ChunkFile.cpp" />
     <ClCompile Include="CommandPrompt.cpp" />
     <ClCompile Include="ConsoleRenderer.cpp" />
     <ClCompile Include="Controls.cpp" />

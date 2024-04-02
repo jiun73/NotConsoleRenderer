@@ -38,9 +38,9 @@ namespace GLUU {
 				}
 			}
 
-			if (keyboard().getTextInput().empty())
+			if (lock || (!lock && keyboard().getTextInput().empty()))
 				draw_text(default_text(), (int)graphic.last_dest.sz.x, (V2d_i)graphic.last_dest.pos, get_font(0));
-			else
+			else 
 				draw_text(keyboard().getTextInput(), (int)graphic.last_dest.sz.x, (V2d_i)graphic.last_dest.pos, get_font(0));
 
 			if (!lock)
