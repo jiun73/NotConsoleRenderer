@@ -35,24 +35,34 @@ namespace NCR {
 			FILE_WRITING
 		};
 
+		struct ChunkNext {};
+		inline ChunkNext next;
+
 		struct Chunk
 		{
 			size_t offset = 0;
 			size_t size = 0;
 			File* file;
 			ChunkMode mode = FILE_CHUNK_DATA;
-			map<string, Chunk> branches;
+			vector < map<string, Chunk>> branches;
+			size_t index = 0;
+			size_t last_size = 0;
 			vector<pair<char*, size_t>> data;
 
 			Chunk(File* file) : file(file) {}
 			~Chunk() {}
 
+			size_t get_current_index_size();
 			void get_total_size();
+
+			Chunk& operator()(size_t i);
 
 			Chunk& operator[](const string& name);
 
 			template<typename T>
 			Chunk& operator<<(const T& obj);
+
+			Chunk& operator<<(const ChunkNext& next);
 
 			template<typename T>
 			Chunk& operator>>(T& obj);
