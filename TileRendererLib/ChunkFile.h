@@ -200,6 +200,11 @@ namespace NCR {
 		{
 			char c = read_byte();
 
+			return read_encoded_size(c);
+		}
+
+		size_t read_encoded_size(char c)
+		{
 			switch (c)
 			{
 			case '1': return read<uint8_t>();

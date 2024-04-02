@@ -96,17 +96,47 @@ namespace NCR {
 			offset = file->file.tellg();
 			file->skip(size);
 			break;
-		case '\1': //header
-			mode = FILE_CHUNK_BRANCH;
-			branches.resize(1);
+		case '\2': //header indexed
+		{
+			size_t size = file->read_encoded_size();
+			branches.resize(size);
 			while (true)
 			{
 				string chunk_name = file->read_string();
 				if (chunk_name.empty())
 				{
-					size_t size = file->read_encoded_size();
-					branches.resize(size);
+					break;
+				}
 
+				size_t i = 0;
+				while (true)
+				{
+					char c = file->read_byte();
+					if (c == '\0') break;
+					branches.at(i).emplace(chunk_name, Chunk(file));
+					size_t size = file->read_encoded_size(c);
+					branches.at(i).at(chunk_name).size = size;
+
+					i++;
+				}
+			}
+			for (auto& sub : branches)
+				for (auto& c : sub)
+				{
+					c.second.load();
+				}
+		}
+			break;
+		case '\1': //header
+		{
+			mode = FILE_CHUNK_BRANCH;
+			size_t size = file->read_encoded_size();
+			branches.resize(size);
+			while (true)
+			{
+				string chunk_name = file->read_string();
+				if (chunk_name.empty())
+				{
 					for (auto& sub : branches)
 					{
 						sub = branches[0];
@@ -123,7 +153,9 @@ namespace NCR {
 				{
 					c.second.load();
 				}
+		}
 			break;
+		
 		}
 	}
 
@@ -143,33 +175,50 @@ namespace NCR {
 			}
 			break;
 		case FILE_CHUNK_BRANCH:
-			if(index < branches.size())
+			if (index < branches.size() && branches.size()>1)
 				if (last_size != get_index_size(index))
 				{
 					compress_size = false;
 				}
 
-			file->write_data("\1", 1);
-			for (auto& c : branches.at(0)) //write header for the first indexed chunk
-			{
-				const char* str = c.first.c_str();
-				file->write_data(str, strlen(str) + 1);
-				file->write_encoded_size(c.second.size);
-			}
+			
 
-			if (compress_size) //size is the same for all, we can compress it
+			if (compress_size) //size is the same for every index, so we can avoid writing sizes for every index
 			{
-				file->write_data("\0", 1);
+				file->write_data("\1", 1);
 				file->write_encoded_size(branches.size()); //write number of indexed chunks
-			}
-			else //size is not the same for all, we need to specify the size for each, so that we can read it
-			{
-				file->write_data("\0", 2);
-				for (size_t i = 0; i < branches.size(); i++)
+				for (auto& c : branches.at(0)) //write header for the first indexed chunk
 				{
-					file->write_encoded_size(branches.size());
+					const char* str = c.first.c_str();
+					file->write_data(str, strlen(str) + 1);
+					file->write_encoded_size(c.second.size);
 				}
 			}
+			else
+			{
+				file->write_data("\2", 1);
+				file->write_encoded_size(branches.size()); //write number of indexed chunks
+				for (auto& sub : branches)
+				{
+					bool f = true;
+					
+					for (auto& c : sub)
+					{
+						if (f) //write the names of the chunks only for the first one (we assume all index wa the same chunks)
+						{
+							const char* str = c.first.c_str();
+							file->write_data(str, strlen(str) + 1);
+							f = false;
+						}
+
+						file->write_encoded_size(c.second.size);
+
+					}
+					file->write_data("\0", 1);
+				}
+			}
+
+			file->write_data("\0", 1);
 
 			for (auto& sub : branches)
 				for (auto& c : sub)
