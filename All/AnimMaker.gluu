@@ -91,6 +91,18 @@ new function :set_origins_ratio = {
 row px 30 <
 	col fixed px 120 button { "Load images" } { :load_images } <>
 	col fixed px 900 dropbox {paths} {current_image} <>
+	col fixed px 100 button Export { :write_anim_to_file "test.anim" animations } <>
+	col fixed px 100 button Import 
+	{ 
+		animations = :read_anim_from_file "test.anim"; 
+		int i = 0;
+		$foreach animations 
+		{
+			:cout { {animations -at i} .name};
+			animation_names -push { {animations -at i }.name }; 
+			i++;
+		}
+	} <>
 >
 
 row px 30 fixed <
@@ -103,6 +115,7 @@ row px 30 fixed <
 		arg* string text; 
 
 		AnimationX new_anim;
+		new_anim .name = @ text;
 		animation_names -push @ text;
 		animations -push new_anim;
 

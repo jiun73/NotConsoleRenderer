@@ -4,9 +4,9 @@
 #include <limits>
 
 namespace NCR {
-	Files::Chunk& Files::Chunk::operator()(size_t i)
+	Files::Chunk& Files::Chunk::operator[](size_t i)
 	{
-		if (mode != file->mode == FILE_READING) return *this;
+		if (file->mode != FILE_READING) return *this;
 		if (mode != FILE_CHUNK_BRANCH) return *this;
 		index = i;
 		return *this;
@@ -33,11 +33,21 @@ namespace NCR {
 		return *this;
 	}
 
-	Files::Chunk& Files::Chunk::operator[](const string& name)
+	Files::Chunk& Files::Chunk::operator<<(const raw& raw)
+	{
+		if (file->mode != FILE_WRITING) return *this;
+
+		mode = FILE_CHUNK_DATA;
+		size += raw.size;
+		data.push_back(std::make_pair(raw.data, raw.size));
+		return *this;
+	}
+
+	Files::Chunk& Files::Chunk::operator()(const string& name)
 	{
 		if (file->mode == FILE_READING)
 		{
-			Chunk& chunk = branches.at(index).at(name);
+			Chunk& chunk = branches.at(name).at(index);
 			file->file.seekg(chunk.offset);
 			return chunk;
 		}
@@ -45,11 +55,13 @@ namespace NCR {
 		{
 			mode = FILE_CHUNK_BRANCH;
 
-			branches.resize(index + 1);
-			if (!branches[index].count(name))
-				branches[index].emplace(name, Chunk(file));
-
-			return branches[index].at(name);
+			if (!branches.count(name))
+				branches.emplace(name, vector<Chunk>());
+			while (branches.at(name).size() <= index) 
+			{
+				branches.at(name).push_back(Chunk(file));
+			}
+			return branches.at(name).at(index);
 		}
 	}
 
@@ -58,10 +70,14 @@ namespace NCR {
 		if (mode != FILE_CHUNK_BRANCH) return 0;
 
 		size_t ret = 0;
-		for (auto& c : branches[i])
+		for (auto& sub : branches)
 		{
-			c.second.get_total_size();
-			ret += c.second.size;
+			while (sub.second.size() <= index)
+			{
+				sub.second.push_back(Chunk(file));
+			}
+			sub.second.at(i).get_total_size();
+			ret += sub.second.at(i).size;
 		}
 
 		return ret;
@@ -76,10 +92,10 @@ namespace NCR {
 			break;
 		case FILE_CHUNK_BRANCH:
 			for (auto& sub : branches)
-				for (auto& c : sub)
+				for (auto& c : sub.second)
 				{
-					c.second.get_total_size();
-					size += c.second.size;
+					c.get_total_size();
+					size += c.size;
 				}
 			break;
 		default:
@@ -98,8 +114,8 @@ namespace NCR {
 			break;
 		case '\2': //header indexed
 		{
+			mode = FILE_CHUNK_BRANCH;
 			size_t size = file->read_encoded_size();
-			branches.resize(size);
 			while (true)
 			{
 				string chunk_name = file->read_string();
@@ -113,45 +129,44 @@ namespace NCR {
 				{
 					char c = file->read_byte();
 					if (c == '\0') break;
-					branches.at(i).emplace(chunk_name, Chunk(file));
+					branches.emplace(chunk_name, vector<Chunk>());
+					branches.at(chunk_name).push_back(Chunk(file));
 					size_t size = file->read_encoded_size(c);
-					branches.at(i).at(chunk_name).size = size;
+					branches.at(chunk_name).back().size = size;
 
 					i++;
 				}
 			}
 			for (auto& sub : branches)
-				for (auto& c : sub)
+				for (auto& c : sub.second)
 				{
-					c.second.load();
+					c.load();
 				}
 		}
 			break;
 		case '\1': //header
 		{
 			mode = FILE_CHUNK_BRANCH;
-			size_t size = file->read_encoded_size();
-			branches.resize(size);
+			size_t index_size = file->read_encoded_size();
+			for (auto& sub : branches)
+				sub.second.resize(size);
 			while (true)
 			{
 				string chunk_name = file->read_string();
-				if (chunk_name.empty())
-				{
-					for (auto& sub : branches)
-					{
-						sub = branches[0];
-					}
-
-					break;
-				}
-				branches[0].emplace(chunk_name, Chunk(file));
+				if (chunk_name.empty()) break;
 				size_t size = file->read_encoded_size();
-				branches[0].at(chunk_name).size = size;
+
+				branches.emplace(chunk_name, vector<Chunk>());
+				for (size_t i = 0; i < index_size; i++)
+				{
+					branches.at(chunk_name).push_back(Chunk(file));
+					branches.at(chunk_name).back().size = size;
+				}
 			}
 			for (auto& sub : branches)
-				for (auto& c : sub)
+				for (auto& c : sub.second)
 				{
-					c.second.load();
+					c.load();
 				}
 		}
 			break;
@@ -186,33 +201,26 @@ namespace NCR {
 			if (compress_size) //size is the same for every index, so we can avoid writing sizes for every index
 			{
 				file->write_data("\1", 1);
-				file->write_encoded_size(branches.size()); //write number of indexed chunks
-				for (auto& c : branches.at(0)) //write header for the first indexed chunk
+				file->write_encoded_size(branches.begin()->second.size()); //write number of indexed chunks
+				for (auto& c : branches) //write header for the first indexed chunk
 				{
 					const char* str = c.first.c_str();
 					file->write_data(str, strlen(str) + 1);
-					file->write_encoded_size(c.second.size);
+					file->write_encoded_size(c.second.back().size);
 				}
 			}
 			else
 			{
 				file->write_data("\2", 1);
-				file->write_encoded_size(branches.size()); //write number of indexed chunks
-				for (auto& sub : branches)
+				file->write_encoded_size(branches.begin()->second.size()); //write number of indexed chunks
+				for (auto& c : branches)
 				{
-					bool f = true;
-					
-					for (auto& c : sub)
+					const char* str = c.first.c_str();
+					file->write_data(str, strlen(str) + 1);
+
+					for (auto& sub : c.second)
 					{
-						if (f) //write the names of the chunks only for the first one (we assume all index wa the same chunks)
-						{
-							const char* str = c.first.c_str();
-							file->write_data(str, strlen(str) + 1);
-							f = false;
-						}
-
-						file->write_encoded_size(c.second.size);
-
+						file->write_encoded_size(sub.size);
 					}
 					file->write_data("\0", 1);
 				}
@@ -221,9 +229,9 @@ namespace NCR {
 			file->write_data("\0", 1);
 
 			for (auto& sub : branches)
-				for (auto& c : sub)
+				for (auto& c : sub.second)
 				{
-					c.second.write();
+					c.write();
 				}
 			break;
 		default:
@@ -234,7 +242,7 @@ namespace NCR {
 	void Files::Chunk::clean()
 	{
 		for (auto& d : data) delete[] d.first;
-		for (auto& sub : branches) for (auto& c : sub) c.second.clean();
+		for (auto& sub : branches) for (auto& c : sub.second) c.clean();
 		branches.clear();
 		data.clear();
 	}

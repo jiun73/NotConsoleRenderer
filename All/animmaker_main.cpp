@@ -11,6 +11,7 @@ GLUU::ImportInspector<AnimationX> anim_inpector([](shared_generic gen, const str
 		AnimationX& obj = *(AnimationX*)(gen->raw_bytes());
 		if (str == "frames") return make_generic_container_ref(obj.frames);
 		if (str == "textures") return make_generic_container_ref(obj.textures);
+		if (str == "name") return make_generic_ref(obj.name);
 		return nullptr;
 	});
 
@@ -24,7 +25,7 @@ GLUU::ImportInspector<AnimationFrameX> animf_inpector([](shared_generic gen, con
 		if (str == "time") return make_generic_ref(obj.time);
 		if (str == "tex") return make_generic_ref(obj.tex);
 		if (str == "anchors") return make_generic_ref(obj.anchors);
-		if (str == "colliders") return make_generic_ref(obj.colliders);
+		//if (str == "colliders") return make_generic_ref(obj.colliders);
 		if (str == "full_source") return make_generic_ref(obj.full_source);
 		if (str == "origin") return make_generic_ref(obj.origin);
 		if (str == "source") return make_generic_ref(obj.source);
@@ -146,6 +147,31 @@ namespace ANIMMAKER
 				int x, y;
 				SDL_QueryTexture(tex, NULL, NULL, &x, &y);
 				return { x,y };
+			});
+
+		GLUU::import_function<void(vector<AnimationX>& , string)>(":write_anim_to_file", [](vector<AnimationX>& anim, string s)
+			{
+				NCR::File file(s, NCR::Files::FILE_WRITING);
+				for (auto& a : anim)
+				{
+					std::cout << "writing '" << a.name << "'" << std::endl;
+					a.readwrite(file, "");
+				}
+			});
+
+		GLUU::import_function<vector<AnimationX>(string)>(":read_anim_from_file", [](string s)
+			{
+				NCR::File file(s, NCR::Files::FILE_READING);
+
+				vector<AnimationX> ret;
+				for (auto& a : file("data").get_chunks())
+				{
+					AnimationX new_anim;
+					std::cout << "reading '" << a << "'" << std::endl;
+					new_anim.readwrite(file, a);
+					ret.push_back(new_anim);
+				}
+				return ret;
 			});
 
 		GLUU::Compiled_ptr menu = GLUU::parse_file("AnimMaker.gluu");

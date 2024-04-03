@@ -12,6 +12,7 @@
 
 using std::unordered_map;
 using std::map;
+using std::pair;
 using std::type_index;
 using std::function;
 using std::string;
@@ -38,39 +39,63 @@ namespace NCR {
 		struct ChunkNext {};
 		inline ChunkNext next;
 
+		struct raw 
+		{
+			char* data;
+			size_t size = 0;
+			raw(char* data, size_t size) : data(data), size(size) {}
+		};
+
 		struct Chunk
 		{
 			size_t offset = 0;
 			size_t size = 0;
 			File* file;
 			ChunkMode mode = FILE_CHUNK_DATA;
-			vector < map<string, Chunk>> branches;
+			map<string, vector <Chunk>> branches;
 			size_t index = 0;
 			size_t last_size = 0;
 			bool compress_size = true;
 			vector<pair<char*, size_t>> data;
 
+			Chunk() : file(nullptr) {}
 			Chunk(File* file) : file(file) {}
 			~Chunk() {}
 
 			size_t get_index_size(size_t i);
 			void get_total_size();
 
-			Chunk& operator()(size_t i);
+			Chunk& operator[](size_t i);
 
-			Chunk& operator[](const string& name);
+			Chunk& operator()(const string& name);
 
 			template<typename T>
 			Chunk& operator<<(const T& obj);
 
 			Chunk& operator<<(const ChunkNext& next);
+			Chunk& operator<<(const raw& next);
 
 			template<typename T>
 			Chunk& operator>>(T& obj);
 
+
+
 			void load();
 			void write();
 			void clean();
+
+			size_t index_size() 
+			{
+				return branches.begin()->second.size();
+			}
+
+			vector<string> get_chunks() 
+			{
+				vector<string> ret;
+				for (auto& s : branches)
+					ret.push_back(s.first);
+				return ret;
+			}
 
 			template<typename T>
 			T* list(size_t& size);
@@ -89,13 +114,15 @@ namespace NCR {
 	public:
 		Files::Chunk chunk;
 
-		File(const string path, Files::FileMode mode) : mode(mode), chunk(this) { open(path, mode); }
+		File(const string& path, Files::FileMode mode) : mode(mode), chunk(this) { open(path, mode); }
 		~File() { close(); }
 
-		Files::Chunk& operator[](const string& name)
+		Files::Chunk& operator()(const string& name)
 		{
-			return chunk[name];
+			return chunk(name);
 		}
+
+		Files::FileMode current_mode() { return mode; }
 
 		bool open(const string path, Files::FileMode new_mode)
 		{

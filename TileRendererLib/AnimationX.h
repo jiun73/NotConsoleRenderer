@@ -4,9 +4,13 @@
 #include <vector>
 #include <string>
 
+#include "ChunkFile.h"
+#include "NotConsoleRenderer.h"
+
 using std::map;
 using std::vector;
 using std::string;
+using NCR::Files::raw;
 
 #undef min
 #undef max
@@ -19,7 +23,6 @@ struct AnimationFrameX
 	uint32_t time = 1000;
 	V2d_i origin = 0;
 	map<string, V2d_i> anchors;
-	map<string, Rect> colliders;
 };
 
 class AnimationX
@@ -36,9 +39,63 @@ public:
 	V2d_i position = 0;
 
 public:
-	void readwrite(File& file) 
+	void readwrite(NCR::File& file, string s) 
 	{
-		
+		if (file.current_mode() == NCR::Files::FILE_WRITING)
+		{
+			auto& f_anim = file("data")(name);
+			auto& f_fram = f_anim("frames");
+			auto& f_text = f_anim("textures");
+			for (auto& f : frames)
+			{
+				f_fram("frame_data") << f.tex << f.full_source << f.origin << f.source << f.time;
+				//f_fram("frame_data") << 'A';
+				f_fram("anchors");
+				for (auto& a : f.anchors) f_fram("anchors") << a;
+				f_fram << NCR::Files::next;
+			}
+			for (auto& t : textures)
+			{
+				size_t size = 0;
+				int w = 0;
+				int h = 0;
+				char* data = (char*)get_texture_data(t, size, w, h);
+				auto tex = get_texture_from_data(data, w, h);
+				f_text("texture_data") << raw(data, size);
+				f_text("size") << w << h;
+				f_text << NCR::Files::next;
+			}
+		}
+		else if (file.current_mode() == NCR::Files::FILE_READING)
+		{
+			name = s;
+			auto& f_anim = file("data")(s);
+			auto& f_fram = f_anim("frames");
+			auto& f_text = f_anim("textures");
+			for (size_t i = 0; i < f_fram.index_size(); i++)
+			{
+				AnimationFrameX f;
+				f_fram[i]("frame_data") >> f.tex >> f.full_source >> f.origin >> f.source >> f.time;
+				size_t size = 0;
+				auto list = f_fram[i]("anchors").list<typename decltype(f.anchors)::value_type>(size);
+				for (size_t i = 0; i < size; i++)
+				{
+					f.anchors.emplace(list[i].first, list[i].second);
+				}
+				frames.push_back(f);
+			}
+			for (size_t i = 0; i < f_text.index_size(); i++)
+			{
+				size_t size = 0;
+				int w = 0;
+				int h = 0;
+				char* data = f_text[i]("texture_data").list<char>(size);
+				f_text[i]("size") >> w >> h;
+				auto tex = get_texture_from_data(data, w, h);
+				textures.push_back(tex);
+			}
+			
+		}
 	}
 
 	SDL_Texture* frame_texture(const AnimationFrameX& frame)

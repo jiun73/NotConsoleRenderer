@@ -186,7 +186,7 @@ bool run()
 		init();
 		__lock__ = true;
 	}
-	else
+	else 
 	{
 		if (_inputs.keyboard.pressed(SDL_SCANCODE_F3))
 		{
@@ -351,6 +351,55 @@ void load_texture(const string& path)
 	SDL_assert(tex);
 
 	textures.emplace(path, tex);
+}
+
+void* get_texture_data(SDL_Texture* texture, size_t& size, int& w, int& h)
+{
+	SDL_Texture* ren_tex;
+	SDL_Surface* surf;
+	int format;
+	void* pixels;
+
+	pixels = NULL;
+	surf = NULL;
+	ren_tex = NULL;
+	format = SDL_PIXELFORMAT_RGBA32;
+
+	SDL_QueryTexture(texture, NULL, NULL, &w, &h);
+	SDL_Texture* temp = SDL_CreateTexture(sdl_ren, NULL, SDL_TEXTUREACCESS_TARGET, w, h);
+	int st = SDL_SetRenderTarget(sdl_ren, temp);
+	if (st != 0) {
+		SDL_Log("Failed setting render target: %s\n", SDL_GetError());
+	}
+
+	SDL_RenderCopy(sdl_ren, texture, NULL, NULL);
+
+	size = w * h * SDL_BYTESPERPIXEL(format);
+	pixels = malloc(size);
+	 st = SDL_RenderReadPixels(sdl_ren, NULL, format, pixels, w * SDL_BYTESPERPIXEL(format));
+	SDL_SetRenderTarget(sdl_ren, NULL);
+
+	if (st != 0) {
+		SDL_Log("Failed reading pixel data: %s\n", SDL_GetError());
+	}
+
+	return pixels;
+}
+
+SDL_Texture* get_texture_from_data(char* data, int w, int h)
+{
+	SDL_Surface* surf;
+	surf = SDL_CreateRGBSurfaceWithFormatFrom((void*)data, w, h, SDL_BITSPERPIXEL(SDL_PIXELFORMAT_RGBA32), w * SDL_BYTESPERPIXEL(SDL_PIXELFORMAT_RGBA32), SDL_PIXELFORMAT_RGBA32);
+	if (!surf) {
+		SDL_Log("Failed creating new surface: %s\n", SDL_GetError());
+	}
+	
+	SDL_Texture* text = SDL_CreateTextureFromSurface(sdl_ren, surf);
+	if (!text) {
+		SDL_Log("Failed creating new texture: %s\n", SDL_GetError());
+	}
+
+	return text;
 }
 
 void save_texture(string path, SDL_Texture* texture)
