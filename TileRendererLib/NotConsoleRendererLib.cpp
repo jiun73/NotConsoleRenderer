@@ -359,6 +359,7 @@ void* get_texture_data(SDL_Texture* texture, size_t& size, int& w, int& h)
 	SDL_Surface* surf;
 	int format;
 	void* pixels;
+	void* pngdata;
 
 	pixels = NULL;
 	surf = NULL;
@@ -376,6 +377,7 @@ void* get_texture_data(SDL_Texture* texture, size_t& size, int& w, int& h)
 
 	size = w * h * SDL_BYTESPERPIXEL(format);
 	pixels = malloc(size);
+	pngdata = malloc(size);
 	 st = SDL_RenderReadPixels(sdl_ren, NULL, format, pixels, w * SDL_BYTESPERPIXEL(format));
 	SDL_SetRenderTarget(sdl_ren, NULL);
 
@@ -383,7 +385,32 @@ void* get_texture_data(SDL_Texture* texture, size_t& size, int& w, int& h)
 		SDL_Log("Failed reading pixel data: %s\n", SDL_GetError());
 	}
 
-	return pixels;
+	surf = SDL_CreateRGBSurfaceWithFormatFrom(pixels, w, h, SDL_BITSPERPIXEL(format), w * SDL_BYTESPERPIXEL(format), format);
+
+	SDL_RWops* rw = SDL_RWFromMem(pngdata, size);
+	st = IMG_SavePNG_RW(surf, rw, SDL_FALSE);
+
+	if (st != 0) {
+		SDL_Log("Failed saving png: %s\n", SDL_GetError());
+	}
+
+	size_t old = size;
+	size = SDL_RWsize(rw);
+
+	if (rw->size(rw) == -1)
+	{
+		SDL_Log("Size was invalid %s\n", SDL_GetError());
+	}
+	
+	size_t ret = SDL_RWread(rw, pngdata, size, 1);
+	size_t tell = SDL_RWtell(rw);
+
+	if (ret == 0)
+	{
+		SDL_Log("??? %s\n", SDL_GetError());
+	}
+
+	return pngdata;
 }
 
 SDL_Texture* get_texture_from_data(char* data, int w, int h)

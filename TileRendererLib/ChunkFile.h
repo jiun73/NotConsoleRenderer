@@ -62,6 +62,8 @@ namespace NCR {
 			Chunk(File* file) : file(file) {}
 			~Chunk() {}
 
+			bool has_chunk(const string& name) { return branches.count(name) != 0; }
+
 			size_t get_index_size(size_t i);
 			void get_total_size();
 

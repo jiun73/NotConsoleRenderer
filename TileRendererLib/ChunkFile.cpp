@@ -199,7 +199,7 @@ namespace NCR {
 				for (auto& c : branches) //write header for the first indexed chunk
 				{
 					const char* str = c.first.c_str();
-					if (c.second.back().size == 0) continue;
+					//if (c.second.back().size == 0) continue;
 					file->write_data(str, strlen(str) + 1);
 					file->write_encoded_size(c.second.back().size);
 				}
@@ -215,7 +215,7 @@ namespace NCR {
 
 					for (auto& sub : c.second)
 					{
-						if (sub.size == 0) continue;
+						//if (sub.size == 0) continue;
 						file->write_encoded_size(sub.size);
 					}
 					file->write_data("\0", 1);
