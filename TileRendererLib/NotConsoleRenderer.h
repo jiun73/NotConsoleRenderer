@@ -161,7 +161,7 @@ void draw_clear();
 //\param 'path' est le chemin ou se trouve l'image
 void load_texture(const string& path);
 void* get_texture_data(SDL_Texture* texture, size_t& sz, int& w, int& h);
-SDL_Texture* get_texture_from_data(char* data, int w, int h);
+SDL_Texture* get_texture_from_data(char* data, size_t sz, int w, int h);
 V2d_i get_image_size(const string& path);
 void output_texture_pixels(const string path);
 SDL_Texture* get_sdl_texture(const string& path);

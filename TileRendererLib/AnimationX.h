@@ -91,7 +91,6 @@ public:
 				int w = 0;
 				int h = 0;
 				char* data = (char*)get_texture_data(t, size, w, h);
-				auto tex = get_texture_from_data(data, w, h);
 				f_text("texture_data") << raw(data, size);
 				f_text("size") << w << h;
 				f_text << NCR::Files::next;
@@ -126,7 +125,7 @@ public:
 				int h = 0;
 				char* data = f_text[i]("texture_data").list<char>(size);
 				f_text[i]("size") >> w >> h;
-				auto tex = get_texture_from_data(data, w, h);
+				auto tex = get_texture_from_data(data, size, w, h);
 				textures.push_back(tex);
 			}
 			

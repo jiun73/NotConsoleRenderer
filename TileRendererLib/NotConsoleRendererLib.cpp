@@ -402,6 +402,7 @@ void* get_texture_data(SDL_Texture* texture, size_t& size, int& w, int& h)
 		SDL_Log("Size was invalid %s\n", SDL_GetError());
 	}
 	
+	SDL_RWseek(rw, 0, RW_SEEK_SET);
 	size_t ret = SDL_RWread(rw, pngdata, size, 1);
 	size_t tell = SDL_RWtell(rw);
 
@@ -410,13 +411,31 @@ void* get_texture_data(SDL_Texture* texture, size_t& size, int& w, int& h)
 		SDL_Log("??? %s\n", SDL_GetError());
 	}
 
+	size_t s = 0;
+	size_t i = 0;
+	string search = "DNEI";
+	for (i = size - 1; i > 0; i--)
+	{
+		if (search.at(s) == ((char*)pngdata)[i])
+		{
+			s++;
+			if (s == search.size())
+				break;
+		}
+	}
+
+	if (i == 0) return nullptr;
+
+	size = i + 8;
+
 	return pngdata;
 }
 
-SDL_Texture* get_texture_from_data(char* data, int w, int h)
+SDL_Texture* get_texture_from_data(char* data, size_t sz, int w, int h)
 {
-	SDL_Surface* surf;
-	surf = SDL_CreateRGBSurfaceWithFormatFrom((void*)data, w, h, SDL_BITSPERPIXEL(SDL_PIXELFORMAT_RGBA32), w * SDL_BYTESPERPIXEL(SDL_PIXELFORMAT_RGBA32), SDL_PIXELFORMAT_RGBA32);
+	SDL_RWops* ops = SDL_RWFromMem(data, sz);
+	SDL_Surface* surf = IMG_LoadPNG_RW(ops);
+
 	if (!surf) {
 		SDL_Log("Failed creating new surface: %s\n", SDL_GetError());
 	}
