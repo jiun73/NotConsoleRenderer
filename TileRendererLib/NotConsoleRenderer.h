@@ -285,5 +285,7 @@ Peer2Peer& p2p(ChannelID i);
 
 //---
 
+string open_dialog_single(const string& filter = "Images\0*.png\0Any\0*.*\0");
+string open_dialog_new_file(const string& filter = "Images\0*.png\0Any\0*.*\0");
 vector<string> open_dialog(const string& filter = "Images\0*.png\0Any\0*.*\0");
 

@@ -19,7 +19,7 @@ new init setup = { BASE .fit = false; }
 
 new function :load_images = 
 {
-	vector(string) files = $file;
+	vector(string) files = $files;
 	int index = 0;
 
 	$while { index < -size files } {
@@ -91,10 +91,19 @@ new function :set_origins_ratio = {
 row px 30 <
 	col fixed px 120 button { "Load images" } { :load_images } <>
 	col fixed px 900 dropbox {paths} {current_image} <>
-	col fixed px 100 button Export { :write_anim_to_file "test.anim" animations } <>
+	col fixed px 100 button Export 
+	{ 
+		string path = $new_file;
+		$if { path -size == 0 } { return {}; };
+
+		:write_anim_to_file {path ".anim"} animations;
+	} <>
 	col fixed px 100 button Import 
 	{ 
-		animations = :read_anim_from_file "test.anim"; 
+		string path = $file;
+		$if { path -size == 0 } { return {}; };
+
+		animations = :read_anim_from_file path; 
 		int i = 0;
 		$foreach animations 
 		{

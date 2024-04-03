@@ -935,6 +935,166 @@ int get_text_draw_size(const string& text, const Font& font)
 #include "SDL_syswm.h"
 #include <filesystem>
 
+string open_dialog_new_file(const string& filter)
+{
+	std::filesystem::path p = std::filesystem::current_path();
+
+	std::wstring wfilter = std::wstring(filter.begin(), filter.end());
+	std::wstring dir;
+	vector<std::wstring> paths;
+	//https://learn.microsoft.com/en-us/windows/win32/dlgbox/using-common-dialog-boxes
+
+	SDL_SysWMinfo wmInfo;
+	SDL_VERSION(&wmInfo.version);
+	SDL_GetWindowWMInfo(sdl_win, &wmInfo);
+	HWND hwnd = wmInfo.info.win.window;
+
+	OPENFILENAME ofn;       // common dialog box structure
+	wchar_t szFile[2550];       // buffer for file name
+
+	// Initialize OPENFILENAME
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = hwnd;
+	ofn.lpstrFile = szFile;
+	// Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
+	// use the contents of szFile to initialize itself.
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = wfilter.c_str();
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFileTitle = NULL;
+	ofn.nMaxFileTitle = 0;
+	ofn.lpstrInitialDir = NULL;
+	ofn.Flags =  OFN_PATHMUSTEXIST | OFN_READONLY | OFN_EXPLORER | OFN_OVERWRITEPROMPT;
+
+	// Display the Open dialog box. 
+	int fCount = 0;
+
+	//https://stackoverflow.com/questions/26142703/how-to-create-a-dialog-to-select-multiple-files-using-winapi
+	if (GetOpenFileName(&ofn) == TRUE)
+	{
+		printf("files selected\n");
+		wchar_t* ptr = ofn.lpstrFile;
+		ptr[ofn.nFileOffset - 1] = 0;
+		wprintf(L"Directory path: %s\n", ptr);
+		dir = ptr;
+		ptr += ofn.nFileOffset;
+
+		while (*ptr)
+		{
+			fCount++;
+			wprintf(L"File: %i %s\n", fCount, ptr);
+			paths.push_back(ptr);
+			ptr += (lstrlen(ptr) + 1);
+		}
+
+		printf("\n");
+		printf("selected %i files\n", fCount);
+	}
+	else
+	{
+		printf("no files selected\n");
+	}
+
+	vector<string> ret;
+
+	for (auto& p : paths)
+	{
+		string sdir = string(dir.begin(), dir.end());
+		string spath = string(p.begin(), p.end());
+		ret.push_back(sdir + "\\" + spath);
+		std::cout << sdir + "\\" + spath << std::endl;
+	}
+
+	std::filesystem::current_path(p);
+
+	if (ret.empty()) return "";
+
+	return ret.front();
+}
+
+string open_dialog_single(const string& filter)
+{
+	std::filesystem::path p = std::filesystem::current_path();
+
+	std::wstring wfilter = std::wstring(filter.begin(), filter.end());
+	std::wstring dir;
+	vector<std::wstring> paths;
+	//https://learn.microsoft.com/en-us/windows/win32/dlgbox/using-common-dialog-boxes
+
+	SDL_SysWMinfo wmInfo;
+	SDL_VERSION(&wmInfo.version);
+	SDL_GetWindowWMInfo(sdl_win, &wmInfo);
+	HWND hwnd = wmInfo.info.win.window;
+
+	OPENFILENAME ofn;       // common dialog box structure
+	wchar_t szFile[2550];       // buffer for file name
+
+	// Initialize OPENFILENAME
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = hwnd;
+	ofn.lpstrFile = szFile;
+	// Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
+	// use the contents of szFile to initialize itself.
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = wfilter.c_str();
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFileTitle = NULL;
+	ofn.nMaxFileTitle = 0;
+	ofn.lpstrInitialDir = NULL;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_READONLY | OFN_EXPLORER;
+
+	// Display the Open dialog box. 
+	int fCount = 0;
+
+	//https://stackoverflow.com/questions/26142703/how-to-create-a-dialog-to-select-multiple-files-using-winapi
+	if (GetOpenFileName(&ofn) == TRUE)
+	{
+		printf("files selected\n");
+		wchar_t* ptr = ofn.lpstrFile;
+		ptr[ofn.nFileOffset - 1] = 0;
+		wprintf(L"Directory path: %s\n", ptr);
+		dir = ptr;
+		ptr += ofn.nFileOffset;
+
+		while (*ptr)
+		{
+			fCount++;
+			wprintf(L"File: %i %s\n", fCount, ptr);
+			paths.push_back(ptr);
+			ptr += (lstrlen(ptr) + 1);
+		}
+
+		printf("\n");
+		printf("selected %i files\n", fCount);
+	}
+	else
+	{
+		printf("no files selected\n");
+	}
+
+	vector<string> ret;
+
+	for (auto& p : paths)
+	{
+		string sdir = string(dir.begin(), dir.end());
+		string spath = string(p.begin(), p.end());
+		ret.push_back(sdir + "\\" + spath);
+		std::cout << sdir + "\\" + spath << std::endl;
+	}
+
+	std::filesystem::current_path(p);
+
+	if (ret.empty()) return "";
+
+	return ret.front();
+}
+
+
+
 vector<string> open_dialog(const string& filter)
 {
 	std::filesystem::path p = std::filesystem::current_path();

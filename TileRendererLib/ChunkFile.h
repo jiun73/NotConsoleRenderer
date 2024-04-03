@@ -78,11 +78,14 @@ namespace NCR {
 			template<typename T>
 			Chunk& operator>>(T& obj);
 
-
+			template<typename T>
+			Chunk& operator+(T& obj);
 
 			void load();
 			void write();
 			void clean();
+
+			Chunk& next_index();
 
 			size_t index_size() 
 			{
@@ -96,6 +99,15 @@ namespace NCR {
 					ret.push_back(s.first);
 				return ret;
 			}
+
+			Chunk& value_as(const string& name_reading, string& write_from);
+
+			template<typename C>
+			C& iterate(C& container);
+
+			template<typename C>
+			Chunk& make_list(C& container);
+			
 
 			template<typename T>
 			T* list(size_t& size);
@@ -121,6 +133,9 @@ namespace NCR {
 		{
 			return chunk(name);
 		}
+
+		bool is_reading() { return mode == FILE_READING; }
+		bool is_writing() { return mode == FILE_WRITING; }
 
 		Files::FileMode current_mode() { return mode; }
 
@@ -296,6 +311,50 @@ namespace NCR {
 		obj = file->read<T>();
 		return *this;
 	}
+
+	template<typename T>
+    Files::Chunk& Files::Chunk::operator+(T& obj)
+	{
+		if (file->mode == FILE_WRITING) return operator<<(obj);
+		else if (file->mode == FILE_READING) return operator>>(obj);
+		return *this;
+	}
+
+	template<typename C>
+	 C& Files::Chunk::iterate(C& container)
+	{
+		if (file->mode == FILE_READING)
+		{
+			container.clear();
+			container.resize(index_size());
+			return container;
+		}
+		else if (file->mode == FILE_WRITING)
+		{
+			return container;
+		}
+		return container;
+	}
+
+	 template<typename C>
+	 Files::Chunk& Files::Chunk::make_list(C& container)
+	 {
+		 if (file->mode == FILE_READING)
+		 {
+			 size_t size = 0;
+			 using type = typename C::value_type;
+			 type* l = list<type>(size);
+			 for (size_t i = 0; i < size; i++)
+			 {
+				 container.insert(container.end(), l[i]);
+			 }
+		 }
+		 else if (file->mode == FILE_WRITING)
+		 {
+			 for (auto& a : container) operator<<(a);
+		 }
+		 return *this;
+	 }
 
 	template<typename T>
 	inline T* Files::Chunk::list(size_t& list_size)

@@ -136,9 +136,19 @@ namespace ANIMMAKER
 {
 	void animmaker_main() 
 	{
-		GLUU::import_function<vector<string>()>("$file", []()
+		GLUU::import_function<vector<string>()>("$files", []()
 			{
 				return open_dialog();
+			});
+
+		GLUU::import_function<string()>("$file", []()
+			{
+				return open_dialog_single();
+			});
+
+		GLUU::import_function<string()>("$new_file", []()
+			{
+				return open_dialog_new_file();
 			});
 
 		GLUU::import_function<SDL_Texture* (const string&)>(":get_tex", get_sdl_texture);
@@ -167,7 +177,7 @@ namespace ANIMMAKER
 				for (auto& a : file("data").get_chunks())
 				{
 					AnimationX new_anim;
-					std::cout << "reading '" << a << "'" << std::endl;
+					std::cout << "reading '" << a << "' from " << s << std::endl;
 					new_anim.readwrite(file, a);
 					ret.push_back(new_anim);
 				}

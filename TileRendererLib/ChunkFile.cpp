@@ -8,29 +8,24 @@ namespace NCR {
 	{
 		if (file->mode != FILE_READING) return *this;
 		if (mode != FILE_CHUNK_BRANCH) return *this;
-		index = i;
+		if (index == i) return *this;
+		if (file->mode == FILE_READING)
+		{
+			index = i;
+		}
+		else if (file->mode == FILE_WRITING)
+		{
+			if (i + 1 == index)
+			{
+				operator<<(next);
+			}
+		}
 		return *this;
 	}
 
-	Files::Chunk& Files::Chunk::operator<<(const Files::ChunkNext& next)
+	Files::Chunk& Files::Chunk::operator<<(const Files::ChunkNext& n)
 	{
-		if (mode != FILE_CHUNK_BRANCH) return *this;
-
-		if (index == 0)
-		{
-			last_size = get_index_size(index);
-			index++;
-			return *this;
-		}
-
-		if (last_size != get_index_size(index))
-		{
-			compress_size = false;
-		}
-
-		index++;		
-
-		return *this;
+		return next_index();
 	}
 
 	Files::Chunk& Files::Chunk::operator<<(const raw& raw)
@@ -129,11 +124,10 @@ namespace NCR {
 				{
 					char c = file->read_byte();
 					if (c == '\0') break;
+					size_t size = file->read_encoded_size(c);
 					branches.emplace(chunk_name, vector<Chunk>());
 					branches.at(chunk_name).push_back(Chunk(file));
-					size_t size = file->read_encoded_size(c);
 					branches.at(chunk_name).back().size = size;
-
 					i++;
 				}
 			}
@@ -205,6 +199,7 @@ namespace NCR {
 				for (auto& c : branches) //write header for the first indexed chunk
 				{
 					const char* str = c.first.c_str();
+					if (c.second.back().size == 0) continue;
 					file->write_data(str, strlen(str) + 1);
 					file->write_encoded_size(c.second.back().size);
 				}
@@ -220,6 +215,7 @@ namespace NCR {
 
 					for (auto& sub : c.second)
 					{
+						if (sub.size == 0) continue;
 						file->write_encoded_size(sub.size);
 					}
 					file->write_data("\0", 1);
@@ -245,5 +241,44 @@ namespace NCR {
 		for (auto& sub : branches) for (auto& c : sub.second) c.clean();
 		branches.clear();
 		data.clear();
+	}
+	Files::Chunk& Files::Chunk::next_index()
+	{
+		if (mode != FILE_CHUNK_BRANCH) return *this;
+
+		if (file->mode == FILE_READING)
+		{
+			index++;
+			return *this;
+		}
+
+		if (index == 0)
+		{
+			last_size = get_index_size(index);
+			index++;
+			return *this;
+		}
+
+		if (last_size != get_index_size(index))
+		{
+			compress_size = false;
+		}
+
+		index++;
+
+		return *this;
+	}
+	Files::Chunk& Files::Chunk::value_as(const string& name_reading, string& write_from)
+	{
+		if (file->mode == FILE_READING)
+		{
+			write_from = name_reading;
+			return operator()(name_reading);
+		}
+		else if (file->mode == FILE_WRITING)
+		{
+			return operator()(write_from);
+		}
+		return *this;
 	}
 }
