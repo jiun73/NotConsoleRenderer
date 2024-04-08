@@ -5,6 +5,8 @@ new int current_frame = 0
 new int current_animation = 0
 new int current_image = 0
 
+new int state = 0
+
 new function :curanim = 
 {
 	animations -at current_animation
@@ -15,7 +17,7 @@ new function :curframe =
 	:curanim .frames -at current_frame
 }
 
-new init setup = { BASE .fit = false; }
+new init setup = { BASE .fit = true; }
 
 new function :load_images = 
 {
@@ -88,17 +90,32 @@ new function :set_origins_ratio = {
 	};
 }
 
+row if { state == 2 } < 
+	col fixed <
+		row px 30 button Back { state = 1 } <>
+	>
+>
+
+row if { state == 1 } < 
+	col fixed <
+		row px 30 button Back { state = 0 } <>
+		row px 30 button { "Collider data"} { state = 2 } <>
+	>
+>
+
+row if { state == 0 } < col fixed <
+
 row px 30 <
-	col fixed px 120 button { "Load images" } { :load_images } <>
-	col fixed px 900 dropbox {paths} {current_image} <>
-	col fixed px 100 button Export 
+	col px 120 button { "Load images" } { :load_images } <>
+	col px 900 dropbox {paths} {current_image} <>
+	col px 100 button Export 
 	{ 
 		string path = $new_file;
 		$if { path -size == 0 } { return {}; };
 
 		:write_anim_to_file {path ".anim"} animations;
 	} <>
-	col fixed px 100 button Import 
+	col px 100 button Import 
 	{ 
 		string path = $file;
 		$if { path -size == 0 } { return {}; };
@@ -112,6 +129,9 @@ row px 30 <
 			i++;
 		}
 	} <>
+	col px 120 button Extensions {
+		state = 1
+	}
 >
 
 row px 30 fixed <
@@ -246,5 +266,6 @@ row px 800 <
 		>>
 
 	>
+>
 >
 

@@ -1,7 +1,11 @@
 new int state = 0
 new bool is_host = false
 
-row px 60 if { state == 0 }
+new init setup = {
+	BASE .fit = false;
+}
+
+row px 60 if { state == 0 } 
 <
 	col button { "Join " } { is_host = :false;  state = 1 } < >
 	col button { "Host " } { is_host = :true; :chat_host; :chat_wait; state = 2 } < >
@@ -16,8 +20,8 @@ row px 60 if { state == 1 }
 			col textbox { "Enter ip..." } 
 				{ 	
 					arg* string ip; 
-					success = { :chat_join {ip @} "Peer"}; 
-					{ip @} = "";
+					success = { :chat_join @ ip "Peer"}; 
+					ip @ = "";
 					$if success 
 					{
 						state = 2;
@@ -39,7 +43,7 @@ row px 60 if { state == 1 }
 row px 30 if { state == 2; }
 <
 	col text { "Connected: " :peercnt } if { is_host } <>
-	col textbox { "Enter message..." } { arg* string ip; :chat_send ip @; {ip @} = "" } <>
+	col textbox { "Enter message..." } { arg* string ip; :chat_send @ ip; {ip @} = "" } <>
 	col button { "Back" } { :cout "huho!" } <>
 	
 >
