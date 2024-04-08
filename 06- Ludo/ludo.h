@@ -192,11 +192,11 @@ public:
 		//show_number();
 	}
 
-	void move(int num)
+	void move(int des)
 	{
 		if (outOfHome)
 		{
-			caseActuelle += num;
+			caseActuelle += des;
 		}
 	}
 };
