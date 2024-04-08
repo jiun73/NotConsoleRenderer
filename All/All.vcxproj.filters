@@ -125,6 +125,9 @@
     <None Include="AnimMaker.gluu">
       <Filter>Fichiers sources\AnimationMaker</Filter>
     </None>
+    <None Include="GLUU\chat_menu.gluu">
+      <Filter>Fichiers sources\Chatroom</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="gluusyntax.txt" />
