@@ -176,6 +176,7 @@
     <ClInclude Include="Generics.h" />
     <ClInclude Include="GLUU_expr.h" />
     <ClInclude Include="GLUU_seqvar.h" />
+    <ClInclude Include="GLUU_slider.h" />
     <ClInclude Include="GLUU_std.h" />
     <ClInclude Include="GLUU_text.h" />
     <ClInclude Include="GLUU_textbox.h" />
