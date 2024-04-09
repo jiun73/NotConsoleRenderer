@@ -201,6 +201,9 @@
     <ClInclude Include="ChunkFile.h">
       <Filter>Header Files\Classes\Files</Filter>
     </ClInclude>
+    <ClInclude Include="GLUU_checkbox.h">
+      <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NotConsoleRendererLib.cpp">

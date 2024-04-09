@@ -36,7 +36,7 @@ namespace GLUU {
 			auto expr = parse_sequence_next(str);
 			return_flags.pop();
 
-			parser->output_errors();
+			//parser->output_errors();
 			
 			return expr;
 		}

@@ -164,6 +164,7 @@
     <ClInclude Include="ECSX_typeid.h" />
     <ClInclude Include="GLUU.h" />
     <ClInclude Include="GLUU_button.h" />
+    <ClInclude Include="GLUU_checkbox.h" />
     <ClInclude Include="GLUU_dropbox.h" />
     <ClInclude Include="GLUU_exprParser.h" />
     <ClInclude Include="GLUU_lineParser.h" />

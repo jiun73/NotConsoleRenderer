@@ -66,6 +66,7 @@ namespace GLUU {
 	inline ImportWidget<TextboxWidget> import_textbox;
 	inline ImportWidget<ButtonWidget> import_button;
 	inline ImportWidget<DropboxWidget> import_dropbox;
+	inline ImportWidget<CheckboxWidget> import_checkbox;
 
 	inline ImportInspector<Element> elem_inspector([](shared_generic gen, const string& str) -> shared_generic
 		{

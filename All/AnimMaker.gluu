@@ -6,6 +6,7 @@ new int current_animation = 0
 new int current_image = 0
 
 new int state = 0
+new bool collider_mode = false
 
 new function :curanim = 
 {
@@ -90,16 +91,11 @@ new function :set_origins_ratio = {
 	};
 }
 
-row if { state == 2 } < 
-	col fixed <
-		row px 30 button Back { state = 1 } <>
-	>
->
 
 row if { state == 1 } < 
 	col fixed <
-		row px 30 button Back { state = 0 } <>
-		row px 30 button { "Collider data"} { state = 2 } <>
+		row px 100 button Back { state = 0 } <>
+		row px 100 checkbox collider_mode { "Hello !!" } <>
 	>
 >
 
@@ -126,10 +122,11 @@ row px 30 <
 		{
 			:cout { {animations -at i} .name};
 			animation_names -push { {animations -at i }.name }; 
-			i++;
+			i ++;
 		}
 	} <>
 	col px 120 button Extensions {
+		
 		state = 1
 	}
 >
