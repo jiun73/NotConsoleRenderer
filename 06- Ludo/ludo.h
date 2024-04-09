@@ -160,8 +160,9 @@ public:
 
 	pion(int n, int s)
 	{
-		numero = n;
+		numero = n; 
 		spawn = s;
+		caseActuelle = 0;
 	}
 
 	void show_number()
