@@ -1,4 +1,5 @@
-#include "game.h"
+#include "pch.h"
+#include "tictactoe_game.h"
 
 // Débuté le 14/01/2024
 // Terminé le même jour après presque 4h de codage (c'était assez facile)
@@ -120,7 +121,7 @@ bool is_in(int element, vector<int> lesElements)
 
 bool win_check(player& joueur)
 {
-	if (is_in(1,joueur.squaresPossessed) && is_in(2, joueur.squaresPossessed) && is_in(3, joueur.squaresPossessed))
+	if (is_in(1, joueur.squaresPossessed) && is_in(2, joueur.squaresPossessed) && is_in(3, joueur.squaresPossessed))
 	{
 		return true;
 	}
@@ -184,12 +185,12 @@ void reinitialiser_joueurs(player& joueur1, player& joueur2)
 	joueur2.squaresPossessed.clear();
 }
 
-int main()
+void tictactoe_main()
 {
 	setlocale(LC_ALL, "");
 
 	vector<V2d_i> squares = get_squares();
-	
+
 	joueur1.has_turn = true;
 	joueur2.has_turn = false;
 
@@ -205,9 +206,9 @@ int main()
 	int numeroCheck;
 	vector<int> carresCheckes;
 
-	V2d_i boutonRecommencer = {END_X_MAP - 50,END_Y_MAP + 20};
-	V2d_i xyRecommencer = {50,30};
-	
+	V2d_i boutonRecommencer = { END_X_MAP - 50,END_Y_MAP + 20 };
+	V2d_i xyRecommencer = { 50,30 };
+
 	while (run())
 	{
 		show_name();
@@ -243,7 +244,7 @@ int main()
 		}
 		if (mouse_left_pressed())
 		{
-			if (recommencer(boutonRecommencer,xyRecommencer))
+			if (recommencer(boutonRecommencer, xyRecommencer))
 			{
 				modifiable = true;;
 				pencil(COLOR_BLACK);
@@ -255,3 +256,6 @@ int main()
 		}
 	}
 }
+
+
+GLUU_IMPORT_MAIN(tictactoe_main);

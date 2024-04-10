@@ -9,7 +9,7 @@
 #include "pch.h"
 
 #include "collisionx_balls.h"
-#include "collisionx_Strings.h"
+#include "Strings.h"
 
 namespace COLLISIONX
 {

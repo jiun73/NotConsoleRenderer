@@ -1,10 +1,12 @@
-#include "game.h"
+#include "pch.h"
+#include "connect4_game.h"
 #include "Strings.h"
 
 // Débuté le 15/01/2024
 // Terminé le même jour après presque 2h de codage (c'était assez facile, étant donné que je me suis inspiré de tic-tac-toe pour le faire)
 
-
+namespace CONNECT4
+{
 
 	void show_name()
 	{
@@ -305,7 +307,7 @@
 		return v;
 	}
 
-	void main()
+	void connect4_main()
 	{
 		setlocale(LC_ALL, "");
 
@@ -398,3 +400,11 @@
 		}
 	}
 
+
+
+}
+
+namespace CONNECT4
+{
+	GLUU_IMPORT_MAIN(connect4_main);
+}
