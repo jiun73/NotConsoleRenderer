@@ -184,10 +184,13 @@ public:
 		else
 		{
 			Color col = get_pencil();
-			draw_full_circle(carreaux.at(index_dans_carreaux(at(caseActuelle))).pos + xy / 2, rayon);
+			draw_full_circle(carreaux.at(caseActuelle - 6).pos + xy / 2, rayon);
+			//draw_full_circle(carreaux.at(index_dans_carreaux(at(caseActuelle))).pos + xy / 2, rayon);
 			pencil(COLOR_BLACK);
-			draw_circle(carreaux.at(index_dans_carreaux(at(caseActuelle))).pos + xy / 2, rayon);
+			draw_circle(carreaux.at(caseActuelle - 6).pos + xy / 2, rayon);
+			//draw_circle(carreaux.at(index_dans_carreaux(at(caseActuelle))).pos + xy / 2, rayon);
 			pencil(col);
+			cout << caseActuelle;
 		}
 		pos = carreaux.at(caseActuelle % 225).pos;
 		//show_number();
@@ -219,10 +222,10 @@ public:
 	int pionsEnMaison = 4;
 	bool pionJoue = false;
 
-	pion* token1 = new pion(1, 6);
-	pion* token2 = new pion(2, 6);
-	pion* token3 = new pion(3, 6);
-	pion* token4 = new pion(4, 6);
+	pion* token1 = new pion(1, 0);
+	pion* token2 = new pion(2, 0);
+	pion* token3 = new pion(3, 0);
+	pion* token4 = new pion(4, 0);
 
 	void init_tokens()
 	{

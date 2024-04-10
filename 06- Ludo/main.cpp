@@ -150,7 +150,7 @@ void draw_board()
 	for (int i = 0; i < carreaux.size(); i++)
 	{
 		pencil(COLOR_BLACK);
-		//carreaux.at(i).show_num();
+		carreaux.at(i).show_num();
 	}
 }
 
