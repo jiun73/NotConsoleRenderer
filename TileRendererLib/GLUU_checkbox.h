@@ -24,7 +24,7 @@ namespace GLUU {
 		}
 
 	public:
-		void update(Element& graphic) override
+		void update(Element& graphic, MouseInfo& mouse) override
 		{
 			
 			Rect dest = graphic.last_dest;

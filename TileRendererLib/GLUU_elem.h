@@ -120,18 +120,18 @@ namespace GLUU {
 			}
 		}
 
-		void update(bool popup_mode = false)
+		void update(MouseInfo& mouse, bool popup_mode = false)
 		{
 			if (!condition()) return;
 			if (popup() && !popup_mode) return;
 
-			if (widget != nullptr)
-				widget->update(*this);
-
 			for (auto& n : nested)
 			{
-				n.update();
+				n.update(mouse);
 			}
+
+			if (widget != nullptr)
+				widget->update(*this, mouse);
 		}
 
 		void update_l2(bool popup_mode = false)
@@ -139,13 +139,13 @@ namespace GLUU {
 			if (!condition()) return;
 			if (popup() && !popup_mode) return;
 
-			if (widget != nullptr)
-				widget->update_l2(*this);
-
 			for (auto& n : nested)
 			{
 				n.update_l2();
 			}
+
+			if (widget != nullptr)
+				widget->update_l2(*this);
 		}
 	};
 }

@@ -77,12 +77,12 @@ namespace GLUU {
 			bool move = false;
 			size_t move_index = 0;
 
-			V2d_i mouse = mouse_position();
+			V2d_i mouse_pos = mouse_position();
 			bool click = mouse_left_pressed() || mouse_right_pressed();
 
 			for (auto& e : popups)
 			{
-				if (e->set_popup(window, mouse, click))
+				if (e->set_popup(window, mouse_pos, click))
 				{
 					if (last_focused != nullptr)
 					{
@@ -104,14 +104,20 @@ namespace GLUU {
 
 			base_row.set(window); 
 
-			base_row.update();
-			base_row.update_l2();
+			MouseInfo mouse;
+			mouse.pos = mouse_pos;
+			mouse.click = click;
 
 			for (auto& e : popups)
 			{
-				e->update(true);
+				e->update(mouse, true);
 				e->update_l2(true);
 			}
+
+			base_row.update(mouse);
+			base_row.update_l2();
+
+			
 
 			base_row.render();
 

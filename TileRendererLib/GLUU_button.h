@@ -24,7 +24,7 @@ namespace GLUU {
 		bool is_hover = false;
 		bool is_held = false;
 
-		void update(Element& graphic) override
+		void update(Element& graphic, MouseInfo& mouse) override
 		{
 			if (lock)
 			{

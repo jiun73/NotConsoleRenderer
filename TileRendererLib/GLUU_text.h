@@ -13,7 +13,7 @@ namespace GLUU {
 
 		SeqVar<string> text;
 
-		void update(Element& graphic) override
+		void update(Element& graphic, MouseInfo& mouse) override
 		{
 			draw_special_text(text(), (int)graphic.last_dest.sz.x, (V2d_i)graphic.last_dest.pos, get_font(0));
 		}

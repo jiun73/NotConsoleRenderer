@@ -14,6 +14,17 @@ namespace GLUU {
 	struct Element;
 	class Parser;
 
+	struct MouseInfo 
+	{
+		V2d_i pos;
+		bool click;
+
+		void mask(Rect mask)
+		{
+
+		}
+	};
+
 	struct Widget
 	{
 		shared_ptr<StylerInterface> styler = nullptr;
@@ -29,7 +40,7 @@ namespace GLUU {
 			}
 		}
 
-		virtual void update(Element& graphic) = 0;
+		virtual void update(Element& graphic, MouseInfo& mouse_inf) = 0;
 		virtual void update_l2(Element& graphic) {}
 
 		virtual std::type_index type() = 0;
