@@ -92,14 +92,14 @@ new function :set_origins_ratio = {
 }
 
 
-row if { state == 1 } < 
+row if { state == 1 } popup { :rect 20 20 100 100 } < 
 	col fixed <
 		row px 100 button Back { state = 0 } <>
 		row px 100 checkbox collider_mode { "Hello !!" } <>
 	>
 >
 
-row if { state == 0 } < col fixed <
+row < col fixed <
 
 row px 30 <
 	col px 120 button { "Load images" } { :load_images } <>

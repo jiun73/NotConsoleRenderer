@@ -8,6 +8,12 @@ namespace GLUU
 	{
 		GLUU_scope = variable_dictionnary()->make_new_scope("GLUU");
 
+		keywords_func.emplace("popup", make_pair(1, [](Parser& parser, Element& gfx, vector<string_ranges> s)
+			{
+				gfx.popup() = true;
+				gfx.destination.set(s.at(0), parser);
+			}));
+
 		keywords_func.emplace("px", make_pair(1, [](Parser& parser, Element& gfx, vector<string_ranges> s)
 			{
 				gfx.size.set(s.at(0), parser);

@@ -204,6 +204,12 @@
     <ClInclude Include="GLUU_checkbox.h">
       <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
     </ClInclude>
+    <ClInclude Include="GLUU_styler.h">
+      <Filter>Header Files\Generic\GLUU</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_elem.h">
+      <Filter>Header Files\Generic\GLUU</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NotConsoleRendererLib.cpp">

@@ -61,6 +61,19 @@ namespace GLUU {
 		~ImportInspector() {}
 	};
 
+	template<typename T>
+	struct ImportStyler
+	{
+		static_assert(std::is_base_of_v<Styler, T>);
+
+		ImportStyler(const string& pack_name)
+		{
+			shared_ptr<StylerInterface> ptr = std::make_shared<T>();
+			parser()->register_styler(ptr, pack_name, ptr->widget_name());
+		}
+		~ImportStyler() {}
+	};
+
 	inline Import import_std(import_standard);
 	inline ImportWidget<TextWidget> import_text;
 	inline ImportWidget<TextboxWidget> import_textbox;
@@ -73,6 +86,7 @@ namespace GLUU {
 			Element& obj = *(Element*)(gen->raw_bytes());
 			if (str == "fit") return obj.fit.get_gen();
 			if (str == "size") return obj.size.get_gen();
+			if (str == "dest") return make_generic_ref(obj.last_dest);
 			return nullptr;
 		});
 }

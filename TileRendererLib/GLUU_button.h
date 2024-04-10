@@ -19,6 +19,9 @@ namespace GLUU {
 		Expression expr;
 		bool lock = false;
 
+		bool is_hover = false;
+		bool is_held = false;
+
 		void update(Element& graphic) override
 		{
 			if (lock)

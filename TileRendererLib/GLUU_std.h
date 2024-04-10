@@ -140,6 +140,12 @@ namespace GLUU {
 		import_function<void(_sgen_)>(":cout", [](_sgen_ a) {std::cout << a->stringify() << std::endl; });
 		import_function<int()>(":ticks", []() { return (int)SDL_GetTicks(); });
 
+		import_function<Rect(int, int, int, int)>(":rect", [](int h, int w, int y, int x) 
+			{
+				return Rect(x,y,h,w); 
+			}
+		);
+
 		import_function<void(string, _sgen_)>("#=", [](string b, shared_generic a) { a->destringify(b); });
 		import_function<void(_sgen_)>("#X", [](_sgen_) {});
 		import_function<string()>("##", []() { return "\n"; });

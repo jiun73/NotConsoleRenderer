@@ -6,8 +6,8 @@
 #include "NotConsoleRenderer.h"
 
 #include "GLUU_expr.h"
-#include "GLUU_seqvar.h"
-#include "GLUU_wint.h"
+#include "GLUU_styler.h"
+#include "GLUU_elem.h"
 
 #include <typeindex>
 #include <queue>
@@ -46,116 +46,6 @@ namespace GLUU {
 		Errors code;
 	};
 
-	struct Element
-	{
-		vector<Element> nested;
-		shared_ptr<VariableRegistry> scope;
-		SeqVar<size_t> size = 10;
-		SeqVar<bool> condition = true;
-		SeqVar<bool> absolute = false;
-		SeqVar<Rect> destination = Rect(0,0);
-		SeqVar<bool> fit = true;
-		Rect_d last_dest;
-
-		bool is_row = false;
-
-		int get_size_max()
-		{
-			int i = 0;
-			for (auto& n : nested)
-			{
-				if (n.condition())
-					i += (int)n.size();
-			}
-
-			return i;
-		}
-
-		double map_size(double sz, double max)
-		{
-			return sz * (size() / max);
-		}
-
-		double get_size(const Rect_d& dest, Element& other, bool vert)
-		{
-			if (!other.condition()) return 0;
-
-			if (fit)
-			{
-				if (!vert)
-					return other.map_size(dest.sz.x, get_size_max());
-				else
-					return other.map_size(dest.sz.y, get_size_max());
-			}
-			else
-			{
-				return (double)other.size();
-			}
-
-		}
-
-		void render(Rect_d dest)
-		{
-			if (!condition()) return;
-
-			if (is_row)
-			{
-				double pencil = dest.pos.x;
-				for (auto& col : nested)
-				{
-					double sz = get_size(dest, col, false);
-
-					Rect_d sub = { {pencil, dest.pos.y},{sz, dest.sz.y} };
-					draw_rect(sub);
-					col.render(sub);
-					pencil += sz;
-				}
-			}
-			else
-			{
-				double pencil = dest.pos.y;
-				for (auto& row : nested)
-				{
-					double sz = get_size(dest, row, true);;
-
-					Rect_d sub = { {dest.pos.x, pencil},{dest.sz.x, sz} };
-					draw_rect(sub);
-					row.render(sub);
-					pencil += sz;
-				}
-			}
-			last_dest = dest;
-		}
-
-		shared_ptr < Widget> widget = nullptr;
-
-		void update()
-		{
-			if (!condition()) return;
-
-			if (widget != nullptr)
-				widget->update(*this);
-
-			for (auto& n : nested)
-			{
-				n.update();
-			}
-		}
-
-		void update_l2() 
-		{
-			if (!condition()) return;
-
-			if (widget != nullptr)
-				widget->update_l2(*this);
-
-			for (auto& n : nested)
-			{
-				n.update_l2();
-			}
-		}
-	};
-
 #include <map>
 	using ::std::map;
 	using ::std::make_pair;
@@ -165,8 +55,15 @@ namespace GLUU {
 	{
 		shared_ptr<VariableRegistry> compiled_scope;
 		vector<Expression> callbacks;
+		vector<Element*> popups;
+		Element* last_focused = nullptr;
 		Element* current_row = nullptr;
 		Element base_row;
+
+		void init() 
+		{
+			base_row.get_popups(popups);
+		}
 
 		void render(Rect_d window) 
 		{ 
@@ -174,10 +71,46 @@ namespace GLUU {
 			{
 				c.evaluate();
 			}
+
+			bool move = false;
+			size_t move_index = 0;
+
+			V2d_i mouse = mouse_position();
+			bool click = mouse_left_pressed() || mouse_right_pressed();
+
+			for (auto& e : popups)
+			{
+				if (e->render_popup(window, mouse, click))
+				{
+					if (last_focused != nullptr)
+					{
+						last_focused->focus = false;
+					}
+
+					last_focused = e;
+					move = true;
+				}//popup are rendered after everything, and in a certain order
+
+				if (!move) move_index++;
+			}
+
+			if (move)
+			{
+				popups.erase(popups.begin() + move_index);
+				popups.insert(popups.begin(), last_focused);
+			}
+
 			base_row.render(window); 
 			base_row.update();
 			base_row.update_l2();
+
+			for (auto& e : popups)
+			{
+				e->update(true);
+				e->update_l2(true);
+			}
 		}
+
 		void update()
 		{
 			//base_row.update();
@@ -195,6 +128,7 @@ namespace GLUU {
 		shared_ptr<VariableRegistry> current_scope;
 		map <string, pair<size_t, function<void(Parser&, Element&, vector<string_ranges>)>>> keywords_func;
 		map <string, shared_ptr<Widget>> widgets;
+		map <string, map<string, shared_ptr<StylerInterface>>> stylers;
 
 		shared_ptr<Compiled> graphics;
 
@@ -222,6 +156,11 @@ namespace GLUU {
 
 		Parser();
 		~Parser() {}
+
+		void register_styler(shared_ptr < StylerInterface> styler, const string& widget_for, const string& pack_name)
+		{
+			stylers[pack_name].emplace(widget_for, styler);
+		}
 
 		template<typename T>
 		void register_inspector(function<shared_generic(shared_generic, const string&)> inspector)
@@ -467,6 +406,7 @@ namespace GLUU {
 
 			graphics->current_row->nested.push_back(row_obj);
 
+
 			get_declaractions(tail);
 		}
 
@@ -593,6 +533,8 @@ namespace GLUU {
 
 			variable_dictionnary()->exit_scope();
 			variable_dictionnary()->exit_scope();
+
+			graphics->init();
 
 			output_errors();
 

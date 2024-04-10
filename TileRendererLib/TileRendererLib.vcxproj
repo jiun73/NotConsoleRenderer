@@ -166,6 +166,7 @@
     <ClInclude Include="GLUU_button.h" />
     <ClInclude Include="GLUU_checkbox.h" />
     <ClInclude Include="GLUU_dropbox.h" />
+    <ClInclude Include="GLUU_elem.h" />
     <ClInclude Include="GLUU_exprParser.h" />
     <ClInclude Include="GLUU_lineParser.h" />
     <ClInclude Include="GLUU_parser.h" />
@@ -177,6 +178,7 @@
     <ClInclude Include="GLUU_expr.h" />
     <ClInclude Include="GLUU_seqvar.h" />
     <ClInclude Include="GLUU_std.h" />
+    <ClInclude Include="GLUU_styler.h" />
     <ClInclude Include="GLUU_text.h" />
     <ClInclude Include="GLUU_textbox.h" />
     <ClInclude Include="GLUU_types.h" />
