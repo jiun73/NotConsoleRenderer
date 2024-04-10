@@ -30,6 +30,8 @@ namespace GLUU {
 		GLUU_ERROR_INVALID_FUNCTION_DECLARATION,
 		GLUU_ERROR_KEYWORD_MISSING_ARGS,
 		GLUU_ERROR_INVALID_KEYWORD,
+		GLUU_ERROR_INVALID_STYLER,
+		GLUU_ERROR_WIDGET_MISSING_ARGS,
 		GLUU_ERROR_INVALID_TYPE,
 		GLUU_ERROR_INVALID_ROW,
 		GLUU_ERROR_INVALID_STRING_TRANSLATION,
@@ -142,8 +144,10 @@ namespace GLUU {
 		size_t row_level = 0;
 
 		unordered_map<type_index, Inspector> inspectors;
+		string current_style;
 
 	public:
+		const string default_style_name = "default";
 		const string row_keyword = "row";
 		const string col_keyword = "col";
 
@@ -283,6 +287,8 @@ namespace GLUU {
 			head = range_trim(head, ' ');
 			vector<string_ranges> keywords = split_and_delim(head, expr_open, expr_close, " ");
 
+			current_style = default_style_name;
+
 			Element row;
 			row.scope = std::make_shared< VariableRegistry>();
 
@@ -290,14 +296,32 @@ namespace GLUU {
 			{
 				string current = range_trim(keywords.at(i), ' ').flat();
 
-				if (current.empty()) { continue; } //error GLUU_ERROR_INVALID_ROW_PARAM
+				if (current.empty()) {continue; } //error GLUU_ERROR_INVALID_ROW_PARAM
 
 				if (widgets.count(current))
 				{
 					size_t p = widgets.at(current)->fetch_keyword().first;
 					vector<string_ranges> args = get_keyword_args(keywords, p, i);
-					if (args.size() != p) return row;
+					if (args.size() != p)
+					{
+						add_error(GLUU_ERROR_WIDGET_MISSING_ARGS, "Not enough arguments fo widget '" + current + "'", keywords.at(i).begin());
+						return row;
+					}
 					row.widget = widgets.at(current)->make(args, *this);
+
+					if (!stylers.count(current_style))
+					{
+						add_error(GLUU_ERROR_INVALID_STYLER, "No Stylers in pack '" + current_style + "'", keywords.at(i).begin());
+					}
+
+					else if (!stylers.at(current_style).count(current))
+					{
+						add_error(GLUU_ERROR_INVALID_STYLER, "No Styler for '" + current+ "' in pack '" + current_style + "'", keywords.at(i).begin());
+					}
+					else
+					{
+						row.widget->styler = stylers.at(current_style).at(current);
+					}
 				}
 				else if (keywords_func.count(current))
 				{

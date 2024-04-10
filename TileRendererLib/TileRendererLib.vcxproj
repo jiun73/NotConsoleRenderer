@@ -168,6 +168,8 @@
     <ClInclude Include="GLUU_dropbox.h" />
     <ClInclude Include="GLUU_elem.h" />
     <ClInclude Include="GLUU_exprParser.h" />
+    <ClInclude Include="GLUU_global.h" />
+    <ClInclude Include="GLUU_import.h" />
     <ClInclude Include="GLUU_lineParser.h" />
     <ClInclude Include="GLUU_parser.h" />
     <ClInclude Include="File.h" />
