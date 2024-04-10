@@ -56,7 +56,7 @@ namespace GLUU {
 
 		}
 
-		void do_render(Rect_d dest)
+		void set_size(Rect_d dest)
 		{
 			double pencil = is_row ? dest.pos.x : dest.pos.y;
 			for (auto& row_col : nested)
@@ -66,12 +66,12 @@ namespace GLUU {
 				Rect_d sub = { is_row ? V2d_d(pencil, dest.pos.y) : V2d_d(dest.pos.x, pencil),
 								is_row ? V2d_d(sz, dest.sz.y) : V2d_d(dest.sz.x, sz) };
 				draw_rect(sub);
-				row_col.render(sub);
+				row_col.set(sub);
 				pencil += sz;
 			}
 		}
 
-		bool render_popup(Rect_d dest, V2d_i mouse, bool& mouse_click)
+		bool set_popup(Rect_d dest, V2d_i mouse, bool& mouse_click)
 		{
 			if (!condition()) return false;
 			if (!popup()) return false;
@@ -84,15 +84,15 @@ namespace GLUU {
 				ret = true;
 			}
 
-			render(destination(), true);
+			set(destination(), true);
 			return ret;
 		}
 
-		void render(Rect_d dest, bool popup_mode = false)
+		void set(Rect_d dest, bool popup_mode = false)
 		{
 			if (!condition()) return;
 			if (popup() && !popup_mode) return;
-			do_render(dest);
+			set_size(dest);
 			last_dest = dest;
 		}
 
@@ -106,6 +106,19 @@ namespace GLUU {
 		}
 
 		shared_ptr < Widget> widget = nullptr;
+
+		void render(bool popup_mode = false)
+		{
+			if (!condition()) return;
+			if (popup() && !popup_mode) return;
+			if (widget != nullptr)
+				widget->render(*this);
+
+			for (auto& n : nested)
+			{
+				n.render();
+			}
+		}
 
 		void update(bool popup_mode = false)
 		{

@@ -49,7 +49,7 @@ namespace GLUU {
 		ImportStyler(const string& pack_name)
 		{
 			shared_ptr<StylerInterface> ptr = std::make_shared<T>();
-			parser()->register_styler(ptr, pack_name, ptr->widget_name());
+			parser()->register_styler(ptr, ptr->widget_name(), pack_name);
 		}
 		~ImportStyler() {}
 	};

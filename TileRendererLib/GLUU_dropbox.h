@@ -105,4 +105,15 @@ namespace GLUU {
 			}
 		}
 	};
+
+	class DropboxWidgetStyler : public Styler<DropboxWidget>
+	{
+		void render(Element& graphic, DropboxWidget& widget)
+		{
+			
+		}
+	};
+
+	inline ImportWidget<ButtonWidget> import_button;
+	inline ImportStyler<DropboxWidgetStyler> import_button_styler("default");
 }

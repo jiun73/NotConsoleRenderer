@@ -82,7 +82,7 @@ namespace GLUU {
 
 			for (auto& e : popups)
 			{
-				if (e->render_popup(window, mouse, click))
+				if (e->set_popup(window, mouse, click))
 				{
 					if (last_focused != nullptr)
 					{
@@ -102,7 +102,8 @@ namespace GLUU {
 				popups.insert(popups.begin(), last_focused);
 			}
 
-			base_row.render(window); 
+			base_row.set(window); 
+
 			base_row.update();
 			base_row.update_l2();
 
@@ -111,6 +112,11 @@ namespace GLUU {
 				e->update(true);
 				e->update_l2(true);
 			}
+
+			base_row.render();
+
+			for (auto& e : popups)
+				e->render(true);
 		}
 
 		void update()
@@ -163,6 +169,8 @@ namespace GLUU {
 
 		void register_styler(shared_ptr < StylerInterface> styler, const string& widget_for, const string& pack_name)
 		{
+			if (!stylers.count(pack_name))
+				stylers.emplace(pack_name, map<string, shared_ptr<StylerInterface>>());
 			stylers[pack_name].emplace(widget_for, styler);
 		}
 
@@ -583,7 +591,7 @@ namespace GLUU {
 
 		void render(Rect_d windowSize)
 		{
-			graphics->base_row.render(windowSize);
+			graphics->base_row.set(windowSize);
 		}
 
 		
