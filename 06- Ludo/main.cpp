@@ -301,7 +301,8 @@ int main()
 		obtenir_de();
 		jouer_son_tour();
 		display_tokens();
-		
+		string txt = entier_en_chaine(mouse_position().x) + ":" + entier_en_chaine(mouse_position().y);
+		draw_simple_text(txt, { 250,50 }, get_font(0));
 		//switch_turns();
 	}
 }

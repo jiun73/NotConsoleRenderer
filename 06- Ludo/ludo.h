@@ -173,15 +173,15 @@ public:
 
 	void display()
 	{
-		if (!outOfHome)
-		{
+		//if (!outOfHome)
+		//{
 			Color col = get_pencil();
 			draw_full_circle(carreaux.at(caseActuelle).pos + xy / 2, rayon);
 			pencil(COLOR_BLACK);
 			draw_circle(carreaux.at(caseActuelle).pos + xy / 2, rayon);
 			pencil(col);
-		}
-		else
+		//}
+		/*else
 		{
 			Color col = get_pencil();
 			draw_full_circle(carreaux.at(caseActuelle - 6).pos + xy / 2, rayon);
@@ -191,7 +191,7 @@ public:
 			//draw_circle(carreaux.at(index_dans_carreaux(at(caseActuelle))).pos + xy / 2, rayon);
 			pencil(col);
 			cout << caseActuelle;
-		}
+		}*/
 		pos = carreaux.at(caseActuelle % 225).pos;
 		//show_number();
 	}
