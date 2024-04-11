@@ -23,18 +23,6 @@ void draw_lines()
 	}
 }
 
-void init_players(player& rouge, player& bleu, player& jaune, player& vert)
-{
-	rouge.couleur = rgb(255, 0, 0);
-	bleu.couleur = rgb(0, 0, 255);
-	jaune.couleur = rgb(255, 255, 0);
-	vert.couleur = rgb(0, 255, 0);
-	rouge.name = "rouge";
-	bleu.name = "bleu";
-	jaune.name = "jaune";
-	vert.name = "vert";
-}
-
 void light_random_cases()
 {
 	pencil(rouge->couleur);
@@ -109,7 +97,6 @@ void draw_white_spots(int num)
 
 void draw_board()
 {
-	int ex = 0;
 	for (int i = 0; i < carreaux.size(); i++)
 	{
 		if (trouver_colonne(i) < 6 && trouver_rangee(i) < 6)
@@ -166,7 +153,10 @@ void switch_turns()
 {
 	actual().pionJoue = false;
 	jeu.de_obtenu = false;
-	jeu.noDeTour = 1;
+	//jeu.noDeTour = 1;
+	/*next().is_playing = true;
+	actual().is_playing = false;*/
+	
 	if (rouge->is_playing)
 	{
 		rouge->is_playing = false;
@@ -243,7 +233,8 @@ void bouger_un_pion()
 
 void jouer_son_tour()
 {
-	draw_simple_text(actual().name, { 700,10 }, get_font(0));
+	string txt = "Joueur actuel: " + actual().name;
+	draw_simple_text(txt, { 600,10 }, get_font(0));
 	if (jeu.de_obtenu && !actual().pionJoue)
 	{
 		if (des == 6)
@@ -266,7 +257,15 @@ void jouer_son_tour()
 
 void obtenir_de()
 {
-	string txt = "Valeur du cube : " + entier_en_chaine(des);
+	string txt;
+	if (des == 6)
+	{
+		txt = "Valeur du cube : " + actual().name + " : " + entier_en_chaine(des);
+	}
+	else
+	{
+		txt = "Valeur du cube : " + previous().name + " : " + entier_en_chaine(des);
+	}
 	draw_text(txt, 9999999, { 200, 10 }, get_font(0));
 	if (!jeu.de_obtenu)
 	{

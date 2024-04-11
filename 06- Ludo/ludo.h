@@ -339,6 +339,46 @@ player& actual()
 	}
 }
 
+player& previous()
+{
+	if (rouge->is_playing)
+	{
+		return *jaune;
+	}
+	if (bleu->is_playing)
+	{
+		return *rouge;
+	}
+	if (vert->is_playing)
+	{
+		return *bleu;
+	}
+	if (jaune->is_playing)
+	{
+		return *vert;
+	}
+}
+
+player& next()
+{
+	if (rouge->is_playing)
+	{
+		return *bleu;
+	}
+	if (bleu->is_playing)
+	{
+		return *vert;
+	}
+	if (vert->is_playing)
+	{
+		return *jaune;
+	}
+	if (jaune->is_playing)
+	{
+		return *rouge;
+	}
+}
+
 struct environment
 {
 	bool de_obtenu = false;
