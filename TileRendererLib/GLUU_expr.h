@@ -2,7 +2,7 @@
 #include "GLUU_types.h"
 #include "CommandDictionnary.h"
 
-#define GLUU_Make(_args, _name) pair<size_t, string> fetch_keyword() override {return { _args, _name };} shared_ptr<::GLUU::Widget> make(vector<string_ranges>& args, ::GLUU::Parser& parser) override
+#define GLUU_Make(_args, _name) public: static string keyword() { return _name; } std::type_index type() override { return typeid(decltype(*this)); } private: pair<size_t, string> fetch_keyword() override {return { _args, keyword() };} shared_ptr<::GLUU::Widget> make(vector<string_ranges>& args, ::GLUU::Parser& parser) override
 
 #include <typeindex>
 

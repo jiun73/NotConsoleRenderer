@@ -6,6 +6,29 @@
 
 #include "SDL_image.h"
 
+class ButtonWidgetStyler_Minecraft : public GLUU::Styler<GLUU::ButtonWidget>
+{
+	void render(GLUU::Element& graphic, GLUU::ButtonWidget& widget)
+	{
+		if (widget.is_hover)
+		{
+			if (widget.is_held)
+				pencil(COLOR_PINK);
+			else
+				draw_image_from_source("widgets.png", Rect(0, 66 + 20, 200, 20), graphic.last_dest);
+		}
+		else
+		{
+			draw_image_from_source("widgets.png", Rect(0, 66, 200, 20), graphic.last_dest);
+		}
+
+		
+		draw_text(widget.text(), (int)graphic.last_dest.sz.x, (V2d_i)(graphic.last_dest.pos), get_font(0));
+	}
+};
+
+inline GLUU::ImportStyler<ButtonWidgetStyler_Minecraft> import_button_styler("minecraft");
+
 int main()
 {
 	set_window_size({ (int)(1920 * 0.75),(int)(1080 * 0.75) });

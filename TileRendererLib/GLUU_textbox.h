@@ -19,7 +19,7 @@ namespace GLUU {
 			return ptr;
 		}
 
-		void update(Element& graphic) override
+		void update(Element& graphic, MouseInfo& mouse) override
 		{
 			if (point_in_rectangle(mouse_position(), graphic.last_dest))
 			{

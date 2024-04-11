@@ -6,8 +6,8 @@
 #include "NotConsoleRenderer.h"
 
 #include "GLUU_expr.h"
-#include "GLUU_seqvar.h"
-#include "GLUU_wint.h"
+#include "GLUU_styler.h"
+#include "GLUU_elem.h"
 
 #include <typeindex>
 #include <queue>
@@ -30,6 +30,8 @@ namespace GLUU {
 		GLUU_ERROR_INVALID_FUNCTION_DECLARATION,
 		GLUU_ERROR_KEYWORD_MISSING_ARGS,
 		GLUU_ERROR_INVALID_KEYWORD,
+		GLUU_ERROR_INVALID_STYLER,
+		GLUU_ERROR_WIDGET_MISSING_ARGS,
 		GLUU_ERROR_INVALID_TYPE,
 		GLUU_ERROR_INVALID_ROW,
 		GLUU_ERROR_INVALID_STRING_TRANSLATION,
@@ -46,116 +48,6 @@ namespace GLUU {
 		Errors code;
 	};
 
-	struct Element
-	{
-		vector<Element> nested;
-		shared_ptr<VariableRegistry> scope;
-		SeqVar<size_t> size = 10;
-		SeqVar<bool> condition = true;
-		SeqVar<bool> absolute = false;
-		SeqVar<Rect> destination = Rect(0,0);
-		SeqVar<bool> fit = true;
-		Rect_d last_dest;
-
-		bool is_row = false;
-
-		int get_size_max()
-		{
-			int i = 0;
-			for (auto& n : nested)
-			{
-				if (n.condition())
-					i += (int)n.size();
-			}
-
-			return i;
-		}
-
-		double map_size(double sz, double max)
-		{
-			return sz * (size() / max);
-		}
-
-		double get_size(const Rect_d& dest, Element& other, bool vert)
-		{
-			if (!other.condition()) return 0;
-
-			if (fit)
-			{
-				if (!vert)
-					return other.map_size(dest.sz.x, get_size_max());
-				else
-					return other.map_size(dest.sz.y, get_size_max());
-			}
-			else
-			{
-				return (double)other.size();
-			}
-
-		}
-
-		void render(Rect_d dest)
-		{
-			if (!condition()) return;
-
-			if (is_row)
-			{
-				double pencil = dest.pos.x;
-				for (auto& col : nested)
-				{
-					double sz = get_size(dest, col, false);
-
-					Rect_d sub = { {pencil, dest.pos.y},{sz, dest.sz.y} };
-					draw_rect(sub);
-					col.render(sub);
-					pencil += sz;
-				}
-			}
-			else
-			{
-				double pencil = dest.pos.y;
-				for (auto& row : nested)
-				{
-					double sz = get_size(dest, row, true);;
-
-					Rect_d sub = { {dest.pos.x, pencil},{dest.sz.x, sz} };
-					draw_rect(sub);
-					row.render(sub);
-					pencil += sz;
-				}
-			}
-			last_dest = dest;
-		}
-
-		shared_ptr < Widget> widget = nullptr;
-
-		void update()
-		{
-			if (!condition()) return;
-
-			if (widget != nullptr)
-				widget->update(*this);
-
-			for (auto& n : nested)
-			{
-				n.update();
-			}
-		}
-
-		void update_l2() 
-		{
-			if (!condition()) return;
-
-			if (widget != nullptr)
-				widget->update_l2(*this);
-
-			for (auto& n : nested)
-			{
-				n.update_l2();
-			}
-		}
-	};
-
 #include <map>
 	using ::std::map;
 	using ::std::make_pair;
@@ -165,8 +57,15 @@ namespace GLUU {
 	{
 		shared_ptr<VariableRegistry> compiled_scope;
 		vector<Expression> callbacks;
+		vector<Element*> popups;
+		Element* last_focused = nullptr;
 		Element* current_row = nullptr;
 		Element base_row;
+
+		void init() 
+		{
+			base_row.get_popups(popups);
+		}
 
 		void render(Rect_d window) 
 		{ 
@@ -174,10 +73,58 @@ namespace GLUU {
 			{
 				c.evaluate();
 			}
-			base_row.render(window); 
-			base_row.update();
+
+			bool move = false;
+			size_t move_index = 0;
+
+			V2d_i mouse_pos = mouse_position();
+			bool click = mouse_left_pressed() || mouse_right_pressed();
+
+			for (auto& e : popups)
+			{
+				if (e->set_popup(window, mouse_pos, click))
+				{
+					if (last_focused != nullptr)
+					{
+						last_focused->focus = false;
+					}
+
+					last_focused = e;
+					move = true;
+				}//popup are rendered after everything, and in a certain order
+
+				if (!move) move_index++;
+			}
+
+			if (move)
+			{
+				popups.erase(popups.begin() + move_index);
+				popups.insert(popups.begin(), last_focused);
+			}
+
+			base_row.set(window); 
+
+			MouseInfo mouse;
+			mouse.pos = mouse_pos;
+			mouse.click = click;
+
+			for (auto& e : popups)
+			{
+				e->update(mouse, true);
+				e->update_l2(true);
+			}
+
+			base_row.update(mouse);
 			base_row.update_l2();
+
+			
+
+			base_row.render();
+
+			for (auto& e : popups)
+				e->render(true);
 		}
+
 		void update()
 		{
 			//base_row.update();
@@ -195,6 +142,7 @@ namespace GLUU {
 		shared_ptr<VariableRegistry> current_scope;
 		map <string, pair<size_t, function<void(Parser&, Element&, vector<string_ranges>)>>> keywords_func;
 		map <string, shared_ptr<Widget>> widgets;
+		map <string, map<string, shared_ptr<StylerInterface>>> stylers;
 
 		shared_ptr<Compiled> graphics;
 
@@ -210,6 +158,7 @@ namespace GLUU {
 		unordered_map<type_index, Inspector> inspectors;
 
 	public:
+		string default_style_name = "default";
 		const string row_keyword = "row";
 		const string col_keyword = "col";
 
@@ -222,6 +171,13 @@ namespace GLUU {
 
 		Parser();
 		~Parser() {}
+
+		void register_styler(shared_ptr < StylerInterface> styler, const string& widget_for, const string& pack_name)
+		{
+			if (!stylers.count(pack_name))
+				stylers.emplace(pack_name, map<string, shared_ptr<StylerInterface>>());
+			stylers[pack_name].emplace(widget_for, styler);
+		}
 
 		template<typename T>
 		void register_inspector(function<shared_generic(shared_generic, const string&)> inspector)
@@ -351,14 +307,31 @@ namespace GLUU {
 			{
 				string current = range_trim(keywords.at(i), ' ').flat();
 
-				if (current.empty()) { continue; } //error GLUU_ERROR_INVALID_ROW_PARAM
+				if (current.empty()) {continue; } //error GLUU_ERROR_INVALID_ROW_PARAM
 
 				if (widgets.count(current))
 				{
 					size_t p = widgets.at(current)->fetch_keyword().first;
 					vector<string_ranges> args = get_keyword_args(keywords, p, i);
-					if (args.size() != p) return row;
+					if (args.size() != p)
+					{
+						add_error(GLUU_ERROR_WIDGET_MISSING_ARGS, "Not enough arguments fo widget '" + current + "'", keywords.at(i).begin());
+						return row;
+					}
 					row.widget = widgets.at(current)->make(args, *this);
+
+					if (!stylers.count(default_style_name))
+					{
+						add_error(GLUU_ERROR_INVALID_STYLER, "No Stylers in pack '" + default_style_name + "'", keywords.at(i).begin());
+					}
+					else if (!stylers.at(default_style_name).count(current))
+					{
+						add_error(GLUU_ERROR_INVALID_STYLER, "No Styler for '" + current + "' in pack '" + default_style_name + "'", keywords.at(i).begin());
+					}
+					else
+					{
+						row.widget->styler = stylers.at(default_style_name).at(current);
+					}
 				}
 				else if (keywords_func.count(current))
 				{
@@ -466,6 +439,7 @@ namespace GLUU {
 			current_scope = old_scope;
 
 			graphics->current_row->nested.push_back(row_obj);
+
 
 			get_declaractions(tail);
 		}
@@ -588,11 +562,14 @@ namespace GLUU {
 			change_whitespace_to_space(str);
 
 			source_begin = str.begin();
-			
+			default_style_name = "default";
+
 			parse_range(str, row_keyword, true);
 
 			variable_dictionnary()->exit_scope();
 			variable_dictionnary()->exit_scope();
+
+			graphics->init();
 
 			output_errors();
 
@@ -617,7 +594,7 @@ namespace GLUU {
 
 		void render(Rect_d windowSize)
 		{
-			graphics->base_row.render(windowSize);
+			graphics->base_row.set(windowSize);
 		}
 
 		

@@ -29,7 +29,7 @@ namespace GLUU {
 		SeqVar<vector<string>> list;
 		SeqVar<int> index;
 
-		void update(Element& graphic) override
+		void update(Element& graphic, MouseInfo& mouse) override
 		{
 			if (index() >= 0 && index() < list().size() && !list().empty())
 				text = list().at(index());
@@ -105,4 +105,15 @@ namespace GLUU {
 			}
 		}
 	};
+
+	class DropboxWidgetStyler : public Styler<DropboxWidget>
+	{
+		void render(Element& graphic, DropboxWidget& widget)
+		{
+			
+		}
+	};
+
+	inline ImportWidget<DropboxWidget> import_dropbox;
+	inline ImportStyler<DropboxWidgetStyler> import_dropbox_styler("default");
 }

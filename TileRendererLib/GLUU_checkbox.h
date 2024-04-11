@@ -3,7 +3,7 @@
 #include "QuickButton.h"
 
 namespace GLUU {
-	class CheckboxWidget : public Widget
+	struct CheckboxWidget : public Widget
 	{
 		QuickButton but;
 		V2d_i text_pos;
@@ -23,7 +23,8 @@ namespace GLUU {
 			return ptr;
 		}
 
-		void update(Element& graphic) override
+	public:
+		void update(Element& graphic, MouseInfo& mouse) override
 		{
 			
 			Rect dest = graphic.last_dest;
@@ -47,18 +48,22 @@ namespace GLUU {
 			{
 				checked = !checked;
 			}
-
-			pencil(COLOR_BLACK);
-
-			std::cout << but.box << std::endl;
-
-			draw_full_rect(but.box);
-			Rect box2 = { but.box.pos + 1, but.box.sz - 2 };
-			pencil(checked ? COLOR_GREEN : COLOR_BLACK);
-			draw_full_rect(box2);
-			draw_text(text, text_size.x, text_pos, get_font(0));
 		}
-
-		
 	};
+
+	class CheckboxWidgetStyler : public Styler<CheckboxWidget>
+	{
+		void render(Element& graphic, CheckboxWidget& widget)
+		{
+			pencil(COLOR_BLACK);
+			draw_full_rect(widget.but.box);
+			Rect box2 = { widget.but.box.pos + 1, widget.but.box.sz - 2 };
+			pencil(widget.checked ? COLOR_GREEN : COLOR_BLACK);
+			draw_full_rect(box2);
+			draw_text(widget.text, widget.text_size.x, widget.text_pos, get_font(0));
+		}
+	};
+
+	inline ImportWidget<CheckboxWidget> import_checkbox;
+	inline ImportStyler<CheckboxWidgetStyler> import_checkbox_styler("default");
 }

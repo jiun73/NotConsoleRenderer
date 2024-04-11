@@ -3,6 +3,8 @@ new init setup = {
 	BASE .fit = true;
 }
 
+new style minecraft
+
 row button CollisionX			{ $collisionx_main }
 row button TicTacToe			{ $tictactoe_main }
 row button { "Connect 4" }		{ $connect4_main } 

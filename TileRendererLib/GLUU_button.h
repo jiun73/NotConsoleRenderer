@@ -1,8 +1,8 @@
 #pragma once
-#include "GLUU_parser.h"
+#include "GLUU_import.h"
 
 namespace GLUU {
-	class ButtonWidget : public Widget
+	struct ButtonWidget : public Widget
 	{
 		GLUU_Make(2, "button")
 		{
@@ -15,11 +15,16 @@ namespace GLUU {
 			return ptr;
 		}
 
+	public:
+
 		SeqVar<string> text;
 		Expression expr;
 		bool lock = false;
 
-		void update(Element& graphic) override
+		bool is_hover = false;
+		bool is_held = false;
+
+		void update(Element& graphic, MouseInfo& mouse) override
 		{
 			if (lock)
 			{
@@ -28,12 +33,12 @@ namespace GLUU {
 				return;
 			}
 
-			if (point_in_rectangle(mouse_position(), graphic.last_dest))
+			
+			is_hover = mouse.is_over(graphic.last_dest);
+
+			if (is_hover)
 			{
-				if (mouse_left_held())
-					pencil(COLOR_PINK);
-				else
-					pencil(COLOR_GREEN);
+				is_held = mouse_left_held();
 				if (mouse_left_released())
 				{
 					expr.evaluate();
@@ -41,11 +46,36 @@ namespace GLUU {
 				}
 			}
 			else
+			{
+				is_held = false;
 				pencil(COLOR_BLACK);
+			}
+			
+			mouse.mask(graphic.last_dest);
+		}
+	};
+
+	class ButtonWidgetStyler : public Styler<ButtonWidget>
+	{
+		void render(Element& graphic, ButtonWidget& widget)
+		{
+			if (widget.is_hover)
+			{
+				if (widget.is_held)
+					pencil(COLOR_PINK);
+				else
+					pencil(COLOR_GREEN);
+			}
+			else
+				pencil(COLOR_BLACK);
+
 			draw_full_rect(graphic.last_dest);
 			pencil(rgb(100, 100, 100));
 			draw_rect(graphic.last_dest);
-			draw_text(text(), (int)graphic.last_dest.sz.x, (V2d_i)graphic.last_dest.pos, get_font(0));
+			draw_text(widget.text(), (int)graphic.last_dest.sz.x, (V2d_i)(graphic.last_dest.pos), get_font(0));
 		}
 	};
+
+	inline ImportWidget<ButtonWidget> import_button;
+	inline ImportStyler<ButtonWidgetStyler> import_button_styler("default");
 }

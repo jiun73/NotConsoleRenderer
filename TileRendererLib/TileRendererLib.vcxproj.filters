@@ -43,6 +43,9 @@
     <Filter Include="Header Files\Classes\ECSX">
       <UniqueIdentifier>{c4e45bb1-1d80-4fd8-9a21-c2918fb62d1f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Generic\GLUU\GLUU_include">
+      <UniqueIdentifier>{9e0a8b7d-4608-4916-a725-10fa2d741036}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -135,9 +138,6 @@
     <ClInclude Include="GLUU_widgets.h">
       <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
     </ClInclude>
-    <ClInclude Include="GLUU.h">
-      <Filter>Header Files\Generic\GLUU</Filter>
-    </ClInclude>
     <ClInclude Include="GLUU_text.h">
       <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
     </ClInclude>
@@ -204,8 +204,20 @@
     <ClInclude Include="GLUU_checkbox.h">
       <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
     </ClInclude>
-    <ClInclude Include="GLUU_slider.h">
-      <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
+    <ClInclude Include="GLUU_styler.h">
+      <Filter>Header Files\Generic\GLUU</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_elem.h">
+      <Filter>Header Files\Generic\GLUU</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU.h">
+      <Filter>Header Files\Generic\GLUU\GLUU_include</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_import.h">
+      <Filter>Header Files\Generic\GLUU\GLUU_include</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_global.h">
+      <Filter>Header Files\Generic\GLUU\GLUU_include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

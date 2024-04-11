@@ -45,15 +45,6 @@
     <ClCompile Include="main_chatroom.cpp">
       <Filter>Fichiers sources\Chatroom</Filter>
     </ClCompile>
-    <ClCompile Include="..\01- CollisionX\collisionx_main.cpp">
-      <Filter>Fichiers sources\CollisionX</Filter>
-    </ClCompile>
-    <ClCompile Include="..\02- TicTacToe\tictactoe_main.cpp">
-      <Filter>Fichiers sources\TicTacToe</Filter>
-    </ClCompile>
-    <ClCompile Include="..\03- Connect4\connect4_main.cpp">
-      <Filter>Fichiers sources\Connect4</Filter>
-    </ClCompile>
     <ClCompile Include="bouncex_main.cpp">
       <Filter>Fichiers sources\BounceX</Filter>
     </ClCompile>
@@ -75,19 +66,19 @@
     <ClCompile Include="Shape.cpp">
       <Filter>Fichiers sources\Pong</Filter>
     </ClCompile>
+    <ClCompile Include="collisionx_main.cpp">
+      <Filter>Fichiers sources\CollisionX</Filter>
+    </ClCompile>
+    <ClCompile Include="connect4_main.cpp">
+      <Filter>Fichiers sources\Connect4</Filter>
+    </ClCompile>
+    <ClCompile Include="tictactoe_main.cpp">
+      <Filter>Fichiers sources\TicTacToe</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main_chatroom.h">
       <Filter>Fichiers sources\Chatroom</Filter>
-    </ClInclude>
-    <ClInclude Include="..\01- CollisionX\collisionx_balls.h">
-      <Filter>Fichiers sources\CollisionX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\02- TicTacToe\tictactoe_game.h">
-      <Filter>Fichiers sources\TicTacToe</Filter>
-    </ClInclude>
-    <ClInclude Include="..\03- Connect4\connect4_game.h">
-      <Filter>Fichiers sources\Connect4</Filter>
     </ClInclude>
     <ClInclude Include="..\03- Connect4\Strings.h">
       <Filter>Fichiers sources</Filter>
@@ -118,6 +109,15 @@
     </ClInclude>
     <ClInclude Include="EditorPlane.h">
       <Filter>Fichiers sources\AnimationMaker</Filter>
+    </ClInclude>
+    <ClInclude Include="collisionx_balls.h">
+      <Filter>Fichiers sources\CollisionX</Filter>
+    </ClInclude>
+    <ClInclude Include="connect4_game.h">
+      <Filter>Fichiers sources\Connect4</Filter>
+    </ClInclude>
+    <ClInclude Include="tictactoe_game.h">
+      <Filter>Fichiers sources\TicTacToe</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
