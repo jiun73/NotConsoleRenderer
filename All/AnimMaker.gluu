@@ -102,7 +102,7 @@ row if { state == 1 } popup { :rect 20 20 100 100 } <
 row < col fixed <
 
 row px 30 <
-	col px 120 button { "Load images" } { :load_images } <>
+	col px 120 button { "Load images" } { :load_images } style minecraft <>
 	col px 900 dropbox {paths} {current_image} <>
 	col px 100 button Export 
 	{ 

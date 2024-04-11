@@ -64,6 +64,6 @@ namespace GLUU {
 		}
 	};
 
-	inline ImportWidget<ButtonWidget> import_button;
-	inline ImportStyler<CheckboxWidgetStyler> import_button_styler("default");
+	inline ImportWidget<CheckboxWidget> import_checkbox;
+	inline ImportStyler<CheckboxWidgetStyler> import_checkbox_styler("default");
 }

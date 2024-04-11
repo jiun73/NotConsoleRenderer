@@ -114,6 +114,6 @@ namespace GLUU {
 		}
 	};
 
-	inline ImportWidget<ButtonWidget> import_button;
-	inline ImportStyler<DropboxWidgetStyler> import_button_styler("default");
+	inline ImportWidget<DropboxWidget> import_dropbox;
+	inline ImportStyler<DropboxWidgetStyler> import_dropbox_styler("default");
 }

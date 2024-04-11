@@ -33,7 +33,8 @@ namespace GLUU {
 				return;
 			}
 
-			is_hover = point_in_rectangle(mouse_position(), graphic.last_dest);
+			
+			is_hover = mouse.is_over(graphic.last_dest);
 
 			if (is_hover)
 			{
@@ -50,6 +51,7 @@ namespace GLUU {
 				pencil(COLOR_BLACK);
 			}
 			
+			mouse.mask(graphic.last_dest);
 		}
 	};
 

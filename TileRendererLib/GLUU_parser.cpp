@@ -10,7 +10,30 @@ namespace GLUU
 
 		keywords_func.emplace("style", make_pair(1, [](Parser& parser, Element& gfx, vector<string_ranges> s)
 			{
-				parser.current_style = s.at(1).flat();
+				string style_name = s.at(0).flat();
+
+				if (!parser.stylers.count(style_name))
+				{
+					parser.add_error(GLUU_ERROR_INVALID_STYLER, "No Stylers in pack '" + style_name + "'", s.at(0).begin());
+				}
+
+				auto w = gfx.widget;
+				if (w == nullptr) 
+				{
+					parser.add_error(GLUU_ERROR_INVALID_STYLER, "Cannot apply styler '" + style_name + "' before assigning a widget to the row", s.at(0).begin());
+					return;
+				}
+
+				string widget_name = w->fetch_keyword().second;
+
+				if (!parser.stylers.at(style_name).count(widget_name))
+				{
+					parser.add_error(GLUU_ERROR_INVALID_STYLER, "No Styler for '" + widget_name + "' in pack '" + style_name + "'", s.at(0).begin());
+				}
+				else
+				{
+					gfx.widget->styler = parser.stylers.at(style_name).at(widget_name);
+				}
 			}));
 
 		keywords_func.emplace("popup", make_pair(1, [](Parser& parser, Element& gfx, vector<string_ranges> s)
@@ -87,8 +110,12 @@ namespace GLUU
 
 		if (keywords.size() < 1) { add_error(GLUU_ERROR_INVALID_DECLARATION, "'new' found with no declaration after", dec.begin()); return; } //error GLUU_ERROR_INVALID_DECLARATION
 		if (keywords.size() < 1) { add_error(GLUU_ERROR_INVALID_DECLARATION, "'new' with no name for declaration", dec.begin()); return; } //error GLUU_ERROR_INVALID_DECLARATION
-
-		if (keywords.at(0).flat() == "function" || keywords.at(0).flat() == "init" || keywords.at(0).flat() == "callback")
+		if (keywords.at(0).flat() == "style")
+		{
+			if (keywords.size() < 2) { add_error(GLUU_ERROR_INVALID_FUNCTION_DECLARATION, "Invalid style declaraction (new style [style_pack])", dec.begin()); return; }
+			default_style_name = keywords.at(1).flat();
+		}
+		else if (keywords.at(0).flat() == "function" || keywords.at(0).flat() == "init" || keywords.at(0).flat() == "callback")
 		{
 			if (keywords.size() < 4) { add_error(GLUU_ERROR_INVALID_FUNCTION_DECLARATION, "Invalid function declaraction (new function = [expr])", dec.begin()); return; } //error GLUU_ERROR_INVALID_FUNCTION_DECLARATION
 

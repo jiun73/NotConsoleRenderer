@@ -67,7 +67,7 @@ class Custom_FrameCreatorWidget : public GLUU::Widget
 		return ptr;
 	}
 
-	void update(GLUU::Element& graphic) override
+	void update(GLUU::Element& graphic, GLUU::MouseInfo& mouse) override
 	{
 		plane.dest = graphic.last_dest;
 		plane.draw_checkered_background();
@@ -118,7 +118,7 @@ class Custom_AnimationPrewiewWidget : public GLUU::Widget
 		return ptr;
 	}
 
-	void update(GLUU::Element& graphic) override
+	void update(GLUU::Element& graphic, GLUU::MouseInfo& mouse) override
 	{
 		double maxscalex = graphic.last_dest.sz.x / (double)animation().max_animation_size().x;
 		double maxscaley = graphic.last_dest.sz.y / (double)animation().max_animation_size().y;
