@@ -146,6 +146,12 @@ namespace GLUU {
 			}
 		);
 
+		import_function<V2d_i(int, int)>(":vec", [](int y, int x)
+			{
+				return V2d_i(x, y);
+			}
+		);
+
 		import_function<void(string, _sgen_)>("#=", [](string b, shared_generic a) { a->destringify(b); });
 		import_function<void(_sgen_)>("#X", [](_sgen_) {});
 		import_function<string()>("##", []() { return "\n"; });

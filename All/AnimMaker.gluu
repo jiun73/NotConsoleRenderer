@@ -220,6 +220,41 @@ row px 800 <
 				} <>
 			>
 
+			new int anchor_i = 0
+
+			row px 30 if { :not state }
+			<
+				col px 5 textbox { "New anchor" }
+				{
+					arg* string text; 
+					pair(string-V2d_i) pair;
+					pair .first = @ text;
+					pair .second = :vec 0 0;
+
+					:curframe .anchors -push pair;
+					@ text = "";
+				}
+			>
+
+			row px 30 if { :not state :and { :curframe .anchors -size /+ 0 } }
+			<
+				col px 5 button Prev 
+				{
+					$if { anchor_i /+ { 0 - 1 } } 
+					{ anchor_i -- }
+				} <>
+				col px 5 button Next 
+				{
+					$if { anchor_i /-  { { :curframe .anchors -size } - 1} } 
+					{ anchor_i ++ }
+				} <>
+				col px 15 if { anchor_i /+ { 0 - 1 } } text 
+				{ 
+					{ " " { :curframe .anchors -at anchor_i } .second };
+				} <>
+				col px 15 if { anchor_i == { 0 - 1 } } text { "All "} <>
+			>
+
 			row px 30 if { :not state } button { "More... " } { state = :true; } <>
 			row px 30 if { state } button { "Close" } { state = :false; } <>
 			row px 30 if { state } button { "Copy settings to all frames" } 

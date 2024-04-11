@@ -185,7 +185,7 @@ namespace GLUU {
 			Inspector inspect;
 			inspect.inspect = inspector;
 			inspect.type_factory = make_generic<T>();
-			inspectors.emplace(typeid(T), inspect);
+			inspectors.emplace(typeid(typename remove_param_const<T>::type), inspect);
 		}
 
 		void next_level()

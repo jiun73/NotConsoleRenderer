@@ -24,7 +24,7 @@ GLUU::ImportInspector<AnimationFrameX> animf_inpector([](shared_generic gen, con
 		AnimationFrameX& obj = *(AnimationFrameX*)(gen->raw_bytes());
 		if (str == "time") return make_generic_ref(obj.time);
 		if (str == "tex") return make_generic_ref(obj.tex);
-		if (str == "anchors") return make_generic_ref(obj.anchors);
+		if (str == "anchors") return make_generic_container_ref(obj.anchors);
 		//if (str == "colliders") return make_generic_ref(obj.colliders);
 		if (str == "full_source") return make_generic_ref(obj.full_source);
 		if (str == "origin") return make_generic_ref(obj.origin);
@@ -32,8 +32,17 @@ GLUU::ImportInspector<AnimationFrameX> animf_inpector([](shared_generic gen, con
 		return nullptr;
 	});
 
+const FactoryManagerAdder<std::pair< string, V2d_i>>* vectosr_animf__adder = new FactoryManagerAdder<std::pair< string, V2d_i>>("pair(string-V2d_i)", true);
+GLUU::ImportInspector<std::pair< string, V2d_i>> animf2_inpector([](shared_generic gen, const string& str) -> shared_generic
+	{
+		std::pair< string, V2d_i>& obj = *(std::pair< string, V2d_i>*)(gen->raw_bytes());
+		if (str == "first") return make_generic_ref(obj.first);
+		if (str == "second") return make_generic_ref(obj.second);
+		return nullptr;
+	});
+
 __REGISTER_CLASS__(V2d_i);
-GLUU::ImportInspector<V2d_i> animf2_inpector([](shared_generic gen, const string& str) -> shared_generic
+GLUU::ImportInspector<V2d_i> animf22_inpector([](shared_generic gen, const string& str) -> shared_generic
 	{
 		V2d_i& obj = *(V2d_i*)(gen->raw_bytes());
 		if (str == "x") return make_generic_ref(obj.x);
