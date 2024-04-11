@@ -203,8 +203,6 @@ row px 800 <
 	<
 		row fixed ANIMATION_PREVIEW { :curanim } <>
 		row < col fixed < 
-			
-
 			row px 30 if { :not state } text { "Size: " { :get_tex_sz { :curanim .textures -at (size_t-int) { :curframe .tex} } } } <>
 
 			row px 30 if { :not state } textbox { "Origin: " :curframe .origin } { 

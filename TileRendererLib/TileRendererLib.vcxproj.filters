@@ -46,6 +46,42 @@
     <Filter Include="Header Files\Generic\GLUU\GLUU_include">
       <UniqueIdentifier>{9e0a8b7d-4608-4916-a725-10fa2d741036}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ECSX">
+      <UniqueIdentifier>{21e84352-a50a-4abe-b4b6-074a59a7cbb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Debug">
+      <UniqueIdentifier>{d6cc6856-4f11-4be5-bf71-2fc4d0bfaf9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generic">
+      <UniqueIdentifier>{5b36155a-6d6e-4410-a4b8-5230e01fb5b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GLUU">
+      <UniqueIdentifier>{c623d6ee-d582-488b-8a40-49535d5cef2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GLUU\Widgets">
+      <UniqueIdentifier>{d80d488c-7b94-438c-ae0a-9a56b9546717}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GLUU\Defines">
+      <UniqueIdentifier>{441cfe69-5f2b-4bd2-8b20-44bf96e03623}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GLUU\Parsers">
+      <UniqueIdentifier>{a30f35dd-d94f-4dd3-beb0-4486ad89f54f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{14714b2c-e054-4b05-95f1-578ecef91a4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="I/O">
+      <UniqueIdentifier>{928f4b1b-908c-43d8-9d1d-cf1d72f34e91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data">
+      <UniqueIdentifier>{c22d050c-bbe0-41ce-aba2-0c5d9ec90513}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="I/O\Files">
+      <UniqueIdentifier>{e131510b-a095-4057-8904-5ddbd48aab5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility\Strings">
+      <UniqueIdentifier>{3f4627bd-8c4d-44c4-9144-189ae1b8384a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -54,170 +90,173 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Color.h">
-      <Filter>Header Files\Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Rect.h">
-      <Filter>Header Files\Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Vec2D.h">
-      <Filter>Header Files\Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Sound.h">
-      <Filter>Header Files\Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Random.h">
-      <Filter>Header Files\Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Singleton.h">
-      <Filter>Header Files\Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Vec3D.h">
-      <Filter>Header Files\Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Fonts.h">
-      <Filter>Header Files\Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ClassFactory.h">
-      <Filter>Header Files\Generic</Filter>
-    </ClInclude>
-    <ClInclude Include="ThreadPool.h">
-      <Filter>Header Files\Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="CommandPrompt.h">
-      <Filter>Header Files\Debugging</Filter>
-    </ClInclude>
-    <ClInclude Include="Generics.h">
-      <Filter>Header Files\Generic</Filter>
-    </ClInclude>
-    <ClInclude Include="FunctionGenerics.h">
-      <Filter>Header Files\Generic</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjectGenerics.h">
-      <Filter>Header Files\Generic</Filter>
-    </ClInclude>
-    <ClInclude Include="ContainerGenerics.h">
-      <Filter>Header Files\Generic</Filter>
-    </ClInclude>
-    <ClInclude Include="CommandDictionnary.h">
-      <Filter>Header Files\Debugging</Filter>
-    </ClInclude>
-    <ClInclude Include="ConsoleRenderer.h">
-      <Filter>Header Files\Debugging\ConsoleRenderer</Filter>
-    </ClInclude>
-    <ClInclude Include="GLUU_parser.h">
-      <Filter>Header Files\Generic\GLUU</Filter>
-    </ClInclude>
-    <ClInclude Include="StringManip.h">
-      <Filter>Header Files\Strings</Filter>
-    </ClInclude>
-    <ClInclude Include="Stringify.h">
-      <Filter>Header Files\Strings</Filter>
-    </ClInclude>
-    <ClInclude Include="StringRanges.h">
-      <Filter>Header Files\Strings</Filter>
-    </ClInclude>
-    <ClInclude Include="Networking.h">
-      <Filter>Header Files\Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Operators.h">
-      <Filter>Header Files\Generic</Filter>
-    </ClInclude>
-    <ClInclude Include="GLUU_expr.h">
-      <Filter>Header Files\Generic\GLUU</Filter>
-    </ClInclude>
-    <ClInclude Include="GLUU_types.h">
-      <Filter>Header Files\Generic\GLUU</Filter>
-    </ClInclude>
-    <ClInclude Include="GLUU_std.h">
-      <Filter>Header Files\Generic\GLUU</Filter>
-    </ClInclude>
-    <ClInclude Include="GLUU_widgets.h">
-      <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
-    </ClInclude>
-    <ClInclude Include="GLUU_text.h">
-      <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
-    </ClInclude>
-    <ClInclude Include="GLUU_button.h">
-      <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
-    </ClInclude>
-    <ClInclude Include="GLUU_textbox.h">
-      <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
-    </ClInclude>
-    <ClInclude Include="GLUU_seqvar.h">
-      <Filter>Header Files\Generic\GLUU</Filter>
-    </ClInclude>
-    <ClInclude Include="GLUU_wint.h">
-      <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
-    </ClInclude>
-    <ClInclude Include="CommandStandard.h">
-      <Filter>Header Files\Debugging</Filter>
-    </ClInclude>
     <ClInclude Include="NotConsoleRenderer.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="File.h">
-      <Filter>Header Files\Classes\Files</Filter>
-    </ClInclude>
-    <ClInclude Include="File_win.h">
-      <Filter>Header Files\Classes\Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Input.h">
-      <Filter>Header Files\Classes\Input</Filter>
-    </ClInclude>
-    <ClInclude Include="Controls.h">
-      <Filter>Header Files\Classes\Input</Filter>
-    </ClInclude>
-    <ClInclude Include="AnimationX.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GLUU_dropbox.h">
-      <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
-    </ClInclude>
-    <ClInclude Include="QuickButton.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="ECSX_Archetype.h">
+      <Filter>ECSX</Filter>
     </ClInclude>
     <ClInclude Include="ECSX_ComponentX.h">
-      <Filter>Header Files\Classes\ECSX</Filter>
-    </ClInclude>
-    <ClInclude Include="ECSX_typeid.h">
-      <Filter>Header Files\Classes\ECSX</Filter>
-    </ClInclude>
-    <ClInclude Include="ECSX_Archetype.h">
-      <Filter>Header Files\Classes\ECSX</Filter>
+      <Filter>ECSX</Filter>
     </ClInclude>
     <ClInclude Include="ECSX_Manager.h">
-      <Filter>Header Files\Classes\ECSX</Filter>
+      <Filter>ECSX</Filter>
     </ClInclude>
-    <ClInclude Include="GLUU_lineParser.h">
-      <Filter>Header Files\Generic\GLUU</Filter>
+    <ClInclude Include="ECSX_typeid.h">
+      <Filter>ECSX</Filter>
     </ClInclude>
-    <ClInclude Include="GLUU_exprParser.h">
-      <Filter>Header Files\Generic\GLUU</Filter>
+    <ClInclude Include="AnimationX.h">
+      <Filter>ECSX</Filter>
     </ClInclude>
     <ClInclude Include="ChunkFile.h">
-      <Filter>Header Files\Classes\Files</Filter>
+      <Filter>I/O\Files</Filter>
+    </ClInclude>
+    <ClInclude Include="File.h">
+      <Filter>I/O\Files</Filter>
+    </ClInclude>
+    <ClInclude Include="File_win.h">
+      <Filter>I/O\Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandDictionnary.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandPrompt.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandStandard.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="ClassFactory.h">
+      <Filter>Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="Generics.h">
+      <Filter>Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="ContainerGenerics.h">
+      <Filter>Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="FunctionGenerics.h">
+      <Filter>Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_button.h">
+      <Filter>GLUU\Widgets</Filter>
     </ClInclude>
     <ClInclude Include="GLUU_checkbox.h">
-      <Filter>Header Files\Generic\GLUU\GLUU_widgets</Filter>
+      <Filter>GLUU\Widgets</Filter>
     </ClInclude>
-    <ClInclude Include="GLUU_styler.h">
-      <Filter>Header Files\Generic\GLUU</Filter>
+    <ClInclude Include="GLUU_dropbox.h">
+      <Filter>GLUU\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_slider.h">
+      <Filter>GLUU\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_textbox.h">
+      <Filter>GLUU\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_text.h">
+      <Filter>GLUU\Widgets</Filter>
     </ClInclude>
     <ClInclude Include="GLUU_elem.h">
-      <Filter>Header Files\Generic\GLUU</Filter>
+      <Filter>GLUU</Filter>
     </ClInclude>
-    <ClInclude Include="GLUU.h">
-      <Filter>Header Files\Generic\GLUU\GLUU_include</Filter>
+    <ClInclude Include="GLUU_expr.h">
+      <Filter>GLUU</Filter>
     </ClInclude>
     <ClInclude Include="GLUU_import.h">
-      <Filter>Header Files\Generic\GLUU\GLUU_include</Filter>
+      <Filter>GLUU\Defines</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU.h">
+      <Filter>GLUU\Defines</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_std.h">
+      <Filter>GLUU\Defines</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_wint.h">
+      <Filter>GLUU\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_widgets.h">
+      <Filter>GLUU\Widgets</Filter>
     </ClInclude>
     <ClInclude Include="GLUU_global.h">
-      <Filter>Header Files\Generic\GLUU\GLUU_include</Filter>
+      <Filter>GLUU\Defines</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_exprParser.h">
+      <Filter>GLUU\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_parser.h">
+      <Filter>GLUU\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_lineParser.h">
+      <Filter>GLUU\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_seqvar.h">
+      <Filter>GLUU</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_types.h">
+      <Filter>GLUU</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUU_styler.h">
+      <Filter>GLUU</Filter>
+    </ClInclude>
+    <ClInclude Include="Fonts.h">
+      <Filter>I/O</Filter>
+    </ClInclude>
+    <ClInclude Include="Sound.h">
+      <Filter>I/O</Filter>
+    </ClInclude>
+    <ClInclude Include="Color.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Rect.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>I/O</Filter>
+    </ClInclude>
+    <ClInclude Include="Networking.h">
+      <Filter>I/O</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectGenerics.h">
+      <Filter>Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="Random.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Stringify.h">
+      <Filter>Utility\Strings</Filter>
+    </ClInclude>
+    <ClInclude Include="StringManip.h">
+      <Filter>Utility\Strings</Filter>
+    </ClInclude>
+    <ClInclude Include="StringRanges.h">
+      <Filter>Utility\Strings</Filter>
+    </ClInclude>
+    <ClInclude Include="QuickButton.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadPool.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleRenderer.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Vec2D.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Vec3D.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Operators.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls.h">
+      <Filter>I/O</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -227,52 +266,52 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Sound.cpp">
-      <Filter>Header Files\Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="ThreadPool.cpp">
-      <Filter>Header Files\Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="CommandPrompt.cpp">
-      <Filter>Header Files\Debugging</Filter>
-    </ClCompile>
-    <ClCompile Include="ConsoleRenderer.cpp">
-      <Filter>Header Files\Debugging\ConsoleRenderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Networking.cpp">
-      <Filter>Header Files\Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="File.cpp">
-      <Filter>Header Files\Classes\Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Input.cpp">
-      <Filter>Header Files\Classes\Input</Filter>
-    </ClCompile>
-    <ClCompile Include="Controls.cpp">
-      <Filter>Header Files\Classes\Input</Filter>
-    </ClCompile>
-    <ClCompile Include="GLUU_parser.cpp">
-      <Filter>Header Files\Generic\GLUU</Filter>
-    </ClCompile>
     <ClCompile Include="ECSX_Manager.cpp">
-      <Filter>Header Files\Classes\ECSX</Filter>
+      <Filter>ECSX</Filter>
     </ClCompile>
     <ClCompile Include="ECSX_System.h">
-      <Filter>Header Files\Classes\ECSX</Filter>
-    </ClCompile>
-    <ClCompile Include="GLUU_exprParser.cpp">
-      <Filter>Header Files\Generic\GLUU</Filter>
-    </ClCompile>
-    <ClCompile Include="GLUU_lineParser.cpp">
-      <Filter>Header Files\Generic\GLUU</Filter>
+      <Filter>ECSX</Filter>
     </ClCompile>
     <ClCompile Include="ChunkFile.cpp">
-      <Filter>Header Files\Classes\Files</Filter>
+      <Filter>I/O\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="File.cpp">
+      <Filter>I/O\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandPrompt.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUU_exprParser.cpp">
+      <Filter>GLUU\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUU_parser.cpp">
+      <Filter>GLUU\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUU_lineParser.cpp">
+      <Filter>GLUU\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="Sound.cpp">
+      <Filter>I/O</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>I/O</Filter>
+    </ClCompile>
+    <ClCompile Include="Networking.cpp">
+      <Filter>I/O</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadPool.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleRenderer.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls.cpp">
+      <Filter>I/O</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ECSX.h">
-      <Filter>Header Files\Classes\ECSX</Filter>
+      <Filter>ECSX</Filter>
     </None>
   </ItemGroup>
 </Project>
