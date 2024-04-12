@@ -301,7 +301,7 @@ namespace GLUU {
 			vector<string_ranges> keywords = split_and_delim(head, expr_open, expr_close, " ");
 
 			Element row;
-			row.scope = std::make_shared< VariableRegistry>();
+			row.scope = variable_dictionnary()->make_new_scope("Row scope");
 
 			for (size_t i = 0; i < keywords.size(); i++)
 			{
@@ -424,8 +424,6 @@ namespace GLUU {
 			Element* old_base = graphics->current_row;
 
 			row_obj.is_row = is_row;
-
-			row_obj.scope->name = "Row scope";
 			current_scope = row_obj.scope;
 			graphics->current_row = &row_obj;
 			variable_dictionnary()->enter_scope(current_scope);
@@ -532,7 +530,7 @@ namespace GLUU {
 			graphics = make_shared<Compiled>();
 			//graphics->widgets = widgets;
 			
-			graphics->compiled_scope = variable_dictionnary()->make_temporary_scope("Global expression scope");
+			graphics->compiled_scope = variable_dictionnary()->make_new_scope("Global expression scope");
 			current_scope = graphics->compiled_scope;
 
 			current_scope->add(make_generic_ref(graphics->base_row), "BASE");

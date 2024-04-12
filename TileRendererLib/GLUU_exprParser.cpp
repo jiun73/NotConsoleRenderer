@@ -7,8 +7,7 @@ namespace GLUU {
 	{
 		Expression ret(return_flags.back());
 		ret.root = true;
-		ret.scope = std::make_shared< VariableRegistry>();
-		ret.scope->name = "Expr scope";
+		ret.scope = variable_dictionnary()->make_new_scope("Expr scope");
 		shared_ptr<VariableRegistry> old_scope = parser->current_scope;
 		parser->current_scope = ret.scope;
 		variable_dictionnary()->enter_scope(parser->current_scope);

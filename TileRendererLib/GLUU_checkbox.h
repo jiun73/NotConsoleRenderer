@@ -46,7 +46,7 @@ namespace GLUU {
 
 			if (but.is_press_once())
 			{
-				checked = !checked;
+				checked() = !checked();
 			}
 		}
 	};

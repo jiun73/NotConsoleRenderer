@@ -93,9 +93,9 @@ new function :set_origins_ratio = {
 
 
 row if { state == 1 } popup { :rect 20 20 100 100 } < 
-	col fixed <
+	col <
 		row px 100 button Back { state = 0 } <>
-		row px 100 checkbox collider_mode { "Hello !!" } <>
+		row px 100 checkbox { collider_mode } { "Hello !! (" collider_mode ")"  } <>
 	>
 >
 
@@ -258,6 +258,15 @@ row px 800 <
 			>
 
 			row px 30 if { :not state } button { "More... " } { state = :true; } <>
+
+			row px 30 if { :not state :and collider_mode } <
+				col button { "Add collider" } 
+				{
+
+				} <>
+
+			> 
+
 			row px 30 if { state } button { "Close" } { state = :false; } <>
 			row px 30 if { state } button { "Copy settings to all frames" } 
 			{

@@ -28,8 +28,11 @@ inline void add_regular_command_set()
 		{
 			for (auto& reg : variable_dictionnary()->all_saved())
 			{
+				if (reg->all().size() == 0) continue;
+
 				std::cout << "\n--Scope " << reg->name << "--\n\n";
 				for (auto& e : reg->all())
+
 					std::cout << e.second->type().name() << " " << e.first << " = " << e.second->stringify() << std::endl;
 			}
 		});
