@@ -63,39 +63,24 @@ class Custom_FrameCreatorWidget : public GLUU::Widget
 {
 	GLUU::SeqVar<AnimationX> animation;
 	GLUU::SeqVar<AnimationFrameX> current_frame;
+	GLUU::SeqVar <int> current_anchor;
 
 	EditorPlane plane;
 
-	GLUU_Make(2, "FRAME_CREATOR")
+	GLUU_Make(3, "FRAME_CREATOR")
 	{
 		auto ptr = make_shared<Custom_FrameCreatorWidget>();
 
 		ptr->animation.set(args.at(0), parser);
 		ptr->current_frame.set(args.at(1), parser);
+		ptr->current_anchor.set(args.at(2), parser);
 
 		return ptr;
 	}
 
-	void update(GLUU::Element& graphic, GLUU::MouseInfo& mouse) override
+	void draw_anchor(V2d_i pos, Color col, V2d_i img_pos)
 	{
-		plane.dest = graphic.last_dest;
-		plane.draw_checkered_background();
-		plane.update();
-
-		if (plane.is_pressed())
-		{
-			current_frame().origin = plane.deproject(mouse_position());
-		}
-
-		SDL_Texture* tex = animation().textures.at(current_frame().tex);
-		SDL_RenderSetClipRect(get_sdl_ren(), graphic.last_dest.SDL());
-		int x, y;
-		SDL_QueryTexture(tex, NULL, NULL, &x, &y);
-		Rect image = plane.project({ 0, {x,y} });
-
-		SDL_RenderCopy(get_sdl_ren(), tex, NULL, image.SDL());
-		SDL_RenderSetClipRect(get_sdl_ren(), NULL);
-		V2d_i origin = ((V2d_d)(current_frame().origin) * plane.scale) + (V2d_d)image.pos;
+		V2d_i origin = ((V2d_d)(pos) * plane.scale) + (V2d_d)img_pos;
 		V2d_i origin_vt = { origin.x, origin.y - 5 };
 		V2d_i origin_vb = { origin.x, origin.y + 5 };
 		V2d_i origin_ht = { origin.x - 5, origin.y };
@@ -105,9 +90,47 @@ class Custom_FrameCreatorWidget : public GLUU::Widget
 		draw_line(origin_vt + 1, origin_vb + 1);
 		draw_line(origin_ht + 1, origin_hb + 1);
 
-		pencil(COLOR_PINK);
+		pencil(col);
 		draw_line(origin_vt, origin_vb);
 		draw_line(origin_ht, origin_hb);
+	}
+
+
+	void update(GLUU::Element& graphic, GLUU::MouseInfo& mouse) override
+	{
+		plane.dest = graphic.last_dest;
+		plane.draw_checkered_background();
+		plane.update();
+
+		if (plane.is_pressed())
+		{
+			if(current_anchor == -1)
+				current_frame().origin = (V2d_d)plane.deproject(mouse_position()) / plane.scale;
+			else
+			{
+				auto it = current_frame().anchors.begin();
+				std::advance(it, (size_t)current_anchor);
+				it->second = (V2d_d)plane.deproject(mouse_position()) / plane.scale;
+			}
+		}
+
+		SDL_Texture* tex = animation().textures.at(current_frame().tex);
+		SDL_RenderSetClipRect(get_sdl_ren(), graphic.last_dest.SDL());
+		int x, y;
+		SDL_QueryTexture(tex, NULL, NULL, &x, &y);
+		Rect image = plane.project({ 0, {x,y} });
+		SDL_RenderCopy(get_sdl_ren(), tex, NULL, image.SDL());
+
+		draw_anchor(current_frame().origin, COLOR_PINK, image.pos);
+
+		for (auto& p : current_frame().anchors)
+		{
+			draw_anchor(p.second, COLOR_GREEN, image.pos);
+		}
+
+		
+		SDL_RenderSetClipRect(get_sdl_ren(), NULL);
+		
 	}
 };
 

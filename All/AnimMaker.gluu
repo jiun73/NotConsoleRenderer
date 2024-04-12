@@ -196,7 +196,9 @@ row px 30 fixed <
 new bool state = false
 
 row px 800 <
-	col fixed px 4 if { :has_frames } FRAME_CREATOR { :curanim } { :curframe } <>
+	new int anchor_i = -1
+
+	col fixed px 4 if { :has_frames } FRAME_CREATOR { :curanim } { :curframe } { anchor_i } <>
 
 
 	col px 1 if { :has_frames } 
@@ -220,7 +222,7 @@ row px 800 <
 				} <>
 			>
 
-			new int anchor_i = 0
+			
 
 			row px 30 if { :not state }
 			<
@@ -250,9 +252,9 @@ row px 800 <
 				} <>
 				col px 15 if { anchor_i /+ { 0 - 1 } } text 
 				{ 
-					{ " " { :curframe .anchors -at anchor_i } .second };
+					{ " " { :curframe .anchors -at anchor_i } };
 				} <>
-				col px 15 if { anchor_i == { 0 - 1 } } text { "All "} <>
+				col px 15 if { anchor_i == { 0 - 1 } } text { "Origin "} <>
 			>
 
 			row px 30 if { :not state } button { "More... " } { state = :true; } <>
