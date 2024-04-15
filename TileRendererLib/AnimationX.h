@@ -263,3 +263,15 @@ public:
 		SDL_RenderCopy(ren, tex, NULL, dest.SDL());
 	}
 };
+
+class AnimationFrameXColliderData 
+{
+	string tag;
+	Rect bounds;
+	string anchor;
+};
+
+class AnimationXColliderData 
+{
+
+};
