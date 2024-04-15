@@ -264,14 +264,13 @@ public:
 	}
 };
 
-class AnimationFrameXColliderData 
+class FrameXCollider 
 {
-	string tag;
 	Rect bounds;
 	string anchor;
 };
 
-class AnimationXColliderData 
+class AnimationXCollider
 {
-
+	vector<FrameXCollider> frames;
 };

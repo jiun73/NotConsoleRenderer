@@ -22,8 +22,16 @@ class ButtonWidgetStyler_Minecraft : public GLUU::Styler<GLUU::ButtonWidget>
 			draw_image_from_source("widgets.png", Rect(0, 66, 200, 20), graphic.last_dest);
 		}
 
+		int w = get_text_draw_size(widget.text(), get_font(2));
+		int h = get_font(2).height;
+		int centerposx = graphic.last_dest.pos.x + (((int)graphic.last_dest.sz.x - w) / 2);
+		int centerposy = graphic.last_dest.pos.y + (((int)graphic.last_dest.sz.y - h) / 2);
+
+		get_font(2).set_color(Color(0, 0, 0, 255));
+		draw_text(widget.text(), (int)w, { centerposx + 1, centerposy + 1 }, get_font(2));
+		get_font(2).set_color(COLOR_WHITE);
+		draw_text(widget.text(), (int)w, { centerposx, centerposy }, get_font(2));
 		
-		draw_text(widget.text(), (int)graphic.last_dest.sz.x, (V2d_i)(graphic.last_dest.pos), get_font(0));
 	}
 };
 
