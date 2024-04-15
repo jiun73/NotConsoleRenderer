@@ -273,17 +273,21 @@ public:
 		{
 			return *token1;
 		}
-		if (pos == token2->pos)
+		else if (pos == token2->pos)
 		{
 			return *token2;
 		}
-		if (pos == token3->pos)
+		else if (pos == token3->pos)
 		{
 			return *token3;
 		}
-		if (pos == token4->pos)
+		else if (pos == token4->pos)
 		{
 			return *token4;
+		}
+		else
+		{
+			cout << "ho ho ho";
 		}
 	}
 };
