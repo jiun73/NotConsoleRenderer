@@ -6,6 +6,8 @@ new int current_animation = 0
 new int current_image = 0
 
 new int state = 0
+
+new vector(AnimationXColliders) colliders
 new bool collider_mode = false
 
 new function :curanim = 
@@ -194,6 +196,7 @@ row px 30 fixed <
 >
 
 new bool state = false
+new bool collider_state = false
 
 row px 800 <
 	new int anchor_i = -1
@@ -259,12 +262,22 @@ row px 800 <
 
 			row px 30 if { :not state } button { "More... " } { state = :true; } <>
 
-			row px 30 if { :not state :and collider_mode } <
-				col button { "Add collider" } 
+			row px 30 if { :not state :and collider_mode :and :not collider_state } <
+				col button { "Add colliders" } 
 				{
-
+					collider_state = :true
 				} <>
+			> 
 
+			row px 30 if { :not state :and collider_mode :and collider_state } <
+				col textbox { "" }
+				{
+					arg* string text;
+
+					
+
+					@ text = "";
+				}
 			> 
 
 			row px 30 if { state } button { "Close" } { state = :false; } <>

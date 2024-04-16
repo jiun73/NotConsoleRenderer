@@ -264,13 +264,72 @@ public:
 	}
 };
 
-class FrameXCollider 
+struct FrameXCollider
 {
 	Rect bounds;
 	string anchor;
 };
 
-class AnimationXCollider
+struct FrameXColliderSet 
 {
-	vector<FrameXCollider> frames;
+	vector<FrameXCollider> colliders;
+};
+
+struct AnimationXColliders
+{
+	map<string, vector<FrameXColliderSet>> tags;
+
+public:
+	AnimationXColliders() {}
+	~AnimationXColliders() {}
+
+	void readwrite(NCR::File& file, string animation_name)
+	{
+		auto& base = file("data")(animation_name);
+
+
+		if (file.is_reading())
+		{
+			for (size_t i = 0; i < base.index_size(); i++)
+			{
+				auto& tag = base("tags");
+				for (auto& c : tag.get_chunks())
+				{
+					tags.emplace(c, vector<FrameXColliderSet>());
+					auto& set = tag(c)("set");
+					for (size_t j = 0; j < set.index_size(); j++)
+					{
+						FrameXColliderSet fset;
+						
+						auto& colliders = set[j]("colliders");
+						for (size_t k = 0; k < colliders.index_size(); k++)
+						{
+							FrameXCollider col;
+							colliders[k] >> col.bounds >> col.anchor;
+							fset.colliders.push_back(col);
+						}
+						tags.at(c).push_back(fset);
+					}
+				}
+			}
+		}
+		else if (file.is_writing())
+		{
+			for (auto& t : tags)
+			{
+				auto& tag = base("tags")(t.first);
+				for (auto& v : t.second)
+				{
+					auto& set = tag("set");
+					for (auto& col : v.colliders)
+					{
+						auto& colliders = set("colliders");
+						colliders << col.bounds << col.anchor;
+						colliders << NCR::Files::next;
+					}
+					set << NCR::Files::next;
+				}
+			}
+		}
+	}
 };

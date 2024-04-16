@@ -4,6 +4,32 @@
 
 #define __IMPORT_MAKE_REF__(n) if (str == #n) return make_generic_ref(obj.##n)
 
+__REGISTER_CLASS__(AnimationXColliders);
+GLUU::ImportInspector<AnimationXColliders> animcol_inpector([](shared_generic gen, const string& str) -> shared_generic
+	{
+		AnimationXColliders& obj = *(AnimationXColliders*)(gen->raw_bytes());
+		if (str == "tags") return make_generic_container_ref(obj.tags);
+		return nullptr;
+	});
+
+__REGISTER_CLASS__(FrameXColliderSet);
+GLUU::ImportInspector<FrameXColliderSet> animfcolset_inpector([](shared_generic gen, const string& str) -> shared_generic
+	{
+		FrameXColliderSet& obj = *(FrameXColliderSet*)(gen->raw_bytes());
+		if (str == "colliders") return make_generic_container_ref(obj.colliders);
+		return nullptr;
+	});
+
+__REGISTER_CLASS__(FrameXCollider);
+GLUU::ImportInspector<FrameXCollider> animfcol_inpector([](shared_generic gen, const string& str) -> shared_generic
+	{
+		FrameXCollider& obj = *(FrameXCollider*)(gen->raw_bytes());
+		if (str == "anchor") return make_generic_ref(obj.anchor);
+		if (str == "bounds") return make_generic_ref(obj.bounds);
+		return nullptr;
+	});
+
+const FactoryManagerAdder<vector<AnimationXColliders>>* vector_animcol__adder = new FactoryManagerAdder<vector<AnimationXColliders>>("vector(AnimationXColliders)", true);
 
 __REGISTER_CLASS__(AnimationX);
 GLUU::ImportInspector<AnimationX> anim_inpector([](shared_generic gen, const string& str) -> shared_generic
