@@ -66,6 +66,31 @@ void draw_full_circle(V2d_i pos, int rayon)
 	}
 }
 
+void rajouter_cases_finales(int nombre, vector<int>& vect)
+{
+	switch (nombre)
+	{
+	default:
+		break;
+	}
+}
+
+vector<int> rearanger_vecteur(int nombre, vector<int> vect)
+{
+	vector<int> rep;
+	int ind = index_of(nombre, vect);
+	for (int i = ind; i < vect.size(); i++)
+	{
+		rep.push_back(vect.at(i));
+	}
+	for (int i = 0; i < ind; i++)
+	{
+		rep.push_back(vect.at(i));
+	}
+	rajouter_cases_finales(nombre, vect);
+	return rep;
+}
+
 class tile
 {
 private:
@@ -157,6 +182,7 @@ public:
 	int caseActuelle; // index du pion dans carreaux
 	bool outOfHome = false;
 	V2d_i pos;
+	int index = 0;
 
 	pion(int n, int s)
 	{
@@ -171,14 +197,24 @@ public:
 		//draw_simple_text(entier_en_chaine(numero), carreaux.at(caseActuelle % 225).pos + xy / 2 - 5 , get_font(0));
 	}
 
-	void display()
+	void display(vector<int> chem)
 	{
-		Color col = get_pencil();
-		draw_full_circle(carreaux.at(caseActuelle).pos + xy / 2, rayon);
-		pencil(COLOR_BLACK);
-		draw_circle(carreaux.at(caseActuelle).pos + xy / 2, rayon);
-		pencil(col);
-		pos = carreaux.at(caseActuelle % 225).pos;
+		if (!outOfHome)
+		{
+			caseActuelle = 0;
+
+			Color col = get_pencil();
+			draw_full_circle(carreaux.at(chem.at(caseActuelle)).pos + xy / 2, rayon);
+			pencil(COLOR_BLACK);
+			draw_circle(carreaux.at(chem.at(caseActuelle)).pos + xy / 2, rayon);
+			pencil(col);
+			pos = carreaux.at(chem.at(caseActuelle % 225)).pos;
+		}
+		/*draw_full_circle(carreaux.at(chem.at(index)).pos + xy / 2, rayon);
+			pencil(COLOR_BLACK);
+			draw_circle(carreaux.at(chem.at(index)).pos + xy / 2, rayon);
+			pencil(col);
+			pos = carreaux.at(chem.at(index) % 225).pos;*/
 		//show_number();
 	}
 
@@ -187,6 +223,7 @@ public:
 		if (outOfHome)
 		{
 			caseActuelle += des;
+			// index += des
 		}
 	}
 };
@@ -207,6 +244,7 @@ public:
 	bool is_playing = false;
 	int pionsEnMaison = 4;
 	bool pionJoue = false;
+	vector<int> chemin_p;
 
 	pion* token1 = new pion(1, 0);
 	pion* token2 = new pion(2, 0);
@@ -234,16 +272,17 @@ public:
 		n3 = s3;
 		n4 = s4;
 		spawnTile = st;
+		chemin_p = rearanger_vecteur(spawnTile, chemin);
 		init_tokens();
 	}
 
-	void display_tokens()
+	void display_tokens(vector<int> chem)
 	{
 		pencil(couleur);
-		token1->display();
-		token2->display();
-		token3->display();
-		token4->display();
+		token1->display(chem);
+		token2->display(chem);
+		token3->display(chem);
+		token4->display(chem);
 	}
 
 	// si le joueur a 3 pions en maison, cette fonction retourne le pion qui est sorti
@@ -307,7 +346,7 @@ player* vert = new player(rgb(0, 255, 0), "vert", 160, 163, 205, 208, 133);
 	joueurs->push_back(*jaune);
 }*/
 
-player* mirane = new player(rgb(255, 192, 203), "mirane", 1, 1, 1, 1, 1);
+//player* mirane = new player(rgb(255, 192, 203), "mirane", 1, 1, 1, 1, 1);
 
 player& actual()
 {
@@ -368,6 +407,7 @@ player& next()
 		return *rouge;
 	}
 }
+
 
 struct environment
 {

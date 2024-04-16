@@ -143,10 +143,10 @@ void draw_board()
 
 void display_tokens()
 {
-	rouge->display_tokens();
-	bleu->display_tokens();
-	vert->display_tokens();
-	jaune->display_tokens();
+	rouge->display_tokens(actual().chemin_p);
+	bleu->display_tokens(actual().chemin_p);
+	vert->display_tokens(actual().chemin_p);
+	jaune->display_tokens(actual().chemin_p);
 }
 
 void switch_turns()
@@ -304,5 +304,14 @@ int main()
 		string txt = entier_en_chaine(mouse_position().x) + ":" + entier_en_chaine(mouse_position().y);
 		draw_simple_text(txt, { 250,50 }, get_font(0));
 		//switch_turns();
+
+		if (key_pressed(SDL_SCANCODE_D))
+		{
+			vector<int> chem = actual().chemin_p;
+			for (int i = 0; i < chem.size(); i++)
+			{
+				std::cout << chem.at(i) + ", ";
+			}
+		}
 	}
 }
