@@ -13,6 +13,8 @@ struct GenericObject : public Generic
 {
 	virtual shared_generic dereference() = 0;
 	virtual shared_generic reference() = 0;
+	virtual shared_generic first() { return nullptr; }
+	virtual shared_generic second() { return nullptr; }
 	virtual bool equals(shared_generic) = 0;
 };
 
@@ -26,6 +28,20 @@ protected:
 	T* _object_ = nullptr;
 
 public:
+	typedef char yes_type;
+	typedef long no_type;
+	template <typename U> static yes_type first_test(decltype(&U::first));
+	template <typename U> static no_type  first_test(...);
+	static constexpr bool has_first = sizeof(first_test<T>(0)) == sizeof(yes_type);
+	typedef char yes_type;
+	typedef long no_type;
+	template <typename U> static yes_type second_test(decltype(&U::second));
+	template <typename U> static no_type  second_test(...);
+	static constexpr bool has_second = sizeof(second_test<T>(0)) == sizeof(yes_type);
+
+	shared_generic first() override { if constexpr (has_first) { return _object_->first; } return nullptr; }
+	shared_generic second() override { if constexpr (has_second) { return _object_->second; } return nullptr; }
+
 	GenericRef() {}
 	//GenericRef(T& copy) : _object_(&copy) {}
 	GenericRef(T* copy) : _object_(copy) {}
@@ -90,6 +106,20 @@ protected:
 	T _object_ = T();
 
 public:
+	typedef char yes_type;                                                 
+	typedef long no_type;                                                  
+	template <typename U> static yes_type first_test(decltype(&U::first)); 
+	template <typename U> static no_type  first_test(...);
+	static constexpr bool has_first = sizeof(first_test<T>(0)) == sizeof(yes_type);
+	typedef char yes_type;
+	typedef long no_type;
+	template <typename U> static yes_type second_test(decltype(&U::second));
+	template <typename U> static no_type  second_test(...);
+	static constexpr bool has_second = sizeof(second_test<T>(0)) == sizeof(yes_type);
+
+	shared_generic first() override { if constexpr (has_first) { return _object_.first; } return nullptr; }
+	shared_generic second() override { if constexpr (has_second) { return _object_.second; } return nullptr; }
+
 	GenericType() {}
 	GenericType(const T& copy) : _object_(copy) {}
 	~GenericType() {}
