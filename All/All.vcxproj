@@ -147,6 +147,7 @@
     <ClCompile Include="Strings.cpp" />
     <ClCompile Include="tictactoe_main.cpp" />
     <ClCompile Include="usasim_main.cpp" />
+    <ClCompile Include="vlanhelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\03- Connect4\Strings.h" />
@@ -168,6 +169,7 @@
     <None Include="AnimMaker.gluu" />
     <None Include="GLUU\chat_menu.gluu" />
     <None Include="GLUU\main.gluu" />
+    <None Include="vlanhelper.gluu" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="gluusyntax.txt" />

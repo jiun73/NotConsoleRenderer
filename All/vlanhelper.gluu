@@ -1,0 +1,80 @@
+
+new vector(string) out
+new int vlan = 0
+new int offset = 0
+
+new int state = 0
+
+row if { state == 0 } 
+<
+	col button { "vlan" } { state = 1 } 
+	col button { "ospf" } { state = 2; out -push "router ospf 1"; } 
+>
+
+row if { state == 1} < col <
+row <
+col button { "out" }
+{
+	int i = 0;
+	$foreach out 
+	{
+		out -at i :cout; 
+		i ++;
+	}
+} <>
+>
+
+row
+<
+	col button { "<" } { offset --}
+	col button { ">" } { offset ++}
+	col text { # offset }
+>
+
+row textbox { " Vlan" } 
+{ 
+	arg* string text ;
+	vlan #= @ text;
+	@ text = "";
+	out -push { "int g 0/0/0." vlan };
+	out -push { "ip add 192.168." {vlan + offset} ".1 255.255.255.0" }
+	out -push { "enc d " vlan }
+	out -push { "ex" }
+	out -push { "ip dh po pool" vlan }
+	out -push { "def 192.168." { vlan + offset} ".1" }
+	out -push { "dn 192.168.200.10" }
+	out -push { "net 192.168." {vlan + offset} ".0 255.255.255.0" }
+	out -push { "e" };
+	:cout { "Ge 0/0/0." vlan " 192.168." {vlan + offset} ".1/24"  }
+} <>
+>>
+
+row if { state == 2} < col < 
+row <
+col button { "out" }
+{
+	int i = 0;
+	$foreach out 
+	{
+		out -at i :cout; 
+		i ++;
+	}
+} <>
+>
+
+row textbox { "reseau" } 
+{ 
+	arg* string text ;
+	vlan #= @ text;
+	@ text = "";
+	out -push { "network 192.168." vlan ".0 0.0.0.255 area 100" };
+	:cout { "Ge 0/0/0." vlan " 192.168." {vlan + offset} ".1/24"  }
+} <>
+>>
+
+
+>>
+
+
+
+

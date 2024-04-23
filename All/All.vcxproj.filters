@@ -75,6 +75,9 @@
     <ClCompile Include="tictactoe_main.cpp">
       <Filter>Fichiers sources\TicTacToe</Filter>
     </ClCompile>
+    <ClCompile Include="vlanhelper.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main_chatroom.h">
@@ -128,6 +131,7 @@
     <None Include="GLUU\chat_menu.gluu">
       <Filter>Fichiers sources\Chatroom</Filter>
     </None>
+    <None Include="vlanhelper.gluu" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="gluusyntax.txt" />
