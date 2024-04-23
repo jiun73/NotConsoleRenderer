@@ -49,6 +49,7 @@ struct GenericContainer : public GenericObject
 	virtual void insert(shared_generic value, size_t i) = 0;
 	virtual void erase(size_t i) = 0;
 	virtual size_t container_size() = 0;
+	virtual shared_generic make_value() = 0;
 };
 
 template<typename T>
@@ -126,6 +127,11 @@ public:
 	shared_generic reference() override { return std::make_shared<GenericContainerRef<T>>(*container); }
 
 	shared_generic make() override;
+
+	shared_generic make_value() override
+	{
+		return make_shared<GenericType<value_type>>();
+	}
 
 	shared_generic at(size_t i) override
 	{
@@ -230,6 +236,11 @@ public:
 	int destringify(const string& str) override { return strings::destringify(container, str); }
 
 	shared_generic make() override { return make_shared<GenericContainerType<T>>(); }
+
+	shared_generic make_value() override
+	{
+		return make_shared<GenericType<value_type>>();
+	}
 
 	shared_generic at(size_t i) override 
 	{

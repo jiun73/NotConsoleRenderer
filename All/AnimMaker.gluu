@@ -15,6 +15,17 @@ new function :curanim =
 	animations -at current_animation
 }
 
+new function :curcolliders = 
+{
+	$while { colliders -size /+ -size animation }
+	{
+		AnimationXColliders n;
+		colliders -push n;
+	};
+
+	colliders -at current_animation;
+}
+
 new function :curframe = 
 {
 	:curanim .frames -at current_frame
@@ -37,6 +48,9 @@ new function :load_images =
 new function :has_image = { paths -size > 0  }
 new function :has_anim = { animations -size > 0 }
 new function :animation_size =  { :curanim .frames -size }
+
+new function :has_colliders = { colliders -size > 0 }
+new function :has_tags = { :curcolliders .tags -size > 0}
 
 new function :has_frames = 
 {
@@ -270,15 +284,30 @@ row px 800 <
 			> 
 
 			row px 30 if { :not state :and collider_mode :and collider_state } <
-				col textbox { "" }
+				col textbox { "new tag" }
 				{
 					arg* string text;
-
 					
+					$if { :curcolliders .tags -has_key @ text :not } 
+					{
+						pair(string-FrameXColliderSet) key;
+						FrameXColliderSet set;
+						key .first = @ text;
+						key .second = set;
+						:curcolliders .tags -push key;
+					}; 
 
 					@ text = "";
 				}
 			> 
+
+			row px 30 if { :not state :and collider_mode :and :has_tags }
+			<
+				new int tag_i = 0
+
+				col px 30 button { "<" } {tag_i --} <>
+				col px 30 button { ">" } {tag_i ++} <>
+			>
 
 			row px 30 if { state } button { "Close" } { state = :false; } <>
 			row px 30 if { state } button { "Copy settings to all frames" } 

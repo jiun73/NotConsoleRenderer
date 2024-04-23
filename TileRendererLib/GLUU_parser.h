@@ -155,9 +155,9 @@ namespace GLUU {
 		size_t seq_level = 0;
 		size_t row_level = 0;
 
+	public:
 		unordered_map<type_index, Inspector> inspectors;
 
-	public:
 		string default_style_name = "default";
 		const string row_keyword = "row";
 		const string col_keyword = "col";

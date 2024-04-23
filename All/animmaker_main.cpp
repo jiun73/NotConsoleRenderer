@@ -4,6 +4,16 @@
 
 #define __IMPORT_MAKE_REF__(n) if (str == #n) return make_generic_ref(obj.##n)
 
+
+const FactoryManagerAdder<std::pair< string, FrameXColliderSet>>* vectosr_anfdsfdsimf__adder = new FactoryManagerAdder<std::pair< string, FrameXColliderSet>>("pair(string-FrameXColliderSet)", true);
+GLUU::ImportInspector<std::pair< string, FrameXColliderSet>> animf2_inpector([](shared_generic gen, const string& str) -> shared_generic
+	{
+		std::pair< string, FrameXColliderSet>& obj = *(std::pair< string, FrameXColliderSet>*)(gen->raw_bytes());
+		if (str == "first") return make_generic_ref(obj.first);
+		if (str == "second") return make_generic_ref(obj.second);
+		return nullptr;
+	});
+
 __REGISTER_CLASS__(AnimationXColliders);
 GLUU::ImportInspector<AnimationXColliders> animcol_inpector([](shared_generic gen, const string& str) -> shared_generic
 	{
@@ -12,6 +22,7 @@ GLUU::ImportInspector<AnimationXColliders> animcol_inpector([](shared_generic ge
 		return nullptr;
 	});
 
+const FactoryManagerAdder<vector<FrameXColliderSet>>* vector_animgfcol__adder = new FactoryManagerAdder<vector<FrameXColliderSet>>("vector(FrameXColliderSet)", true);
 __REGISTER_CLASS__(FrameXColliderSet);
 GLUU::ImportInspector<FrameXColliderSet> animfcolset_inpector([](shared_generic gen, const string& str) -> shared_generic
 	{
@@ -59,7 +70,7 @@ GLUU::ImportInspector<AnimationFrameX> animf_inpector([](shared_generic gen, con
 	});
 
 const FactoryManagerAdder<std::pair< string, V2d_i>>* vectosr_animf__adder = new FactoryManagerAdder<std::pair< string, V2d_i>>("pair(string-V2d_i)", true);
-GLUU::ImportInspector<std::pair< string, V2d_i>> animf2_inpector([](shared_generic gen, const string& str) -> shared_generic
+GLUU::ImportInspector<std::pair< string, V2d_i>> gfdgdanimf2_inpector([](shared_generic gen, const string& str) -> shared_generic
 	{
 		std::pair< string, V2d_i>& obj = *(std::pair< string, V2d_i>*)(gen->raw_bytes());
 		if (str == "first") return make_generic_ref(obj.first);

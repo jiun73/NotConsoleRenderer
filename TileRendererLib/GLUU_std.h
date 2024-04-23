@@ -193,6 +193,18 @@ namespace GLUU {
 				return container->at(i);
 			});
 
+		import_function<_sgen_(_sgen_)>("-back", [](_sgen_ a)-> _sgen_
+			{
+				if (!is_iden<GenericContainer>(a))
+				{
+					std::cout << "Cannot at a non-container" << std::endl;
+					return nullptr;
+				}
+
+				auto container = rein<GenericContainer>(a);
+				return container->at(container->container_size() - 1);
+			});
+
 		import_function<size_t(_sgen_)>("-longsize", [](_sgen_ a)-> size_t
 			{
 				if (!is_iden<GenericContainer>(a)) { std::cout << "Cannot longsize a non-container" << std::endl; return 0; }
@@ -295,6 +307,79 @@ namespace GLUU {
 				}
 
 				return -1;
+			});
+
+		import_function<bool(_sgen_, _sgen_)>("-has_key", [](_sgen_ b, _sgen_ a) -> int
+			{
+				if (!is_iden<GenericContainer>(a))
+				{
+					std::cout << "Cannot has_key a non-container" << std::endl;
+					return false;
+				}
+
+				auto container = rein<GenericContainer>(a);
+
+				for (size_t i = 0; i < container->container_size(); i++)
+				{
+					_sgen_ at = container->at(i);
+					//if (!is_iden<GenericObject>(at)) { return false; }
+
+					if (!Global::get()->inspectors.count(at->type())) { return false; }
+
+					_sgen_ key = Global::get()->inspectors.at(at->type()).inspect(at, "first");
+
+					if (key == nullptr) { return false; }
+
+					if (!is_iden<GenericObject>(key)) { return false; }
+
+					auto key_obj = rein<GenericObject>(key);
+					if (key_obj->equals(b)) return true;
+				}
+
+				return false;
+			});
+
+		import_function<int(_sgen_, _sgen_)>("-key_i", [](_sgen_ b, _sgen_ a) -> int
+			{
+				if (!is_iden<GenericContainer>(a))
+				{
+					std::cout << "Cannot key_i a non-container" << std::endl;
+					return -1;
+				}
+
+				auto container = rein<GenericContainer>(a);
+
+				for (size_t i = 0; i < container->container_size(); i++)
+				{
+					_sgen_ at = container->at(i);
+					//if (!is_iden<GenericObject>(at)) { return false; }
+
+					if (!Global::get()->inspectors.count(at->type())) { return false; }
+
+					_sgen_ key = Global::get()->inspectors.at(at->type()).inspect(at, "first");
+
+					if (key == nullptr) { return false; }
+
+					if (!is_iden<GenericObject>(key)) { return false; }
+
+					auto key_obj = rein<GenericObject>(key);
+					if (key_obj->equals(b)) return i;
+				}
+
+				return -1;
+			});
+
+		import_function<_sgen_(_sgen_)>("-new_obj", [](_sgen_ a) -> _sgen_
+			{
+				if (!is_iden<GenericContainer>(a))
+				{
+					std::cout << "Cannot new_obj a non-container" << std::endl;
+					return nullptr;
+				}
+
+				auto container = rein<GenericContainer>(a);
+
+				return container->make_value();
 			});
 	}
 }
