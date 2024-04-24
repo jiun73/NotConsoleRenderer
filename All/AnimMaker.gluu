@@ -290,6 +290,7 @@ row px 800 <
 					
 					$if { :curcolliders .tags -has_key @ text :not } 
 					{
+						var key = -new_obj :curcolliders; 
 						pair(string-FrameXColliderSet) key;
 						FrameXColliderSet set;
 						key .first = @ text;
