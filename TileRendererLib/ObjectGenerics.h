@@ -117,8 +117,8 @@ public:
 	template <typename U> static no_type  second_test(...);
 	static constexpr bool has_second = sizeof(second_test<T>(0)) == sizeof(yes_type);
 
-	shared_generic first() override { if constexpr (has_first) { return _object_.first; } return nullptr; }
-	shared_generic second() override { if constexpr (has_second) { return _object_.second; } return nullptr; }
+	//shared_generic first() override { if constexpr (has_first) { return _object_.first; } return nullptr; }
+	//shared_generic second() override { if constexpr (has_second) { return _object_.second; } return nullptr; }
 
 	GenericType() {}
 	GenericType(const T& copy) : _object_(copy) {}

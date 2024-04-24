@@ -37,8 +37,8 @@ row textbox { " Vlan" }
 	vlan #= @ text;
 	@ text = "";
 	out -push { "int g 0/0/0." vlan };
-	out -push { "ip add 192.168." {vlan + offset} ".1 255.255.255.0" }
 	out -push { "enc d " vlan }
+	out -push { "ip add 192.168." {vlan + offset} ".1 255.255.255.0" }
 	out -push { "ex" }
 	out -push { "ip dh po pool" vlan }
 	out -push { "def 192.168." { vlan + offset} ".1" }
