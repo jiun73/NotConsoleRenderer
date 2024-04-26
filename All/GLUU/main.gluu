@@ -3,6 +3,8 @@ new init setup = {
 	BASE .fit = true;
 }
 
+new function :test = { }
+
 new style minecraft
 
 row button CollisionX			{ $collisionx_main }
@@ -14,3 +16,8 @@ row button Chatroom				{ $chatroom_main }
 row button AnimMaker			{ $animmaker_main } 
 row button Pong					{ $pong_main }  
 row button VlanHelper			{ $vlan_helper }  
+row button VlanHelper			
+{ 
+	int i = 0; 
+	i = "dfdsfsd "; 
+}  

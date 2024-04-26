@@ -14,13 +14,13 @@ namespace GLUU
 
 				if (!parser.stylers.count(style_name))
 				{
-					parser.add_error(GLUU_ERROR_INVALID_STYLER, "No Stylers in pack '" + style_name + "'", s.at(0).begin());
+					parser.debugger.static_error(GLUU_ERROR_INVALID_STYLER, "No Stylers in pack '" + style_name + "'", s.at(0).begin());
 				}
 
 				auto w = gfx.widget;
 				if (w == nullptr) 
 				{
-					parser.add_error(GLUU_ERROR_INVALID_STYLER, "Cannot apply styler '" + style_name + "' before assigning a widget to the row", s.at(0).begin());
+					parser.debugger.static_error(GLUU_ERROR_INVALID_STYLER, "Cannot apply styler '" + style_name + "' before assigning a widget to the row", s.at(0).begin());
 					return;
 				}
 
@@ -28,7 +28,7 @@ namespace GLUU
 
 				if (!parser.stylers.at(style_name).count(widget_name))
 				{
-					parser.add_error(GLUU_ERROR_INVALID_STYLER, "No Styler for '" + widget_name + "' in pack '" + style_name + "'", s.at(0).begin());
+					parser.debugger.static_error(GLUU_ERROR_INVALID_STYLER, "No Styler for '" + widget_name + "' in pack '" + style_name + "'", s.at(0).begin());
 				}
 				else
 				{
@@ -68,37 +68,6 @@ namespace GLUU
 			}));
 	};
 
-	void Parser::add_error(Errors code, const string& message, string::iterator it)
-	{
-		Errorinfo info;
-		info.tot_ch = std::distance(source_begin, it);
-		auto line_it = lines.lower_bound(info.tot_ch);
-		auto prev_line_it = prev(line_it);
-
-		if (line_it == lines.end())
-		{
-			info.line = prev(line_it)->second;
-		}
-		else
-		{
-			info.line = line_it->second;
-		}
-
-		if (prev_line_it == lines.end())
-		{
-			info.ch = info.tot_ch;
-		}
-		else
-		{
-			info.ch = info.tot_ch - prev_line_it->first;
-		}
-
-		
-		info.message = message;
-		info.code = code;
-		errors.push_back(info);
-	}
-
 	void Parser::register_class(shared_ptr <Widget> c)
 	{
 		widgets.emplace(c->fetch_keyword().second, c);
@@ -108,16 +77,16 @@ namespace GLUU
 	{
 		vector<string_ranges> keywords = split_and_trim(dec);
 
-		if (keywords.size() < 1) { add_error(GLUU_ERROR_INVALID_DECLARATION, "'new' found with no declaration after", dec.begin()); return; } //error GLUU_ERROR_INVALID_DECLARATION
-		if (keywords.size() < 1) { add_error(GLUU_ERROR_INVALID_DECLARATION, "'new' with no name for declaration", dec.begin()); return; } //error GLUU_ERROR_INVALID_DECLARATION
+		if (keywords.size() < 1) { debugger.static_error(GLUU_ERROR_INVALID_DECLARATION, "'new' found with no declaration after", dec.begin()); return; } //error GLUU_ERROR_INVALID_DECLARATION
+		if (keywords.size() < 1) { debugger.static_error(GLUU_ERROR_INVALID_DECLARATION, "'new' with no name for declaration", dec.begin()); return; } //error GLUU_ERROR_INVALID_DECLARATION
 		if (keywords.at(0).flat() == "style")
 		{
-			if (keywords.size() < 2) { add_error(GLUU_ERROR_INVALID_FUNCTION_DECLARATION, "Invalid style declaraction (new style [style_pack])", dec.begin()); return; }
+			if (keywords.size() < 2) { debugger.static_error(GLUU_ERROR_INVALID_FUNCTION_DECLARATION, "Invalid style declaraction (new style [style_pack])", dec.begin()); return; }
 			default_style_name = keywords.at(1).flat();
 		}
 		else if (keywords.at(0).flat() == "function" || keywords.at(0).flat() == "init" || keywords.at(0).flat() == "callback")
 		{
-			if (keywords.size() < 4) { add_error(GLUU_ERROR_INVALID_FUNCTION_DECLARATION, "Invalid function declaraction (new function = [expr])", dec.begin()); return; } //error GLUU_ERROR_INVALID_FUNCTION_DECLARATION
+			if (keywords.size() < 4) { debugger.static_error(GLUU_ERROR_INVALID_FUNCTION_DECLARATION, "Invalid function declaraction (new function = [expr])", dec.begin()); return; } //error GLUU_ERROR_INVALID_FUNCTION_DECLARATION
 
 			string name = keywords.at(1).flat();
 			size_t eq = dec.flat().find('=');
@@ -140,7 +109,7 @@ namespace GLUU
 		}
 		else
 		{
-			if (!current_scope->make(keywords.at(1).flat(), keywords.at(0).flat())) { add_error(GLUU_ERROR_INVALID_TYPE, "type '" + keywords.at(0).flat() + "' doesn't exist or is not registered", dec.begin()); return; } //error GLUU_ERROR_INVALID_TYPE
+			if (!current_scope->make(keywords.at(1).flat(), keywords.at(0).flat())) { debugger.static_error(GLUU_ERROR_INVALID_TYPE, "type '" + keywords.at(0).flat() + "' doesn't exist or is not registered", dec.begin()); return; } //error GLUU_ERROR_INVALID_TYPE
 			std::cout << "made new variable " << keywords.at(0).flat() << " " << keywords.at(1).flat() << " in scope " << current_scope->name << std::endl;
 			if (keywords.size() > 3 && keywords.at(2).flat() == "=")
 			{
@@ -150,11 +119,11 @@ namespace GLUU
 				int i = current_scope->get(name)->destringify(str);
 				if (i == -1)
 				{
-					add_error(GLUU_ERROR_INVALID_STRING_TRANSLATION, "could not convert '" + str + "' to type '" + type + "' (no translation)", dec.begin()); return;
+					debugger.static_error(GLUU_ERROR_INVALID_STRING_TRANSLATION, "could not convert '" + str + "' to type '" + type + "' (no translation)", dec.begin()); return;
 				}
 				else if (i == 0)
 				{
-					add_error(GLUU_ERROR_INVALID_STRING_TRANSLATION, "could not convert '" + str + "' to type '" + type + "' (invalid string)", dec.begin()); return;
+					debugger.static_error(GLUU_ERROR_INVALID_STRING_TRANSLATION, "could not convert '" + str + "' to type '" + type + "' (invalid string)", dec.begin()); return;
 				}
 			}
 		}

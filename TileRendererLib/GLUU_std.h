@@ -53,7 +53,10 @@ namespace GLUU {
 
 		import_function<void(_sgen_, _sgen_)>("=", [](_sgen_ b, _sgen_ a)
 			{
-				a->set(b);
+				if (!a->set(b))
+				{
+					Global::get()->debugger.throw_error(GLUU_ERROR_NOT_ENOUGH_ARGS, "Error when setting arg");
+				};
 			});
 		import_function<void()>("!!!", []()
 			{
@@ -115,7 +118,7 @@ namespace GLUU {
 				};
 			});
 
-		import_function<void(Expression&, shared_generic)>("$foreach", [](Expression& expr, shared_generic a)
+		/*import_function<void(Expression&, shared_generic)>("$foreach", [](Expression& expr, shared_generic a)
 			{
 				if (!is_iden<GenericContainer>(a)) { std::cout << "Cannot foreach a non-container" << std::endl; ; return; }
 				for (size_t i = 0; i < rein<GenericContainer>(a)->container_size(); i++)
@@ -123,8 +126,21 @@ namespace GLUU {
 					expr.func_base->constant = expr.evaluate_next();
 					if (expr.has_returned()) break;
 				}
-			});
+			});*/
 
+		import_function<void(Expression&, shared_generic)>("$foreach", [](Expression& expr, shared_generic a)
+			{
+				if (!is_iden<GenericContainer>(a)) { std::cout << "Cannot foreach a non-container" << std::endl; ; return; }
+				if(expr.args_name.size() != 1) { std::cout << "foreach requires at least one arg of the value-type in the expression " << std::endl; ; return; }
+				auto cont = rein<GenericContainer>(a);
+				for (size_t i = 0; i < cont->container_size(); i++)
+				{
+					vector<shared_generic> args = { rein<GenericObject>(cont->at(i))->reference() };
+					expr.set_args(args);
+					expr.func_base->constant = expr.evaluate_next();
+					if (expr.has_returned()) break;
+				}
+			});
 
 
 		import_function<string(_sgen_)>(":type", [](_sgen_ a) {return a->type().name(); });

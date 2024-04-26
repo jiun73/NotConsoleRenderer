@@ -190,16 +190,7 @@ bool run()
 	{
 		if (_inputs.keyboard.pressed(SDL_SCANCODE_F3))
 		{
-			if (!Commands::get()->isPolling())
-			{
-				std::cout << "Debug mode started!" << std::endl;
-				Commands::get()->startPolling();
-			}
-			else
-			{
-				std::cout << "Exiting Debug mode!" << std::endl;
-				Commands::get()->stopPolling();
-			}
+			Commands::toggle();
 		}
 
 		if (run_callback)

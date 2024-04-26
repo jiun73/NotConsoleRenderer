@@ -15,11 +15,10 @@ row if { state == 1} < col <
 row <
 col button { "out" }
 {
-	int i = 0;
 	$foreach out 
 	{
-		out -at i :cout; 
-		i ++;
+		arg* string v;
+		:cout @v; 
 	}
 } <>
 >
@@ -34,8 +33,8 @@ row
 row textbox { " Vlan" } 
 { 
 	arg* string text ;
-	vlan #= @ text;
-	@ text = "";
+	vlan #= @text;
+	@text = "";
 	out -push { "int g 0/0/0." vlan };
 	out -push { "enc d " vlan }
 	out -push { "ip add 192.168." {vlan + offset} ".1 255.255.255.0" }
@@ -53,11 +52,10 @@ row if { state == 2} < col <
 row <
 col button { "out" }
 {
-	int i = 0;
 	$foreach out 
 	{
-		out -at i :cout; 
-		i ++;
+		arg* string v;
+		@v :cout; 
 	}
 } <>
 >
@@ -65,8 +63,8 @@ col button { "out" }
 row textbox { "reseau" } 
 { 
 	arg* string text ;
-	vlan #= @ text;
-	@ text = "";
+	vlan #= @text;
+	@text = "";
 	out -push { "network 192.168." vlan ".0 0.0.0.255 area 100" };
 	:cout { "Ge 0/0/0." vlan " 192.168." {vlan + offset} ".1/24"  }
 } <>

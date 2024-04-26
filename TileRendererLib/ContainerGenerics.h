@@ -37,12 +37,6 @@ struct has_begin_end
 template<typename T>
 struct is_container : std::integral_constant<bool, has_const_iterator<T>::value&& has_begin_end<T>::beg_value&& has_begin_end<T>::end_value>{ };
 
-template<typename T>
-struct remove_param_const { typedef T type; };
-
-template<template<typename...> typename T, typename... I>
-struct remove_param_const<T<I...>> { typedef T<std::remove_const_t<I>...> type; };
-
 struct GenericContainer : public GenericObject
 {
 	virtual shared_generic at(size_t i) = 0;
@@ -101,16 +95,18 @@ public:
 		else return sizeof(T);
 	}
 
-	void set(shared_generic value)
+	bool set(shared_generic value)
 	{
-		if (value->type() != type()) { std::cout << "{set: types do not match}"; return; }
-		if constexpr (!is_type_complete_v<T>) { std::cout << "{type not complete}"; return; }
-		else if constexpr (std::is_abstract_v<T>) { std::cout << "{type is abract}"; return; }
+		if (value->type() != type()) { std::cout << "{set: types do not match}"; return false; }
+		if constexpr (!is_type_complete_v<T>) { std::cout << "{type not complete}"; return false ; }
+		else if constexpr (std::is_abstract_v<T>) { std::cout << "{type is abract}"; return false; }
 		else if constexpr (std::is_copy_assignable_v<T>) *container = *(T*)(value->raw_bytes());
 		else
 		{
 			std::cout << "not nothrow!!!" << std::endl;
+			return false;
 		}
+		return true;
 	}
 
 	string stringify() override { return strings::stringify(*container); };
@@ -226,10 +222,11 @@ public:
 	const type_info& identity() override { return typeid(GenericContainer); }
 	size_t size() override { return sizeof(T); }
 
-	void set(shared_generic value)
+	bool set(shared_generic value)
 	{
-		if (value->type() != type()) return;
+		if (value->type() != type()) return false;
 		container = *(T*)(value->raw_bytes());
+		return true;
 	}
 
 	string stringify() override { return strings::stringify(container); };

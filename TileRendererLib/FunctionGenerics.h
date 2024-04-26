@@ -158,14 +158,16 @@ public:
 		return unfold_args_type(i);
 	}
 
-	void set(shared_generic value) override
+	bool set(shared_generic value) override
 	{
-		if (value->type() != type()) { std::cout << "{set: types do not match}"; return; }
-		if (value->identity() != typeid(GenericFunction)) { std::cout << "{set: value is not a function"; return; }
+		if (value->type() != type()) { std::cout << "{set: types do not match}"; return false; }
+		if (value->identity() != typeid(GenericFunction)) { std::cout << "{set: value is not a function"; return false; }
 
 		 shared_ptr<GenericFunction> reinterpret = std::reinterpret_pointer_cast<GenericFunction>(value);
 
 		_callback_ = *(function<R(Args...)>*)(reinterpret->function_bytes());
+
+		return true;
 	}
 
 	string stringify() override { return ""; };

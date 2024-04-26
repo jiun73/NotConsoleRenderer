@@ -261,6 +261,9 @@
     <ClInclude Include="MetaGeneric.h">
       <Filter>Generic</Filter>
     </ClInclude>
+    <ClInclude Include="GLUU_debugger.h">
+      <Filter>GLUU\Parsers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NotConsoleRendererLib.cpp">
@@ -310,6 +313,9 @@
     </ClCompile>
     <ClCompile Include="Controls.cpp">
       <Filter>I/O</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUU_debugger.cpp">
+      <Filter>GLUU\Parsers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

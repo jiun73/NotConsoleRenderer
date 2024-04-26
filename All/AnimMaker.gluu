@@ -17,7 +17,7 @@ new function :curanim =
 
 new function :curcolliders = 
 {
-	$while { colliders -size /+ -size animation }
+	$while { colliders -size /+ { animations -size }  }
 	{
 		AnimationXColliders n;
 		colliders -push n;
@@ -38,7 +38,7 @@ new function :load_images =
 	vector(string) files = $files;
 	int index = 0;
 
-	$while { index < -size files } {
+	$while { index /- -size files } {
 		files -at index :get_tex;
 		paths -push {files -at index};
 		index ++;
@@ -50,7 +50,11 @@ new function :has_anim = { animations -size > 0 }
 new function :animation_size =  { :curanim .frames -size }
 
 new function :has_colliders = { colliders -size > 0 }
-new function :has_tags = { :curcolliders .tags -size > 0}
+new function :has_tags = 
+{ 
+	//$if { :has_colliders :not } { return :false; };
+	:curcolliders .tags -size > 0 
+}
 
 new function :has_frames = 
 {
@@ -87,23 +91,20 @@ new function :add_frame =
 	frame .tex = (size_t) pos;
 	frame .time = (u32) 100;
 
-	@ anim .frames -push frame;
+	@anim .frames -push frame;
 }
 
 new function :set_origins_ratio = {
 	arg double ratioY;
 	arg double ratioX;
 
-	int i = 0;
-
 	$foreach { :curanim .frames }
 	{
-		V2d_i tex_size = { :curanim .textures -at (size_t-int) { :curanim .frames -at i .tex } :get_tex_sz };
+		arg* AnimationFrameX frame;
+		V2d_i tex_size = { :curanim .textures -at (size_t-int) { @frame .tex } :get_tex_sz };
 
-		:curanim .frames -at i .origin .x = {tex_size .x (.) !* ratioX (~)};
-		:curanim .frames -at i .origin .y = {tex_size .y (.) !* ratioY (~)};
-
-		i ++;
+		@frame .origin .x = {tex_size .x (.) !* ratioX (~)};
+		@frame .origin .y = {tex_size .y (.) !* ratioY (~)};
 	};
 }
 
@@ -118,6 +119,7 @@ row if { state == 1 } popup { :rect 20 20 100 100 } <
 row < col fixed <
 
 row px 30 <
+
 	col px 120 button { "Load images" } { :load_images } style minecraft <>
 	col px 900 dropbox {paths} {current_image} <>
 	col px 100 button Export 
@@ -133,12 +135,11 @@ row px 30 <
 		$if { path -size == 0 } { return {}; };
 
 		animations = :read_anim_from_file path; 
-		int i = 0;
 		$foreach animations 
 		{
-			:cout { {animations -at i} .name};
-			animation_names -push { {animations -at i }.name }; 
-			i ++;
+			arg* AnimationX a;
+			@a .name :cout;
+			animation_names -push { @a .name }; 
 		}
 	} <>
 	col px 120 button Extensions {
@@ -157,14 +158,14 @@ row px 30 fixed <
 		arg* string text; 
 
 		AnimationX new_anim;
-		new_anim .name = @ text;
-		animation_names -push @ text;
+		new_anim .name = @text;
+		animation_names -push @text;
 		animations -push new_anim;
 
-		:cout { "Added " @ text " animation" };
+		:cout { "Added " @text " animation" };
 
 		makingAnim = :false; 
-		@ text = ""; 
+		@text = ""; 
 	} 
 	<>
 	col fixed px 140 if { makingAnim }		button	{"Cancel"}			{ makingAnim = :false } <>
@@ -176,12 +177,10 @@ row px 30 fixed <
 
 	col fixed px 150 if { :has_anim :and :has_image } button { "Add all images" } 
 	{
-		new int i;
-		i = 0;
 		$foreach paths 
 		{
-			& :curanim :add_frame { paths -at i };
-			i ++;
+			arg* string path;
+			& :curanim :add_frame @path;
 		};
 		
 	} <>
@@ -226,16 +225,16 @@ row px 800 <
 
 			row px 30 if { :not state } textbox { "Origin: " :curframe .origin } { 
 				arg* string text; 
-				:curframe .origin #= @ text;
-				@ text = ""; 
+				:curframe .origin #= @text;
+				@text = ""; 
 			} <> 
 
 			row px 30 if { :not state }
 			<
 				col px 5 textbox { "Speed: " :curframe .time } { 
 					arg* string text; 
-					:curframe .time #= @ text;
-					@ text  = ""; 
+					:curframe .time #= @text;
+					@text  = ""; 
 				} <>
 			>
 
@@ -247,11 +246,11 @@ row px 800 <
 				{
 					arg* string text; 
 					pair(string-V2d_i) pair;
-					pair .first = @ text;
+					pair .first = @text;
 					pair .second = :vec 0 0;
 
 					:curframe .anchors -push pair;
-					@ text = "";
+					@text = "";
 				}
 			>
 
@@ -288,17 +287,16 @@ row px 800 <
 				{
 					arg* string text;
 					
-					$if { :curcolliders .tags -has_key @ text :not } 
+					$if { :curcolliders .tags -has_key @text :not } 
 					{
-						var key = -new_obj :curcolliders; 
 						pair(string-FrameXColliderSet) key;
 						FrameXColliderSet set;
-						key .first = @ text;
+						key .first = @text;
 						key .second = set;
 						:curcolliders .tags -push key;
 					}; 
 
-					@ text = "";
+					@text = "";
 				}
 			> 
 
@@ -313,13 +311,11 @@ row px 800 <
 			row px 30 if { state } button { "Close" } { state = :false; } <>
 			row px 30 if { state } button { "Copy settings to all frames" } 
 			{
-				int i = 0;
 				$foreach { :curanim .frames }
 				{
-					:curanim .frames -at i .origin = { :curframe .origin } ;
-					:curanim .frames -at i .time = { :curframe .time } ;
-
-					i ++;
+					arg* AnimationFrameX frame;
+					@frame .origin = { :curframe .origin } ;
+					@frame .time = { :curframe .time } ;
 				};
 			} <>
 

@@ -5,13 +5,13 @@ void GLUU::LineParser::parse_function_keyword(string_ranges kw, vector<Expressio
 {
 	string flat = kw.flat();
 
-	parser->output_seq("func " + flat + (rev ? "(reversed)" : ""));
+	parser->debugger.output_seq("func " + flat + (rev ? "(reversed)" : ""));
 
 	Expression func(return_flags->back());
 	func.root = false;
 	func.reversed = rev;
 	shared_generic var = variable_dictionnary()->get(flat);
-	if (var == nullptr) { parser->add_error(GLUU_ERROR_INVALID_FUNCTION_NAME, "function '" + flat + "' doesn't exist in this scope", current_keyword->begin()); return; } // error GLUU_ERROR_INVALID_FUNCTION_NAME
+	if (var == nullptr) { parser->debugger.static_error(GLUU_ERROR_INVALID_FUNCTION_NAME, "function '" + flat + "' doesn't exist in this scope", current_keyword->begin()); return; } // error GLUU_ERROR_INVALID_FUNCTION_NAME
 	if (var->identity() == typeid(GenericFunction))
 	{
 		func.func = true;
@@ -37,7 +37,7 @@ void GLUU::LineParser::parse_function_keyword(string_ranges kw, vector<Expressio
 	}
 	else
 	{
-		parser->add_error(GLUU_ERROR_INVALID_FUNCTION_NAME, "'" + flat + "' isn't a valid function type!", kw.begin()); return;
+		parser->debugger.static_error(GLUU_ERROR_INVALID_FUNCTION_NAME, "'" + flat + "' isn't a valid function type!", kw.begin()); return;
 	}
 
 	move_const_to_arg();

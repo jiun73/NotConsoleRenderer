@@ -180,6 +180,28 @@ class Commands //Command singleton
 private:
 	static CommandPrompt* cmd;
 public:
+	static void open() 
+	{
+		if (!get()->isPolling())
+		{
+			std::cout << "Debug mode started!" << std::endl;
+			get()->startPolling();
+		}
+	}
+
+	static void toggle() 
+	{
+		if (!get()->isPolling())
+		{
+			open();
+		}
+		else
+		{
+			std::cout << "Exiting Debug mode!" << std::endl;
+			get()->stopPolling();
+		}
+	}
+
 	static CommandPrompt* get()
 	{
 		if (cmd == nullptr)

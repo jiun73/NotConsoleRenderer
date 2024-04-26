@@ -1,6 +1,6 @@
 #pragma once
 #include "GLUU_types.h"
-#include "CommandDictionnary.h"
+#include "GLUU_debugger.h"
 
 #define GLUU_Make(_args, _name) public: static string keyword() { return _name; } std::type_index type() override { return typeid(decltype(*this)); } private: pair<size_t, string> fetch_keyword() override {return { _args, keyword() };} shared_ptr<::GLUU::Widget> make(vector<string_ranges>& args, ::GLUU::Parser& parser) override
 
@@ -14,14 +14,31 @@ namespace GLUU {
 	struct Inspector
 	{
 		shared_generic type_factory;
-		function<shared_generic(shared_generic, const string&)> inspect;
+		function<shared_generic(shared_generic, const string&)> inspect_func;
+		shared_generic inspect(shared_generic gen, const string& get)
+		{
+			auto ret = inspect_func(gen, get);
+
+			if (ret != nullptr) return ret;
+			if (gen->identity() != typeid(GenericObject)) return nullptr;
+
+			shared_ptr<GenericObject> obj = std::reinterpret_pointer_cast<GenericObject>(gen);
+
+			if (get == "first") return obj->first();
+			else if (get == "second") return obj->second();
+
+			return nullptr;
+		}
 	};
 
 	struct Expression
 	{
+		Debugger* debugger = nullptr;
+		DebugInfo debug_info;
 		shared_ptr<VariableRegistry> scope;
 		vector<Expression> recursive;
 		shared_generic constant = nullptr;
+		bool deref = false;
 		bool root = false;
 
 		//Return handling
@@ -46,7 +63,23 @@ namespace GLUU {
 
 		Expression() { ret_flag = make_shared<bool>(); }
 		Expression(shared_ptr<bool> return_flag, bool root = false) : ret_flag(return_flag), root(root) {}
+		Expression(Debugger& debugger, DebugInfo info, shared_ptr<bool> return_flag, bool root = false) : ret_flag(return_flag), root(root), debugger(&debugger), debug_info(info) 
+		{
+			debug_info.scope = scope;
+		}
 		~Expression() {}
+
+		void throw_error(Errors error, const string& message) 
+		{
+			if (debugger != nullptr)
+			{
+				debugger->throw_error(error, message);
+			}
+			else
+			{
+				std::cout << "Could not throw error! debugger not set" << std::endl;
+			}
+		}
 
 		bool all_args_set()
 		{
@@ -95,13 +128,24 @@ namespace GLUU {
 				auto& inspector = inspectors->at(recursive.at(0).get_type());
 				return inspector.inspect(inspector.type_factory, member)->type(); 
 			}
-			else return constant->type();
+			else
+			{
+				if (deref)
+				{
+					return std::reinterpret_pointer_cast<GenericObject>(constant)->dereference()->type();
+				}
+				return constant->type();
+			}
 			return typeid(void);
 		}
 
 		bool has_returned()
 		{
-			assert(ret_flag != nullptr); //Fatal error! There's a mistake in the parsing
+			if (ret_flag == nullptr) //Fatal error! There's a mistake in the parsing
+			{
+				throw_error(GLUU_ERROR_RUNTIME_MISSING_RETURN_FLAG, "Expression is missing a return flag! (Either the parser has a bug or you messed with stuff you shouldn't)");
+			}
+
 			return *ret_flag;
 		}
 
@@ -116,6 +160,15 @@ namespace GLUU {
 			shared_ptr<GenericObject> ptr = std::reinterpret_pointer_cast<GenericObject>(ClassFactory::get()->make(type));
 			scope->add(ptr->reference(), str);
 			args_name.push_back(str);
+		}
+
+		bool has_arg_name(const string& name) 
+		{
+			for (auto& arg : args_name)
+			{
+				if (arg == name) return true;
+			}
+			return false;
 		}
 
 		void set_args(vector<shared_generic>& args)
@@ -216,12 +269,32 @@ namespace GLUU {
 
 		shared_generic evaluate_next()
 		{
+			if (debugger != nullptr)
+			{
+				debugger->enter_runtime(debug_info);
+			}
+
+			auto ret = evaluate_next_internal();
+
+			if (debugger != nullptr)
+			{
+				debugger->exit_runtime();
+			}
+
+			return ret;
+		}
+
+		shared_generic evaluate_next_internal()
+		{
+			
 			if (return_call)
 			{
 				if (recursive.size() > 0) {
 					auto eval = recursive.at(0).evaluate_next();
 					*ret_flag = true;
-					return eval;;
+
+					
+					return eval;
 				}
 				else
 				{
@@ -311,11 +384,18 @@ namespace GLUU {
 						star.set_args(args);
 					}
 
-					return star.evaluate();
+					auto ret = star.evaluate();
+
+					return ret;
 				}
 				else if (is_inspector)
 				{
 					shared_generic eval = recursive.at(0).evaluate_next();
+
+					if (eval == nullptr)
+					{
+						throw_error(GLUU_ERROR_RUNTIME_NULL_RETURN, "Cannot get the member of a void type!");
+					}
 
 					if (has_returned())
 					{
@@ -324,13 +404,21 @@ namespace GLUU {
 
 					shared_generic ret = inspectors->at(eval->type()).inspect(eval, member);
 
-					if (ret == nullptr)
-						assert(false); //invalid member name
+					if (ret == nullptr) //invalid member name
+					{
+						throw_error(GLUU_ERROR_RUNTIME_INVALID_MEMBER, "Trying to inspect a member that the variable doesn't have!");
+					}
 					else
 						return ret;
 				}
 				else
 				{
+					if (constant == nullptr) assert(false); //invalid const
+
+					if (deref)
+					{
+						return std::reinterpret_pointer_cast<GenericObject>(constant)->dereference();
+					}
 					return constant;
 				}
 			}

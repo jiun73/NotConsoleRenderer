@@ -8,45 +8,13 @@
 #include "GLUU_expr.h"
 #include "GLUU_styler.h"
 #include "GLUU_elem.h"
+#include "GLUU_debugger.h"
 
 #include <typeindex>
 #include <queue>
 
 namespace GLUU {
 	using std::queue;
-
-	class ExpressionParser;
-	class LineParser;
-
-	enum Errors 
-	{
-		GLUU_ERROR_INVALID_EXPRESSION_KEYWORD,
-		GLUU_ERROR_INVALID_ARG_FORMAT,
-		GLUU_ERROR_INVALID_FUNCTION_NAME,
-		GLUU_ERROR_INVALID_VARIABLE_NAME,
-		GLUU_ERROR_NOT_ENOUGH_ARGS,
-		GLUU_ERROR_EMPTY_SEQUENCE,
-		GLUU_ERROR_INVALID_DECLARATION,
-		GLUU_ERROR_INVALID_FUNCTION_DECLARATION,
-		GLUU_ERROR_KEYWORD_MISSING_ARGS,
-		GLUU_ERROR_INVALID_KEYWORD,
-		GLUU_ERROR_INVALID_STYLER,
-		GLUU_ERROR_WIDGET_MISSING_ARGS,
-		GLUU_ERROR_INVALID_TYPE,
-		GLUU_ERROR_INVALID_ROW,
-		GLUU_ERROR_INVALID_STRING_TRANSLATION,
-		GLUU_ERROR_INVALID_RETURN,
-		GLUU_ERROR_INVALID_MEMBER_EXPRESSION
-	};
-
-	struct Errorinfo 
-	{
-		size_t line;
-		size_t ch;
-		size_t tot_ch;
-		string message;
-		Errors code;
-	};
 
 #include <map>
 	using ::std::map;
@@ -146,16 +114,8 @@ namespace GLUU {
 
 		shared_ptr<Compiled> graphics;
 
-		vector<Errorinfo> errors;
-		
-
-		string::iterator source_begin;
-		map<size_t, size_t> lines;
-		size_t line_cntr = 0;
-		size_t seq_level = 0;
-		size_t row_level = 0;
-
 	public:
+		Debugger debugger;
 		unordered_map<type_index, Inspector> inspectors;
 
 		string default_style_name = "default";
@@ -183,73 +143,17 @@ namespace GLUU {
 		void register_inspector(function<shared_generic(shared_generic, const string&)> inspector)
 		{
 			Inspector inspect;
-			inspect.inspect = inspector;
+			inspect.inspect_func = inspector;
 			inspect.type_factory = make_generic<T>();
 			inspectors.emplace(typeid(typename remove_param_const<T>::type), inspect);
 		}
 
-		void next_level()
-		{
-			if (seq_level != 0)
-			{
-				for (size_t i = 0; i < row_level + 1; i++)
-				{
-					std::cout << "\t";
-				}
+		
 
-				for (size_t i = 0; i < seq_level - 1; i++)
-				{
-					//(char)(179) <<
-					std::cout << " ";
-				}
-				std::cout << (char)(192) << (char)(191) << std::endl;
-			}
-			seq_level++;
-		}
-
-		void prev_level()
-		{
-			seq_level--;
-		}
-
-		void output_seq(const string& str, bool start = false)
-		{
-			if (seq_level == 0) 
-			{
-				std::cout << std::endl;
-				for (size_t i = 0; i < row_level + 1; i++)
-				{
-					std::cout << "\t";
-				}
-				std::cout<< str << std::endl;
-			}
-			else
-			{
-
-				for (size_t i = 0; i < row_level + 1; i++)
-				{
-					std::cout << "\t";
-				}
-
-				for (size_t i = 0; i < seq_level - 1; i++)
-				{
-					//(char)(179) <<
-					std::cout << " ";
-				}
-				if (start)
-					std::cout << (char)(192);
-				else
-					std::cout << (char)(179);
-				//std::cout << (char)(192);
-
-				
-				std::cout << "  " << str << std::endl;
-			}
-		}
 
 		
 
-		void add_error(Errors code, const string& message, string::iterator it);
+		
 
 		void register_class(shared_ptr <Widget> c);
 
@@ -258,7 +162,7 @@ namespace GLUU {
 		shared_generic get_variable_from_scope(string_ranges name)
 		{
 			shared_generic var = variable_dictionnary()->get(name.flat());
-			if (var == nullptr) { add_error(GLUU_ERROR_INVALID_VARIABLE_NAME, "variable '" + name.flat() + "' doesn't exist in this scope", name.begin()); }
+			if (var == nullptr) { debugger.static_error(GLUU_ERROR_INVALID_VARIABLE_NAME, "variable '" + name.flat() + "' doesn't exist in this scope", name.begin()); }
 			return var;
 		}
 
@@ -282,7 +186,7 @@ namespace GLUU {
 			{
 				i++;
 				if (i >= keywords.size()) {
-					add_error(GLUU_ERROR_KEYWORD_MISSING_ARGS, "Not enough params for keyword '" + keywords.at(i - 1).flat() + "'", keywords.at(i - 1).begin());
+					debugger.static_error(GLUU_ERROR_KEYWORD_MISSING_ARGS, "Not enough params for keyword '" + keywords.at(i - 1).flat() + "'", keywords.at(i - 1).begin());
 					return {};
 				}//error GLUU_ERROR_MISSING_ARGS
 
@@ -315,18 +219,18 @@ namespace GLUU {
 					vector<string_ranges> args = get_keyword_args(keywords, p, i);
 					if (args.size() != p)
 					{
-						add_error(GLUU_ERROR_WIDGET_MISSING_ARGS, "Not enough arguments fo widget '" + current + "'", keywords.at(i).begin());
+						debugger.static_error(GLUU_ERROR_WIDGET_MISSING_ARGS, "Not enough arguments fo widget '" + current + "'", keywords.at(i).begin());
 						return row;
 					}
 					row.widget = widgets.at(current)->make(args, *this);
 
 					if (!stylers.count(default_style_name))
 					{
-						add_error(GLUU_ERROR_INVALID_STYLER, "No Stylers in pack '" + default_style_name + "'", keywords.at(i).begin());
+						debugger.static_error(GLUU_ERROR_INVALID_STYLER, "No Stylers in pack '" + default_style_name + "'", keywords.at(i).begin());
 					}
 					else if (!stylers.at(default_style_name).count(current))
 					{
-						add_error(GLUU_ERROR_INVALID_STYLER, "No Styler for '" + current + "' in pack '" + default_style_name + "'", keywords.at(i).begin());
+						debugger.static_error(GLUU_ERROR_INVALID_STYLER, "No Styler for '" + current + "' in pack '" + default_style_name + "'", keywords.at(i).begin());
 					}
 					else
 					{
@@ -342,7 +246,7 @@ namespace GLUU {
 				}
 				else
 				{
-					add_error(GLUU_ERROR_INVALID_KEYWORD, "Unrecognised keyword '" + current + "'", keywords.at(i).begin());
+					debugger.static_error(GLUU_ERROR_INVALID_KEYWORD, "Unrecognised keyword '" + current + "'", keywords.at(i).begin());
 					//std::cout << "Invalid param: " << current << std::endl; //error
 				}
 			}
@@ -350,7 +254,7 @@ namespace GLUU {
 			return row;
 		}
 
-		string_ranges extract_header(string_ranges& range, bool& error)
+		string_ranges extract_header(string_ranges& range)
 		{
 			vector<string_ranges> ranges = range_delimiter(range, expr_open, expr_close);
 
@@ -376,7 +280,7 @@ namespace GLUU {
 			return copy;
 		}
 
-		string_ranges extract_tail(string_ranges& range, bool& error)
+		string_ranges extract_tail(string_ranges& range)
 		{
 			vector<string_ranges> ranges = range_delimiter(range, row_open + expr_open, row_close + expr_close);
 
@@ -401,23 +305,10 @@ namespace GLUU {
 
 		void parse_graphic(string_ranges row, bool is_row)
 		{
-			bool err = false;
-			string_ranges head = extract_header(row, err);
-			string_ranges tail = extract_tail(row, err);
+			string_ranges head = extract_header(row);
+			string_ranges tail = extract_tail(row);
 
-			
-
-			if (err)
-			{
-				return;
-			}
-			
-
-			for (size_t i = 0; i < row_level; i++)
-			{
-				std::cout << "\t";
-			}
-			std::cout << "HEAD " + head.flat() << std::endl;
+			debugger.print_row(head.flat());
 
 			Element row_obj = parse_header(head);
 			shared_ptr<VariableRegistry> old_scope = current_scope;
@@ -427,11 +318,11 @@ namespace GLUU {
 			current_scope = row_obj.scope;
 			graphics->current_row = &row_obj;
 			variable_dictionnary()->enter_scope(current_scope);
-			row_level++;
+			debugger.next_row();
 
 			parse_range(row, is_row ? col_keyword : row_keyword, !is_row);
 
-			row_level--;
+			debugger.prev_row();
 			variable_dictionnary()->exit_scope();
 			graphics->current_row = old_base;
 			current_scope = old_scope;
@@ -450,8 +341,6 @@ namespace GLUU {
 				add_error(GLUU_ERROR_INVALID_ROW, "Invalid row", range.begin());
 				return;
 			}*/
-
-
 
 			vector<string_ranges> sub_rows = split_escape_delim(range, expr_open + row_open, expr_close + row_close, keyword);
 
@@ -543,23 +432,11 @@ namespace GLUU {
 			remove_all_range(str, "//", "\n", false);
 			remove_all_range(str, "/*", "*/", true);
 
-			lines.clear();
-			line_cntr = 1;
-			size_t coffset = 0;
-			while (true)
-			{
-				size_t f = str.find('\n', coffset);
-
-				if (f == str.npos) break;
-
-				lines.emplace(f, line_cntr);
-				line_cntr++;
-				coffset = f + 1;
-			}
+			debugger.fetch_lines(str);
+			debugger.source_begin = str.begin();
 
 			change_whitespace_to_space(str);
 
-			source_begin = str.begin();
 			default_style_name = "default";
 
 			parse_range(str, row_keyword, true);
@@ -569,25 +446,9 @@ namespace GLUU {
 
 			graphics->init();
 
-			output_errors();
+			debugger.output_errors();
 
 			return graphics;
-		}
-
-		bool output_errors() 
-		{
-			if (!errors.empty())
-			{
-				std::cout << "Errors during compilation: " << std::endl;
-				for (auto& e : errors)
-				{
-					std::cout << "At line " << e.line << " character " << e.ch << std::endl;
-					std::cout << e.message << std::endl;
-				}
-				errors.clear();
-				return true;
-			}
-			return false;
 		}
 
 		void render(Rect_d windowSize)

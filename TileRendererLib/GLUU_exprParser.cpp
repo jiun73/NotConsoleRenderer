@@ -5,7 +5,7 @@
 namespace GLUU {
 	Expression ExpressionParser::parse_sequence_next(string_ranges str)
 	{
-		Expression ret(return_flags.back());
+		Expression ret(parser->debugger, parser->debugger.make_info(str.begin()), return_flags.back());
 		ret.root = true;
 		ret.scope = variable_dictionnary()->make_new_scope("Expr scope");
 		shared_ptr<VariableRegistry> old_scope = parser->current_scope;
@@ -14,8 +14,8 @@ namespace GLUU {
 
 		if (str.empty())
 		{
-			parser->add_error(GLUU_ERROR_EMPTY_SEQUENCE, "Trying to parse an empty sequence (why?)", str.begin());
-			return Expression(return_flags.back());
+			parser->debugger.static_error(GLUU_ERROR_EMPTY_SEQUENCE, "Trying to parse an empty sequence (why?)", str.begin());
+			return Expression(parser->debugger, parser->debugger.make_info(str.begin()), return_flags.back());
 		}
 
 		str = range_trim(str, ' ');

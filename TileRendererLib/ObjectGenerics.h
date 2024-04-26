@@ -9,6 +9,12 @@ template<typename T>
 constexpr bool is_type_complete_v
 <T, std::void_t<decltype(sizeof(T))>> = true;
 
+template<typename T>
+struct remove_param_const { typedef T type; };
+
+template<template<typename...> typename T, typename... I>
+struct remove_param_const<T<I...>> { typedef T<std::remove_const_t<I>...> type; };
+
 struct GenericObject : public Generic
 {
 	virtual shared_generic dereference() = 0;
@@ -39,8 +45,8 @@ public:
 	template <typename U> static no_type  second_test(...);
 	static constexpr bool has_second = sizeof(second_test<T>(0)) == sizeof(yes_type);
 
-	shared_generic first() override { if constexpr (has_first) { return _object_->first; } return nullptr; }
-	shared_generic second() override { if constexpr (has_second) { return _object_->second; } return nullptr; }
+	shared_generic first() override { if constexpr (has_first) { return make_shared <GenericRef<remove_param_const<decltype(_object_->first)>::type>>(&_object_->first); } return nullptr; }
+	shared_generic second() override { if constexpr (has_second) { return make_shared < GenericRef<remove_param_const<decltype(_object_->second)>::type>>(&_object_->second);} return nullptr; }
 
 	GenericRef() {}
 	//GenericRef(T& copy) : _object_(&copy) {}
@@ -67,16 +73,18 @@ public:
 		else return sizeof(T); 
 	}
 
-	void set(shared_generic value)
+	bool set(shared_generic value)
 	{
-		if (value->type() != type()) { std::cout << "{set: types do not match}"; return; }
-		if constexpr (!is_type_complete_v<T>) { std::cout << "{type not complete}"; return; }
-		else if constexpr (std::is_abstract_v<T>) { std::cout << "{type is abract}"; return; }
+		if (value->type() != type()) { std::cout << "{set: types do not match}"; return false; }
+		if constexpr (!is_type_complete_v<T>) { std::cout << "{type not complete}"; return false; }
+		else if constexpr (std::is_abstract_v<T>) { std::cout << "{type is abract}"; return false; }
 		else if constexpr (std::is_copy_assignable_v<T>) *_object_ = *(T*)(value->raw_bytes());
 		else
 		{
 			std::cout << "not nothrow!!!" << std::endl;
+			return false;
 		}
+		return true;
 	}
 
 	string stringify() override { return strings::stringify(*_object_); };
@@ -117,8 +125,8 @@ public:
 	template <typename U> static no_type  second_test(...);
 	static constexpr bool has_second = sizeof(second_test<T>(0)) == sizeof(yes_type);
 
-	//shared_generic first() override { if constexpr (has_first) { return _object_.first; } return nullptr; }
-	//shared_generic second() override { if constexpr (has_second) { return _object_.second; } return nullptr; }
+	shared_generic first() override { if constexpr (has_first) { return make_shared <GenericRef<decltype(_object_.first)>>(&_object_.first); } return nullptr; }
+	shared_generic second() override { if constexpr (has_second) { return make_shared < GenericRef<decltype(_object_.second)>>(&_object_.second); } return nullptr; }
 
 	GenericType() {}
 	GenericType(const T& copy) : _object_(copy) {}
@@ -129,20 +137,22 @@ public:
 	const type_info& identity() override { return typeid(GenericObject); }
 	size_t size() override { return sizeof(T); }
 
-	void set(shared_generic value)
+	bool set(shared_generic value)
 	{
 		if (value->type() != type()) 
 		{ 
 			std::cout << "{set: types do not match }" << value->type().name() << " " << type().name() << std::endl; 
-			return; 
+			return false; 
 		}
-		if constexpr (!is_type_complete_v<T>) { std::cout << "{type not complete}"; return; }
-		else if constexpr (std::is_abstract_v<T>) { std::cout << "{type is abract}"; return; }
+		if constexpr (!is_type_complete_v<T>) { std::cout << "{type not complete}"; return false; }
+		else if constexpr (std::is_abstract_v<T>) { std::cout << "{type is abstract}"; return false; }
 		else if constexpr (std::is_copy_assignable_v<T>) _object_ = *(T*)(value->raw_bytes());
 		else
 		{
 			std::cout << "not nothrow!" << std::endl;
+			return false;
 		}
+		return true;
 	}
 
 	string stringify() override { return strings::stringify(_object_); };
@@ -176,7 +186,7 @@ class NullGeneric : public Generic
 	 char* raw_bytes() override { return nullptr; };
 	 const type_info& type() override { return typeid(void); };
 	 const type_info& identity() override { return typeid(NullGeneric); };
-	 void set(shared_generic value) override { };
+	 bool set(shared_generic value) override { };
 	 size_t size() override { return 0; };
 
 	 string stringify() override { return "null"; }
