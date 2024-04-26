@@ -52,7 +52,7 @@ new function :animation_size =  { :curanim .frames -size }
 new function :has_colliders = { colliders -size > 0 }
 new function :has_tags = 
 { 
-	//$if { :has_colliders :not } { return :false; };
+	$if { :has_colliders :not } { return :false; };
 	:curcolliders .tags -size > 0 
 }
 
