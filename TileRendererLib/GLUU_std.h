@@ -397,5 +397,18 @@ namespace GLUU {
 
 				return container->make_value();
 			});
+
+		import_function<void(_sgen_, _sgen_)>("~", [](_sgen_ b, _sgen_ a)
+			{
+				if (a->metaidentity() != typeid(MetaGeneric))
+				{
+					std::cout << "Cannot new_obj a non-container" << std::endl;
+					return;
+				}
+
+				auto meta = rein<MetaGeneric>(a);
+
+				meta->set_ptr(b);
+			});
 	}
 }

@@ -8,7 +8,6 @@
 * it just calls the functions inside of the pointer  it holds
 * the only difference is that the set function does not change the value, but the pointer
 * so you can change which object it acts on
-* 
 */
 class MetaGeneric : public GenericContainer
 {
@@ -20,7 +19,9 @@ public:
 
 	const type_info& type() override { return obj->type(); }
 	const type_info& identity() override { return obj->identity(); }
-	bool set(shared_generic value) override { obj = value; return true; };
+	const type_info& metaidentity() override { return typeid(MetaGeneric); }
+
+	bool set(shared_generic value) override { return obj->set(value); };
 	size_t size() override { return obj->size(); };
 
 	string stringify() override { return obj->stringify(); };
@@ -57,6 +58,8 @@ public:
 	 shared_generic first() override { return to_object()->first(); }
 	 shared_generic second() override { return to_object()->second(); }
 	 bool equals(shared_generic a) override { return to_object()->equals(a); };
+
+	 void set_ptr(shared_generic a) { obj = a; }
 };
 
 class MetaGenericFactory : public MetaGeneric
@@ -65,7 +68,7 @@ public:
 	shared_generic make() override 
 	{ 
 		auto meta = std::make_shared<MetaGeneric>();
-		meta->set(std::make_shared<NullGeneric>());
+		meta->set_ptr(std::make_shared<NullGeneric>());
 		return meta;
 	};
 };

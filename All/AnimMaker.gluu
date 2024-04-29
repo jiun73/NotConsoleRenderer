@@ -287,14 +287,14 @@ row px 800 <
 				{
 					arg* string text;
 					
-					$if { :curcolliders .tags -has_key @text :not } 
-					{
-						var key;
-						key = { :curcolliders .tags -new_obj };
-						FrameXColliderSet set;
-						:cout :type key;
-						key .first = @text;
-						:curcolliders .tags -push key;
+					$if { :curcolliders .tags -has_key @text :not }		
+					{													
+						var key;										
+						key ~ { :curcolliders .tags -new_obj };	
+						FrameXColliderSet set;					
+						:cout :type key;									
+						key .first = @text;									
+						:curcolliders .tags -push key;						
 					}; 
 
 					@text = "";
