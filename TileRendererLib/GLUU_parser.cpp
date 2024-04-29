@@ -66,6 +66,10 @@ namespace GLUU
 			{
 				current_scope->add(make_generic_ref(gfx), s.at(0).flat());
 			}));
+
+		register_inspector<NullGeneric>({});
+
+		ClassFactory::get()->factories.emplace("var", new MetaGenericFactory());
 	};
 
 	void Parser::register_class(shared_ptr <Widget> c)

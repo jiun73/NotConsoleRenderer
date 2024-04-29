@@ -184,9 +184,9 @@ public:
 class NullGeneric : public Generic
 {
 	 char* raw_bytes() override { return nullptr; };
-	 const type_info& type() override { return typeid(void); };
+	 const type_info& type() override { return typeid(NullGeneric); };
 	 const type_info& identity() override { return typeid(NullGeneric); };
-	 bool set(shared_generic value) override { };
+	 bool set(shared_generic value) override { return false; };
 	 size_t size() override { return 0; };
 
 	 string stringify() override { return "null"; }

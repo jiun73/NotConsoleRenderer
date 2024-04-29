@@ -13,13 +13,17 @@ namespace GLUU {
 
 	struct Inspector
 	{
+		map<string, function<shared_generic(shared_generic)>> members;
 		shared_generic type_factory;
-		function<shared_generic(shared_generic, const string&)> inspect_func;
+		
 		shared_generic inspect(shared_generic gen, const string& get)
 		{
-			auto ret = inspect_func(gen, get);
+			if (members.count(get))
+			{
+				return members.at(get)(gen);
+			}
 
-			if (ret != nullptr) return ret;
+			//if (ret != nullptr) return ret;
 			if (gen->identity() != typeid(GenericObject)) return nullptr;
 
 			shared_ptr<GenericObject> obj = std::reinterpret_pointer_cast<GenericObject>(gen);
@@ -402,7 +406,33 @@ namespace GLUU {
 						return eval;
 					}
 
-					shared_generic ret = inspectors->at(eval->type()).inspect(eval, member);
+					shared_generic ret = nullptr;
+
+					if (member == "first")
+					{
+						if (eval->identity() == typeid(GenericObject))
+						{
+							ret = std::reinterpret_pointer_cast<GenericObject>(eval)->first();
+						}
+					}
+
+					if (member == "second")
+					{
+						if (eval->identity() == typeid(GenericObject))
+						{
+							ret = std::reinterpret_pointer_cast<GenericObject>(eval)->second();
+						}
+					}
+
+					if (ret == nullptr)
+					{
+						if (!inspectors->count(eval->type()))
+						{
+							throw_error(GLUU_ERROR_RUNTIME_NULL_RETURN, "Inspector not found for this type ! " + string(eval->type().name()));
+						}
+
+						ret = inspectors->at(eval->type()).inspect(eval, member);
+					}
 
 					if (ret == nullptr) //invalid member name
 					{

@@ -34,9 +34,9 @@ namespace GLUU {
 	template<typename T>
 	struct ImportInspector
 	{
-		ImportInspector(function<shared_generic(shared_generic, const string&)> func)
+		ImportInspector(const map<string,function<shared_generic(shared_generic)>>& dict)
 		{
-			parser()->register_inspector<T>(func);
+			parser()->register_inspector<T>(dict);
 		}
 		~ImportInspector() {}
 	};

@@ -41,7 +41,7 @@ namespace strings
 
 		std::ostringstream ss;
 
-		//strings_hidden::operator<<(ss, x);
+		strings_hidden::operator<<(ss, x);
 		//ss << x;
 
 		return ss.str();

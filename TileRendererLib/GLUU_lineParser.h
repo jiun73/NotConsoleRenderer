@@ -193,13 +193,15 @@ namespace GLUU {
 
 				Expression copy = constants.back();
 
-				if (copy.get_type() != typeid(shared_generic))
+				auto _ty = copy.get_type();
+				if (_ty != typeid(shared_generic) && _ty != typeid(NullGeneric))
 				{
-					if (!parser->inspectors.count(copy.get_type()))
-					{
-						parser->debugger.static_error(GLUU_ERROR_INVALID_VARIABLE_NAME, "'" + string(copy.get_type().name()) + "' has no members",  keyword.begin());
-						return false;
-					};
+					if(!(flat == ".first" || flat == ".second"))
+						if (!parser->inspectors.count(copy.get_type()))
+						{
+							parser->debugger.static_error(GLUU_ERROR_INVALID_VARIABLE_NAME, "'" + string(copy.get_type().name()) + "' has no members",  keyword.begin());
+							return false;
+						};
 				}
 
 				Expression inspector_expr(parser->debugger, parser->debugger.make_info(keyword.begin()), return_flags->back());

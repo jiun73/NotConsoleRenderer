@@ -18,9 +18,11 @@ using std::string;
 class FactoryManager
 {
 private:
-	map<string, shared_generic> factories;
+	
 
 public:
+	map<string, shared_generic> factories;
+
 	FactoryManager() {}
 	~FactoryManager() {}
 
@@ -29,6 +31,7 @@ public:
 	{
 		if (!has(name))
 		{
+
 			std::cout << "Added type " << name << " to factory" << std::endl;
 			if constexpr (is_container<T>::value)
 			{
@@ -59,7 +62,7 @@ struct FactoryManagerAdder
 		if (replace_char)
 		{
 			string copy = name;
-			copy = replace(replace(copy, '<', '('), '>', ')').flat();
+			copy = replace(replace(replace(copy, '<', '('), '>', ')'), ',', '-').flat();
 			ClassFactory::get()->add<T>(copy);
 		}
 		else

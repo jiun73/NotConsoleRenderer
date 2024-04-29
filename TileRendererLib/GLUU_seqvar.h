@@ -33,6 +33,7 @@ namespace GLUU {
 
 				if (eval == nullptr)
 				{
+					seq.throw_error(GLUU_ERROR_RUNTIME_NULL_RETURN, "Function returned null! expected " + string(typeid(T).name()));
 					assert(false); //Fatal error! Check returns for your function
 				}
 

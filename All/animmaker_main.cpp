@@ -5,96 +5,58 @@
 #define __IMPORT_MAKE_REF__(n) if (str == #n) return make_generic_ref(obj.##n)
 
 
-const FactoryManagerAdder<std::pair< string, FrameXColliderSet>>* vectosr_anfdsfdsimf__adder = new FactoryManagerAdder<std::pair< string, FrameXColliderSet>>("pair(string-FrameXColliderSet)", true);
-GLUU::ImportInspector<std::pair< string, FrameXColliderSet>> animf2_inpector([](shared_generic gen, const string& str) -> shared_generic
-	{
-		std::pair< string, FrameXColliderSet>& obj = *(std::pair< string, FrameXColliderSet>*)(gen->raw_bytes());
-		if (str == "first") return make_generic_ref(obj.first);
-		if (str == "second") return make_generic_ref(obj.second);
-		return nullptr;
-	});
+REGISTER_TYPE(AnimationXColliders);
+NEW_INSPECTOR(AnimationXColliders)({
+	INSPECTOR_FIELDC(AnimationXColliders, tags)
+});
 
-__REGISTER_CLASS__(AnimationXColliders);
-GLUU::ImportInspector<AnimationXColliders> animcol_inpector([](shared_generic gen, const string& str) -> shared_generic
-	{
-		AnimationXColliders& obj = *(AnimationXColliders*)(gen->raw_bytes());
-		if (str == "tags") return make_generic_container_ref(obj.tags);
-		return nullptr;
-	});
+REGISTER_TYPE(FrameXColliderSet);
+NEW_INSPECTOR(FrameXColliderSet)({
+	INSPECTOR_FIELDC(FrameXColliderSet, colliders)
+});
 
-const FactoryManagerAdder<vector<FrameXColliderSet>>* vector_animgfcol__adder = new FactoryManagerAdder<vector<FrameXColliderSet>>("vector(FrameXColliderSet)", true);
-__REGISTER_CLASS__(FrameXColliderSet);
-GLUU::ImportInspector<FrameXColliderSet> animfcolset_inpector([](shared_generic gen, const string& str) -> shared_generic
-	{
-		FrameXColliderSet& obj = *(FrameXColliderSet*)(gen->raw_bytes());
-		if (str == "colliders") return make_generic_container_ref(obj.colliders);
-		return nullptr;
-	});
+REGISTER_TYPE(vector<FrameXColliderSet>);
+REGISTER_TYPE(vector<AnimationXColliders>);
+REGISTER_TYPE(FrameXCollider);
+NEW_INSPECTOR(FrameXCollider)({
+	INSPECTOR_FIELD(FrameXCollider, anchor),
+	INSPECTOR_FIELD(FrameXCollider, bounds)
+});
 
-__REGISTER_CLASS__(FrameXCollider);
-GLUU::ImportInspector<FrameXCollider> animfcol_inpector([](shared_generic gen, const string& str) -> shared_generic
-	{
-		FrameXCollider& obj = *(FrameXCollider*)(gen->raw_bytes());
-		if (str == "anchor") return make_generic_ref(obj.anchor);
-		if (str == "bounds") return make_generic_ref(obj.bounds);
-		return nullptr;
-	});
-
-const FactoryManagerAdder<vector<AnimationXColliders>>* vector_animcol__adder = new FactoryManagerAdder<vector<AnimationXColliders>>("vector(AnimationXColliders)", true);
-
-__REGISTER_CLASS__(AnimationX);
-GLUU::ImportInspector<AnimationX> anim_inpector([](shared_generic gen, const string& str) -> shared_generic
-	{
-		AnimationX& obj = *(AnimationX*)(gen->raw_bytes());
-		if (str == "frames") return make_generic_container_ref(obj.frames);
-		if (str == "textures") return make_generic_container_ref(obj.textures);
-		if (str == "name") return make_generic_ref(obj.name);
-		return nullptr;
-	});
+REGISTER_TYPE(AnimationX);
+NEW_INSPECTOR(AnimationX)({
+	INSPECTOR_FIELDC(AnimationX, frames),
+	INSPECTOR_FIELDC(AnimationX, textures),
+	INSPECTOR_FIELD(AnimationX, name)
+});
 
 const FactoryManagerAdder<vector<AnimationX>>* vector_anim__adder = new FactoryManagerAdder<vector<AnimationX>>("vector(AnimationX)", true);
 const FactoryManagerAdder<vector<AnimationFrameX>>* vector_animf__adder = new FactoryManagerAdder<vector<AnimationFrameX>>("vector(AnimationFrameX)", true);
 
-__REGISTER_CLASS__(AnimationFrameX);
-GLUU::ImportInspector<AnimationFrameX> animf_inpector([](shared_generic gen, const string& str) -> shared_generic
-	{
-		AnimationFrameX& obj = *(AnimationFrameX*)(gen->raw_bytes());
-		if (str == "time") return make_generic_ref(obj.time);
-		if (str == "tex") return make_generic_ref(obj.tex);
-		if (str == "anchors") return make_generic_container_ref(obj.anchors);
-		//if (str == "colliders") return make_generic_ref(obj.colliders);
-		if (str == "full_source") return make_generic_ref(obj.full_source);
-		if (str == "origin") return make_generic_ref(obj.origin);
-		if (str == "source") return make_generic_ref(obj.source);
-		return nullptr;
-	});
+REGISTER_TYPE(AnimationFrameX);
+NEW_INSPECTOR(AnimationFrameX)({
+	INSPECTOR_FIELD(AnimationFrameX, time),
+	INSPECTOR_FIELD(AnimationFrameX, tex),
+	INSPECTOR_FIELDC(AnimationFrameX, anchors),
+	INSPECTOR_FIELD(AnimationFrameX, full_source),
+	INSPECTOR_FIELD(AnimationFrameX, origin),
+	INSPECTOR_FIELD(AnimationFrameX, source)
+});
 
-const FactoryManagerAdder<std::pair< string, V2d_i>>* vectosr_animf__adder = new FactoryManagerAdder<std::pair< string, V2d_i>>("pair(string-V2d_i)", true);
-GLUU::ImportInspector<std::pair< string, V2d_i>> gfdgdanimf2_inpector([](shared_generic gen, const string& str) -> shared_generic
-	{
-		std::pair< string, V2d_i>& obj = *(std::pair< string, V2d_i>*)(gen->raw_bytes());
-		if (str == "first") return make_generic_ref(obj.first);
-		if (str == "second") return make_generic_ref(obj.second);
-		return nullptr;
-	});
+using std::pair;
+REGISTER_TYPE(pair<string,V2d_i>);
 
-__REGISTER_CLASS__(V2d_i);
-GLUU::ImportInspector<V2d_i> animf22_inpector([](shared_generic gen, const string& str) -> shared_generic
-	{
-		V2d_i& obj = *(V2d_i*)(gen->raw_bytes());
-		if (str == "x") return make_generic_ref(obj.x);
-		if (str == "y") return make_generic_ref(obj.y);
-		return nullptr;
-	});
+REGISTER_TYPE(V2d_i);
+NEW_INSPECTOR(V2d_i)({
+	INSPECTOR_FIELD(V2d_i, x),
+	INSPECTOR_FIELD(V2d_i, y)
+});
 
-__REGISTER_CLASS__(Rect);
-GLUU::ImportInspector<Rect> animf3_inpector([](shared_generic gen, const string& str) -> shared_generic
-	{
-		Rect& obj = *(Rect*)(gen->raw_bytes());
-		if (str == "pos") return make_generic_ref(obj.pos);
-		if (str == "sz") return make_generic_ref(obj.sz);
-		return nullptr;
-	});
+REGISTER_TYPE(Rect);
+NEW_INSPECTOR(Rect)({
+	INSPECTOR_FIELD(Rect, pos),
+	INSPECTOR_FIELD(Rect, sz)
+});
 
 class Custom_FrameCreatorWidget : public GLUU::Widget
 {

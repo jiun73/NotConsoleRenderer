@@ -1,6 +1,7 @@
 #pragma once
 #include "Generics.h"
 #include "FunctionGenerics.h"
+#include "MetaGeneric.h"
 #include "StringRanges.h"
 #include "CommandDictionnary.h"
 #include "NotConsoleRenderer.h"
@@ -140,20 +141,13 @@ namespace GLUU {
 		}
 
 		template<typename T>
-		void register_inspector(function<shared_generic(shared_generic, const string&)> inspector)
+		void register_inspector(const map<string, function<shared_generic(shared_generic)>>& dict)
 		{
 			Inspector inspect;
-			inspect.inspect_func = inspector;
+			inspect.members = dict;
 			inspect.type_factory = make_generic<T>();
 			inspectors.emplace(typeid(typename remove_param_const<T>::type), inspect);
 		}
-
-		
-
-
-		
-
-		
 
 		void register_class(shared_ptr <Widget> c);
 

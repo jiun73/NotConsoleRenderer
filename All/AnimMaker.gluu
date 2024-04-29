@@ -17,7 +17,7 @@ new function :curanim =
 
 new function :curcolliders = 
 {
-	$while { colliders -size /+ { animations -size }  }
+	$while { colliders -size /- { animations -size }  }
 	{
 		AnimationXColliders n;
 		colliders -push n;
@@ -289,10 +289,11 @@ row px 800 <
 					
 					$if { :curcolliders .tags -has_key @text :not } 
 					{
-						pair(string-FrameXColliderSet) key;
+						var key;
+						key = { :curcolliders .tags -new_obj };
 						FrameXColliderSet set;
+						:cout :type key;
 						key .first = @text;
-						key .second = set;
 						:curcolliders .tags -push key;
 					}; 
 
@@ -304,8 +305,9 @@ row px 800 <
 			<
 				new int tag_i = 0
 
-				col px 30 button { "<" } {tag_i --} <>
-				col px 30 button { ">" } {tag_i ++} <>
+				col px 30 button { "<" } {tag_i --; $if { tag_i /- { :curcolliders .tags -size } } { tag_i = { :curcolliders .tags -size } } } <>
+				col px 30 button { ">" } {tag_i ++; $if { tag_i /+ { :curcolliders .tags -size - 1 } } { tag_i = 0 }; } <>
+				col px 30 text { $if { :curcolliders .tags -size == 0 } { return "no tags"; }; # { :curcolliders .tags -at tag_i } } <>
 			>
 
 			row px 30 if { state } button { "Close" } { state = :false; } <>

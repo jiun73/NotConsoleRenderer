@@ -93,7 +93,7 @@ int main()
 
 	cb->method();
 
-	GLUU::parser()->register_inspector<Color>([](shared_generic gen, const string& str) -> shared_generic
+	/*GLUU::parser()->register_inspector<Color>([](shared_generic gen, const string& str) -> shared_generic
 		{
 			Color& col = *(Color*)gen->raw_bytes();
 			if (str == "r") return make_generic_ref(col.r);
@@ -102,6 +102,11 @@ int main()
 			if (str == "a") return make_generic_ref(col.a);
 			return nullptr;
 		});
+
+	GLUU::parser()->register_inspector<Color>(
+		{
+			{""}
+		});*/
 
 	int test_variable = 1000;
 
