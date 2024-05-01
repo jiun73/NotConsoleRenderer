@@ -22,6 +22,7 @@ struct Generic
 	virtual char* raw_bytes() = 0;
 	virtual const type_info& type() = 0;
 	virtual const type_info& identity() = 0;
+	virtual const type_info& metaidentity() { return identity(); }
 	virtual bool set(shared_generic value) = 0;
 	virtual size_t size() = 0;
 
