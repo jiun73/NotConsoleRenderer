@@ -63,17 +63,19 @@ class Custom_FrameCreatorWidget : public GLUU::Widget
 {
 	GLUU::SeqVar<AnimationX> animation;
 	GLUU::SeqVar<AnimationFrameX> current_frame;
+	GLUU::SeqVar<AnimationXColliders> colliders;
 	GLUU::SeqVar <int> current_anchor;
 
 	EditorPlane plane;
 
-	GLUU_Make(3, "FRAME_CREATOR")
+	GLUU_Make(4, "FRAME_CREATOR")
 	{
 		auto ptr = make_shared<Custom_FrameCreatorWidget>();
 
 		ptr->animation.set(args.at(0), parser);
 		ptr->current_frame.set(args.at(1), parser);
 		ptr->current_anchor.set(args.at(2), parser);
+		ptr->colliders.set(args.at(3), parser);
 
 		return ptr;
 	}
@@ -128,6 +130,16 @@ class Custom_FrameCreatorWidget : public GLUU::Widget
 			draw_anchor(p.second, COLOR_GREEN, image.pos);
 		}
 
+		for (auto& c : colliders().tags)
+		{
+			std::hash<string> hasher;
+			Random r(hasher(c.first));
+			pencil(Color(r.range(0, 255), r.range(0, 255), r.range(0, 255), 255));
+			for (auto& f : c.second.colliders)
+			{
+				draw_full_rect(f.bounds);
+			}
+		}
 		
 		SDL_RenderSetClipRect(get_sdl_ren(), NULL);
 		

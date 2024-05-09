@@ -214,7 +214,7 @@ new bool collider_state = false
 row px 800 <
 	new int anchor_i = -1
 
-	col fixed px 4 if { :has_frames } FRAME_CREATOR { :curanim } { :curframe } { anchor_i } <>
+	col fixed px 4 if { :has_frames } FRAME_CREATOR { :curanim } { :curframe } { :curcolliders } { anchor_i } <>
 
 
 	col px 1 if { :has_frames } 
