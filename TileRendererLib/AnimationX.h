@@ -245,6 +245,16 @@ public:
 		last = SDL_GetTicks();
 	}
 
+	bool has_anchor(const string& str) 
+	{
+		return current_frame().anchors.count(str);
+	}
+
+	V2d_i get_anchor(const string& str)
+	{
+		return current_frame().anchors.at(str);
+	}
+
 	void render(SDL_Renderer* ren, bool always_top_left = false)
 	{
 		update();

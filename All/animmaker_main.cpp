@@ -130,14 +130,20 @@ class Custom_FrameCreatorWidget : public GLUU::Widget
 			draw_anchor(p.second, COLOR_GREEN, image.pos);
 		}
 
-		for (auto& c : colliders().tags)
+		auto& map = colliders();
+		for (auto& c : map.tags)
 		{
 			std::hash<string> hasher;
 			Random r(hasher(c.first));
 			pencil(Color(r.range(0, 255), r.range(0, 255), r.range(0, 255), 255));
 			for (auto& f : c.second.colliders)
 			{
-				draw_full_rect(f.bounds);
+				if (!current_frame().anchors.count(f.anchor)) continue;
+
+				V2d_i anc = ((V2d_d)(current_frame().anchors.at(f.anchor))*plane.scale) + (V2d_d)image.pos;
+
+				Rect b = { anc, (V2d_d)(f.bounds.sz) * plane.scale};
+				draw_rect(b);
 			}
 		}
 		

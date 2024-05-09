@@ -214,7 +214,7 @@ new bool collider_state = false
 row px 800 <
 	new int anchor_i = -1
 
-	col fixed px 4 if { :has_frames } FRAME_CREATOR { :curanim } { :curframe } { :curcolliders } { anchor_i } <>
+	col fixed px 4 if { :has_frames } FRAME_CREATOR { :curanim } { :curframe } { anchor_i } { :curcolliders } <>
 
 
 	col px 1 if { :has_frames } 
@@ -302,10 +302,15 @@ row px 800 <
 			> 
 
 			new int tag_i = 0
+			new int box_i = 0
 
 			new function :has_box = {
 				$if { :has_tags :not } { return :false; };
 				{ :curcolliders .tags -at tag_i } .second .colliders -size > 0
+			}
+
+			new function :curboxes = {
+				return :curcolliders .tags -at tag_i .second .colliders
 			}
 
 			row px 30 if { :not state :and collider_mode :and :not :has_tags }
@@ -328,20 +333,39 @@ row px 800 <
 				col px 30 button { "+" } 
 				{
 					FrameXCollider boxes;
-					boxes .anchor = "test";
+					boxes .anchor = "Origin";
 					boxes .bounds = :rect 10 10 10 10;
 					:curcolliders .tags -at tag_i .second .colliders -push boxes;
 				}
 			>
 
-			row px 30 if { :not state :and collider_mode :and :has_tags  }
-			<
-				col px 30 text { :curcolliders .tags -at tag_i .second .colliders # }
-			>
+			//row px 30 if { :not state :and collider_mode :and :has_tags  }
+			//<
+			//	col px 30 text { :curcolliders .tags -at tag_i .second .colliders # }
+			//>
 
 			row px 30 if { :not state :and collider_mode :and :not :has_box  }
 			<
 				col px 30 text { "no boxes" } <>
+			>
+
+			row px 30 if { :not state :and collider_mode :and :has_box  }
+			<
+				col <
+					row px 30 <
+						col px 30 button { "<" } {box_i --; $if { box_i /- 0 } { box_i = { :curboxes -size - 1 } } } <>
+						col px 30 button { ">" } {box_i ++; $if { box_i /+ { :curboxes -size - 1 } } { box_i = 0 }; } <>
+					>
+
+					row px 30 textbox { :curboxes -at box_i .anchor }
+					{
+						arg* string text;
+
+						:curboxes -at box_i .anchor = @text;
+
+						@text = "";
+					} <>
+				>
 			>
 
 			row px 30 if { state } button { "Close" } { state = :false; } <>
