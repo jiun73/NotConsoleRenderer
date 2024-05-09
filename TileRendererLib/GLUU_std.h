@@ -60,8 +60,15 @@ namespace GLUU {
 			});
 		import_function<void()>("!!!", []()
 			{
-				std::cout << "brpt" << std::endl;
+				Global::get()->debugger.throw_error(GLUU_ERROR_NOT_ENOUGH_ARGS, "Hit a breakpoint");
 			});
+
+		import_function<void(_sgen_)>("=!", [](_sgen_ a)
+			{
+				Global::get()->get_scope()->add(a, "debugger_value");
+				Global::get()->debugger.throw_error(GLUU_ERROR_NOT_ENOUGH_ARGS, "Hit a breakpoint with object");
+			});
+
 
 		import_function<bool(_sgen_, _sgen_)>("==", [](_sgen_ b, _sgen_ a)
 			{

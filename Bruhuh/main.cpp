@@ -484,6 +484,7 @@ int main()
 	computer.settings.clockSpeed = 50;
 	computer.registers.resize(3);
 	inventory.available_intructions = { {SHOOT, {2} },{LOAD, {2} } };
+	inventory.infinite = true;
 
 	GFX_system* gfx_sys = ECSX::EntX::get()->get_system<GFX_system>();
 	WeaponParser& parser = ECSX::EntX::get()->get_system<Shooter_system>()->parser;

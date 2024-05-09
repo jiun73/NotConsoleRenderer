@@ -132,14 +132,17 @@ public:
 	shared_generic at(size_t i) override
 	{
 		typename T::iterator it = iter_at(i);
-		if constexpr (is_same_v<value_type, typename T::value_type>) //if type has no const args
-		{
-			if (it != container->end()) return std::make_shared<GenericRef<value_type>>(&(*it));
-		}
-		else
-		{
-			if (it != container->end()) return std::make_shared<GenericType<value_type>>(*it); //otherwise we need to make a copy
-		}
+
+		if (it != container->end()) return std::make_shared<GenericRef<typename T::value_type>>(&(*it));
+
+		//if constexpr (is_same_v<value_type, typename T::value_type>) //if type has no const args
+		//{
+		//	if (it != container->end()) return std::make_shared<GenericRef<value_type>>(&(*it));
+		//}
+		//else
+		//{
+		//	if (it != container->end()) return std::make_shared<GenericType<value_type>>(*it); //otherwise make a copy 
+		//}
 
 		
 		return nullptr;
@@ -243,14 +246,16 @@ public:
 	{
 		typename T::iterator it = iter_at(i);
 
-		if constexpr (is_same_v<value_type, typename T::value_type>) //if type has no const args
-		{
-			if (it != container.end()) return std::make_shared<GenericRef<value_type>>(&(*it));
-		}
-		else
-		{
-			if (it != container.end()) return std::make_shared<GenericType<value_type>>(*it); //otherwise we need to make a copy
-		}
+		if (it != container.end()) return std::make_shared<GenericRef<typename T::value_type>>(&(*it));
+
+		//if constexpr (is_same_v<value_type, typename T::value_type>) //if type has no const args
+		//{
+		//	if (it != container.end()) return std::make_shared<GenericRef<value_type>>(&(*it));
+		//}
+		//else
+		//{
+		//	if (it != container.end()) return std::make_shared<GenericType<value_type>>(*it); //otherwise we need to make a copy
+		//}
 
 		return nullptr;
 	}

@@ -17,6 +17,7 @@ NEW_INSPECTOR(FrameXColliderSet)({
 
 REGISTER_TYPE(vector<FrameXColliderSet>);
 REGISTER_TYPE(vector<AnimationXColliders>);
+
 REGISTER_TYPE(FrameXCollider);
 NEW_INSPECTOR(FrameXCollider)({
 	INSPECTOR_FIELD(FrameXCollider, anchor),

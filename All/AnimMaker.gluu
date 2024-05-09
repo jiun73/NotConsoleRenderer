@@ -301,13 +301,47 @@ row px 800 <
 				}
 			> 
 
+			new int tag_i = 0
+
+			new function :has_box = {
+				$if { :has_tags :not } { return :false; };
+				{ :curcolliders .tags -at tag_i } .second .colliders -size > 0
+			}
+
+			row px 30 if { :not state :and collider_mode :and :not :has_tags }
+			<
+				col px 30 text { "no tags" } <>
+			>
+
 			row px 30 if { :not state :and collider_mode :and :has_tags }
 			<
-				new int tag_i = 0
+				col px 60 <
+					row <
+						col text { :curcolliders .tags -at tag_i .first }
+					>
+					row <
+						col px 30 button { "<" } {tag_i --; $if { tag_i /- 0 } { tag_i = { :curcolliders .tags -size - 1 } } } <>
+						col px 30 button { ">" } {tag_i ++; $if { tag_i /+ { :curcolliders .tags -size - 1 } } { tag_i = 0 }; } <>
+					>
+				>
+				
+				col px 30 button { "+" } 
+				{
+					FrameXCollider boxes;
+					boxes .anchor = "test";
+					boxes .bounds = :rect 10 10 10 10;
+					:curcolliders .tags -at tag_i .second .colliders -push boxes;
+				}
+			>
 
-				col px 30 button { "<" } {tag_i --; $if { tag_i /- { :curcolliders .tags -size } } { tag_i = { :curcolliders .tags -size } } } <>
-				col px 30 button { ">" } {tag_i ++; $if { tag_i /+ { :curcolliders .tags -size - 1 } } { tag_i = 0 }; } <>
-				col px 30 text { $if { :curcolliders .tags -size == 0 } { return "no tags"; }; # { :curcolliders .tags -at tag_i } } <>
+			row px 30 if { :not state :and collider_mode :and :has_tags  }
+			<
+				col px 30 text { :curcolliders .tags -at tag_i .second .colliders # }
+			>
+
+			row px 30 if { :not state :and collider_mode :and :not :has_box  }
+			<
+				col px 30 text { "no boxes" } <>
 			>
 
 			row px 30 if { state } button { "Close" } { state = :false; } <>

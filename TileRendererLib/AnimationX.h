@@ -277,7 +277,7 @@ struct FrameXColliderSet
 
 struct AnimationXColliders
 {
-	map<string, vector<FrameXColliderSet>> tags;
+	map<string, FrameXColliderSet> tags;
 
 public:
 	AnimationXColliders() {}
@@ -295,21 +295,17 @@ public:
 				auto& tag = base("tags");
 				for (auto& c : tag.get_chunks())
 				{
-					tags.emplace(c, vector<FrameXColliderSet>());
-					auto& set = tag(c)("set");
-					for (size_t j = 0; j < set.index_size(); j++)
+					FrameXColliderSet fset;
+
+					for (size_t k = 0; k < tag(c).index_size(); k++)
 					{
-						FrameXColliderSet fset;
-						
-						auto& colliders = set[j]("colliders");
-						for (size_t k = 0; k < colliders.index_size(); k++)
-						{
-							FrameXCollider col;
-							colliders[k] >> col.bounds >> col.anchor;
-							fset.colliders.push_back(col);
-						}
-						tags.at(c).push_back(fset);
+						auto& colliders = tag(c)[k]("colliders");
+						FrameXCollider col;
+						colliders[k] >> col.bounds >> col.anchor;
+						fset.colliders.push_back(col);
 					}
+
+					tags.emplace(c, fset);
 				}
 			}
 		}
@@ -318,16 +314,11 @@ public:
 			for (auto& t : tags)
 			{
 				auto& tag = base("tags")(t.first);
-				for (auto& v : t.second)
+				for (auto& v : t.second.colliders)
 				{
-					auto& set = tag("set");
-					for (auto& col : v.colliders)
-					{
-						auto& colliders = set("colliders");
-						colliders << col.bounds << col.anchor;
-						colliders << NCR::Files::next;
-					}
-					set << NCR::Files::next;
+					auto& colliders = tag("colliders");
+					colliders << v.bounds << v.anchor;
+					colliders << NCR::Files::next;
 				}
 			}
 		}
