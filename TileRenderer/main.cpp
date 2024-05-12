@@ -5,6 +5,7 @@
 #include "File.h"
 #include "Networking.h"
 #include "CommandStandard.h"
+#include "Timeline.h"
 
 /*
 * Ceci est un exemple!
@@ -52,6 +53,26 @@ class Message
 	size_t peer;
 };
 
+TimeManager man;
+
+struct IntHandler 
+{
+	void apply(TimeMs time, const Event& event, V2d_i& data, const V2d_i& dest, size_t end)
+	{
+		data.x = dest.x * ((time - event.time) / (double)end);
+		data.y = dest.y * ((time - event.time) / (double)end);
+		std::cout << (data) << std::endl;
+	}
+};
+
+struct SinHandler
+{
+	void apply(TimeMs time, const Event& event, V2d_i& data)
+	{
+
+	}
+};
+
 int main() 
 {
 	add_regular_command_set();
@@ -64,49 +85,16 @@ int main()
 	* juste plus rapide et meilleur
 	*/
 
-	A a;
-	B b;
-	C c;
-
-	a.method();
-	b.method();
-	c.method();
-
-	A* ab = &b;
-	A* ac = &c;
-
-	ab->method();
-	ac->method();
-
-	B* bc = &c;
-
-	bc->method();
-
-	C* cb = static_cast<C*>(&b);
-
-	int ra = 0;
-	int rb = 0;
-	int* aa = &ra;
-	int* bb = &rb;
-
-	aa == bb;
-
-	cb->method();
-
-	/*GLUU::parser()->register_inspector<Color>([](shared_generic gen, const string& str) -> shared_generic
-		{
-			Color& col = *(Color*)gen->raw_bytes();
-			if (str == "r") return make_generic_ref(col.r);
-			if (str == "g") return make_generic_ref(col.g);
-			if (str == "b") return make_generic_ref(col.b);
-			if (str == "a") return make_generic_ref(col.a);
-			return nullptr;
-		});
-
-	GLUU::parser()->register_inspector<Color>(
-		{
-			{""}
-		});*/
+	
+	std::cout << "'test' field id: " << man.register_field<V2d_i>("p1") << std::endl;
+	std::cout << "'test' field id: " << man.register_field<V2d_i>("p2") << std::endl;
+	std::cout << "'test' field id: " << man.register_field<V2d_i>("p3") << std::endl;
+	std::cout << "int handler id: " << man.register_handler<IntHandler, V2d_i, V2d_i, size_t>() << std::endl;
+	std::cout << "int actor id: " << man.make_actor(0b111) << std::endl; 
+	man.add_event_to_actor(2000, 0, 0, man.make_event<V2d_i, size_t>(0, V2d_i(100,100), 1000));
+	man.add_event_to_actor(2000, 1,0, man.make_event<V2d_i, size_t>(0, V2d_i(100, 0), 1000));
+	man.add_event_to_actor(2000, 2,0, man.make_event<V2d_i, size_t>(0, V2d_i(0, 100), 500));
+	
 
 	int test_variable = 1000;
 
@@ -120,10 +108,12 @@ int main()
 
 	Random r;
 
-	open_dialog();
+	//open_dialog();
 
 	while (run()) //boucle principale
 	{
+		man.snapshot_now(SDL_GetTicks());
+
 		pencil(COLOR_BLACK); //Permet d'enlever tout ce qui reste de la derniere frame
 		draw_clear();
 
@@ -270,6 +260,10 @@ int main()
 		V2d_i p1 = { 80, 60 };
 		V2d_i p2 = { 80, 10 };
 		V2d_i p3 = { 50, 30 };
+
+		p1 = man.get_actor_field<V2d_i>(0, 0);
+		p2 = man.get_actor_field<V2d_i>(0, 1);
+		p3 = man.get_actor_field<V2d_i>(0, 2);
 
 		pencil(COLOR_GREEN);
 		draw_line(p1, p2);
