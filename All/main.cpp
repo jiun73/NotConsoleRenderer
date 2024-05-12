@@ -33,13 +33,94 @@ class ButtonWidgetStyler_Minecraft : public GLUU::Styler<GLUU::ButtonWidget>
 		draw_text(widget.text(), (int)w, { centerposx, centerposy }, get_font(2));
 		
 	}
+
+	STYLER_COPY;
 };
 
 inline GLUU::ImportStyler<ButtonWidgetStyler_Minecraft> import_button_styler("minecraft");
 
+class ButtonWidgetStyler_GLUU : public GLUU::Styler<GLUU::ButtonWidget>
+{
+	char style_id = '1';
+
+	bool set_arg(const string& arg) override
+	{
+		if (arg == "rounded")
+		{
+			style_id = '2';
+			return true;
+		}
+		else if (arg == "key") {
+			style_id = '3';
+			return true;
+		}
+	}
+
+	void render(GLUU::Element& graphic, GLUU::ButtonWidget& widget)
+	{
+		if (widget.is_hover && widget.is_held)
+		{
+			switch (style_id)
+			{
+			case '1':
+				draw_image_9patch("GLUU/GUI.png", { {24,0}, 24 }, graphic.last_dest);
+				break;
+			case '2':
+				draw_image_9patch("GLUU/GUI.png", { {0,0}, 24 }, graphic.last_dest);
+				break;
+			case '3':
+				draw_image_9patch("GLUU/GUI.png", { {24 * 4,0}, 24 }, graphic.last_dest, 2);
+				break;
+			default:
+				break;
+			}
+			
+			pencil(COLOR_PINK);
+		}
+		else
+			switch (style_id)
+			{
+			case '1':
+				draw_image_9patch("GLUU/GUI.png", { 0, 24 }, graphic.last_dest);
+				break;
+			case '2':
+				draw_image_9patch("GLUU/GUI.png", { {0, 24}, 24 }, graphic.last_dest);
+				break;
+			case '3':
+				draw_image_9patch("GLUU/GUI.png", { {24 * 3,0}, 24 }, graphic.last_dest, 2);
+				break;
+			default:
+				break;
+			}
+			
+
+		int w = get_text_draw_size(widget.text(), get_font(0));
+		int h = get_font(0).height;
+		int centerposx = graphic.last_dest.pos.x + (((int)graphic.last_dest.sz.x - w) / 2);
+		int centerposy = graphic.last_dest.pos.y + (((int)graphic.last_dest.sz.y - h) / 2);
+
+		if (style_id == '3' && !widget.is_held)
+		{
+			centerposy -= 3;
+		}
+
+		get_font(0).set_color(Color(0, 0, 0, 255));
+		draw_text(widget.text(), (int)w, { centerposx + 1, centerposy + 1 }, get_font(0));
+		get_font(0).set_color(COLOR_WHITE);
+		draw_text(widget.text(), (int)w, { centerposx, centerposy }, get_font(0));
+
+	}
+
+	STYLER_COPY;
+};
+
+inline GLUU::ImportStyler<ButtonWidgetStyler_GLUU> import_button_grstyler("GLUU");
+
 int main()
 {
-	set_window_size({ (int)(1920 * 0.75),(int)(1080 * 0.75) });
+	set_window_size({ (int)(1920),(int)(1080) });
+	set_window_spawn({ (int)(1920 * 0.75),(int)(1080 * 0.75) });
+	set_window_logical_rescaling(true);
 	set_window_resizable();
 	init();
 
@@ -73,8 +154,8 @@ int main()
 		set_override_run(true);
 		pencil(COLOR_BLACK);
 		draw_clear();
-		menu->render({ 0,get_logical_size() });
-		set_window_size({ (int)(1920 * 0.75),(int)(1080 * 0.75) });
+		menu->render({ 0,get_window_size() });
+		set_window_size({ (int)(1920),(int)(1080) });
 		set_override_run(false);
 	}
 }

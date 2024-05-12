@@ -5,7 +5,15 @@
 
 struct Event;
 
-typedef void(*fn_type)(const Event&, char*, size_t);
+
+typedef char EventID; //that would leave us with only 256 possible event types, but if we make them generic enough, it can work
+typedef size_t TimeMs;
+typedef size_t Bitmask64;
+typedef char* RawData;
+typedef void(*EventFunc)(const Event&, RawData, TimeMs);
+
+using std::map;
+using std::vector;
 
 /*
 * Describes what to do with a certain actor given a certain time
@@ -13,10 +21,15 @@ typedef void(*fn_type)(const Event&, char*, size_t);
 */
 struct Event
 {
-	char event_code; //that would leave us with only 256 possible event types, but if we make them generic enough, it can work
+	EventID id; 
 	bool end = false;
-	char* params = nullptr;
-	fn_type fn = nullptr;
+	RawData params = nullptr;
+	EventFunc fn = nullptr;
+
+	void apply(TimeMs time, RawData data)
+	{
+		fn(*this, data, time);
+	}
 };
 
 /*
@@ -25,14 +38,18 @@ struct Event
 */
 class Timeline 
 {
-	std::array<std::map<size_t, Event>, 256> events;
+	map<TimeMs, Event> events;
 
 public:
-
 	//Applies all the events at the given time
-	void snapshot(size_t time) 
+	void snapshot(const TimeMs& time)
 	{
+		events.lower_bound(time)->second.apply(time);
+	}
 
+	void add_event(const TimeMs& time, const Event& event)
+	{
+		events.emplace(time, event);
 	}
 };
 
@@ -44,8 +61,8 @@ public:
 struct Actor 
 {
 	Timeline timeline;
-	size_t key;
-	char* data;
+	Bitmask64 key;
+	RawData data;
 };
 
 /*
@@ -55,10 +72,15 @@ struct Actor
 */
 class TimeManager 
 {
-	std::vector<fn_type> functions;
-	std::vector<Actor> actors;
+	vector<EventFunc> functions;
+	vector<Actor> actors;
 
 public:
+	Event make_event(EventID id)
+	{
+
+	}
+
 	void snapshot_now()
 	{
 

@@ -241,7 +241,7 @@ namespace ANIMMAKER
 			pencil(COLOR_CYAN);
 			draw_clear();
 
-			menu->render({ 0,get_logical_size() });
+			menu->render({ 0,get_window_size() });
 		}
 	}
 

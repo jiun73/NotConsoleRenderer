@@ -114,6 +114,7 @@ namespace GLUU {
 		map <string, map<string, shared_ptr<StylerInterface>>> stylers;
 
 		shared_ptr<Compiled> graphics;
+		string current_styler_args = "";
 
 	public:
 		Debugger debugger;
@@ -228,7 +229,12 @@ namespace GLUU {
 					}
 					else
 					{
-						row.widget->styler = stylers.at(default_style_name).at(current);
+						row.widget->styler = stylers.at(default_style_name).at(current)->copy();
+						if(current_styler_args != "")
+							if (!row.widget->styler->set_arg(current_styler_args))
+							{
+								debugger.static_error(GLUU_ERROR_INVALID_STYLER, "Invalid style arg '" + current_styler_args + "' for '" + current + "' in pack '" + default_style_name + "'", keywords.at(i).begin());
+							}
 					}
 				}
 				else if (keywords_func.count(current))

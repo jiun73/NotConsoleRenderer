@@ -108,10 +108,12 @@ namespace GLUU {
 
 	class DropboxWidgetStyler : public Styler<DropboxWidget>
 	{
-		void render(Element& graphic, DropboxWidget& widget)
+		void render(Element& graphic, DropboxWidget& widget) override
 		{
 			
 		}
+
+		STYLER_COPY;
 	};
 
 	inline ImportWidget<DropboxWidget> import_dropbox;

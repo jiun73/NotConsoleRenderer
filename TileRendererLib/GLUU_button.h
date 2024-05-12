@@ -57,7 +57,7 @@ namespace GLUU {
 
 	class ButtonWidgetStyler : public Styler<ButtonWidget>
 	{
-		void render(Element& graphic, ButtonWidget& widget)
+		void render(Element& graphic, ButtonWidget& widget) override
 		{
 			if (widget.is_hover)
 			{
@@ -74,6 +74,8 @@ namespace GLUU {
 			draw_rect(graphic.last_dest);
 			draw_text(widget.text(), (int)graphic.last_dest.sz.x, (V2d_i)(graphic.last_dest.pos), get_font(0));
 		}
+
+		STYLER_COPY;
 	};
 
 	inline ImportWidget<ButtonWidget> import_button;

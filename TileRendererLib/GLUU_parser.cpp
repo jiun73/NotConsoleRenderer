@@ -8,9 +8,16 @@ namespace GLUU
 	{
 		GLUU_scope = variable_dictionnary()->make_new_scope("GLUU");
 
-		keywords_func.emplace("style", make_pair(1, [](Parser& parser, Element& gfx, vector<string_ranges> s)
+
+		keywords_func.emplace("style", make_pair(2, [](Parser& parser, Element& gfx, vector<string_ranges> s)
 			{
 				string style_name = s.at(0).flat();
+				string arg_name = s.at(1).flat();
+
+				if (arg_name == "_")
+				{
+					arg_name = "";
+				}
 
 				if (!parser.stylers.count(style_name))
 				{
@@ -32,7 +39,14 @@ namespace GLUU
 				}
 				else
 				{
-					gfx.widget->styler = parser.stylers.at(style_name).at(widget_name);
+					gfx.widget->styler = parser.stylers.at(style_name).at(widget_name)->copy();
+
+
+					if (arg_name != "")
+						if (!gfx.widget->styler->set_arg(arg_name))
+						{
+							parser.debugger.static_error(GLUU_ERROR_INVALID_STYLER, "Invalid style arg '" + arg_name + "' for '" + widget_name + "' in pack '" + style_name + "'", s.at(0).begin());
+						}
 				}
 			}));
 
@@ -85,8 +99,17 @@ namespace GLUU
 		if (keywords.size() < 1) { debugger.static_error(GLUU_ERROR_INVALID_DECLARATION, "'new' with no name for declaration", dec.begin()); return; } //error GLUU_ERROR_INVALID_DECLARATION
 		if (keywords.at(0).flat() == "style")
 		{
-			if (keywords.size() < 2) { debugger.static_error(GLUU_ERROR_INVALID_FUNCTION_DECLARATION, "Invalid style declaraction (new style [style_pack])", dec.begin()); return; }
+			if (keywords.size() < 2 || keywords.size() > 3) { debugger.static_error(GLUU_ERROR_INVALID_FUNCTION_DECLARATION, "Invalid style declaraction (new style [style_pack])", dec.begin()); return; }
 			default_style_name = keywords.at(1).flat();
+
+			if (keywords.size() == 3)
+			{
+				current_styler_args = keywords.at(2).flat();
+			}
+			else
+			{
+				current_styler_args = "";
+			}
 		}
 		else if (keywords.at(0).flat() == "function" || keywords.at(0).flat() == "init" || keywords.at(0).flat() == "callback")
 		{

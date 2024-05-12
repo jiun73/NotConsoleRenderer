@@ -33,10 +33,13 @@ void set_window_resizable();
 //Si la fenêtre est ensuite agrandi/rétréssi, la taille ne change pas, mais les pixels deviennent plus gros
 //À appeler AVANT 'run'
 void set_window_size(V2d_i size);
+void set_window_spawn(V2d_i size);
 
 void set_window_windowed();
 void set_window_fullscreen();
 void set_window_borderless();
+
+void set_window_logical_rescaling(bool log);
 
 //Retourne le 'scale' par laquelle l'écran est multiplé
 //Par exemple, un écran qui est agrandi au double de sa taille originelle retourne 2
@@ -141,6 +144,8 @@ void draw_line(V2d_i start_position, V2d_i end_position);
 //Donc c'est comme dessiner un rectangle, sauf qu'il y a l'image dessus
 //'path' est le chemin ou se trouve l'image
 void draw_image(const string& path, Rect destination);
+void draw_image_tiled(const string& path, Rect source, Rect destination);
+void draw_image_9patch(const string& path, Rect source, Rect destination, double scale = 1);
 
 //Comme draw_image, sauf que ca permet de dessiner seulement une partie de l'image
 //La 'source' est les coordonnés ou va etre pris la partie de l'image a dessiner

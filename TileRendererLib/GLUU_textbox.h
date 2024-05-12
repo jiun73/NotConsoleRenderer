@@ -55,4 +55,12 @@ namespace GLUU {
 			}
 		}
 	};
+
+	class ButtonTextboxStyler : public Styler<TextboxWidget>
+	{
+		void render(Element& graphic, TextboxWidget& widget) override {}
+		STYLER_COPY;
+	};
+
+	inline ImportStyler<ButtonTextboxStyler> import_textbox_styler("default");
 }

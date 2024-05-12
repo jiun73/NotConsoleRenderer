@@ -5,7 +5,7 @@ new init setup = {
 
 new function :test = { }
 
-new style minecraft
+new style GLUU key
 
 row button CollisionX			{ $collisionx_main }
 row button TicTacToe			{ $tictactoe_main }
@@ -16,8 +16,3 @@ row button Chatroom				{ $chatroom_main }
 row button AnimMaker			{ $animmaker_main } 
 row button Pong					{ $pong_main }  
 row button VlanHelper			{ $vlan_helper }  
-row button VlanHelper			
-{ 
-	int i = 0; 
-	i = "dfdsfsd "; 
-}  

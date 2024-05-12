@@ -108,6 +108,7 @@ new function :set_origins_ratio = {
 	};
 }
 
+new style GLUU
 
 row if { state == 1 } popup { :rect 20 20 100 100 } < 
 	col <
@@ -120,7 +121,7 @@ row < col fixed <
 
 row px 30 <
 
-	col px 120 button { "Load images" } { :load_images } style minecraft <>
+	col px 120 button { "Load images" } { :load_images } style GLUU key <>
 	col px 900 dropbox {paths} {current_image} <>
 	col px 100 button Export 
 	{ 
@@ -385,23 +386,23 @@ row px 800 <
 
 			row px 30 if { state }
 			<
-				col button { "*" } { :set_origins_ratio ZERO ZERO } <>
-				col button { "*" } { :set_origins_ratio HALF ZERO } <>
-				col button { "*" } { :set_origins_ratio ONE ZERO } <>
+				col button { "*" } { :set_origins_ratio ZERO ZERO } style GLUU rounded <>
+				col button { "*" } { :set_origins_ratio HALF ZERO } style GLUU rounded <>
+				col button { "*" } { :set_origins_ratio ONE  ZERO } style GLUU rounded <>
 			>
 
 			row px 30 if { state }
 			<
-				col button { "*" } { :set_origins_ratio ZERO HALF } <>
-				col button { "*" } { :set_origins_ratio HALF HALF } <>
-				col button { "*" } { :set_origins_ratio ONE HALF } <>
+				col button { "*" } { :set_origins_ratio ZERO HALF } style GLUU rounded <>
+				col button { "*" } { :set_origins_ratio HALF HALF } style GLUU rounded <>
+				col button { "*" } { :set_origins_ratio ONE  HALF } style GLUU rounded <>
 			>
 
 			row px 30 if { state }
 			<
-				col button { "*" } { :set_origins_ratio ZERO ONE } <>
-				col button { "*" } { :set_origins_ratio HALF ONE } <>
-				col button { "*" } { :set_origins_ratio ONE ONE } <>
+				col button { "*" } { :set_origins_ratio ZERO ONE  } style GLUU rounded <>
+				col button { "*" } { :set_origins_ratio HALF ONE  } style GLUU rounded <>
+				col button { "*" } { :set_origins_ratio ONE  ONE  } style GLUU rounded <>
 			>
 		>>
 

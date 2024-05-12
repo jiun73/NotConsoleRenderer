@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 
 namespace GLUU
 {
@@ -7,8 +8,10 @@ namespace GLUU
 
 	struct StylerInterface
 	{
+		virtual bool set_arg(const string& arg) { return false; };
 		virtual void render_base( Element& graphic, Widget* widget) = 0;
 		virtual string widget_name() = 0;
+		virtual shared_ptr<StylerInterface> copy() = 0;
 	};
 
 	template<typename T>
@@ -27,6 +30,8 @@ namespace GLUU
 	};
 
 }
+
+#define STYLER_COPY shared_ptr<StylerInterface> copy() override { return std::make_shared<typename std::remove_reference_t<decltype(*this)>>(*this);}
 
 #include "GLUU_wint.h"
 

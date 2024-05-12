@@ -30,6 +30,8 @@ namespace hidden {
 	Uint32 frameTime = 0;
 	Uint32 frameDelay = (Uint32)(1000.0 / fps);
 
+	bool logical_rescaling = false;
+
 	//KeyboardInput _keyboard;
 	//MouseInput _mouse;
 	//JoystickInput _joystick;
@@ -38,6 +40,7 @@ namespace hidden {
 	SDL_Renderer* sdl_ren;
 	SDL_Window* sdl_win;
 	V2d_i window_size = { 1920,1080 };
+	V2d_i window_spawn_size = { 1920,1080 };
 	Vector2D<int> draw_offset = 0;
 	SDL_WindowFlags window_flags;
 	SDL_Event sdl_event;
@@ -59,7 +62,17 @@ using namespace hidden;
 
 Camera hidden::_camera;
 
-void set_window_size(V2d_i size) { window_size = size; }
+void set_window_size(V2d_i size) 
+{ 
+	window_size = size; 
+}
+
+
+void set_window_spawn(V2d_i size) 
+{
+	window_spawn_size = size;
+}
+
 void set_window_windowed()
 {
 	SDL_SetWindowFullscreen(sdl_win, 0);
@@ -76,6 +89,7 @@ void set_window_borderless()
 }
 
 void set_window_resizable() { window_flags = SDL_WindowFlags(window_flags | SDL_WINDOW_RESIZABLE); }
+void set_window_logical_rescaling(bool log = true) { logical_rescaling = log; }
 
 V2d_d get_renderer_scale()
 {
@@ -104,10 +118,17 @@ void set_logical_size(V2d_d sz)
 
 V2d_d mouse_position()
 {
-	V2d_d mpos = mouse().position();
-	mpos += (((V2d_d)window_size * get_renderer_scale()) - get_window_size()) / 2;
-	mpos /= get_renderer_scale();
-	return mpos + V2d_d(draw_offset);
+	if (!logical_rescaling)
+	{
+		V2d_d mpos = mouse().position();
+		mpos += (((V2d_d)window_size * get_renderer_scale()) - get_window_size()) / 2;
+		mpos /= get_renderer_scale();
+		return mpos + V2d_d(draw_offset);
+	}
+	else
+	{
+		return mouse().position();
+	}
 }
 
 V2d_d game_mouse_position()
@@ -127,7 +148,7 @@ void init()
 
 		SDL_Init(SDL_INIT_EVERYTHING);
 		TTF_Init();
-		SDL_CreateWindowAndRenderer(window_size.x, window_size.y, window_flags, &sdl_win, &sdl_ren);
+		SDL_CreateWindowAndRenderer(window_spawn_size.x, window_size.y, window_flags, &sdl_win, &sdl_ren);
 		SDL_RenderSetLogicalSize(sdl_ren, window_size.x, window_size.y);
 		sound().init();
 		fonts().read_hint_file(sdl_ren);
@@ -223,15 +244,22 @@ bool run()
 	{
 		if (sdl_event.type == SDL_QUIT) return false;
 
+		if (logical_rescaling && sdl_event.type == SDL_WINDOWEVENT)
+		{
+			if (sdl_event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+			{
+				std::cout << "resized!" << std::endl;
+				SDL_RenderSetLogicalSize(sdl_ren, sdl_event.window.data1, sdl_event.window.data2);
+				window_size = { sdl_event.window.data1, sdl_event.window.data2 };
+			}
+		}
+
 		_inputs.events(sdl_event);
 
 		//_keyboard.events(sdl_event);
 		//_mouse.events(sdl_event);
 		//_joystick.events(sdl_event);
 	}
-
-
-	
 
 	frameStart = SDL_GetTicks();
 
@@ -602,6 +630,69 @@ void draw_image(const string& path, Rect destination)
 	}
 
 	SDL_RenderCopy(sdl_ren, textures.at(path), NULL, destination.SDL());
+}
+
+void draw_image_tiled(const string& path, Rect source, Rect destination)
+{
+	SDL_RenderSetClipRect(sdl_ren, destination.SDL());	
+
+	for (int x = 0; x < std::ceil(destination.sz.x / source.sz.x); x++)
+	{
+		for (int y = 0; y < std::ceil(destination.sz.y / source.sz.y); y++)
+		{
+			Rect tdest;
+			tdest.pos = { x ,y };
+			tdest.pos = (tdest.pos * source.sz) + destination.pos;
+			tdest.sz = source.sz;
+			draw_image_from_source(path, source, tdest);
+		}
+	}
+
+	SDL_RenderSetClipRect(sdl_ren, NULL);
+}
+
+void draw_image_9patch(const string& path, Rect source, Rect destination, double scale)
+{
+	V2d_i tile_size = source.sz / 3;
+	V2d_i dest_tile_size = (V2d_d)tile_size * scale;
+
+	Rect tl_source = { source.pos, tile_size };
+	Rect ml_source = { {source.pos.x, source.pos.y + tile_size.y}, tile_size };
+	Rect bl_source = { {source.pos.x, source.pos.y + tile_size.y * 2}, tile_size };
+	Rect tm_source = { {source.pos.x + tile_size.x, source.pos.y}, tile_size };
+	Rect mm_source = { {source.pos.x + tile_size.x, source.pos.y + tile_size.y}, tile_size };
+	Rect bm_source = { {source.pos.x + tile_size.x, source.pos.y + tile_size.y * 2}, tile_size };
+	Rect tr_source = { {source.pos.x + tile_size.x * 2, source.pos.y}, tile_size };
+	Rect mr_source = { {source.pos.x + tile_size.x * 2, source.pos.y + tile_size.y}, tile_size };
+	Rect br_source = { {source.pos.x + tile_size.x * 2, source.pos.y + tile_size.y * 2}, tile_size };
+
+	Rect tl_dest = { destination.pos, dest_tile_size };
+	Rect ml_dest = { {destination.pos.x,destination.pos.y + dest_tile_size.y}, {dest_tile_size.x, destination.sz.y - dest_tile_size.y * 2} };
+	Rect bl_dest = { {destination.pos.x, destination.pos.y + destination.sz.y - dest_tile_size.y}, dest_tile_size };
+
+	Rect tm_dest = { {destination.pos.x + dest_tile_size.x, destination.pos.y}, {destination.sz.x - dest_tile_size.x * 2,dest_tile_size.y} };
+	Rect mm_dest = { {destination.pos + dest_tile_size}, { destination.sz - dest_tile_size * 2} };
+	Rect bm_dest = { {destination.pos.x + dest_tile_size.x, destination.pos.y + destination.sz.y - dest_tile_size.y}, {destination.sz.x - dest_tile_size.x * 2,dest_tile_size.y} };
+
+	Rect tr_dest = { {destination.pos.x + destination.sz.x - dest_tile_size.x,destination.pos.y}, dest_tile_size };
+	Rect mr_dest = { {destination.pos.x + destination.sz.x - dest_tile_size.x,destination.pos.y + dest_tile_size.y}, {dest_tile_size.x, destination.sz.y - dest_tile_size.y * 2} };
+	Rect br_dest = { destination.pos + destination.sz - dest_tile_size, dest_tile_size };
+
+	SDL_RenderSetClipRect(sdl_ren, destination.SDL());
+
+	draw_image_from_source(path, tl_source, tl_dest);
+	draw_image_from_source(path, tm_source, tm_dest);
+	draw_image_from_source(path, tr_source, tr_dest);
+
+	draw_image_from_source(path, ml_source, ml_dest);
+	draw_image_from_source(path, mm_source, mm_dest);
+	draw_image_from_source(path, mr_source, mr_dest);
+
+	draw_image_from_source(path, bl_source, bl_dest);
+	draw_image_from_source(path, bm_source, bm_dest);
+	draw_image_from_source(path, br_source, br_dest);
+
+	SDL_RenderSetClipRect(sdl_ren, NULL);
 }
 
 void draw_image_from_source(const string& path, Rect source, Rect destination)

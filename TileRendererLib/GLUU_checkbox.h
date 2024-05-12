@@ -53,7 +53,7 @@ namespace GLUU {
 
 	class CheckboxWidgetStyler : public Styler<CheckboxWidget>
 	{
-		void render(Element& graphic, CheckboxWidget& widget)
+		void render(Element& graphic, CheckboxWidget& widget) override 
 		{
 			pencil(COLOR_BLACK);
 			draw_full_rect(widget.but.box);
@@ -62,6 +62,8 @@ namespace GLUU {
 			draw_full_rect(box2);
 			draw_text(widget.text, widget.text_size.x, widget.text_pos, get_font(0));
 		}
+
+		STYLER_COPY;
 	};
 
 	inline ImportWidget<CheckboxWidget> import_checkbox;
