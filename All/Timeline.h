@@ -61,7 +61,7 @@ struct EventParameter
 		else
 			return nullptr;
 
-		
+
 	}
 
 protected:
@@ -97,11 +97,11 @@ protected:
 	template<typename T, typename... Rs>
 	void set_types(RawData data, size_t& index, const T& a, const Rs&... as)
 	{
-		
-			set_types_single<T>(data, index, a);
-			if constexpr (sizeof...(Rs) == 0) return;
-			else
-			{
+
+		set_types_single<T>(data, index, a);
+		if constexpr (sizeof...(Rs) == 0) return;
+		else
+		{
 			set_types<Rs...>(data, index, as...);
 		}
 	}
@@ -112,7 +112,7 @@ protected:
 template<typename... Ts>
 struct EventParameterType : public EventParameter
 {
-	bool internal_check(vector<type_index> types) override 
+	bool internal_check(vector<type_index> types) override
 	{
 		vector<type_index> self_types;
 		size_t size = 0;
@@ -135,10 +135,14 @@ struct EventHandler
 struct Event
 {
 	size_t time = 0;
-	HandlerID id = 0; 
+	HandlerID id = 0;
 	RawData params = nullptr;
 	EventHandler* behaviour = nullptr;
-	
+
+	TimeMs time_from(TimeMs global_time) const
+	{
+		return global_time - time;
+	}
 
 	void apply(TimeMs time, RawData data, size_t field_index)
 	{
@@ -149,12 +153,16 @@ struct Event
 	~Event() {}
 };
 
-class EventSequence 
+class EventSequence
 {
-	
+
 	map<TimeMs, Event> subevents;
 
 public:
+	EventSequence() {}
+	EventSequence(TimeMs time, const Event& e) { add_event(time, e); }
+	~EventSequence() {}
+
 	size_t field_index = 0;
 
 	void apply(TimeMs time, RawData data)
@@ -167,14 +175,14 @@ public:
 		}
 	}
 
-	TimeMs start_time() const 
+	TimeMs start_time() const
 	{
 		return subevents.begin()->first;
 	}
 
 	void add_event(TimeMs time, const Event& e)
 	{
-		subevents.emplace(time, e);
+		subevents.emplace(time, e).first->second.time = time;
 	}
 };
 
@@ -182,7 +190,7 @@ public:
 * Stores all events of an actor
 * by event type and time
 */
-class Timeline 
+class Timeline
 {
 	map<size_t, map<TimeMs, EventSequence>> events;
 
@@ -205,6 +213,11 @@ public:
 	{
 		events[event.field_index].emplace(event.start_time(), event);
 	}
+
+	map<size_t, map<TimeMs, EventSequence>>& get_events() 
+	{
+		return events;
+	}
 };
 
 /*
@@ -212,7 +225,7 @@ public:
 * 'key' is a bitmask describing the data types this actor has (e.g pos, size, etc)
 * 'data' is a pointer to this data, in the order it appears in the bitmask
 */
-struct Actor 
+struct Actor
 {
 	Timeline timeline;
 	Bitmask64 key;
@@ -281,14 +294,14 @@ class EventHandlerType : public EventHandler
 			using type = std::tuple_element_t<I, tuple<Args...>>;
 			size_t index_before = index;
 			index += sizeof(type);
-			apply_unfold<I + 1>(time,event,data,raw_args, index, args..., *(type*)(raw_args + index_before));
-			
+			apply_unfold<I + 1>(time, event, data, raw_args, index, args..., *(type*)(raw_args + index_before));
+
 		}
 		else
 		{
 			system.apply(time, event, *(D*)(data), args...);
 		}
-		 //TODO pass real args;
+		//TODO pass real args;
 	}
 
 
@@ -303,17 +316,18 @@ class EventHandlerType : public EventHandler
 			size_t index = 0;
 			apply_unfold<0>(time, event, data, args, index);
 		}
-		
+
 	}
 };
 
 /*
 * The time managers handles all actors and all events
-* 
+*
 * I'm optimising for events rather than for actors (there won't be that many anyway compared to the event count)
 */
-class TimeManager 
+class TimeManager
 {
+	TimeMs start_time = 0;
 	vector<EventHandler*> handlers;
 	vector<Actor> actors;
 
@@ -324,8 +338,10 @@ class TimeManager
 	DatatypeID field_counter = 0;
 
 public:
+	vector<Actor>& get_actors() { return actors; }
+
 	template<typename T>
-	void register_type() 
+	void register_type()
 	{
 		factories.emplace(typeid(T), new DataType<T>());
 	}
@@ -347,7 +363,7 @@ public:
 	}
 
 	template<typename T, typename D, typename... Args>
-	size_t register_handler() 
+	size_t register_handler()
 	{
 		handlers.push_back(new EventHandlerType<T, D, Args...>());
 		return handlers.size() - 1;
@@ -399,11 +415,11 @@ public:
 	{
 		for (auto& a : actors)
 		{
-			a.apply_snapshot(time);
+			a.apply_snapshot(time - start_time);
 		}
 	}
 
-	size_t get_index_for_field(size_t key, size_t fieldid) 
+	size_t get_index_for_field(size_t key, size_t fieldid)
 	{
 		size_t cntr = 0;
 		bool f = false;
@@ -421,16 +437,21 @@ public:
 	}
 
 	template<typename T>
-	T& get_actor_field(size_t actorid, size_t fieldid) 
+	T& get_actor_field(size_t actorid, size_t fieldid)
 	{
 		assert(factories.at(field_types.at(fieldid))->type() == typeid(T));
-		
+
 		return *(T*)(actors.at(actorid).data + get_index_for_field(actors.at(actorid).key, fieldid));
 	}
 
 	//Set the time mesured to start from now
-	void start()
+	void start(TimeMs time)
 	{
+		start_time = time;
+	}
 
+	TimeMs now(TimeMs time)
+	{
+		return time - start_time;
 	}
 };

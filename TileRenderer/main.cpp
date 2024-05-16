@@ -85,15 +85,16 @@ int main()
 	* juste plus rapide et meilleur
 	*/
 
+	size_t posField = man.register_field<V2d_i>("pos");
+	size_t sizeField = man.register_field<V2d_i>("size");
+	size_t animationField = man.register_field<int>("anim");
 	
-	std::cout << "'test' field id: " << man.register_field<V2d_i>("p1") << std::endl;
-	std::cout << "'test' field id: " << man.register_field<V2d_i>("p2") << std::endl;
-	std::cout << "'test' field id: " << man.register_field<V2d_i>("p3") << std::endl;
 	std::cout << "int handler id: " << man.register_handler<IntHandler, V2d_i, V2d_i, size_t>() << std::endl;
 	std::cout << "int actor id: " << man.make_actor(0b111) << std::endl; 
-	man.add_event_to_actor(2000, 0, 0, man.make_event<V2d_i, size_t>(0, V2d_i(100,100), 1000));
-	man.add_event_to_actor(2000, 1,0, man.make_event<V2d_i, size_t>(0, V2d_i(100, 0), 1000));
-	man.add_event_to_actor(2000, 2,0, man.make_event<V2d_i, size_t>(0, V2d_i(0, 100), 500));
+
+	EventSequence seq;
+	seq.add_event(2000, man.make_event<V2d_i, size_t>(0, V2d_i(100, 100), 1000));
+	man.add_event_to_actor(0, 0, seq);
 	
 
 	int test_variable = 1000;
@@ -260,10 +261,6 @@ int main()
 		V2d_i p1 = { 80, 60 };
 		V2d_i p2 = { 80, 10 };
 		V2d_i p3 = { 50, 30 };
-
-		p1 = man.get_actor_field<V2d_i>(0, 0);
-		p2 = man.get_actor_field<V2d_i>(0, 1);
-		p3 = man.get_actor_field<V2d_i>(0, 2);
 
 		pencil(COLOR_GREEN);
 		draw_line(p1, p2);

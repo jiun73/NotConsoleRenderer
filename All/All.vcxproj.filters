@@ -37,6 +37,9 @@
     <Filter Include="Fichiers sources\Pong">
       <UniqueIdentifier>{f9ca2ba5-ab7b-468a-bb0c-bc4ea02ad991}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers sources\Fighting Game">
+      <UniqueIdentifier>{bf2126f6-5b4f-4bda-87e4-e77230028d81}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -77,6 +80,9 @@
     </ClCompile>
     <ClCompile Include="vlanhelper.cpp">
       <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="main_fighter.cpp">
+      <Filter>Fichiers sources\Fighting Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -121,6 +127,9 @@
     </ClInclude>
     <ClInclude Include="tictactoe_game.h">
       <Filter>Fichiers sources\TicTacToe</Filter>
+    </ClInclude>
+    <ClInclude Include="Timeline.h">
+      <Filter>Fichiers sources\Fighting Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

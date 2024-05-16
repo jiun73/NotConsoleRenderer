@@ -139,6 +139,7 @@
     <ClCompile Include="connect4_main.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="main_chatroom.cpp" />
+    <ClCompile Include="main_fighter.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
@@ -163,6 +164,7 @@
     <ClInclude Include="Shape.h" />
     <ClInclude Include="Strings.h" />
     <ClInclude Include="tictactoe_game.h" />
+    <ClInclude Include="Timeline.h" />
     <ClInclude Include="usasim_Shooting.h" />
   </ItemGroup>
   <ItemGroup>

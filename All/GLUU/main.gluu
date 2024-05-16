@@ -16,3 +16,4 @@ row button Chatroom				{ $chatroom_main }
 row button AnimMaker			{ $animmaker_main } 
 row button Pong					{ $pong_main }  
 row button VlanHelper			{ $vlan_helper }  
+row button FightingGame			{ $main_fight }  
