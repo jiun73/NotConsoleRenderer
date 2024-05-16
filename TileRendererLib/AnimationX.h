@@ -32,6 +32,7 @@ class AnimationX
 public:
 	vector<SDL_Texture*> textures;
 	vector<AnimationFrameX> frames;
+	map<size_t, size_t> frameTimes;
 	string name;
 	uint32_t last = 0;
 	uint32_t overshoot = 0;
@@ -41,6 +42,22 @@ public:
 	V2d_i position = 0;
 
 public:
+	void build_frame_time_list() 
+	{
+		size_t i = 0;
+		size_t cum = 0;
+		for (auto& f : frames)
+		{
+			frameTimes.emplace(cum, i);
+			cum += f.time;
+		}
+	}
+
+	map<size_t, size_t>& get_frame_time_list() 
+	{
+		return frameTimes;
+	}
+
 	void readwrite(NCR::File& file, string s) 
 	{
 		/*auto& f_anim = file("data").value_as(s, name);
@@ -228,9 +245,9 @@ public:
 		return frames.at(currentFrame);
 	}
 
-	void update()
+	void update(size_t ticks)
 	{
-		uint32_t time = SDL_GetTicks();
+		uint32_t time = ticks;
 		int64_t elapsed = int64_t(time - last + overshoot);
 		overshoot = 0;
 
@@ -243,6 +260,11 @@ public:
 		overshoot = (uint32_t)elapsed;
 
 		last = SDL_GetTicks();
+	}
+
+	void update()
+	{
+		update(SDL_GetTicks());
 	}
 
 	bool has_anchor(const string& str) 

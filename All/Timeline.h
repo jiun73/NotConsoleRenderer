@@ -155,7 +155,6 @@ struct Event
 
 class EventSequence
 {
-
 	map<TimeMs, Event> subevents;
 
 public:
@@ -165,14 +164,19 @@ public:
 
 	size_t field_index = 0;
 
-	void apply(TimeMs time, RawData data)
+	Event& event_at(TimeMs time)
 	{
 		auto it = subevents.lower_bound(time);
 
 		if (it != subevents.begin())
 		{
-			(--it)->second.apply(time, data, field_index);
+			return (--it)->second;
 		}
+	}
+
+	void apply(TimeMs time, RawData data)
+	{
+		event_at(time).apply(time, data, field_index);
 	}
 
 	TimeMs start_time() const
@@ -195,17 +199,22 @@ class Timeline
 	map<size_t, map<TimeMs, EventSequence>> events;
 
 public:
+	EventSequence& event_at(TimeMs time, size_t field)
+	{
+		auto it = events.at(field).lower_bound(time);
+
+		if (it != events.at(field).begin())
+		{
+			return (--it)->second;
+		}
+	}
+
 	//Applies all the events at the given time
 	void snapshot(TimeMs time, RawData data)
 	{
 		for (auto& event : events)
 		{
-			auto it = event.second.lower_bound(time);
-
-			if (it != event.second.begin())
-			{
-				(--it)->second.apply(time, data);
-			}
+			event_at(time, event.first).apply(time,data);
 		}
 	}
 
@@ -442,6 +451,16 @@ public:
 		assert(factories.at(field_types.at(fieldid))->type() == typeid(T));
 
 		return *(T*)(actors.at(actorid).data + get_index_for_field(actors.at(actorid).key, fieldid));
+	}
+
+	EventSequence& get_actor_data_sequence(TimeMs time, size_t actorid, size_t fieldid)
+	{
+		return actors.at(actorid).timeline.event_at(time, fieldid);
+	}
+
+	Event& get_actor_data_event(TimeMs time, size_t actorid, size_t fieldid)
+	{
+		return get_actor_data_sequence(time, actorid, fieldid).event_at(time);
 	}
 
 	//Set the time mesured to start from now
