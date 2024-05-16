@@ -28,6 +28,7 @@ using std::type_index;
 
 struct Event;
 struct EventHandler;
+struct TimeManager;
 
 inline vector<size_t> get_list_from_bytes(Bitmask64 bytes)
 {
@@ -128,16 +129,22 @@ struct EventHandler
 	virtual void apply(TimeMs time, const Event& event, RawData data, RawData args) = 0;
 };
 
+
+
 /*
 * Describes what to do with a certain actor given a certain time
 * (e.x position, size, etc)
 */
 struct Event
 {
+public:
 	size_t time = 0;
 	HandlerID id = 0;
+	size_t actorid;
+	size_t fieldbyteid = 0;
 	RawData params = nullptr;
 	EventHandler* behaviour = nullptr;
+	TimeManager* manager = nullptr;
 
 	TimeMs time_from(TimeMs global_time) const
 	{
@@ -146,6 +153,7 @@ struct Event
 
 	void apply(TimeMs time, RawData data, size_t field_index)
 	{
+		fieldbyteid = field_index;
 		behaviour->apply(time, *this, (data + field_index), params);
 	}
 
@@ -187,6 +195,14 @@ public:
 	void add_event(TimeMs time, const Event& e)
 	{
 		subevents.emplace(time, e).first->second.time = time;
+	}
+
+	void set_actor(size_t actorid)
+	{
+		for (auto& e : subevents)
+		{
+			e.second.actorid = actorid;
+		}
 	}
 };
 
@@ -378,12 +394,8 @@ public:
 		return handlers.size() - 1;
 	}
 
-	//Makes a new Actor and returns it's index
-	//Once you make an Actor, it can never be removed (at least during the manager's life cycle)
-	size_t make_actor(Bitmask64 key)
+	pair<RawData, size_t> allocate_actor_data(Bitmask64 key)
 	{
-		Actor actor;
-		actor.key = key;
 		vector<DatatypeID> ids = get_list_from_bytes(key);
 		size_t full_size = 0;
 		for (auto i : ids)
@@ -391,6 +403,13 @@ public:
 			full_size += factories.at(field_types.at(i))->size();
 		}
 		RawData data = new char[full_size];
+		return { data,full_size };
+	}
+
+	RawData make_actor_data(Bitmask64 key)
+	{
+		vector<DatatypeID> ids = get_list_from_bytes(key);
+		RawData data = allocate_actor_data(key).first;
 
 		size_t index = 0;
 		for (auto i : ids)
@@ -399,7 +418,16 @@ public:
 			index += factories.at(field_types.at(i))->size();
 		}
 
-		actor.data = data;
+		return data;
+	}
+
+	//Makes a new Actor and returns it's index
+	//Once you make an Actor, it can never be removed (at least during the manager's life cycle)
+	size_t make_actor(Bitmask64 key)
+	{
+		Actor actor;
+		actor.key = key;
+		actor.data = make_actor_data(key);
 		actors.push_back(actor);
 		return actors.size() - 1;
 	}
@@ -409,6 +437,7 @@ public:
 	{
 		Event e;
 		e.id = id;
+		e.manager = this;
 		e.behaviour = handlers.at(id);
 		e.params = handlers.at(id)->param()->set(args...);
 		return e;
@@ -417,6 +446,7 @@ public:
 	void add_event_to_actor(size_t fieldid, size_t actorid, EventSequence e)
 	{
 		e.field_index = get_index_for_field(actors.at(actorid).key, fieldid);
+		e.set_actor(actorid);
 		actors.at(actorid).timeline.add_event(e);
 	}
 
@@ -452,6 +482,17 @@ public:
 
 		return *(T*)(actors.at(actorid).data + get_index_for_field(actors.at(actorid).key, fieldid));
 	}
+
+	template<typename T>
+	T& get_actor_field_at(TimeMs time, size_t actorid, size_t fieldbyteid)
+	{
+		assert(factories.at(field_types.at(fieldbyteid))->type() == typeid(T));
+		RawData data = make_actor_data(actors.at(actorid).key); //allocate a temporary dummy of the actor data
+
+		actors.at(actorid).timeline.event_at(time, fieldbyteid).apply(time, data); //get a snapshot of this event
+		return *(T*)(data + fieldbyteid);
+	}
+
 
 	EventSequence& get_actor_data_sequence(TimeMs time, size_t actorid, size_t fieldid)
 	{

@@ -21,6 +21,17 @@ namespace FIGHT
 		}
 	};
 
+	//Like linear handler, but start from the value right before the event
+	struct MoveHandler
+	{
+		//speed is movement per 1000 ms
+		void apply(TimeMs time, const Event& event, int& i, const int speed)
+		{
+			int start = event.manager->get_actor_field_at<int>(event.time - 1, event.actorid, event.fieldbyteid); //get the value right before the event happened
+			i = ((event.time_from(time) / 1000.0) * (double)speed) + start;
+		}
+	};
+
 	struct QuadHandler
 	{
 		//speed is movement per 1000 ms
@@ -90,7 +101,8 @@ namespace FIGHT
 		//std::cout << "int handler id: " << man.register_handler<IntHandler, V2d_i, V2d_i, size_t>() << std::endl;
 		size_t linear = man.register_handler<LinearHandler, int, int, int>();
 		size_t point = man.register_handler<PointHandler, int, int>();
-		size_t quad = man.register_handler<QuadHandler, int, int, int,int,int>();
+		size_t quad = man.register_handler<QuadHandler, int, int, int, int, int>();
+		size_t move = man.register_handler<MoveHandler, int, int>();
 		std::cout << "int actor id: " << man.make_actor(0b1111) << std::endl;
 		std::cout << "int actor id: " << man.make_actor(0b1111) << std::endl;
 
@@ -128,11 +140,11 @@ namespace FIGHT
 
 			if (key_pressed(SDL_SCANCODE_W) || (key_released(SDL_SCANCODE_S) && key_held(SDL_SCANCODE_W)))
 			{
-				man.add_event_to_actor(posYField, 0, EventSequence(now, man.make_event<int, int>(linear, y, -100)));
+				man.add_event_to_actor(posYField, 0, EventSequence(now, man.make_event<int>(move, -100)));
 			}
 			else if(key_pressed(SDL_SCANCODE_S) || (key_released(SDL_SCANCODE_W) && key_held(SDL_SCANCODE_S)))
 			{
-				man.add_event_to_actor(posYField, 0, EventSequence(now, man.make_event<int, int>(linear, y, 100)));
+				man.add_event_to_actor(posYField, 0, EventSequence(now, man.make_event<int>(move, 100)));
 			}
 			else if ((key_released(SDL_SCANCODE_S) && !key_held(SDL_SCANCODE_W)) || (key_released(SDL_SCANCODE_W) && !key_held(SDL_SCANCODE_S)))
 			{

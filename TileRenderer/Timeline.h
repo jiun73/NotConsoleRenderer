@@ -28,6 +28,7 @@ using std::type_index;
 
 struct Event;
 struct EventHandler;
+struct TimeManager;
 
 inline vector<size_t> get_list_from_bytes(Bitmask64 bytes)
 {
@@ -138,7 +139,7 @@ struct Event
 	HandlerID id = 0; 
 	RawData params = nullptr;
 	EventHandler* behaviour = nullptr;
-	
+	TimeManager* manager = nullptr;
 
 	void apply(TimeMs time, RawData data, size_t field_index)
 	{
@@ -383,6 +384,7 @@ public:
 	Event make_event(HandlerID id, const Ts&... args)
 	{
 		Event e;
+		e.manager = this;
 		e.id = id;
 		e.behaviour = handlers.at(id);
 		e.params = handlers.at(id)->param()->set(args...);
