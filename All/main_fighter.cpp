@@ -46,6 +46,14 @@ namespace FIGHT
 		}
 	};
 
+	struct CollisionSystem 
+	{
+		void update(TimeMs time, int fielddata1, int fielddata2)
+		{
+
+		}
+	};
+
 	struct AnimationManager 
 	{
 	private:

@@ -13,6 +13,9 @@ struct Event;
 
 
 typedef char HandlerID; //that would leave us with only 256 possible event types, but if we make them generic enough, it can work
+typedef size_t FieldID;
+typedef size_t ActorID;
+typedef size_t FieldByteIndex;
 typedef size_t TimeMs;
 typedef size_t Bitmask64;
 typedef size_t DatatypeID;
@@ -138,10 +141,11 @@ struct EventHandler
 struct Event
 {
 public:
-	size_t time = 0;
+	TimeMs time = 0;
 	HandlerID id = 0;
-	size_t actorid;
-	size_t fieldbyteid = 0;
+	ActorID actorid = 0;
+
+	FieldByteIndex fieldbyteid = 0;
 	RawData params = nullptr;
 	EventHandler* behaviour = nullptr;
 	TimeManager* manager = nullptr;
@@ -151,7 +155,7 @@ public:
 		return global_time - time;
 	}
 
-	void apply(TimeMs time, RawData data, size_t field_index)
+	void apply(TimeMs time, RawData data, FieldByteIndex field_index)
 	{
 		fieldbyteid = field_index;
 		behaviour->apply(time, *this, (data + field_index), params);
@@ -215,7 +219,7 @@ class Timeline
 	map<size_t, map<TimeMs, EventSequence>> events;
 
 public:
-	EventSequence& event_at(TimeMs time, size_t field)
+	EventSequence& event_at(TimeMs time, FieldByteIndex field)
 	{
 		auto it = events.at(field).lower_bound(time);
 
@@ -345,6 +349,29 @@ class EventHandlerType : public EventHandler
 	}
 };
 
+struct SystemFactory 
+{
+	virtual Bitmask64 get_key() = 0;
+	virtual void update() = 0;
+};
+
+template<typename T>
+struct SystemType : SystemFactory
+{
+	T system;
+	Bitmask64 key;
+
+	Bitmask64 get_key() override
+	{
+		return key;
+	}
+
+	void update() override 
+	{
+
+	}
+};
+
 /*
 * The time managers handles all actors and all events
 *
@@ -360,10 +387,17 @@ class TimeManager
 	unordered_map<DatatypeID, type_index> field_types; //get the types of fields (index of factory)
 	map<string, DatatypeID> field_names; //field names for debugging
 
+	vector<SystemFactory*> systems;
+
 	DatatypeID field_counter = 0;
 
 public:
 	vector<Actor>& get_actors() { return actors; }
+
+	void register_system() 
+	{
+
+	}
 
 	template<typename T>
 	void register_type()
@@ -423,7 +457,7 @@ public:
 
 	//Makes a new Actor and returns it's index
 	//Once you make an Actor, it can never be removed (at least during the manager's life cycle)
-	size_t make_actor(Bitmask64 key)
+	ActorID make_actor(Bitmask64 key)
 	{
 		Actor actor;
 		actor.key = key;
@@ -443,14 +477,14 @@ public:
 		return e;
 	}
 
-	void add_event_to_actor(size_t fieldid, size_t actorid, EventSequence e)
+	void add_event_to_actor(FieldID fieldid, ActorID actorid, EventSequence e)
 	{
 		e.field_index = get_index_for_field(actors.at(actorid).key, fieldid);
 		e.set_actor(actorid);
 		actors.at(actorid).timeline.add_event(e);
 	}
 
-	void snapshot_now(size_t time)
+	void snapshot_now(TimeMs time)
 	{
 		for (auto& a : actors)
 		{
@@ -458,7 +492,7 @@ public:
 		}
 	}
 
-	size_t get_index_for_field(size_t key, size_t fieldid)
+	FieldByteIndex get_index_for_field(Bitmask64 key, FieldID fieldid)
 	{
 		size_t cntr = 0;
 		bool f = false;
@@ -476,7 +510,7 @@ public:
 	}
 
 	template<typename T>
-	T& get_actor_field(size_t actorid, size_t fieldid)
+	T& get_actor_field(ActorID actorid, FieldID fieldid)
 	{
 		assert(factories.at(field_types.at(fieldid))->type() == typeid(T));
 
@@ -484,7 +518,7 @@ public:
 	}
 
 	template<typename T>
-	T& get_actor_field_at(TimeMs time, size_t actorid, size_t fieldbyteid)
+	T& get_actor_field_at(TimeMs time, ActorID actorid, FieldByteIndex fieldbyteid)
 	{
 		assert(factories.at(field_types.at(fieldbyteid))->type() == typeid(T));
 		RawData data = make_actor_data(actors.at(actorid).key); //allocate a temporary dummy of the actor data
@@ -494,12 +528,12 @@ public:
 	}
 
 
-	EventSequence& get_actor_data_sequence(TimeMs time, size_t actorid, size_t fieldid)
+	EventSequence& get_actor_data_sequence(TimeMs time, ActorID actorid, FieldID fieldid)
 	{
 		return actors.at(actorid).timeline.event_at(time, fieldid);
 	}
 
-	Event& get_actor_data_event(TimeMs time, size_t actorid, size_t fieldid)
+	Event& get_actor_data_event(TimeMs time, ActorID actorid, FieldID fieldid)
 	{
 		return get_actor_data_sequence(time, actorid, fieldid).event_at(time);
 	}
