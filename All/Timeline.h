@@ -352,12 +352,15 @@ class EventHandlerType : public EventHandler
 struct SystemFactory 
 {
 	virtual Bitmask64 get_key() = 0;
-	virtual void update() = 0;
+	virtual void update(vector<Actor*>& vec) = 0;
 };
 
 template<typename T>
 struct SystemType : SystemFactory
 {
+	SystemType(Bitmask64 key) : key(key) {}
+	~SystemType() {}
+
 	T system;
 	Bitmask64 key;
 
@@ -366,7 +369,7 @@ struct SystemType : SystemFactory
 		return key;
 	}
 
-	void update() override 
+	void update(vector<Actor*>& vec) override
 	{
 
 	}
@@ -394,9 +397,29 @@ class TimeManager
 public:
 	vector<Actor>& get_actors() { return actors; }
 
-	void register_system() 
+	void update_systems() 
 	{
+		vector<vector<Actor*>> list;
 
+		for (auto& s : systems)
+		{
+			vector<Actor*> act_list;
+			for (auto& a : actors)
+			{
+				Bitmask64 key = s->get_key();
+				if ((key & a.key) == key)
+				{
+					act_list.push_back(&a);
+				}
+			}
+			s->update(act_list);
+		}
+	}
+
+	template<typename T>
+	size_t register_system(Bitmask64 key) 
+	{
+		systems.push_back(new SystemType<T>(key));
 	}
 
 	template<typename T>
@@ -406,7 +429,7 @@ public:
 	}
 
 	template<typename T>
-	size_t register_field(const string& name)
+	FieldID register_field(const string& name)
 	{
 		register_type<T>();
 		field_types.emplace(field_counter, typeid(T));
@@ -422,7 +445,7 @@ public:
 	}
 
 	template<typename T, typename D, typename... Args>
-	size_t register_handler()
+	HandlerID register_handler()
 	{
 		handlers.push_back(new EventHandlerType<T, D, Args...>());
 		return handlers.size() - 1;
