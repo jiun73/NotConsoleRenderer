@@ -9,7 +9,7 @@
 #include <cassert>
 #include <tuple>
 
-struct Event;
+struct Modifier;
 
 
 typedef char HandlerID; //that would leave us with only 256 possible event types, but if we make them generic enough, it can work
@@ -26,8 +26,8 @@ using std::vector;
 using std::launder;
 using std::type_index;
 
-struct Event;
-struct EventHandler;
+struct Modifier;
+struct ModifierHandler;
 struct TimeManager;
 
 inline vector<size_t> get_list_from_bytes(Bitmask64 bytes)
@@ -43,7 +43,7 @@ inline vector<size_t> get_list_from_bytes(Bitmask64 bytes)
 	return ret;
 }
 
-struct EventParameter
+struct ModiferParameter
 {
 	template<typename... Ts>
 	RawData set(const Ts&... data)
@@ -111,34 +111,34 @@ protected:
 };
 
 template<typename... Ts>
-struct EventParameterType : public EventParameter
+struct EventParameterType : public ModiferParameter
 {
 	bool internal_check(vector<type_index> types) override 
 	{
 		vector<type_index> self_types;
 		size_t size = 0;
 		if constexpr (sizeof...(Ts) > 0)
-			EventParameter::get_types<Ts...>(self_types, size);
+			ModiferParameter::get_types<Ts...>(self_types, size);
 		return self_types == types;
 	}
 };
 
-struct EventHandler
+struct ModifierHandler
 {
-	virtual EventParameter* param() = 0;
-	virtual void apply(TimeMs time, const Event& event, RawData data, RawData args) = 0;
+	virtual ModiferParameter* param() = 0;
+	virtual void apply(TimeMs time, const Modifier& event, RawData data, RawData args) = 0;
 };
 
 /*
 * Describes what to do with a certain actor given a certain time
 * (e.x position, size, etc)
 */
-struct Event
+struct Modifier
 {
 	size_t time = 0;
 	HandlerID id = 0; 
 	RawData params = nullptr;
-	EventHandler* behaviour = nullptr;
+	ModifierHandler* behaviour = nullptr;
 	TimeManager* manager = nullptr;
 
 	void apply(TimeMs time, RawData data, size_t field_index)
@@ -146,14 +146,14 @@ struct Event
 		behaviour->apply(time, *this, (data + field_index), params);
 	}
 
-	Event() {}
-	~Event() {}
+	Modifier() {}
+	~Modifier() {}
 };
 
 class EventSequence 
 {
 	
-	map<TimeMs, Event> subevents;
+	map<TimeMs, Modifier> subevents;
 
 public:
 	size_t field_index = 0;
@@ -173,7 +173,7 @@ public:
 		return subevents.begin()->first;
 	}
 
-	void add_event(TimeMs time, const Event& e)
+	void add_event(TimeMs time, const Modifier& e)
 	{
 		subevents.emplace(time, e);
 	}
@@ -264,18 +264,18 @@ class DataType : public DataTypeFactory
 
 
 template<typename T, typename D, typename... Args>
-class EventHandlerType : public EventHandler
+class EventHandlerType : public ModifierHandler
 {
 	T system;
 	EventParameterType<Args...> params;
 
-	EventParameter* param() override
+	ModiferParameter* param() override
 	{
 		return &params;
 	};
 
 	template<size_t I, typename... Ts>
-	void apply_unfold(TimeMs time, const Event& event, RawData data, RawData raw_args, size_t& index, const Ts&... args)
+	void apply_unfold(TimeMs time, const Modifier& event, RawData data, RawData raw_args, size_t& index, const Ts&... args)
 	{
 		if constexpr (I < sizeof...(Args))
 		{
@@ -293,7 +293,7 @@ class EventHandlerType : public EventHandler
 	}
 
 
-	void apply(TimeMs time, const Event& event, RawData data, RawData args) override
+	void apply(TimeMs time, const Modifier& event, RawData data, RawData args) override
 	{
 		if constexpr (sizeof...(Args) == 0)
 		{
@@ -315,7 +315,7 @@ class EventHandlerType : public EventHandler
 */
 class TimeManager 
 {
-	vector<EventHandler*> handlers;
+	vector<ModifierHandler*> handlers;
 	vector<Actor> actors;
 
 	unordered_map<type_index, DataTypeFactory*> factories; //used to allocate registered types
@@ -381,9 +381,9 @@ public:
 	}
 
 	template<typename... Ts>
-	Event make_event(HandlerID id, const Ts&... args)
+	Modifier make_event(HandlerID id, const Ts&... args)
 	{
-		Event e;
+		Modifier e;
 		e.manager = this;
 		e.id = id;
 		e.behaviour = handlers.at(id);

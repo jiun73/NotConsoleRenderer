@@ -144,6 +144,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="pong_main.cpp" />
+    <ClCompile Include="old_RAS_Event.cpp" />
+    <ClCompile Include="old_RAS_Manager.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Strings.cpp" />
     <ClCompile Include="tictactoe_main.cpp" />
@@ -161,10 +163,20 @@
     <ClInclude Include="EditorPlane.h" />
     <ClInclude Include="main_chatroom.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="old_RAS_Actors.h" />
+    <ClInclude Include="old_RAS_DataFactory.h" />
+    <ClInclude Include="old_RAS_Event.h" />
+    <ClInclude Include="old_RAS_EventHandler.h" />
+    <ClInclude Include="old_RAS_EventParam.h" />
+    <ClInclude Include="old_RAS_EventSequence.h" />
+    <ClInclude Include="old_RAS_Manager.h" />
+    <ClInclude Include="old_RAS_Systems.h" />
+    <ClInclude Include="old_RAS_Timeline.h" />
+    <ClInclude Include="old_RAS_Typedef.h" />
+    <ClInclude Include="RAS_Actor.h" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="Strings.h" />
     <ClInclude Include="tictactoe_game.h" />
-    <ClInclude Include="Timeline.h" />
     <ClInclude Include="usasim_Shooting.h" />
   </ItemGroup>
   <ItemGroup>

@@ -84,6 +84,12 @@
     <ClCompile Include="main_fighter.cpp">
       <Filter>Fichiers sources\Fighting Game</Filter>
     </ClCompile>
+    <ClCompile Include="old_RAS_Manager.cpp">
+      <Filter>Fichiers sources\Fighting Game</Filter>
+    </ClCompile>
+    <ClCompile Include="old_RAS_Event.cpp">
+      <Filter>Fichiers sources\Fighting Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main_chatroom.h">
@@ -128,7 +134,37 @@
     <ClInclude Include="tictactoe_game.h">
       <Filter>Fichiers sources\TicTacToe</Filter>
     </ClInclude>
-    <ClInclude Include="Timeline.h">
+    <ClInclude Include="old_RAS_Event.h">
+      <Filter>Fichiers sources\Fighting Game</Filter>
+    </ClInclude>
+    <ClInclude Include="old_RAS_Typedef.h">
+      <Filter>Fichiers sources\Fighting Game</Filter>
+    </ClInclude>
+    <ClInclude Include="old_RAS_EventParam.h">
+      <Filter>Fichiers sources\Fighting Game</Filter>
+    </ClInclude>
+    <ClInclude Include="old_RAS_EventSequence.h">
+      <Filter>Fichiers sources\Fighting Game</Filter>
+    </ClInclude>
+    <ClInclude Include="old_RAS_DataFactory.h">
+      <Filter>Fichiers sources\Fighting Game</Filter>
+    </ClInclude>
+    <ClInclude Include="old_RAS_Systems.h">
+      <Filter>Fichiers sources\Fighting Game</Filter>
+    </ClInclude>
+    <ClInclude Include="old_RAS_Actors.h">
+      <Filter>Fichiers sources\Fighting Game</Filter>
+    </ClInclude>
+    <ClInclude Include="old_RAS_Timeline.h">
+      <Filter>Fichiers sources\Fighting Game</Filter>
+    </ClInclude>
+    <ClInclude Include="old_RAS_EventHandler.h">
+      <Filter>Fichiers sources\Fighting Game</Filter>
+    </ClInclude>
+    <ClInclude Include="old_RAS_Manager.h">
+      <Filter>Fichiers sources\Fighting Game</Filter>
+    </ClInclude>
+    <ClInclude Include="RAS_Actor.h">
       <Filter>Fichiers sources\Fighting Game</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,12 +1,12 @@
 #include "pch.h"
-#include "Timeline.h"
+#include "RAS_Manager.h"
 #include "AnimationX.h"
 
 namespace FIGHT
 {
 	struct PointHandler
 	{
-		void apply(TimeMs time, const Event& event, int& i, const int c)
+		void apply(TimeMs time, const Modifier& event, int& i, const int c)
 		{
 			i = c;
 		}
@@ -15,7 +15,7 @@ namespace FIGHT
 	struct LinearHandler
 	{
 		//speed is movement per 1000 ms
-		void apply(TimeMs time, const Event& event, int& i, const int start, const int speed)
+		void apply(TimeMs time, const Modifier& event, int& i, const int start, const int speed)
 		{
 			i = ((event.time_from(time) / 1000.0) * (double)speed) + start;
 		}
@@ -25,7 +25,7 @@ namespace FIGHT
 	struct MoveHandler
 	{
 		//speed is movement per 1000 ms
-		void apply(TimeMs time, const Event& event, int& i, const int speed)
+		void apply(TimeMs time, const Modifier& event, int& i, const int speed)
 		{
 			int start = event.manager->get_actor_field_at<int>(event.time - 1, event.actorid, event.fieldbyteid); //get the value right before the event happened
 			i = ((event.time_from(time) / 1000.0) * (double)speed) + start;
@@ -35,7 +35,7 @@ namespace FIGHT
 	struct QuadHandler
 	{
 		//speed is movement per 1000 ms
-		void apply(TimeMs time, const Event& event, int& i, int p1, int p2, int slope, int start)
+		void apply(TimeMs time, const Modifier& event, int& i, int p1, int p2, int slope, int start)
 		{
 			double x = (event.time_from(time) / 1000.0);
 			double x1 = (event.time_from(p1) / 1000);
@@ -87,7 +87,7 @@ namespace FIGHT
 	{
 		AnimationManager manager;
 
-		void apply(TimeMs time, const Event& event, size_t& frame, size_t animation, size_t setid)
+		void apply(TimeMs time, const Modifier& event, size_t& frame, size_t animation, size_t setid)
 		{
 			frame = manager.get_frame_for_animation(event.time_from(time), animation, setid);
 		}

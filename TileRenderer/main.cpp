@@ -57,7 +57,7 @@ TimeManager man;
 
 struct IntHandler 
 {
-	void apply(TimeMs time, const Event& event, V2d_i& data, const V2d_i& dest, size_t end)
+	void apply(TimeMs time, const Modifier& event, V2d_i& data, const V2d_i& dest, size_t end)
 	{
 		data.x = dest.x * ((time - event.time) / (double)end);
 		data.y = dest.y * ((time - event.time) / (double)end);
@@ -67,7 +67,7 @@ struct IntHandler
 
 struct SinHandler
 {
-	void apply(TimeMs time, const Event& event, V2d_i& data)
+	void apply(TimeMs time, const Modifier& event, V2d_i& data)
 	{
 
 	}
