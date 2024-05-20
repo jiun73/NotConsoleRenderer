@@ -1,58 +1,58 @@
 #include "pch.h"
-#include "RAS_Manager.h"
+#include "RAS_Actor.h"
 #include "AnimationX.h"
 
 namespace FIGHT
 {
-	struct PointHandler
-	{
-		void apply(TimeMs time, const Modifier& event, int& i, const int c)
-		{
-			i = c;
-		}
-	};
+	//struct PointHandler
+	//{
+	//	void apply(TimeMs time, const Modifier& event, int& i, const int c)
+	//	{
+	//		i = c;
+	//	}
+	//};
 
-	struct LinearHandler
-	{
-		//speed is movement per 1000 ms
-		void apply(TimeMs time, const Modifier& event, int& i, const int start, const int speed)
-		{
-			i = ((event.time_from(time) / 1000.0) * (double)speed) + start;
-		}
-	};
+	//struct LinearHandler
+	//{
+	//	//speed is movement per 1000 ms
+	//	void apply(TimeMs time, const Modifier& event, int& i, const int start, const int speed)
+	//	{
+	//		i = ((event.time_from(time) / 1000.0) * (double)speed) + start;
+	//	}
+	//};
 
-	//Like linear handler, but start from the value right before the event
-	struct MoveHandler
-	{
-		//speed is movement per 1000 ms
-		void apply(TimeMs time, const Modifier& event, int& i, const int speed)
-		{
-			int start = event.manager->get_actor_field_at<int>(event.time - 1, event.actorid, event.fieldbyteid); //get the value right before the event happened
-			i = ((event.time_from(time) / 1000.0) * (double)speed) + start;
-		}
-	};
+	////Like linear handler, but start from the value right before the event
+	//struct MoveHandler
+	//{
+	//	//speed is movement per 1000 ms
+	//	void apply(TimeMs time, const Modifier& event, int& i, const int speed)
+	//	{
+	//		int start = event.manager->get_actor_field_at<int>(event.time - 1, event.actorid, event.fieldbyteid); //get the value right before the event happened
+	//		i = ((event.time_from(time) / 1000.0) * (double)speed) + start;
+	//	}
+	//};
 
-	struct QuadHandler
-	{
-		//speed is movement per 1000 ms
-		void apply(TimeMs time, const Modifier& event, int& i, int p1, int p2, int slope, int start)
-		{
-			double x = (event.time_from(time) / 1000.0);
-			double x1 = (event.time_from(p1) / 1000);
-			double x2 = (event.time_from(p2) / 1000);
+	//struct QuadHandler
+	//{
+	//	//speed is movement per 1000 ms
+	//	void apply(TimeMs time, const Modifier& event, int& i, int p1, int p2, int slope, int start)
+	//	{
+	//		double x = (event.time_from(time) / 1000.0);
+	//		double x1 = (event.time_from(p1) / 1000);
+	//		double x2 = (event.time_from(p2) / 1000);
 
-			i = (double)slope * (x - x1) * (x - x2);
-			i += start;
-		}
-	};
+	//		i = (double)slope * (x - x1) * (x - x2);
+	//		i += start;
+	//	}
+	//};
 
-	struct CollisionSystem 
+	/*struct CollisionSystem 
 	{
 		void update(TimeMs time, int fielddata1, int fielddata2)
 		{
 
 		}
-	};
+	};*/
 
 	struct AnimationManager 
 	{
