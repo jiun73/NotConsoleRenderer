@@ -97,15 +97,41 @@ namespace RAS {
 		map<Time, Modifier*> modifiers;
 		Time start_time = 0;
 
+		template <typename T>
+		Event& add_modifier(Time time, function<void(Time, T&)> function)
+		{
+			ModifierType<T>* mod = new ModifierType<T>();
+			mod->mod_func = function;
+			modifiers.emplace(time, mod);
+			return *this;
+		}
+
+		template <typename T, size_t I>
+		Event& add_modifier(Time time, function<void(Time, T&, const array <double, I>&)> func, array<double, I> params)
+		{
+			ModifierPureType<T, I>* mod = new ModifierPureType<T, I>();
+			mod->mod_func = func;
+			mod->params = params;
+			modifiers.emplace(time, mod);
+			return *this;
+		}
+
 		Modifier* modifier_at(Time time) const;
 		void snapshot(Time time, RawData data, const type_info& type) const;
 	};
 
+#define GENERATOR_ARGS RAS::Time time, RAS::Manager* manager, RAS::FieldID generator_field, RAS::ActorID actor
+
 	//Generates Events of a certain type 
 	struct Generator 
 	{
-		FieldID field;
+		FieldID field = -1;
 		function<Event(Time, Manager*, FieldID, ActorID)> generate;
+
+		Generator() {}
+		Generator(function<Event(Time, Manager*, FieldID, ActorID)> generate) : generate(generate) {}
+		Generator(function<Event(Time, Manager*, FieldID, ActorID)> generate, FieldID field) : generate(generate), field(field) {}
+		~Generator() {}
 	};
 
 	//Set of events for an Actor
@@ -162,6 +188,7 @@ namespace RAS {
 		size_t get_fields_size(FieldKey key);
 		void allocate_actor_data(Actor& actor);
 		RawData get_actor_field(const Actor& actor, FieldID field);
+		bool has_field(FieldKey key, FieldID field);
 
 		template<typename T>
 		FieldID register_field() 
@@ -195,14 +222,16 @@ namespace RAS {
 		{
 			Actor& act = actors.at(actor);
 			assert(field_types.at(field)->type() == typeid(T));
-			return *(T*)(act.data + get_field_offset(act.key, field));
+			return *(T*)(get_actor_field(act, field));
 		}
 
 		template<typename T>
 		T& actor_field_at(Time time, ActorID actor, FieldID field)
 		{
 			Actor& act = actors.at(actor);
-			act.timelines.at(field).snapshot(time, get_actor_field(act, field), typeid(T));
+			RawData data = get_actor_field(act, field);
+			act.timelines.at(field).snapshot(time, data, typeid(T));
+			return *(T*)(data);
 		}
 
 		//Modifier* make_modifier();

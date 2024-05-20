@@ -142,46 +142,50 @@ namespace FIGHT
 
 		man.register_system<CollisionSystem>();
 
-		RAS::ActorID player1 = man.register_actor(0b11);
-
-		RAS::Generator gen;
-
-		gen.generate = [](RAS::Time time, RAS::Manager* manager, RAS::FieldID generator_field, RAS::ActorID actor) -> RAS::Event
-			{
-				RAS::Event event;
-
-				RAS::ModifierPureType<int, 1>* mod = new RAS::ModifierPureType<int, 1>();
-
-				mod->params = { 110 };
-				mod->mod_func = point_func;
-
-				event.modifiers.emplace(0ms, mod);
-				return event;
-			};
-
-		RAS::GeneratorID point_100 = man.register_generator(gen);
-
-		gen.generate = [](RAS::Time time, RAS::Manager* manager, RAS::FieldID generator_field, RAS::ActorID actor) -> RAS::Event
-			{
-				RAS::Event event;
-
-				RAS::ModifierPureType<int, 2>* mod = new RAS::ModifierPureType<int, 2>();
-
+		RAS::GeneratorID stay = man.register_generator(RAS::Generator([](GENERATOR_ARGS) -> RAS::Event {
 				double old_x = manager->actor_field_at<int>(time - 1, actor, generator_field);
+				return RAS::Event().add_modifier<int, 1>(0ms, point_func, { old_x });
+			}));
 
-				mod->params = { old_x, 100 };
-				mod->mod_func = linear_func;
+		RAS::GeneratorID player_start_posY = man.register_generator(RAS::Generator([](GENERATOR_ARGS) -> RAS::Event {
+			return RAS::Event().add_modifier<int, 1>(0ms, point_func, { 100 });
+			}));
 
-				event.modifiers.emplace(0ms, mod);
-				return event;
-			};
+		RAS::GeneratorID player1_start_posX = man.register_generator(RAS::Generator([](GENERATOR_ARGS) -> RAS::Event {
+				return RAS::Event().add_modifier<int, 1>(0ms, point_func, { 100 });
+			}));
 
-		RAS::GeneratorID move_speed_100 = man.register_generator(gen);
+		RAS::GeneratorID player2_start_posX = man.register_generator(RAS::Generator([](GENERATOR_ARGS) -> RAS::Event{
+				return RAS::Event().add_modifier<int, 1>(0ms, point_func, { 900 });
+			}));
+
+		RAS::GeneratorID ball_start_pos = man.register_generator(RAS::Generator([](GENERATOR_ARGS) -> RAS::Event {
+			return RAS::Event().add_modifier<int, 1>(0ms, point_func, { 500 });
+			}));
+
+		RAS::GeneratorID move_speed_100 = man.register_generator(RAS::Generator([](GENERATOR_ARGS) -> RAS::Event
+			{
+				double old_x = manager->actor_field_at<int>(time - 1, actor, generator_field);
+				return RAS::Event().add_modifier<int, 2>(0ms, linear_func, { old_x, 300 });
+			}));
+
+		RAS::GeneratorID move_speed_n100 = man.register_generator(RAS::Generator([](GENERATOR_ARGS) -> RAS::Event
+			{
+				double old_x = manager->actor_field_at<int>(time - 1, actor, generator_field);
+				return RAS::Event().add_modifier<int, 2>(0ms, linear_func, { old_x, -300 });
+			}));
 
 		man.set_start();
 
-		man.add_event(0ms, player1, point_100, posX);
-		man.add_event(0ms, player1, point_100, posY);
+		RAS::ActorID player1 = man.register_actor(0b11);
+		RAS::ActorID player2 = man.register_actor(0b11);
+		RAS::ActorID ball = man.register_actor(0b11);
+		man.add_event(0ms, player1, player1_start_posX, posX);
+		man.add_event(0ms, player1, player_start_posY, posY);
+		man.add_event(0ms, player2, player2_start_posX, posX);
+		man.add_event(0ms, player2, player_start_posY, posY);
+		man.add_event(0ms, ball, ball_start_pos, posX);
+		man.add_event(0ms, ball, ball_start_pos, posY);
 
 		while (run())
 		{
@@ -189,10 +193,48 @@ namespace FIGHT
 			draw_clear();
 			man.snapshot_now();
 
-			int x = man.current_actor_field<int>(player1, posX);
-			int y = man.current_actor_field<int>(player1, posY);
+			if (key_pressed(SDL_SCANCODE_W) || (key_released(SDL_SCANCODE_S) && key_held(SDL_SCANCODE_W)))
+			{
+				man.add_event(man.now(), player1, move_speed_n100, posY);
+			}
+			else if (key_pressed(SDL_SCANCODE_S) || (key_released(SDL_SCANCODE_W) && key_held(SDL_SCANCODE_S)))
+			{
+				man.add_event(man.now(), player1, move_speed_100, posY);
+			}
+			else if ((key_released(SDL_SCANCODE_S) && !key_held(SDL_SCANCODE_W)) || (key_released(SDL_SCANCODE_W) && !key_held(SDL_SCANCODE_S)))
+			{
+				man.add_event(man.now(), player1, stay, posY);
+			}
 
-			std::cout << x << " " << y << std::endl;
+			if (key_pressed(SDL_SCANCODE_UP) || (key_released(SDL_SCANCODE_DOWN) && key_held(SDL_SCANCODE_UP)))
+			{
+				man.add_event(man.now(), player2, move_speed_n100, posY);
+			}
+			else if (key_pressed(SDL_SCANCODE_DOWN) || (key_released(SDL_SCANCODE_UP) && key_held(SDL_SCANCODE_DOWN)))
+			{
+				man.add_event(man.now(), player2, move_speed_100, posY);
+			}
+			else if ((key_released(SDL_SCANCODE_DOWN) && !key_held(SDL_SCANCODE_UP)) || (key_released(SDL_SCANCODE_UP) && !key_held(SDL_SCANCODE_DOWN)))
+			{
+				man.add_event(man.now(), player2, stay, posY);
+			}
+
+			pencil(COLOR_WHITE);
+			int x1 = man.current_actor_field<int>(player1, posX);
+			int y1 = man.current_actor_field<int>(player1, posY);
+			draw_rect({ { x1,y1 },{10,90} });
+			int x2 = man.current_actor_field<int>(player2, posX);
+			int y2 = man.current_actor_field<int>(player2, posY);
+			draw_rect({ { x2,y2 },{10,90} });
+			int x3 = man.current_actor_field<int>(ball, posX);
+			int y3 = man.current_actor_field<int>(ball, posY);
+			draw_circle({ x3,y3 }, 10);
+
+
+			if (key_pressed(SDL_SCANCODE_SPACE))
+			{
+				man.set_start();
+			}
 		}
 	}
 }

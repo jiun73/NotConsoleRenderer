@@ -4,13 +4,15 @@
 size_t RAS::Manager::get_field_offset(FieldKey key, FieldID field, bool check)
 {
 	if(check)
-		assert((key & (1ull << field)) > 0); // verify that the key actually has the field
+		assert(has_field(key, field)); // verify that the key actually has the field
 
 	FieldKey copy = key;
 	size_t i = 0;
 	size_t size = 0;
 	while (copy != 0)
 	{
+		if (i >= field) return size;
+
 		if (copy & 1)
 		{
 			size += field_types.at(i)->size();
@@ -18,7 +20,7 @@ size_t RAS::Manager::get_field_offset(FieldKey key, FieldID field, bool check)
 		copy >>= 1;
 		i++;
 
-		if (i >= field) return size;
+		
 	}
 	return size;
 }
@@ -54,6 +56,11 @@ void RAS::Manager::allocate_actor_data(Actor& actor)
 RAS::RawData RAS::Manager::get_actor_field(const Actor& actor, FieldID field)
 {
 	return actor.data + get_field_offset(actor.key, field);
+}
+
+bool RAS::Manager::has_field(FieldKey key, FieldID field)
+{
+	return (key & (1ull << field)) > 0;
 }
 
 RAS::ActorID RAS::Manager::register_actor(FieldKey key)
@@ -129,6 +136,28 @@ void RAS::Manager::trigger_systems(Time time)
 	}
 }
 
+void RAS::Manager::regenerate_from(Time time)
+{
+	ActorID actor = 0;
+	for (auto& a : actors)
+	{
+		for (auto& t : a.timelines)
+		{
+			auto it = t.second.events.lower_bound(time);
+			while (it != t.second.events.end())
+			{
+				GeneratorID genid = it->second.generator;
+				Generator& gen = generators.at(genid);
+				it->second = gen.generate(it->first, this, t.first, actor);
+				it->second.start_time = it->first;
+				it->second.generator = genid;
+				it++;
+			}
+		}
+		actor++;
+	}
+}
+
 void RAS::Manager::add_event(Time time, ActorID actor, GeneratorID generator)
 {
 	add_event(time, actor, generator, generators.at(generator).field);
@@ -139,8 +168,10 @@ void RAS::Manager::add_event(Time time, ActorID actor, GeneratorID generator, Fi
 	const Generator& gen = generators.at(generator);
 	Event e = gen.generate(time, this, field, actor);
 	e.start_time = time;
+	e.generator = generator;
 	actors.at(actor).timelines.at(field).events.emplace(time, e);
 	trigger_systems(time);
+	regenerate_from(time + 1);
 }
 
 void RAS::Actor::snapshot(Time time, FieldID field, RawData field_data, const type_info& type)
