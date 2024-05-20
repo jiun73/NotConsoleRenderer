@@ -29,18 +29,6 @@ using std::type_index;
 using std::function;
 using std::pair;
 
-inline vector<size_t> get_list_from_bytes(Bitmask64 bytes)
-{
-	vector<size_t> ret;
-	for (size_t i = 0; i < 32; i++)
-	{
-		if (bytes & (1ull << i))
-		{
-			ret.push_back(i);
-		}
-	}
-	return ret;
-}
 
 struct Modifier;
 struct ModifierHandler;

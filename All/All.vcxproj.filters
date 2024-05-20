@@ -90,6 +90,9 @@
     <ClCompile Include="old_RAS_Event.cpp">
       <Filter>Fichiers sources\Fighting Game</Filter>
     </ClCompile>
+    <ClCompile Include="RAS_Actor.cpp">
+      <Filter>Fichiers sources\Fighting Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main_chatroom.h">
