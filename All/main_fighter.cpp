@@ -4,6 +4,21 @@
 
 namespace FIGHT
 {
+	RAS::Time operator ""ms(RAS::Time ms)
+	{
+		return ms;
+	}
+
+	RAS::Time operator ""s(RAS::Time s)
+	{
+		return s * 1000;
+	}
+
+	RAS::Time operator ""s(long double s)
+	{
+		return s * 1000;
+	}
+
 	//struct PointHandler
 	//{
 	//	void apply(TimeMs time, const Modifier& event, int& i, const int c)
@@ -83,7 +98,7 @@ namespace FIGHT
 		}
 	};
 
-	struct AnimationHandler 
+	/*struct AnimationHandler 
 	{
 		AnimationManager manager;
 
@@ -91,107 +106,93 @@ namespace FIGHT
 		{
 			frame = manager.get_frame_for_animation(event.time_from(time), animation, setid);
 		}
+	};*/
+
+	struct CollisionSystem 
+	{
+		void update(RAS::Manager* manager, RAS::Time time, vector<RAS::Actor>& actors)
+		{
+
+		}
 	};
+
+	void point_func(RAS::Time time, int& i, array<double, 1> arr)
+	{
+		i = arr.at(0);
+	}
+
+	void linear_func(RAS::Time time, int& i, array<double, 2> arr)
+	{
+		double start = arr.at(0);
+		double speed = arr.at(1);
+		i = ((time / 1000.0) * speed) + start;
+	}
 
 	void main_fight() 
 	{
 		set_window_size({200,200});
 		set_window_resizable();
 
-		TimeManager man;
+		RAS::Manager man;
 
-		size_t posXField = man.register_field<int>("posX");
-		size_t posYField = man.register_field<int>("posY");
-		size_t sizeXField = man.register_field<int>("sizeX");
-		size_t sizeYField = man.register_field<int>("sizeY");
-		size_t animationField = man.register_field<int>("anim");
+		man.set_time_fetcher(SDL_GetTicks);
 
-		//std::cout << "int handler id: " << man.register_handler<IntHandler, V2d_i, V2d_i, size_t>() << std::endl;
-		size_t linear = man.register_handler<LinearHandler, int, int, int>();
-		size_t point = man.register_handler<PointHandler, int, int>();
-		size_t quad = man.register_handler<QuadHandler, int, int, int, int, int>();
-		size_t move = man.register_handler<MoveHandler, int, int>();
-		std::cout << "int actor id: " << man.make_actor(0b1111) << std::endl;
-		std::cout << "int actor id: " << man.make_actor(0b1111) << std::endl;
+		RAS::FieldID posX = man.register_field<int>();
+		RAS::FieldID posY = man.register_field<int>();
 
-		man.add_event_to_actor(posXField, 0, EventSequence(0, man.make_event<int>(point, 100)));
-		man.add_event_to_actor(posYField, 0, EventSequence(0, man.make_event<int>(point, 100)));
-		man.add_event_to_actor(sizeXField, 0, EventSequence(0, man.make_event<int>(point, 10)));
-		man.add_event_to_actor(sizeYField, 0, EventSequence(0, man.make_event<int>(point, 90)));
+		man.register_system<CollisionSystem>();
 
-		man.add_event_to_actor(posXField, 1, EventSequence(0, man.make_event<int>(point, 1000)));
-		man.add_event_to_actor(posYField, 1, EventSequence(0, man.make_event<int>(point, 100)));
-		man.add_event_to_actor(sizeXField, 1, EventSequence(0, man.make_event<int>(point, 10)));
-		man.add_event_to_actor(sizeYField, 1, EventSequence(0, man.make_event<int>(point, 90)));
+		RAS::ActorID player1 = man.register_actor(0b11);
 
-		man.start(SDL_GetTicks());
+		RAS::Generator gen;
+
+		gen.generate = [](RAS::Time time, RAS::Manager* manager, RAS::FieldID generator_field, RAS::ActorID actor) -> RAS::Event
+			{
+				RAS::Event event;
+
+				RAS::ModifierPureType<int, 1>* mod = new RAS::ModifierPureType<int, 1>();
+
+				mod->params = { 110 };
+				mod->mod_func = point_func;
+
+				event.modifiers.emplace(0ms, mod);
+				return event;
+			};
+
+		RAS::GeneratorID point_100 = man.register_generator(gen);
+
+		gen.generate = [](RAS::Time time, RAS::Manager* manager, RAS::FieldID generator_field, RAS::ActorID actor) -> RAS::Event
+			{
+				RAS::Event event;
+
+				RAS::ModifierPureType<int, 2>* mod = new RAS::ModifierPureType<int, 2>();
+
+				double old_x = manager->actor_field_at<int>(time - 1, actor, generator_field);
+
+				mod->params = { old_x, 100 };
+				mod->mod_func = linear_func;
+
+				event.modifiers.emplace(0ms, mod);
+				return event;
+			};
+
+		RAS::GeneratorID move_speed_100 = man.register_generator(gen);
+
+		man.set_start();
+
+		man.add_event(0ms, player1, point_100, posX);
+		man.add_event(0ms, player1, point_100, posY);
 
 		while (run())
 		{
 			pencil(COLOR_BLACK);
 			draw_clear();
+			man.snapshot_now();
 
-			size_t global_now = SDL_GetTicks();
-			size_t now = man.now(global_now);
+			int x = man.current_actor_field<int>(player1, posX);
+			int y = man.current_actor_field<int>(player1, posY);
 
-			man.snapshot_now(global_now);
-
-			int x = man.get_actor_field<int>(0, posXField);
-			int y = man.get_actor_field<int>(0, posYField);
-			int szx = man.get_actor_field<int>(0, sizeXField);
-			int szy = man.get_actor_field<int>(0, sizeYField);
-
-			int x2 = man.get_actor_field<int>(1, posXField);
-			int y2 = man.get_actor_field<int>(1, posYField);
-			int szx2 = man.get_actor_field<int>(1, sizeXField);
-			int szy2 = man.get_actor_field<int>(1, sizeYField);
-
-			if (key_pressed(SDL_SCANCODE_W) || (key_released(SDL_SCANCODE_S) && key_held(SDL_SCANCODE_W)))
-			{
-				man.add_event_to_actor(posYField, 0, EventSequence(now, man.make_event<int>(move, -100)));
-			}
-			else if(key_pressed(SDL_SCANCODE_S) || (key_released(SDL_SCANCODE_W) && key_held(SDL_SCANCODE_S)))
-			{
-				man.add_event_to_actor(posYField, 0, EventSequence(now, man.make_event<int>(move, 100)));
-			}
-			else if ((key_released(SDL_SCANCODE_S) && !key_held(SDL_SCANCODE_W)) || (key_released(SDL_SCANCODE_W) && !key_held(SDL_SCANCODE_S)))
-			{
-				man.add_event_to_actor(posYField, 0, EventSequence(now, man.make_event<int>(point, y)));
-			}
-
-			/*if (key_pressed(SDL_SCANCODE_SPACE))
-			{
-				EventSequence seq;
-
-				seq.add_event(now, man.make_event<int, int, int>(quad, now, now + 1000, 100, y));
-				seq.add_event(now + 1000, man.make_event<int>(point, 100));
-				man.add_event_to_actor(posYField, 0, seq);
-			}*/
-
-			if (key_pressed(SDL_SCANCODE_0))
-			{
-				man.start(global_now);
-			}
-
-			pencil(COLOR_WHITE);
-			draw_full_rect({ { x,y }, {szx,szy} });
-			draw_full_rect({ { x2,y2 }, {szx2,szy2} });
-
-			size_t i = 0;
-			for (auto a : man.get_actors())
-			{
-				for (auto e : a.timeline.get_events())
-				{
-					for (auto ee : e.second)
-					{
-						draw_line({ (int)now - (int)ee.first, (int)i * 10 }, { (int)now - (int)ee.first, ((int)i * 10) + 10 });
-					}
-					i++;
-				}
-				
-			}
-
-			std::cout << x << "," << y << std::endl;
+			std::cout << x << " " << y << std::endl;
 		}
 	}
 }

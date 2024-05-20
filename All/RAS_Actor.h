@@ -2,6 +2,7 @@
 #include <map>
 #include <array>
 #include <vector>
+#include <memory>
 #include <functional>
 
 namespace RAS {
@@ -16,6 +17,7 @@ namespace RAS {
 	using std::array;
 	using std::vector;
 	using std::function;
+	using std::launder;
 
 	struct DataTypeFactory
 	{
@@ -41,36 +43,50 @@ namespace RAS {
 	//A function that changes data according to the time
 	struct Modifier 
 	{
-		virtual bool is_reversible() = 0;  
-		virtual size_t reverse_type() = 0;
-		virtual vector<double> reverse_params() = 0;
-		virtual void apply(Time time, RawData data, const type_info& type) = 0;
+		virtual bool is_reversible() const = 0;
+		virtual size_t reverse_type() const = 0;
+		virtual vector<double> reverse_params() const = 0;
+		virtual void apply(Time time, RawData data, const type_info& type) const = 0;
 	};
 
 	template<typename T>
 	struct ModifierType : public Modifier //Standard, non reversible modifiers
 	{
-		function<void(T&)> mod_func;
+		function<void(Time, T&)> mod_func;
 
-		bool is_reversible() { return false; };
-		size_t reverse_type() { return 0; };
-		vector<double> reverse_params() { return {} };
+		bool is_reversible() const { return false; };
+		size_t reverse_type() const { return 0; };
+		vector<double> reverse_params() const { return {}; };
 
-		void apply(Time time, RawData data, const type_info& type) override;
+		void apply(Time time, RawData data, const type_info& type) const override 
+		{
+			assert(typeid(T) == type);
+			mod_func(time, *(T*)(data));
+		}
 	};
 
 	template<typename T, size_t S>
 	struct ModifierPureType : public Modifier //Modifers that use pure math functions that are reversible, allowing them to be used in things like collision detection
 	{
-		function<void(T&, const array <T, S>&)> mod_func;
-		array<T, S> params;
+		function<void(Time, T&, const array <double, S>&)> mod_func;
+		array<double, S> params;
 		size_t type = 0;
 
-		bool is_reversible() { return true; };
-		size_t reverse_type() { return type; };
-		vector<double> reverse_params() { return params; };
+		bool is_reversible() const { return true; };
+		size_t reverse_type() const { return type; };
+		vector<double> reverse_params() const 
+		{ 
+			vector<double> ret;
+			for (auto l : params)
+				ret.push_back(l);
+			return ret; 
+		};
 
-		void apply(Time time, RawData data, const type_info& type) override;
+		void apply(Time time, RawData data, const type_info& type) const override
+		{
+			assert(typeid(T) == type);
+			mod_func(time, *(T*)(data), params);
+		}
 	};
 
 	//Sequence of modifiers, describing the evolution in time of a data field according to external input
@@ -78,15 +94,18 @@ namespace RAS {
 	{
 		Manager* manager;
 		GeneratorID generator;
-		map<Time, Modifier> modifiers;
+		map<Time, Modifier*> modifiers;
+		Time start_time = 0;
 
-		const Modifier& modifier_at(Time time, RawData data, const type_info& type) const;
+		Modifier* modifier_at(Time time) const;
+		void snapshot(Time time, RawData data, const type_info& type) const;
 	};
 
 	//Generates Events of a certain type 
 	struct Generator 
 	{
-		function<Event(Manager*)> generate;
+		FieldID field;
+		function<Event(Time, Manager*, FieldID, ActorID)> generate;
 	};
 
 	//Set of events for an Actor
@@ -94,7 +113,11 @@ namespace RAS {
 	{
 		map<Time, Event> events;
 
-		const Event& event_at(Time time, RawData data, const type_info& type) const;
+		const Event& event_at(Time time) const;
+		void snapshot(Time time, RawData data, const type_info& type);
+
+		Timeline() { }
+		~Timeline() { }
 	};
 
 	struct Actor
@@ -103,27 +126,42 @@ namespace RAS {
 		RawData data;
 		FieldKey key;
 
-		void snapshot(Time time, size_t field_offset, const type_info& type);
+		void snapshot(Time time, FieldID field, RawData field_data, const type_info& type);
 	};
 
 	//Handles semi-deterministic events, like collision detection
 	struct System
 	{
-		function<void(Time, vector<Actor>&)> update;
+		//function<void(Manager*, Time, vector<Actor>&)> update;
+
+		virtual void update(Manager* manager, Time time, vector<Actor>& actors) = 0;
+	};
+
+	template<typename T>
+	struct SystemType : public System
+	{
+		T system;
+
+		void update(Manager* manager, Time time, vector<Actor>& actors) override 
+		{
+			system.update(manager, time, actors);
+		}
 	};
 
 	//Interface for the developper
 	struct Manager
 	{
 		Time start = 0;
+		function<Time()> time_fetch;
 		vector<DataTypeFactory*> field_types;
 		vector<Actor> actors;
-		vector<System> systems;
+		vector<System*> systems;
 		vector<Generator> generators;
 
-		size_t get_field_offset(FieldKey key, FieldID field);
+		size_t get_field_offset(FieldKey key, FieldID field, bool check = true);
 		size_t get_fields_size(FieldKey key);
 		void allocate_actor_data(Actor& actor);
+		RawData get_actor_field(const Actor& actor, FieldID field);
 
 		template<typename T>
 		FieldID register_field() 
@@ -131,16 +169,41 @@ namespace RAS {
 			field_types.push_back(new DataType<T>());
 			return field_types.size() - 1;
 		}
-		void register_actor(FieldKey key);
-		void register_system(const System& system);
-		void register_generator(const Generator& generator);
+		ActorID register_actor(FieldKey key);
 
-		void set_start(Time time);
+		template<typename T>
+		void register_system() 
+		{
+			systems.push_back(new SystemType<T>());
+		}
+
+		GeneratorID register_generator(const Generator& generator);
+
+		void set_start();
+		void set_time_fetcher(function<Time()> func);
 		Time relative_time(Time time);
+		Time now();
 		void snapshot(Time time);
+		void snapshot_now();
 		void trigger_systems(Time time);
 		void regenerate_from(Time time);
-		void add_event(ActorID actor, GeneratorID generator);
+		void add_event(Time time, ActorID actor, GeneratorID generator);
+		void add_event(Time time, ActorID actor, GeneratorID generator, FieldID field);
+
+		template<typename T>
+		T& current_actor_field(ActorID actor, FieldID field)
+		{
+			Actor& act = actors.at(actor);
+			assert(field_types.at(field)->type() == typeid(T));
+			return *(T*)(act.data + get_field_offset(act.key, field));
+		}
+
+		template<typename T>
+		T& actor_field_at(Time time, ActorID actor, FieldID field)
+		{
+			Actor& act = actors.at(actor);
+			act.timelines.at(field).snapshot(time, get_actor_field(act, field), typeid(T));
+		}
 
 		//Modifier* make_modifier();
 		//Event make_event();
