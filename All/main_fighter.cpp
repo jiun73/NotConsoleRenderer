@@ -108,12 +108,10 @@ namespace FIGHT
 		}
 	};*/
 
-	struct CollisionSystem 
+	enum 
 	{
-		void update(RAS::Manager* manager, RAS::Time time, vector<RAS::Actor>& actors)
-		{
-
-		}
+		POINT,
+		LINEAR
 	};
 
 	void point_func(RAS::Time time, int& i, array<double, 1> arr)
@@ -127,6 +125,164 @@ namespace FIGHT
 		double speed = arr.at(1);
 		i = ((time / 1000.0) * speed) + start;
 	}
+
+	RAS::Time find_linear(int y, array<double, 2> arr)
+	{
+		double start = arr.at(0);
+		double speed = arr.at(1);
+		return ((y - start) / speed) * 1000.0;
+	}
+
+	struct CollisionSystem 
+	{
+		bool x_collision_found = false;
+		RAS::Time collision_time = 0;
+
+		bool find_collision(RAS::Manager* manager, RAS::Time time, vector<RAS::Actor>& actors, RAS::ActorID ball, RAS::ActorID player, RAS::GeneratorID genif)
+		{
+			auto& events_ball = actors.at(ball).timelines.at(0).events;
+			auto& events_p1 = actors.at(player).timelines.at(0).events;
+			auto ball_it = events_ball.lower_bound(time);
+			auto player1_it = events_p1.lower_bound(time);
+
+			if (ball_it != events_ball.begin()) ball_it--;
+			if (player1_it != events_p1.begin()) player1_it--;
+
+			while (ball_it != events_ball.end() && player1_it != events_p1.end())
+			{
+				RAS::Event& ball_event = ball_it->second;
+				RAS::Event& p1_event = player1_it->second;
+
+				RAS::Time next_event_time = 0;
+
+				ball_it++;
+
+				if (ball_it == events_ball.end())
+				{
+					next_event_time = -1;
+				}
+				else
+				{
+					next_event_time = ball_it->first;
+				}
+
+				ball_it--;
+
+				/*check for collision*/
+				assert(p1_event.modifiers.size() == 1); //we assume the x position of the paddle doesn't change
+				RAS::Modifier* mod_p1 = p1_event.modifiers.at(0);
+				assert(mod_p1->is_reversible() && mod_p1->reverse_type() == POINT);
+				int p1_x = mod_p1->reverse_params().at(0);
+				
+				for (auto it_mod = ball_event.modifiers.begin(); it_mod != ball_event.modifiers.end(); it_mod++)
+				{
+					assert(it_mod->second->is_reversible());
+					auto params = it_mod->second->reverse_params();
+
+					it_mod++;
+
+					RAS::Time next_mod_time = 0;
+
+					if (it_mod == ball_event.modifiers.end())
+					{
+						next_mod_time = next_event_time;
+					}
+					else
+					{
+						next_mod_time = ball_event.start_time + it_mod->first;
+					}
+
+					it_mod--;
+
+					if (it_mod->first > next_event_time)
+						break;
+
+					switch (it_mod->second->reverse_type())
+					{
+					case POINT:
+						x_collision_found = (p1_x == params.at(0));
+						collision_time = ball_event.start_time + it_mod->first;
+						break;
+					case LINEAR:
+					{
+						RAS::Time potential_time = ball_event.start_time + it_mod->first + find_linear(p1_x, { params.at(0), params.at(1) });
+
+						x_collision_found = (potential_time >= ball_event.start_time + it_mod->first && potential_time <= next_mod_time);
+
+						collision_time = potential_time;
+					}
+					break;
+					default:
+						assert(false);
+						break;
+					}
+
+					if (x_collision_found) break;
+				}
+
+				if (x_collision_found)
+				{
+					int p1_y = manager->actor_field_at<int>(collision_time, player, 1); // get the y coord of the player
+					int ball_y = manager->actor_field_at<int>(collision_time, ball, 1);
+
+					if ((ball_y >= p1_y) && (ball_y <= (p1_y + 90)))
+					{
+						//actual collision found
+						std::cout << "FUCKING COLLISION!" << player << std::endl;
+						
+						return true;
+					}
+					else
+					{
+						std::cout << "nope" << std::endl;
+					}
+				}
+
+				ball_it++;
+				player1_it++;
+
+				if (ball_it == events_ball.end() && player1_it != events_p1.end())
+				{
+					ball_it--;
+					time = player1_it->first;
+				}
+				else if (ball_it != events_ball.end() && player1_it == events_p1.end())
+				{
+					player1_it--;
+					time = ball_it->first;
+				}
+				else if (ball_it != events_ball.end() && player1_it != events_p1.end())
+				{
+					RAS::Time time_ball = ball_it->first;
+					RAS::Time time_player1 = player1_it->first;
+					if (time_ball > time_player1) { ball_it--; time = time_player1; }
+					else if (time_ball < time_player1) { player1_it--; time = time_ball; }
+				}
+			}
+			return false;
+		}
+
+		void update(RAS::Manager* manager, RAS::Time time, vector<RAS::Actor>& actors)
+		{
+			if (find_collision(manager, time, actors, 2, 1, 6))
+			{
+				manager->add_event(collision_time, 2, 6, 0, true);
+			}
+			if (find_collision(manager, time, actors, 2, 0, 5))
+			{
+				manager->add_event(collision_time, 2, 5, 0, true);
+			}
+			
+
+			
+
+			
+			
+			
+		}
+	};
+
+	
 
 	void main_fight() 
 	{
@@ -144,35 +300,38 @@ namespace FIGHT
 
 		RAS::GeneratorID stay = man.register_generator(RAS::Generator([](GENERATOR_ARGS) -> RAS::Event {
 				double old_x = manager->actor_field_at<int>(time - 1, actor, generator_field);
-				return RAS::Event().add_modifier<int, 1>(0ms, point_func, { old_x });
+				return RAS::Event().add_modifier<int, 1>(0ms, point_func, POINT, { old_x });
 			}));
 
 		RAS::GeneratorID player_start_posY = man.register_generator(RAS::Generator([](GENERATOR_ARGS) -> RAS::Event {
-			return RAS::Event().add_modifier<int, 1>(0ms, point_func, { 100 });
+			return RAS::Event().add_modifier<int, 1>(0ms, point_func, POINT, { 100 });
 			}));
 
 		RAS::GeneratorID player1_start_posX = man.register_generator(RAS::Generator([](GENERATOR_ARGS) -> RAS::Event {
-				return RAS::Event().add_modifier<int, 1>(0ms, point_func, { 100 });
+				return RAS::Event().add_modifier<int, 1>(0ms, point_func, POINT, { 100 });
 			}));
 
 		RAS::GeneratorID player2_start_posX = man.register_generator(RAS::Generator([](GENERATOR_ARGS) -> RAS::Event{
-				return RAS::Event().add_modifier<int, 1>(0ms, point_func, { 900 });
+				return RAS::Event().add_modifier<int, 1>(0ms, point_func, POINT, { 900 });
 			}));
 
 		RAS::GeneratorID ball_start_pos = man.register_generator(RAS::Generator([](GENERATOR_ARGS) -> RAS::Event {
-			return RAS::Event().add_modifier<int, 1>(0ms, point_func, { 500 });
+			return RAS::Event().add_modifier<int, 1>(0ms, point_func, POINT, { 500 });
 			}));
 
 		RAS::GeneratorID move_speed_100 = man.register_generator(RAS::Generator([](GENERATOR_ARGS) -> RAS::Event
 			{
 				double old_x = manager->actor_field_at<int>(time - 1, actor, generator_field);
-				return RAS::Event().add_modifier<int, 2>(0ms, linear_func, { old_x, 300 });
+				RAS::Time bounce_time = find_linear(1000, { old_x, 300 });
+
+				return RAS::Event().add_modifier<int, 2>(0ms, linear_func, LINEAR, { old_x, 300 }).add_modifier<int, 2>(bounce_time, linear_func, LINEAR, { 1000, -300 });
 			}));
 
 		RAS::GeneratorID move_speed_n100 = man.register_generator(RAS::Generator([](GENERATOR_ARGS) -> RAS::Event
 			{
 				double old_x = manager->actor_field_at<int>(time - 1, actor, generator_field);
-				return RAS::Event().add_modifier<int, 2>(0ms, linear_func, { old_x, -300 });
+				RAS::Time bounce_time = find_linear(0, { old_x, -300 });
+				return RAS::Event().add_modifier<int, 2>(0ms, linear_func, LINEAR, { old_x, -300 }).add_modifier<int, 2>(bounce_time, linear_func, LINEAR, { 0, 300 });
 			}));
 
 		man.set_start();
@@ -186,12 +345,14 @@ namespace FIGHT
 		man.add_event(0ms, player2, player_start_posY, posY);
 		man.add_event(0ms, ball, ball_start_pos, posX);
 		man.add_event(0ms, ball, ball_start_pos, posY);
+		man.add_event(1000ms, ball, move_speed_100, posX);
+		man.add_event(1000ms, ball, move_speed_100, posY);
 
 		while (run())
 		{
 			pencil(COLOR_BLACK);
 			draw_clear();
-			man.snapshot_now();
+			
 
 			if (key_pressed(SDL_SCANCODE_W) || (key_released(SDL_SCANCODE_S) && key_held(SDL_SCANCODE_W)))
 			{
@@ -219,13 +380,15 @@ namespace FIGHT
 				man.add_event(man.now(), player2, stay, posY);
 			}
 
+			man.snapshot_now();
+
 			pencil(COLOR_WHITE);
 			int x1 = man.current_actor_field<int>(player1, posX);
 			int y1 = man.current_actor_field<int>(player1, posY);
-			draw_rect({ { x1,y1 },{10,90} });
+			draw_rect({ { x1-20,y1 },{10,90} });
 			int x2 = man.current_actor_field<int>(player2, posX);
 			int y2 = man.current_actor_field<int>(player2, posY);
-			draw_rect({ { x2,y2 },{10,90} });
+			draw_rect({ { x2+10,y2 },{10,90} });
 			int x3 = man.current_actor_field<int>(ball, posX);
 			int y3 = man.current_actor_field<int>(ball, posY);
 			draw_circle({ x3,y3 }, 10);

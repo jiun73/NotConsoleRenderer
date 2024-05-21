@@ -5,6 +5,11 @@
 #include <memory>
 #include <functional>
 
+/*
+* Rollback Actor System
+* - Entity system optimised for precise rollback netcode
+*/
+
 namespace RAS {
 	typedef size_t Time;
 	typedef size_t GeneratorID;
@@ -94,6 +99,7 @@ namespace RAS {
 	{
 		Manager* manager;
 		GeneratorID generator;
+		bool regenerate = true;
 		map<Time, Modifier*> modifiers;
 		Time start_time = 0;
 
@@ -107,16 +113,18 @@ namespace RAS {
 		}
 
 		template <typename T, size_t I>
-		Event& add_modifier(Time time, function<void(Time, T&, const array <double, I>&)> func, array<double, I> params)
+		Event& add_modifier(Time time, function<void(Time, T&, const array <double, I>&)> func, size_t type, array<double, I> params)
 		{
 			ModifierPureType<T, I>* mod = new ModifierPureType<T, I>();
 			mod->mod_func = func;
 			mod->params = params;
+			mod->type = type;
 			modifiers.emplace(time, mod);
 			return *this;
 		}
 
 		Modifier* modifier_at(Time time) const;
+		const pair<const size_t, Modifier*>& pair_at(Time time) const;
 		void snapshot(Time time, RawData data, const type_info& type) const;
 	};
 
@@ -215,7 +223,7 @@ namespace RAS {
 		void trigger_systems(Time time);
 		void regenerate_from(Time time);
 		void add_event(Time time, ActorID actor, GeneratorID generator);
-		void add_event(Time time, ActorID actor, GeneratorID generator, FieldID field);
+		void add_event(Time time, ActorID actor, GeneratorID generator, FieldID field, bool system_generated =  false);
 
 		template<typename T>
 		T& current_actor_field(ActorID actor, FieldID field)

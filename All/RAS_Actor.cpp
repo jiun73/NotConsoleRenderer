@@ -146,12 +146,19 @@ void RAS::Manager::regenerate_from(Time time)
 			auto it = t.second.events.lower_bound(time);
 			while (it != t.second.events.end())
 			{
-				GeneratorID genid = it->second.generator;
-				Generator& gen = generators.at(genid);
-				it->second = gen.generate(it->first, this, t.first, actor);
-				it->second.start_time = it->first;
-				it->second.generator = genid;
-				it++;
+				if (it->second.regenerate)
+				{
+					GeneratorID genid = it->second.generator;
+					Generator& gen = generators.at(genid);
+					it->second = gen.generate(it->first, this, t.first, actor);
+					it->second.start_time = it->first;
+					it->second.generator = genid;
+					it++;
+				}
+				else
+				{
+					it = t.second.events.erase(it);
+				}
 			}
 		}
 		actor++;
@@ -163,15 +170,22 @@ void RAS::Manager::add_event(Time time, ActorID actor, GeneratorID generator)
 	add_event(time, actor, generator, generators.at(generator).field);
 }
 
-void RAS::Manager::add_event(Time time, ActorID actor, GeneratorID generator, FieldID field)
+void RAS::Manager::add_event(Time time, ActorID actor, GeneratorID generator, FieldID field, bool system_event)
 {
 	const Generator& gen = generators.at(generator);
 	Event e = gen.generate(time, this, field, actor);
 	e.start_time = time;
 	e.generator = generator;
+	e.regenerate = !system_event;
 	actors.at(actor).timelines.at(field).events.emplace(time, e);
-	trigger_systems(time);
-	regenerate_from(time + 1);
+	if (system_event)
+	{
+		regenerate_from(time + 1);
+	}
+	else {
+		regenerate_from(0);
+		trigger_systems(time);
+	}
 }
 
 void RAS::Actor::snapshot(Time time, FieldID field, RawData field_data, const type_info& type)
@@ -204,7 +218,18 @@ RAS::Modifier* RAS::Event::modifier_at(Time time) const
 	}
 }
 
+const pair<const size_t, RAS::Modifier*>& RAS::Event::pair_at(Time time) const
+{
+	auto it = modifiers.lower_bound(time);
+
+	if (it != modifiers.begin())
+	{
+		return *(--it);
+	}
+}
+
 void RAS::Event::snapshot(Time time, RawData data, const type_info& type) const
 {
-	modifier_at(time)->apply(time - start_time, data, type);
+	auto pair = pair_at(time - start_time);
+	pair.second->apply(time - start_time - pair.first, data, type);
 }
