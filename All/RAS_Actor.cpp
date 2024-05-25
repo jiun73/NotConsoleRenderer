@@ -180,11 +180,11 @@ void RAS::Manager::add_event(Time time, ActorID actor, GeneratorID generator, Fi
 	actors.at(actor).timelines.at(field).events.emplace(time, e);
 	if (system_event)
 	{
-		regenerate_from(time + 1);
+		//regenerate_from(time + 1);
 	}
 	else {
 		regenerate_from(0);
-		trigger_systems(time);
+		trigger_systems(0);
 	}
 }
 
