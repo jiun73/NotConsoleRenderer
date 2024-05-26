@@ -28,6 +28,10 @@ const int squaresPerColumn = 15;
 const int xy = (END_X_MAP - BEG_X_MAP) / squaresPerColumn;
 const int yx = (END_Y_MAP - BEG_Y_MAP) / squaresPerRow;
 
+class tile;
+class player;
+class pion;
+
 vector<int> chemin = { 6,7,8,23,38,53,68, 83,99,100,101,102,103,104,119,134,133,132,131,130,129,143,158,173,188,203,218,217,216,
 		   201,186,171,156,141,125,124,123,122,121,120,105,90,91,92,93,94,95,81,66,51,36,21 };
  
@@ -183,11 +187,13 @@ public:
 	bool outOfHome = false;
 	V2d_i pos;
 	int index = 0;
+	player* joueur;
 
-	pion(int n, int s)
+	pion(int n, int s, player* joueur)
 	{
 		numero = n; 
 		spawn = s;
+		this->joueur = joueur;
 		caseActuelle = 0;
 	}
 
@@ -204,11 +210,11 @@ public:
 			caseActuelle = 0;
 
 			Color col = get_pencil();
-			draw_full_circle(carreaux.at(chem.at(caseActuelle)).pos + xy / 2, rayon);
+			draw_full_circle(carreaux.at(joueur->chemin_p.at(caseActuelle)).pos + xy / 2, rayon);
 			pencil(COLOR_BLACK);
-			draw_circle(carreaux.at(chem.at(caseActuelle)).pos + xy / 2, rayon);
+			draw_circle(carreaux.at(joueur->chemin_p.at(caseActuelle)).pos + xy / 2, rayon);
 			pencil(col);
-			pos = carreaux.at(chem.at(caseActuelle % 225)).pos;
+			pos = carreaux.at(joueur->chemin_p.at(caseActuelle % 225)).pos;
 		}
 		/*draw_full_circle(carreaux.at(chem.at(index)).pos + xy / 2, rayon);
 			pencil(COLOR_BLACK);
@@ -246,10 +252,10 @@ public:
 	bool pionJoue = false;
 	vector<int> chemin_p;
 
-	pion* token1 = new pion(1, 0);
-	pion* token2 = new pion(2, 0);
-	pion* token3 = new pion(3, 0);
-	pion* token4 = new pion(4, 0);
+	pion* token1 = new pion(1, 0, this);
+	pion* token2 = new pion(2, 0, this);
+	pion* token3 = new pion(3, 0, this);
+	pion* token4 = new pion(4, 0, this);
 
 	void init_tokens()
 	{

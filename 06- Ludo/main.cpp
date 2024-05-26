@@ -143,10 +143,10 @@ void draw_board()
 
 void display_tokens()
 {
-	rouge->display_tokens(actual().chemin_p);
-	bleu->display_tokens(actual().chemin_p);
-	vert->display_tokens(actual().chemin_p);
-	jaune->display_tokens(actual().chemin_p);
+	rouge->display_tokens(rouge->chemin_p);
+	bleu->display_tokens(bleu->chemin_p);
+	vert->display_tokens(vert->chemin_p);
+	jaune->display_tokens(jaune->chemin_p);
 }
 
 void switch_turns()
