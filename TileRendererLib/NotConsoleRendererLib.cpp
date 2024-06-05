@@ -28,7 +28,7 @@ namespace hidden {
 	const int fps = 120;
 	Uint32 frameStart = 0;
 	Uint32 frameTime = 0;
-	Uint32 frameDelay = (Uint32)(1000.0 / fps);
+	Uint32 frameDelay = (Uint32)(1000.0 / (double)fps);
 
 	bool logical_rescaling = false;
 
@@ -155,23 +155,25 @@ void init()
 		track_variable(net::verbose_net, "net_debug");
 		__init__ = true;
 
+		SDL_MaximizeWindow(sdl_win);
+
 		add_font_effect("end", [](__FontEffectArgs__)
 			{
 				_fonts.remove_glyph_effect();
 			});
 
-			add_font_effect("wave", [](__FontEffectArgs__)
-				{
-					_fonts.set_glyph_effect([](SDL_Rect& dest)
-						{
-							double x = ((SDL_GetTicks() % 1000) / 1000.0 * 2 * M_PI + (double)(dest.x * 7)) ;
-							double xdis = sin(x) * 5.0;
-							double ydis = cos(x) * 5.0;
-							dest.x += (int)xdis;
-							dest.y += (int)ydis;
-							std::cout << xdis << ydis << std::endl;
-						});
-				});
+		add_font_effect("wave", [](__FontEffectArgs__)
+			{
+				_fonts.set_glyph_effect([](SDL_Rect& dest)
+					{
+						double x = ((SDL_GetTicks() % 1000) / 1000.0 * 2 * M_PI + (double)(dest.x * 7)) ;
+						double xdis = sin(x) * 5.0;
+						double ydis = cos(x) * 5.0;
+						dest.x += (int)xdis;
+						dest.y += (int)ydis;
+						std::cout << xdis << ydis << std::endl;
+					});
+			});
 
 		add_font_effect("rainbow", [](__FontEffectArgs__)
 			{
@@ -248,7 +250,6 @@ bool run()
 		{
 			if (sdl_event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
 			{
-				std::cout << "resized!" << std::endl;
 				SDL_RenderSetLogicalSize(sdl_ren, sdl_event.window.data1, sdl_event.window.data2);
 				window_size = { sdl_event.window.data1, sdl_event.window.data2 };
 			}

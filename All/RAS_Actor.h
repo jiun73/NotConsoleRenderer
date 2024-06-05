@@ -11,8 +11,9 @@
 */
 
 namespace RAS {
-	typedef size_t Time;
+	typedef uint32_t Time;
 	typedef size_t GeneratorID;
+	typedef size_t GeneratorAlias;
 	typedef size_t ActorID;
 	typedef size_t FieldID;
 	typedef char* RawData;
@@ -169,6 +170,7 @@ namespace RAS {
 		//function<void(Manager*, Time, vector<Actor>&)> update;
 
 		virtual void update(Manager* manager, Time time, vector<Actor>& actors) = 0;
+		virtual void on_snap(Manager* manager, Time time, vector<Actor>& actors) = 0;
 	};
 
 	template<typename T>
@@ -176,7 +178,12 @@ namespace RAS {
 	{
 		T system;
 
-		void update(Manager* manager, Time time, vector<Actor>& actors) override 
+		void on_snap(Manager* manager, Time time, vector<Actor>& actors) override
+		{
+			system.on_snap(manager, time, actors);
+		}
+
+		void update(Manager* manager, Time time, vector<Actor>& actors) override
 		{
 			system.update(manager, time, actors);
 		}
@@ -187,6 +194,7 @@ namespace RAS {
 	{
 		Time start = 0;
 		function<Time()> time_fetch;
+		map<GeneratorAlias, GeneratorID> generator_aliases;
 		vector<DataTypeFactory*> field_types;
 		vector<Actor> actors;
 		vector<System*> systems;
@@ -212,12 +220,13 @@ namespace RAS {
 			systems.push_back(new SystemType<T>());
 		}
 
-		GeneratorID register_generator(const Generator& generator);
+		GeneratorID register_generator(const Generator& generator, GeneratorAlias alias);
 
 		void set_start();
 		void set_time_fetcher(function<Time()> func);
 		Time relative_time(Time time);
 		Time now();
+		RawData snapshot_actor(Time time, ActorID actor, FieldID field, const std::type_info& type);
 		void snapshot(Time time);
 		void snapshot_now();
 		void trigger_systems(Time time);
@@ -236,10 +245,7 @@ namespace RAS {
 		template<typename T>
 		T& actor_field_at(Time time, ActorID actor, FieldID field)
 		{
-			Actor& act = actors.at(actor);
-			RawData data = get_actor_field(act, field);
-			act.timelines.at(field).snapshot(time, data, typeid(T));
-			return *(T*)(data);
+			return *(T*)(snapshot_actor(time, actor, field, typeid(T)));
 		}
 
 		//Modifier* make_modifier();

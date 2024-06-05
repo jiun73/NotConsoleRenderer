@@ -1,0 +1,30 @@
+new style GLUU default
+
+row <
+col fixed <
+	new string message
+
+	row px 100
+	<
+		col button Host { message = "hosting game!"; :host_game; return_code = 2;} style key
+
+		col textbox { "Enter ip ....... " } 
+		{ 
+			arg* string ip; 
+			$if { :join_game @ip :not }
+			{
+				message = { "could not join " @ip };
+			};
+			@ip = "";
+			return_code = 1;
+		} 
+	>
+	row px 400 
+	<
+		col text { message } <>
+	>
+	row px 100 
+	<
+		col px 100 button Testing { :exit }
+	>
+> >

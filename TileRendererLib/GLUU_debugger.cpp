@@ -44,68 +44,77 @@ void GLUU::Debugger::fetch_lines(const string& str)
 
 void GLUU::Debugger::print_row(const string& msg)
 {
-	for (size_t i = 0; i < row_level; i++)
+	if (output_compile_tree)
 	{
-		std::cout << "\t";
-	}
+		for (size_t i = 0; i < row_level; i++)
+		{
+			std::cout << "\t";
+		}
 
-	for (size_t i = 0; i < row_level; i++)
-	{
-		std::cout << "\t";
+		for (size_t i = 0; i < row_level; i++)
+		{
+			std::cout << "\t";
+		}
+		std::cout << "HEAD " + msg << std::endl;
 	}
-	std::cout << "HEAD " + msg << std::endl;
 }
 
 void GLUU::Debugger::next_level()
 {
-	if (seq_level != 0)
+	if (output_compile_tree)
 	{
-		for (size_t i = 0; i < row_level + 1; i++)
+		if (seq_level != 0)
 		{
-			std::cout << "\t";
-		}
+			for (size_t i = 0; i < row_level + 1; i++)
+			{
+				std::cout << "\t";
+			}
 
-		for (size_t i = 0; i < seq_level - 1; i++)
-		{
-			//(char)(179) <<
-			std::cout << " ";
+			for (size_t i = 0; i < seq_level - 1; i++)
+			{
+				//(char)(179) <<
+				std::cout << " ";
+			}
+			std::cout << (char)(192) << (char)(191) << std::endl;
 		}
-		std::cout << (char)(192) << (char)(191) << std::endl;
+		seq_level++;
 	}
-	seq_level++;
 }
 
 void GLUU::Debugger::output_seq(const string& str, bool start)
 {
-	if (seq_level == 0)
+	if (output_compile_tree)
 	{
-		std::cout << std::endl;
-		for (size_t i = 0; i < row_level + 1; i++)
+		if (seq_level == 0)
 		{
-			std::cout << "\t";
+			std::cout << std::endl;
+			for (size_t i = 0; i < row_level + 1; i++)
+			{
+				std::cout << "\t";
+			}
+			std::cout << str << std::endl;
 		}
-		std::cout << str << std::endl;
-	}
-	else
-	{
-
-		for (size_t i = 0; i < row_level + 1; i++)
-		{
-			std::cout << "\t";
-		}
-
-		for (size_t i = 0; i < seq_level - 1; i++)
-		{
-			//(char)(179) <<
-			std::cout << " ";
-		}
-		if (start)
-			std::cout << (char)(192);
 		else
-			std::cout << (char)(179);
-		//std::cout << (char)(192);
+		{
+
+			for (size_t i = 0; i < row_level + 1; i++)
+			{
+				std::cout << "\t";
+			}
+
+			for (size_t i = 0; i < seq_level - 1; i++)
+			{
+				//(char)(179) <<
+				std::cout << " ";
+			}
+			if (start)
+				std::cout << (char)(192);
+			else
+				std::cout << (char)(179);
+			//std::cout << (char)(192);
 
 
-		std::cout << "  " << str << std::endl;
+			std::cout << "  " << str << std::endl;
+		}
 	}
 }

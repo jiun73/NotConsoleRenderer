@@ -93,6 +93,10 @@ class ButtonWidgetStyler_GLUU : public GLUU::Styler<GLUU::ButtonWidget>
 				break;
 			}
 			
+		if (mouse_left_pressed() && widget.is_held)
+		{
+			sound().playSound("Sounds/button.wav");
+		}
 
 		int w = get_text_draw_size(widget.text(), get_font(0));
 		int h = get_font(0).height;
@@ -119,7 +123,7 @@ inline GLUU::ImportStyler<ButtonWidgetStyler_GLUU> import_button_grstyler("GLUU"
 int main()
 {
 	set_window_size({ (int)(1920),(int)(1080) });
-	set_window_spawn({ (int)(1920 * 0.75),(int)(1080 * 0.75) });
+	set_window_spawn({ (int)(1920 ),(int)(1080 ) });
 	set_window_logical_rescaling(true);
 	set_window_resizable();
 	init();

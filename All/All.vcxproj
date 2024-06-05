@@ -124,12 +124,16 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)TileRendererLib;$(SolutionDir)External Libraries\ENet\include;$(SolutionDir)External Libraries\SDL2\include;$(SolutionDir)External Libraries\SDL2_mixer\SDL2_mixer-2.6.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)External Libraries\SDL2\lib\x64;$(SolutionDir)External Libraries\SDL2_mixer\SDL2_mixer-2.6.3\lib\x64;$(SolutionDir)External Libraries\ENet;$(SolutionDir)x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;enet64.lib;ws2_32.lib;winmm.lib;TileRendererLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -144,8 +148,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="pong_main.cpp" />
-    <ClCompile Include="old_RAS_Event.cpp" />
-    <ClCompile Include="old_RAS_Manager.cpp" />
     <ClCompile Include="RAS_Actor.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Strings.cpp" />
@@ -164,16 +166,6 @@
     <ClInclude Include="EditorPlane.h" />
     <ClInclude Include="main_chatroom.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="old_RAS_Actors.h" />
-    <ClInclude Include="old_RAS_DataFactory.h" />
-    <ClInclude Include="old_RAS_Event.h" />
-    <ClInclude Include="old_RAS_EventHandler.h" />
-    <ClInclude Include="old_RAS_EventParam.h" />
-    <ClInclude Include="old_RAS_EventSequence.h" />
-    <ClInclude Include="old_RAS_Manager.h" />
-    <ClInclude Include="old_RAS_Systems.h" />
-    <ClInclude Include="old_RAS_Timeline.h" />
-    <ClInclude Include="old_RAS_Typedef.h" />
     <ClInclude Include="RAS_Actor.h" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="Strings.h" />
@@ -184,6 +176,7 @@
     <None Include="AnimMaker.gluu" />
     <None Include="GLUU\chat_menu.gluu" />
     <None Include="GLUU\main.gluu" />
+    <None Include="PongMenu.gluu" />
     <None Include="vlanhelper.gluu" />
   </ItemGroup>
   <ItemGroup>

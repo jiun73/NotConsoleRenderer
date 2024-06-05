@@ -86,10 +86,12 @@ RAS::ActorID RAS::Manager::register_actor(FieldKey key)
 	return actors.size() - 1;
 }
 
-RAS::GeneratorID RAS::Manager::register_generator(const Generator& generator)
+RAS::GeneratorID RAS::Manager::register_generator(const Generator& generator, GeneratorAlias alias)
 {
 	generators.push_back(generator);
-	return generators.size() - 1;
+	RAS::GeneratorID gen_id = generators.size() - 1;
+	generator_aliases.emplace(alias, gen_id);
+	return gen_id;
 }
 
 void RAS::Manager::set_start()
@@ -112,8 +114,26 @@ RAS::Time RAS::Manager::now()
 	return relative_time(time_fetch());
 }
 
+RAS::RawData RAS::Manager::snapshot_actor(Time time, ActorID actor, FieldID field, const std::type_info& type)
+{
+	for (auto& s : systems)
+	{
+		s->on_snap(this, time, actors);
+	}
+
+	Actor& act = actors.at(actor);
+	RawData data = get_actor_field(act, field);
+	act.timelines.at(field).snapshot(time, data, type);
+	return data;
+}
+
 void RAS::Manager::snapshot(Time time)
 {
+	for (auto& s : systems)
+	{
+		s->on_snap(this, time, actors);
+	}
+
 	for (auto& a : actors)
 	{
 		for (auto& f : a.timelines)
@@ -184,7 +204,7 @@ void RAS::Manager::add_event(Time time, ActorID actor, GeneratorID generator, Fi
 	}
 	else {
 		regenerate_from(0);
-		trigger_systems(0);
+		trigger_systems(time);
 	}
 }
 
@@ -207,6 +227,7 @@ void RAS::Timeline::snapshot(Time time, RawData data, const type_info& type)
 {
 	event_at(time).snapshot(time, data, type);
 }
+
 
 RAS::Modifier* RAS::Event::modifier_at(Time time) const
 {

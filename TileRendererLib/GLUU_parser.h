@@ -117,6 +117,7 @@ namespace GLUU {
 		string current_styler_args = "";
 
 	public:
+		
 		Debugger debugger;
 		unordered_map<type_index, Inspector> inspectors;
 

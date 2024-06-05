@@ -261,7 +261,7 @@ namespace GLUU {
 
 					if (!next(it2)->empty())
 					{
-						std::cout << next(it2)->flat() << std::endl;
+						//std::cout << next(it2)->flat() << std::endl;
 						string_ranges r2 = *next(it2);
 						parser->debugger.output_seq(r2.flat());
 						add_constant(make_const<string>(range_shave(r2).flat(), r2));

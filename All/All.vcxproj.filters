@@ -37,7 +37,7 @@
     <Filter Include="Fichiers sources\Pong">
       <UniqueIdentifier>{f9ca2ba5-ab7b-468a-bb0c-bc4ea02ad991}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Fichiers sources\Fighting Game">
+    <Filter Include="Fichiers sources\Real pong">
       <UniqueIdentifier>{bf2126f6-5b4f-4bda-87e4-e77230028d81}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -82,16 +82,10 @@
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="main_fighter.cpp">
-      <Filter>Fichiers sources\Fighting Game</Filter>
-    </ClCompile>
-    <ClCompile Include="old_RAS_Manager.cpp">
-      <Filter>Fichiers sources\Fighting Game</Filter>
-    </ClCompile>
-    <ClCompile Include="old_RAS_Event.cpp">
-      <Filter>Fichiers sources\Fighting Game</Filter>
+      <Filter>Fichiers sources\Real pong</Filter>
     </ClCompile>
     <ClCompile Include="RAS_Actor.cpp">
-      <Filter>Fichiers sources\Fighting Game</Filter>
+      <Filter>Fichiers sources\Real pong</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -137,38 +131,8 @@
     <ClInclude Include="tictactoe_game.h">
       <Filter>Fichiers sources\TicTacToe</Filter>
     </ClInclude>
-    <ClInclude Include="old_RAS_Event.h">
-      <Filter>Fichiers sources\Fighting Game</Filter>
-    </ClInclude>
-    <ClInclude Include="old_RAS_Typedef.h">
-      <Filter>Fichiers sources\Fighting Game</Filter>
-    </ClInclude>
-    <ClInclude Include="old_RAS_EventParam.h">
-      <Filter>Fichiers sources\Fighting Game</Filter>
-    </ClInclude>
-    <ClInclude Include="old_RAS_EventSequence.h">
-      <Filter>Fichiers sources\Fighting Game</Filter>
-    </ClInclude>
-    <ClInclude Include="old_RAS_DataFactory.h">
-      <Filter>Fichiers sources\Fighting Game</Filter>
-    </ClInclude>
-    <ClInclude Include="old_RAS_Systems.h">
-      <Filter>Fichiers sources\Fighting Game</Filter>
-    </ClInclude>
-    <ClInclude Include="old_RAS_Actors.h">
-      <Filter>Fichiers sources\Fighting Game</Filter>
-    </ClInclude>
-    <ClInclude Include="old_RAS_Timeline.h">
-      <Filter>Fichiers sources\Fighting Game</Filter>
-    </ClInclude>
-    <ClInclude Include="old_RAS_EventHandler.h">
-      <Filter>Fichiers sources\Fighting Game</Filter>
-    </ClInclude>
-    <ClInclude Include="old_RAS_Manager.h">
-      <Filter>Fichiers sources\Fighting Game</Filter>
-    </ClInclude>
     <ClInclude Include="RAS_Actor.h">
-      <Filter>Fichiers sources\Fighting Game</Filter>
+      <Filter>Fichiers sources\Real pong</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -180,6 +144,7 @@
       <Filter>Fichiers sources\Chatroom</Filter>
     </None>
     <None Include="vlanhelper.gluu" />
+    <None Include="PongMenu.gluu" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="gluusyntax.txt" />

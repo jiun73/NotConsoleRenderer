@@ -127,7 +127,7 @@ public:
 	{
 		shared_ptr<VariableRegistry> pointer = make_temporary_scope(name);
 		saved_scopes.emplace(pointer);
-		std::cout << "new scope " << name << std::endl;
+		//std::cout << "new scope " << name << std::endl;
 		return pointer;
 	}
 

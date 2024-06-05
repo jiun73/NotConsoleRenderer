@@ -1,19 +1,22 @@
 
-new init setup = {
-	BASE .fit = true;
-}
-
-new function :test = { }
-
 new style GLUU key
 
-row button CollisionX			{ $collisionx_main }
-row button TicTacToe			{ $tictactoe_main }
-row button { "Connect 4" }		{ $connect4_main } 
-row button BounceX				{ $bouncex_main } 
-row button { "USA Simulator" }	{ $usasim_main } 
-row button Chatroom				{ $chatroom_main } 
-row button AnimMaker			{ $animmaker_main } 
-row button Pong					{ $pong_main }  
-row button VlanHelper			{ $vlan_helper }  
-row button FightingGame			{ $main_fight }  
+
+
+row px 500 <
+	col <
+		row button CollisionX			{ $collisionx_main }
+		row button TicTacToe			{ $tictactoe_main }
+		row button { "Connect 4" }		{ $connect4_main } 
+		row button BounceX				{ $bouncex_main } 
+		row button { "USA Simulator" }	{ $usasim_main } 
+	>
+
+	col <
+		row button Chatroom				{ $chatroom_main } 
+		row button AnimMaker			{ $animmaker_main } 
+		row button Pong					{ $pong_main }  
+		row button VlanHelper			{ $vlan_helper }  
+		row button { "Netpong" }		{ $main_fight }  
+	>
+>

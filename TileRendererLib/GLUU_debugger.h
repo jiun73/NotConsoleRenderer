@@ -87,6 +87,7 @@ namespace GLUU {
 		size_t seq_level = 0;
 		size_t row_level = 0;
 		bool verbose_compiler = false;
+		bool output_compile_tree = false;
 
 		void enter_runtime(const DebugInfo& info) { runtime_info.push_back(info); }
 		void exit_runtime() { runtime_info.pop_back(); }
