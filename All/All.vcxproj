@@ -70,6 +70,12 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)$(ProjectName)\</OutDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -112,7 +118,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)External Libraries\SDL2\lib\x64;$(SolutionDir)External Libraries\SDL2_mixer\SDL2_mixer-2.6.3\lib\x64;$(SolutionDir)External Libraries\ENet;$(SolutionDir)x64\Debug;$(SolutionDir)External Libraries\ntp\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)External Libraries\SDL2\lib\x64;$(SolutionDir)External Libraries\SDL2_mixer\SDL2_mixer-2.6.3\lib\x64;$(SolutionDir)External Libraries\ENet;$(SolutionDir)x64\Debug;$(SolutionDir)External Libraries\ntp\ntpDebug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;enet64.lib;ws2_32.lib;winmm.lib;TileRendererLib.lib;ntpD.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -132,7 +138,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)External Libraries\SDL2\lib\x64;$(SolutionDir)External Libraries\SDL2_mixer\SDL2_mixer-2.6.3\lib\x64;$(SolutionDir)External Libraries\ENet;$(SolutionDir)x64\Release;$(SolutionDir)External Libraries\ntp\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)External Libraries\SDL2\lib\x64;$(SolutionDir)External Libraries\SDL2_mixer\SDL2_mixer-2.6.3\lib\x64;$(SolutionDir)External Libraries\ENet;$(SolutionDir)x64\Release;$(SolutionDir)External Libraries\ntp\ntpRelease;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;enet64.lib;ws2_32.lib;winmm.lib;TileRendererLib.lib;ntp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

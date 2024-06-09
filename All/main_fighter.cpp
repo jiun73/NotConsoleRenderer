@@ -150,10 +150,30 @@ namespace FIGHT
 				}
 				else
 				{
-					is_active = man.current_actor_field<bool>(BALL_PLAYER2, ACTIVE);
+					bool found = false;
+					int i = 0;
+					for (; i < MAX_BALLS; i++)
+					{
+						found = !man.current_actor_field<bool>(BALL_PLAYER2 + i, ACTIVE);
+						if (found)
+							break;
+					}
+
+					if (found)
+					{
+						char code = (i << 4) | '\x04';
+						std::cout << std::hex << (int)code << std::dec;
+						process_event_pack(net, man, man.now(), code, is_p1, true);
+					}
+					else
+					{
+						std::cout << "no bullet found" << std::endl;
+					}
+
+					/*is_active = man.current_actor_field<bool>(BALL_PLAYER2, ACTIVE);
 
 					if (!is_active)
-						process_event_pack(net, man, man.now(), '\x04', is_p1, true);
+						process_event_pack(net, man, man.now(), '\x04', is_p1, true);*/
 				}
 
 				
@@ -211,7 +231,7 @@ namespace FIGHT
 				}), SET_TYPE_GLOCK);
 
 			RAS::GeneratorID player2_start_posY = man.register_generator(RAS::Generator([](GENERATOR_ARGS) -> RAS::Event {
-				return RAS::Event().add_modifier<int, 1>(0ms, point_func<int>, POINT, { 600 });
+				return RAS::Event().add_modifier<int, 1>(0ms, point_func<int>, POINT, { 100 });
 				}), PLAYER2_START_POSY);
 
 			RAS::GeneratorID player1_start_posX = man.register_generator(RAS::Generator([](GENERATOR_ARGS) -> RAS::Event {
@@ -299,7 +319,10 @@ namespace FIGHT
 			{
 				man.register_actor(0b1111, BALL_PLAYER1 + i);
 			}
-			man.register_actor(0b1111, BALL_PLAYER2);
+			for (int i = 0; i < MAX_BALLS; i++)
+			{
+				man.register_actor(0b1111, BALL_PLAYER2 + i);
+			}
 		}
 
 		void sync_clock() 
@@ -335,10 +358,13 @@ namespace FIGHT
 				man.add_event(0ms, BALL_PLAYER1 + i, SET_INACTIVE, ACTIVE);
 			}
 
-			man.add_event(0ms, BALL_PLAYER2, BALL_POS_OOB, POSX);
-			man.add_event(0ms, BALL_PLAYER2, BALL_POS_OOB, POSY);
-			man.add_event(0ms, BALL_PLAYER2, SET_TYPE_GLOCK, TYPE);
-			man.add_event(0ms, BALL_PLAYER2, SET_INACTIVE, ACTIVE);
+			for (int i = 0; i < MAX_BALLS; i++)
+			{
+				man.add_event(0ms, BALL_PLAYER2 + i, BALL_POS_OOB, POSX);
+				man.add_event(0ms, BALL_PLAYER2 + i, BALL_POS_OOB, POSY);
+				man.add_event(0ms, BALL_PLAYER2 + i, SET_TYPE_GLOCK, TYPE);
+				man.add_event(0ms, BALL_PLAYER2 + i, SET_INACTIVE, ACTIVE);
+			}
 		}
 
 		void snapshot() 
@@ -374,12 +400,17 @@ namespace FIGHT
 
 				draw_circle({ xball1,yball1 }, 10);
 			}
-			int x4 = man.current_actor_field<int>(BALL_PLAYER2, POSX);
-			int y4 = man.current_actor_field<int>(BALL_PLAYER2, POSY);
+			for (int i = 0; i < MAX_BALLS; i++)
+			{
+				int xball2 = man.current_actor_field<int>(BALL_PLAYER2 + i, POSX);
+				int yball2 = man.current_actor_field<int>(BALL_PLAYER2 + i, POSY);
+
+				draw_circle({ xball2,yball2 }, 10);
+			}
 
 			
 			
-			draw_circle({ x4,y4 }, 10);
+			
 
 			draw_text(strings::stringify(man.now()), 1000, 0, get_font(0));
 		}

@@ -111,18 +111,18 @@ void execute_ntp_client_query_loop(ntp::EndPointPtr ep)
 				ntp_client->query(ep, false);
 
 			const bool ft_over = ntp_client->is_fine_tunning_over();
-			std::cout << res->as_string() << std::endl;// print status string
-			std::cout << "*********************************************************************************************************************" << std::endl;
-			log_file << res->as_string() << std::endl;
-			log_file << "*********************************************************************************************************************" << std::endl;
+			//std::cout << res->as_string() << std::endl;// print status string
+			//std::cout << "*********************************************************************************************************************" << std::endl;
+			//log_file << res->as_string() << std::endl;
+			//log_file << "*********************************************************************************************************************" << std::endl;
 
 			if (synched != ft_over)
 			{
 				synched = ft_over;
 				std::stringstream ss;
-				ss << "\t**********************************************************************************" << std::endl
-					<< "\t\t " << (synched ? "Synched" : "Out of synch") << " Reason code: " << (int)ntp_client->finetune_over_reason() << std::endl
-					<< "\t**********************************************************************************" << std::endl;
+				//ss << "\t**********************************************************************************" << std::endl
+				//	<< "\t\t " << (synched ? "Synched" : "Out of synch") << " Reason code: " << (int)ntp_client->finetune_over_reason() << std::endl
+				//	<< "\t**********************************************************************************" << std::endl;
 
 				std::cout << ss.str();
 				log_file << ss.str();
@@ -132,16 +132,17 @@ void execute_ntp_client_query_loop(ntp::EndPointPtr ep)
 			if (acquired_time != clinet_has_time) {
 				acquired_time = clinet_has_time;
 				std::stringstream ss;
-				ss << "\t*******************************************************************************" << std::endl
-					<< "\t\t " << (acquired_time ? "Acquired time" : "Lost time") << std::endl
-					<< "\t*******************************************************************************" << std::endl;
+				//ss << "\t*******************************************************************************" << std::endl
+				//	<< "\t\t " << (acquired_time ? "Acquired time" : "Lost time") << std::endl
+				//	<< "\t*******************************************************************************" << std::endl;
 
 				std::cout << ss.str();
 				log_file << ss.str();
 			};
 
 			std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(ntp_client_global->clock()->now().time().time_since_epoch()).count() << std::endl;
-			std::cout << "Sleeped (seconds) for " << kia.sleep(ntp_client).count() / 1000.0 << std::endl;
+			kia.sleep(ntp_client).count() / 1000.0;
+			//std::cout << "Sleeped (seconds) for " <<  << std::endl;
 
 			
 		};

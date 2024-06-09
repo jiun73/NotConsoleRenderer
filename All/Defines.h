@@ -11,7 +11,7 @@ namespace FIGHT
 	inline size_t operator ""s(size_t s) { return s * 1000; }
 	inline size_t operator ""s(long double s) { return s * 1000; }
 	
-	inline const size_t MAX_BALLS = 5;
+	inline const size_t MAX_BALLS = 16; //technical max considering the code is 8 bits and only 4 is used for the ball id
 
 	enum ActorEnum
 	{

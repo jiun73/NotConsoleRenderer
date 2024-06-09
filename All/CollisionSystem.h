@@ -198,8 +198,8 @@ namespace FIGHT
 			RAS::Time collision_time;
 			bool resume = false;
 			RAS::Time resume_check;
-			RAS::ActorID actor = 0;
-			RAS::ActorID ball = 0;
+			RAS::ActorAlias actor = 0;
+			RAS::ActorAlias ball = 0;
 		};
 
 		CollisionInfo find_collision_info(RAS::Time start_time, RAS::ActorID ball_actor, RAS::ActorID player_actor)
@@ -233,9 +233,23 @@ namespace FIGHT
 		}
 
 		//RAS::ActorID ball = 2;
-		std::array<RAS::ActorID, 2> paddles = { PLAYER1 , PLAYER2 };
-		std::array<RAS::ActorID, 6> balls = { BALL_PLAYER1, BALL_PLAYER1 + 1, BALL_PLAYER1 + 2, BALL_PLAYER1 + 3, BALL_PLAYER1 + 4 , BALL_PLAYER2 };
+		std::array<RAS::ActorAlias, 2> paddles = { PLAYER1 , PLAYER2 };
+		std::array<RAS::ActorAlias, MAX_BALLS * 2> balls;
 		std::array<CollisionInfo, 6 * 2> collisions;
+
+		CollisionSystem() 
+		{
+			for (int i = 0; i < MAX_BALLS; i++)
+			{
+				balls.at(i) = BALL_PLAYER1 + i;
+			}
+
+			for (int i = 0; i < MAX_BALLS; i++)
+			{
+				balls.at(i + MAX_BALLS) = BALL_PLAYER2 + i;
+			}
+		}
+		~CollisionSystem() {}
 
 		RAS::Time valid_time = 0;
 		bool disable_snap = false;
@@ -251,7 +265,7 @@ namespace FIGHT
 			//std::cout << arg_time << std::endl;
 			if (arg_time <= valid_time) return;
 
-			std::cout << "new snap from " << valid_time << " to " << arg_time << std::endl;
+			//std::cout << "new snap from " << valid_time << " to " << arg_time << "(" << arg_time - valid_time << ")" << std::endl;
 
 			for (auto& c : collisions) c = CollisionInfo();
 
@@ -314,20 +328,21 @@ namespace FIGHT
 				valid_time = early_collision->collision_time + 1;
 
 				int ballY = manager->actor_field_at<int>(early_collision->collision_time, early_collision->ball, POSY);
-				int playerY = manager->actorid_field_at<int>(early_collision->collision_time, early_collision->actor, POSY);
+				int playerY = manager->actor_field_at<int>(early_collision->collision_time, early_collision->actor, POSY);
 
+				disable_snap = true; //prevents system events triggering this function through an event regeneration calling 
 				if (ballY >= playerY && ballY <= playerY + 90)
 				{
 					switch (early_collision->actor)
 					{
 					case 0:
-						std::cout << "collision 1 found " << valid_time << std::endl;
+						std::cout << "collision 1 found " << valid_time << "! " << ballY << ":" << playerY << std::endl;
 						manager->add_event(early_collision->collision_time, early_collision->ball, MOVE_PONG_X, POSX, true);
 
 
 						break;
 					case 1:
-						std::cout << "collision 2 found " << valid_time << std::endl;
+						std::cout << "collision 2 found " << valid_time << "! " << ballY << ":" << playerY << std::endl;
 						manager->add_event(early_collision->collision_time, early_collision->ball, MOVE_PONG_XN, POSX, true);
 
 						break;
@@ -357,13 +372,13 @@ namespace FIGHT
 				}
 				else
 				{
-					std::cout << "collision oob found " << valid_time << std::endl;
-					disable_snap = true;
+					std::cout << "collision oob found " << valid_time << "! " << ballY << ":" << playerY << std::endl;
 					manager->add_event(early_collision->collision_time, early_collision->ball, BALL_POS_OOB, POSX, true);
 					manager->add_event(early_collision->collision_time, early_collision->ball, BALL_POS_OOB, POSY, true);
 					manager->add_event(early_collision->collision_time, early_collision->ball, SET_INACTIVE, ACTIVE, true);
-					disable_snap = false;
+					
 				}
+				disable_snap = false;
 			}
 		}
 

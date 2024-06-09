@@ -211,7 +211,7 @@ void RAS::Manager::add_event_internal(Time time, ActorID actor, GeneratorID gene
 	if (system_event)
 	{
 		//std::cout << "new system event " << time << std::endl;
-		regenerate_from(time, false);
+		regenerate_from(time + 1, false);
 	}
 	else {
 		//std::cout << "new real event " << time << std::endl;
