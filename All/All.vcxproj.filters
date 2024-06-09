@@ -84,7 +84,16 @@
     <ClCompile Include="main_fighter.cpp">
       <Filter>Fichiers sources\Real pong</Filter>
     </ClCompile>
-    <ClCompile Include="RAS_Actor.cpp">
+    <ClCompile Include="RAS.cpp">
+      <Filter>Fichiers sources\Real pong</Filter>
+    </ClCompile>
+    <ClCompile Include="Defines.cpp">
+      <Filter>Fichiers sources\Real pong</Filter>
+    </ClCompile>
+    <ClCompile Include="test.cpp">
+      <Filter>Fichiers sources\Real pong</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomNet.cpp">
       <Filter>Fichiers sources\Real pong</Filter>
     </ClCompile>
   </ItemGroup>
@@ -131,7 +140,22 @@
     <ClInclude Include="tictactoe_game.h">
       <Filter>Fichiers sources\TicTacToe</Filter>
     </ClInclude>
-    <ClInclude Include="RAS_Actor.h">
+    <ClInclude Include="RAS.h">
+      <Filter>Fichiers sources\Real pong</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomNet.h">
+      <Filter>Fichiers sources\Real pong</Filter>
+    </ClInclude>
+    <ClInclude Include="Defines.h">
+      <Filter>Fichiers sources\Real pong</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionSystem.h">
+      <Filter>Fichiers sources\Real pong</Filter>
+    </ClInclude>
+    <ClInclude Include="Lexer.h">
+      <Filter>Fichiers sources\Real pong</Filter>
+    </ClInclude>
+    <ClInclude Include="test.h">
       <Filter>Fichiers sources\Real pong</Filter>
     </ClInclude>
   </ItemGroup>

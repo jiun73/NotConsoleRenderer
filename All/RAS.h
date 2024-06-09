@@ -5,6 +5,8 @@
 #include <memory>
 #include <functional>
 
+#include "Lexer.h"
+
 /*
 * Rollback Actor System
 * - Entity system optimised for precise rollback netcode
@@ -13,9 +15,13 @@
 namespace RAS {
 	typedef uint32_t Time;
 	typedef size_t GeneratorID;
-	typedef size_t GeneratorAlias;
 	typedef size_t ActorID;
 	typedef size_t FieldID;
+
+	typedef size_t GeneratorAlias;
+	typedef size_t ActorAlias;
+	typedef size_t FieldAlias;
+
 	typedef char* RawData;
 	typedef uint64_t FieldKey;
 
@@ -192,9 +198,24 @@ namespace RAS {
 	//Interface for the developper
 	struct Manager
 	{
+		enum LexerEnum
+		{
+			FIELD,
+			ACTOR,
+			GEN,
+		};
+
+		Manager() 
+		{
+			lexer.add_lexer(FIELD);
+			lexer.add_lexer(ACTOR);
+			lexer.add_lexer(GEN);
+		}
+		~Manager() {}
+
+		Lexer lexer;
 		Time start = 0;
 		function<Time()> time_fetch;
-		map<GeneratorAlias, GeneratorID> generator_aliases;
 		vector<DataTypeFactory*> field_types;
 		vector<Actor> actors;
 		vector<System*> systems;
@@ -207,12 +228,13 @@ namespace RAS {
 		bool has_field(FieldKey key, FieldID field);
 
 		template<typename T>
-		FieldID register_field() 
+		FieldID register_field(FieldAlias alias) 
 		{
 			field_types.push_back(new DataType<T>());
+			lexer.add_alias(FIELD, alias, field_types.size() - 1);
 			return field_types.size() - 1;
 		}
-		ActorID register_actor(FieldKey key);
+		ActorID register_actor(FieldKey key, ActorAlias alias);
 
 		template<typename T>
 		void register_system() 
@@ -223,6 +245,7 @@ namespace RAS {
 		GeneratorID register_generator(const Generator& generator, GeneratorAlias alias);
 
 		void set_start();
+		void set_start(Time time);
 		void set_time_fetcher(function<Time()> func);
 		Time relative_time(Time time);
 		Time now();
@@ -230,12 +253,14 @@ namespace RAS {
 		void snapshot(Time time);
 		void snapshot_now();
 		void trigger_systems(Time time);
-		void regenerate_from(Time time);
-		void add_event(Time time, ActorID actor, GeneratorID generator);
-		void add_event(Time time, ActorID actor, GeneratorID generator, FieldID field, bool system_generated =  false);
+		void regenerate_from(Time time, bool delete_sys);
+		void add_event_internal(Time time, ActorID actor, GeneratorID generator);
+		void add_event_internal(Time time, ActorID actor, GeneratorID generator, FieldID field, bool system_generated =  false);
+
+		void add_event(Time time, ActorAlias actor, GeneratorAlias generator, FieldAlias field, bool system_generated = false);
 
 		template<typename T>
-		T& current_actor_field(ActorID actor, FieldID field)
+		T& current_actor_field_internal(ActorID actor, FieldID field)
 		{
 			Actor& act = actors.at(actor);
 			assert(field_types.at(field)->type() == typeid(T));
@@ -243,9 +268,37 @@ namespace RAS {
 		}
 
 		template<typename T>
-		T& actor_field_at(Time time, ActorID actor, FieldID field)
+		T& current_actor_field(ActorAlias actor, FieldAlias field)
+		{
+			return current_actor_field_internal<T>(lexer.get_alias(ACTOR, actor), lexer.get_alias(FIELD, field));
+		}
+
+		template<typename T>
+		T& actor_field_at_internal(Time time, ActorID actor, FieldID field)
 		{
 			return *(T*)(snapshot_actor(time, actor, field, typeid(T)));
+		}
+
+		template<typename T>
+		T& actorid_field_at(Time time, ActorID actor, FieldAlias field)
+		{
+			return actor_field_at_internal<T>(time, actor, lexer.get_alias(FIELD, field));
+		}
+
+		template<typename T>
+		T& actor_field_at(Time time, ActorAlias actor, FieldAlias field)
+		{
+			return actor_field_at_internal<T>(time, lexer.get_alias(ACTOR, actor), lexer.get_alias(FIELD, field));
+		}
+
+		FieldID get_field(FieldAlias alias)
+		{
+			return lexer.get_alias(FIELD, alias);
+		}
+
+		ActorID get_actor(ActorAlias alias)
+		{
+			return lexer.get_alias(ACTOR, alias);
 		}
 
 		//Modifier* make_modifier();

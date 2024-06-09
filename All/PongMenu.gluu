@@ -1,23 +1,29 @@
 new style GLUU default
+new string message
+
+new function :join = 
+{
+	arg string ip;
+	$if { :join_game ip :not }
+	{
+		message = { "could not join " ip };
+	};
+	ip = "";
+	return_code = 1;
+}
 
 row <
 col fixed <
-	new string message
+
 
 	row px 100
 	<
-		col button Host { message = "hosting game!"; :host_game; return_code = 2;} style key
+		new string ip = 127.0.0.1
 
-		col textbox { "Enter ip ....... " } 
-		{ 
-			arg* string ip; 
-			$if { :join_game @ip :not }
-			{
-				message = { "could not join " @ip };
-			};
-			@ip = "";
-			return_code = 1;
-		} 
+		col  button Host { message = "hosting game!"; :host_game; return_code = 2;}  style GLUU key
+		col  button Join { :join ip }  style GLUU key
+
+		col textbox { "Enter ip ....... " } { ip } { :join ip } 
 	>
 	row px 400 
 	<

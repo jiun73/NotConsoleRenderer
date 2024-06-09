@@ -160,6 +160,7 @@ int main()
 		draw_clear();
 		menu->render({ 0,get_window_size() });
 		set_window_size({ (int)(1920),(int)(1080) });
+		
 		set_override_run(false);
 	}
 }

@@ -5,16 +5,20 @@ namespace GLUU {
 	class TextboxWidget : public Widget
 	{
 		SeqVar<string> default_text;
+		SeqVar<string> text;
 		Expression expr;
 		bool lock = false;
+		int lock2 = 0;
 
-		GLUU_Make(2, "textbox") 
+		GLUU_Make(3, "textbox") 
 		{
 			auto ptr = make_shared<TextboxWidget>();
 			ptr->default_text.set(args.at(0), parser);
+			ptr->text.set(args.at(1), parser);
+
 
 			ExpressionParser expression_parser(&parser);
-			ptr->expr = expression_parser.parse(args.at(1));
+			ptr->expr = expression_parser.parse(args.at(2));
 
 			return ptr;
 		}
@@ -38,19 +42,46 @@ namespace GLUU {
 				}
 			}
 
-			if (lock || (!lock && keyboard().getTextInput().empty()))
+			if (lock || (!lock && text.get().empty()))
 				draw_text(default_text(), (int)graphic.last_dest.sz.x, (V2d_i)graphic.last_dest.pos, get_font(0));
 			else 
-				draw_text(keyboard().getTextInput(), (int)graphic.last_dest.sz.x, (V2d_i)graphic.last_dest.pos, get_font(0));
+				draw_text(text.get(), (int)graphic.last_dest.sz.x, (V2d_i)graphic.last_dest.pos, get_font(0));
 
 			if (!lock)
 			{
-				if (!keyboard().getTextInput().empty() && keyboard().pressed(SDL_SCANCODE_RETURN))
+				for (auto& c : keyboard().getTextInput())
 				{
-					keyboard().getTextInput().pop_back();
-					vector<shared_generic> ref = { make_generic<string*>(&keyboard().getTextInput()) };
-					expr.set_args(ref);
-					expr.evaluate();
+					text.get().push_back(c);
+				}
+				keyboard().getTextInput().clear();
+
+				if (lock2 && !key_pressed(SDL_SCANCODE_BACKSPACE))
+				{
+					lock2 = 0;
+				}
+				else if (lock2 && key_pressed(SDL_SCANCODE_BACKSPACE))
+				{
+					lock2++;
+
+					if (lock2 > 100)
+					{
+						text.get().pop_back();
+						lock2 = 97;
+					}
+				}
+
+				if (key_pressed(SDL_SCANCODE_BACKSPACE) && !text.get().empty() && !lock2)
+				{
+					text.get().pop_back();
+					lock2 = 1;
+				}
+
+				if (!text.get().empty())
+				{
+					if (text.get().back() == '\n') {
+						text.get().pop_back();
+						expr.evaluate();
+					}
 				}
 			}
 		}

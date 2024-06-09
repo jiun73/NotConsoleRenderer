@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)TileRendererLib;$(SolutionDir)External Libraries\ENet\include;$(SolutionDir)External Libraries\SDL2\include;$(SolutionDir)External Libraries\SDL2_mixer\SDL2_mixer-2.6.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)TileRendererLib;$(SolutionDir)External Libraries\ENet\include;$(SolutionDir)External Libraries\SDL2\include;$(SolutionDir)External Libraries\SDL2_mixer\SDL2_mixer-2.6.3\include;$(SolutionDir)External Libraries\ntp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -112,8 +112,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)External Libraries\SDL2\lib\x64;$(SolutionDir)External Libraries\SDL2_mixer\SDL2_mixer-2.6.3\lib\x64;$(SolutionDir)External Libraries\ENet;$(SolutionDir)x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;enet64.lib;ws2_32.lib;winmm.lib;TileRendererLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)External Libraries\SDL2\lib\x64;$(SolutionDir)External Libraries\SDL2_mixer\SDL2_mixer-2.6.3\lib\x64;$(SolutionDir)External Libraries\ENet;$(SolutionDir)x64\Debug;$(SolutionDir)External Libraries\ntp\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;enet64.lib;ws2_32.lib;winmm.lib;TileRendererLib.lib;ntpD.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -124,7 +124,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)TileRendererLib;$(SolutionDir)External Libraries\ENet\include;$(SolutionDir)External Libraries\SDL2\include;$(SolutionDir)External Libraries\SDL2_mixer\SDL2_mixer-2.6.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)TileRendererLib;$(SolutionDir)External Libraries\ENet\include;$(SolutionDir)External Libraries\SDL2\include;$(SolutionDir)External Libraries\SDL2_mixer\SDL2_mixer-2.6.3\include;$(SolutionDir)External Libraries\ntp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -132,8 +132,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)External Libraries\SDL2\lib\x64;$(SolutionDir)External Libraries\SDL2_mixer\SDL2_mixer-2.6.3\lib\x64;$(SolutionDir)External Libraries\ENet;$(SolutionDir)x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;enet64.lib;ws2_32.lib;winmm.lib;TileRendererLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)External Libraries\SDL2\lib\x64;$(SolutionDir)External Libraries\SDL2_mixer\SDL2_mixer-2.6.3\lib\x64;$(SolutionDir)External Libraries\ENet;$(SolutionDir)x64\Release;$(SolutionDir)External Libraries\ntp\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;enet64.lib;ws2_32.lib;winmm.lib;TileRendererLib.lib;ntp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -141,6 +141,8 @@
     <ClCompile Include="bouncex_main.cpp" />
     <ClCompile Include="collisionx_main.cpp" />
     <ClCompile Include="connect4_main.cpp" />
+    <ClCompile Include="CustomNet.cpp" />
+    <ClCompile Include="Defines.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="main_chatroom.cpp" />
     <ClCompile Include="main_fighter.cpp" />
@@ -148,9 +150,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="pong_main.cpp" />
-    <ClCompile Include="RAS_Actor.cpp" />
+    <ClCompile Include="RAS.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Strings.cpp" />
+    <ClCompile Include="test.cpp" />
+    <ClInclude Include="test.h" />
     <ClCompile Include="tictactoe_main.cpp" />
     <ClCompile Include="usasim_main.cpp" />
     <ClCompile Include="vlanhelper.cpp" />
@@ -161,12 +165,16 @@
     <ClInclude Include="BasicSystems.h" />
     <ClInclude Include="bouncex_game.h" />
     <ClInclude Include="ColliderSystem.h" />
+    <ClInclude Include="CollisionSystem.h" />
     <ClInclude Include="collisionx_balls.h" />
     <ClInclude Include="connect4_game.h" />
+    <ClInclude Include="CustomNet.h" />
+    <ClInclude Include="Defines.h" />
     <ClInclude Include="EditorPlane.h" />
+    <ClInclude Include="Lexer.h" />
     <ClInclude Include="main_chatroom.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="RAS_Actor.h" />
+    <ClInclude Include="RAS.h" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="Strings.h" />
     <ClInclude Include="tictactoe_game.h" />

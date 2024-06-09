@@ -1,0 +1,111 @@
+# depslib dependency file v1.0
+1702016462 source:c:\users\israe\desktop\vs_code_ubunto_shared\ntp\unit_tests\server_client\ntp_client_console.cpp
+	<iostream>
+	<thread>
+	<list>
+	"tests.h"
+
+1703403520 
+
+1702016034 c:\users\israe\desktop\vs_code_ubunto_shared\ntp\unit_tests\server_client\tests.h
+	<list>
+	"../../ntp/include/intp.h"
+	"../../ntp/include/intp_manager.h"
+
+1702016034 /include/intp_manager.h"
+
+1701672218 c:\users\israe\desktop\vs_code_ubunto_shared\ntp\ntp\include\intp.h
+	<stdint.h>
+	<string>
+	<memory>
+	<chrono>
+
+1703403520 c:\users\israe\desktop\vs_code_ubunto_shared\ntp\ntp\include\intp_manager.h
+	"intp_client.h"
+	<chrono>
+	<string>
+	<memory>
+	<stdint.h>
+	<list>
+
+1703357433 c:\users\israe\desktop\vs_code_ubunto_shared\ntp\ntp\include\intp_client.h
+	<chrono>
+	<thread>
+	<string>
+	<memory>
+	<stdint.h>
+	<cmath>
+	"intp.h"
+
+1703413128 source:c:\users\israe\desktop\vs_code_ubunto_shared\ntp\unit_tests\server_client\tests.cpp
+	<fstream>
+	<sstream>
+	<iostream>
+	<functional>
+	<thread>
+	"tests.h"
+	"../../ntp/include/intp_client.h"
+	"../../ntp/include/intp_manager.h"
+	"../../ntp/include/intp_server.h"
+
+1703413128 /include/intp_server.h"
+
+1703357433 c:\users\israe\desktop\vs_code_ubunto_shared\ntp\ntp\include\intp_server.h
+	<string>
+	<memory>
+	"intp.h"
+	"intp_manager.h"
+
+1703357433 ger.h"
+
+1703413128 source:/home/israel/ntp/unit_tests/server_client/tests.cpp
+	<fstream>
+	<sstream>
+	<iostream>
+	<functional>
+	<thread>
+	"tests.h"
+	"../../ntp/include/intp_client.h"
+	"../../ntp/include/intp_manager.h"
+	"../../ntp/include/intp_server.h"
+
+1702016034 /home/israel/ntp/unit_tests/server_client/tests.h
+	<list>
+	"../../ntp/include/intp.h"
+	"../../ntp/include/intp_manager.h"
+
+1701672218 /home/israel/ntp/ntp/include/intp.h
+	<stdint.h>
+	<string>
+	<memory>
+	<chrono>
+
+1703403520 /home/israel/ntp/ntp/include/intp_manager.h
+	"intp_client.h"
+	<chrono>
+	<string>
+	<memory>
+	<stdint.h>
+	<list>
+
+1703357433 /home/israel/ntp/ntp/include/intp_client.h
+	<chrono>
+	<thread>
+	<string>
+	<memory>
+	<stdint.h>
+	<cmath>
+	"intp.h"
+
+1703357433 /home/israel/ntp/ntp/include/intp_server.h
+	<string>
+	<memory>
+	"intp.h"
+	"intp_manager.h"
+
+1703422432 source:/home/israel/ntp/unit_tests/server_client/ntp_client_console.cpp
+	<iostream>
+	<thread>
+	<list>
+	"tests.h"
+

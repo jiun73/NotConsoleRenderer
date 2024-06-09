@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "RAS_Actor.h"
+#include "RAS.h"
 
 size_t RAS::Manager::get_field_offset(FieldKey key, FieldID field, bool check)
 {
@@ -63,7 +63,7 @@ bool RAS::Manager::has_field(FieldKey key, FieldID field)
 	return (key & (1ull << field)) > 0;
 }
 
-RAS::ActorID RAS::Manager::register_actor(FieldKey key)
+RAS::ActorID RAS::Manager::register_actor(FieldKey key, ActorAlias alias)
 {
 	Actor actor;
 	actor.key = key;
@@ -83,6 +83,7 @@ RAS::ActorID RAS::Manager::register_actor(FieldKey key)
 	}
 
 	actors.push_back(actor);
+	lexer.add_alias(ACTOR, alias, actors.size() - 1);
 	return actors.size() - 1;
 }
 
@@ -90,13 +91,18 @@ RAS::GeneratorID RAS::Manager::register_generator(const Generator& generator, Ge
 {
 	generators.push_back(generator);
 	RAS::GeneratorID gen_id = generators.size() - 1;
-	generator_aliases.emplace(alias, gen_id);
+	lexer.add_alias(GEN, alias, gen_id);
 	return gen_id;
 }
 
 void RAS::Manager::set_start()
 {
 	start = time_fetch();
+}
+
+void RAS::Manager::set_start(Time time)
+{
+	start = time;
 }
 
 void RAS::Manager::set_time_fetcher(function<Time()> func)
@@ -156,7 +162,7 @@ void RAS::Manager::trigger_systems(Time time)
 	}
 }
 
-void RAS::Manager::regenerate_from(Time time)
+void RAS::Manager::regenerate_from(Time time, bool delete_sys = true)
 {
 	ActorID actor = 0;
 	for (auto& a : actors)
@@ -164,33 +170,37 @@ void RAS::Manager::regenerate_from(Time time)
 		for (auto& t : a.timelines)
 		{
 			auto it = t.second.events.lower_bound(time);
+
 			while (it != t.second.events.end())
 			{
-				if (it->second.regenerate)
+				if (delete_sys && !it->second.regenerate)
+				{
+					it = t.second.events.erase(it);
+					continue;
+				}
+				else
 				{
 					GeneratorID genid = it->second.generator;
 					Generator& gen = generators.at(genid);
 					it->second = gen.generate(it->first, this, t.first, actor);
 					it->second.start_time = it->first;
 					it->second.generator = genid;
-					it++;
+					
 				}
-				else
-				{
-					it = t.second.events.erase(it);
-				}
+
+				it++;
 			}
 		}
 		actor++;
 	}
 }
 
-void RAS::Manager::add_event(Time time, ActorID actor, GeneratorID generator)
+void RAS::Manager::add_event_internal(Time time, ActorID actor, GeneratorID generator)
 {
-	add_event(time, actor, generator, generators.at(generator).field);
+	add_event_internal(time, actor, generator, generators.at(generator).field);
 }
 
-void RAS::Manager::add_event(Time time, ActorID actor, GeneratorID generator, FieldID field, bool system_event)
+void RAS::Manager::add_event_internal(Time time, ActorID actor, GeneratorID generator, FieldID field, bool system_event)
 {
 	const Generator& gen = generators.at(generator);
 	Event e = gen.generate(time, this, field, actor);
@@ -200,12 +210,19 @@ void RAS::Manager::add_event(Time time, ActorID actor, GeneratorID generator, Fi
 	actors.at(actor).timelines.at(field).events.emplace(time, e);
 	if (system_event)
 	{
-		//regenerate_from(time + 1);
+		//std::cout << "new system event " << time << std::endl;
+		regenerate_from(time, false);
 	}
 	else {
-		regenerate_from(0);
+		//std::cout << "new real event " << time << std::endl;
+		regenerate_from(time);
 		trigger_systems(time);
 	}
+}
+
+void RAS::Manager::add_event(Time time, ActorAlias actor, GeneratorAlias generator, FieldAlias field, bool system_generated)
+{
+	add_event_internal(time, lexer.get_alias(ACTOR, actor), lexer.get_alias(GEN, generator), lexer.get_alias(FIELD, field), system_generated);
 }
 
 void RAS::Actor::snapshot(Time time, FieldID field, RawData field_data, const type_info& type)
@@ -221,10 +238,13 @@ const RAS::Event& RAS::Timeline::event_at(Time time) const
 	{
 		return (--it)->second;
 	}
+
+	return it->second;
 }
 
 void RAS::Timeline::snapshot(Time time, RawData data, const type_info& type)
 {
+	if (events.size() == 0) return;
 	event_at(time).snapshot(time, data, type);
 }
 
@@ -237,6 +257,8 @@ RAS::Modifier* RAS::Event::modifier_at(Time time) const
 	{
 		return (--it)->second;
 	}
+
+	return it->second;
 }
 
 const pair<const size_t, RAS::Modifier*>& RAS::Event::pair_at(Time time) const
@@ -247,6 +269,8 @@ const pair<const size_t, RAS::Modifier*>& RAS::Event::pair_at(Time time) const
 	{
 		return *(--it);
 	}
+
+	return *it;
 }
 
 void RAS::Event::snapshot(Time time, RawData data, const type_info& type) const

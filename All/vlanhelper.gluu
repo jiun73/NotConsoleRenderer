@@ -60,11 +60,12 @@ col button { "out" }
 } <>
 >
 
-row textbox { "reseau" } 
+new string net
+
+row textbox { "reseau" } { net } 
 { 
-	arg* string text ;
-	vlan #= @text;
-	@text = "";
+	vlan #= net;
+	net = "";
 	out -push { "network 192.168." vlan ".0 0.0.0.255 area 100" };
 	:cout { "Ge 0/0/0." vlan " 192.168." {vlan + offset} ".1/24"  }
 } <>

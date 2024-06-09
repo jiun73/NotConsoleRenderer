@@ -89,7 +89,7 @@ void set_window_borderless()
 }
 
 void set_window_resizable() { window_flags = SDL_WindowFlags(window_flags | SDL_WINDOW_RESIZABLE); }
-void set_window_logical_rescaling(bool log = true) { logical_rescaling = log; }
+void set_window_logical_rescaling(bool log = true) { logical_rescaling = log;}
 
 V2d_d get_renderer_scale()
 {

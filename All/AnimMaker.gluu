@@ -154,19 +154,19 @@ row px 30 fixed <
 
 	col px 140 if { :not makingAnim }	button	{ "New Animation" }	{ makingAnim = :true } <>
 	col px 170 if { :not makingAnim } dropbox {animation_names} {current_animation} <>
-	col px 140 if { makingAnim }		textbox { "Enter name..." }	
+	new string anim_name
+	col px 140 if { makingAnim }		textbox { "Enter name..." }	{ anim_name }
 	{ 
-		arg* string text; 
 
 		AnimationX new_anim;
-		new_anim .name = @text;
-		animation_names -push @text;
+		new_anim .name = anim_name;
+		animation_names -push anim_name;
 		animations -push new_anim;
 
-		:cout { "Added " @text " animation" };
+		:cout { "Added " anim_name " animation" };
 
 		makingAnim = :false; 
-		@text = ""; 
+		anim_name = ""; 
 	} 
 	<>
 	col fixed px 140 if { makingAnim }		button	{"Cancel"}			{ makingAnim = :false } <>
@@ -224,18 +224,18 @@ row px 800 <
 		row < col fixed < 
 			row px 30 if { :not state } text { "Size: " { :get_tex_sz { :curanim .textures -at (size_t-int) { :curframe .tex} } } } <>
 
-			row px 30 if { :not state } textbox { "Origin: " :curframe .origin } { 
-				arg* string text; 
-				:curframe .origin #= @text;
-				@text = ""; 
+			new string origin_name
+			row px 30 if { :not state } textbox { "Origin: " :curframe .origin } {origin_name} { 
+				:curframe .origin #= origin_name;
+				origin_name = ""; 
 			} <> 
 
+			new string speed_string
 			row px 30 if { :not state }
 			<
-				col px 5 textbox { "Speed: " :curframe .time } { 
-					arg* string text; 
-					:curframe .time #= @text;
-					@text  = ""; 
+				col px 5 textbox { "Speed: " :curframe .time } { speed_string } { 
+					:curframe .time #= speed_string;
+					speed_string = ""; 
 				} <>
 			>
 
@@ -243,15 +243,15 @@ row px 800 <
 
 			row px 30 if { :not state }
 			<
-				col px 5 textbox { "New anchor" }
+				new string new_anchor_name
+				col px 5 textbox { "New anchor" } { new_anchor_name }
 				{
-					arg* string text; 
 					pair(string-V2d_i) pair;
-					pair .first = @text;
+					pair .first = new_anchor_name;
 					pair .second = :vec 0 0;
 
 					:curframe .anchors -push pair;
-					@text = "";
+					new_anchor_name = "";
 				}
 			>
 
@@ -284,21 +284,20 @@ row px 800 <
 			> 
 
 			row px 30 if { :not state :and collider_mode :and collider_state } <
-				col textbox { "new tag" }
+				new string tag_name
+				col textbox { "new tag" } { tag_name }
 				{
-					arg* string text;
-					
-					$if { :curcolliders .tags -has_key @text :not }		
+					$if { :curcolliders .tags -has_key tag_name :not }		
 					{													
 						var key;										
 						key ~ { :curcolliders .tags -new_obj };	
 						FrameXColliderSet set;					
 						:cout :type key;									
-						key .first = @text;									
+						key .first = tag_name;									
 						:curcolliders .tags -push key;						
 					}; 
 
-					@text = "";
+					tag_name = "";
 				}
 			> 
 
@@ -358,13 +357,12 @@ row px 800 <
 						col px 30 button { ">" } {box_i ++; $if { box_i /+ { :curboxes -size - 1 } } { box_i = 0 }; } <>
 					>
 
-					row px 30 textbox { :curboxes -at box_i .anchor }
+					new string new_collider_anchor
+					row px 30 textbox { :curboxes -at box_i .anchor } { new_collider_anchor }
 					{
-						arg* string text;
+						:curboxes -at box_i .anchor = new_collider_anchor;
 
-						:curboxes -at box_i .anchor = @text;
-
-						@text = "";
+						new_collider_anchor = "";
 					} <>
 				>
 			>
