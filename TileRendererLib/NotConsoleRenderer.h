@@ -97,7 +97,9 @@ bool mouse_right_pressed();
 bool mouse_right_held();
 bool mouse_right_released();
 
-bool input(const string& str);
+bool input_held(const string& str);
+bool input_pressed(const string& str);
+bool input_released(const string& str);
 
 
 //Retourne la position de la souris prenant en compte l'aggrandissement de la fenêtre

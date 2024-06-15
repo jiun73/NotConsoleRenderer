@@ -305,7 +305,20 @@ bool mouse_right_pressed() { return mouse().pressed(SDL_BUTTON_RIGHT); }
 bool mouse_right_held() { return mouse().held(SDL_BUTTON_RIGHT); }
 bool mouse_right_released() { return mouse().released(SDL_BUTTON_RIGHT); }
 
-bool input(const string& str) { return _inputs.check(str); }
+bool input_held(const string& str)
+{
+	return inputs().check(str, INPUT_HELD);
+}
+
+bool input_pressed(const string& str)
+{
+	return inputs().check(str, INPUT_PRESSED);
+}
+
+bool input_released(const string& str)
+{
+	return inputs().check(str, INPUT_RELEASED);
+}
 
 //j'ai la flemme de faire des meilleures fonctions, mais tu peux regarder dans Sound.h si tu veut jouer des sons 
 //C'est pas suuuper compliqué
@@ -543,7 +556,7 @@ cleanup:
 
 V2d_i get_image_size(const string& path)
 {
-	SDL_Texture* tex = textures.at(path);
+	SDL_Texture* tex = get_sdl_texture(path);
 
 	V2d_i ret;
 	SDL_QueryTexture(tex, NULL, NULL, &ret.x, &ret.y);

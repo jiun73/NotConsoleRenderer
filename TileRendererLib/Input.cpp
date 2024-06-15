@@ -235,6 +235,19 @@ int JoystickInput::getAxisRaw(SDL_Joystick* device, int axis)
 	return SDL_JoystickGetAxis(device, axis);
 }
 
+int JoystickInput::getAxisNorm(SDL_Joystick* device, int axis)
+{
+	int value = getAxisRaw(device, axis);
+
+	int sign = 0;
+	if (value > 0)
+		sign = 1;
+	else
+		sign = -1;
+
+	return (abs(value) > deadzone) * sign;
+}
+
 JoystickInput::JoystickInput()
 {
 	int numjoy = SDL_NumJoysticks();
@@ -257,15 +270,17 @@ JoystickInput::~JoystickInput()
 
 int JoystickInput::getAxis(int player_index, int axis)
 {
-	int value = getAxisRaw(SDL_JoystickFromPlayerIndex(player_index), axis);
+	if (player_index >= 0) return getAxisNorm(SDL_JoystickFromPlayerIndex(player_index), axis);
 
-	int sign = 0;
-	if (value > 0)
-		sign = 1;
-	else
-		sign = -1;
+	for (auto joy : joysticks)
+	{
+		int norm = getAxisNorm(joy.second, axis);
+		if (norm != 0)
+			return norm;
+	}
 
-	return (abs(value) > deadzone) * sign;
+	return 0;
+
 }
 
 //if player_index is -1, then it returns if any controller is pressing the button

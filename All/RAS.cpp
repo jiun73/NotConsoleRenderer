@@ -181,10 +181,13 @@ void RAS::Manager::regenerate_from(Time time, bool delete_sys = true)
 				else
 				{
 					GeneratorID genid = it->second.generator;
+					size_t extra = it->second.extra;
 					Generator& gen = generators.at(genid);
-					it->second = gen.generate(it->first, this, t.first, actor);
+					it->second = gen.generate(it->first, this, t.first, actor, extra);
+					it->second.extra = extra;
 					it->second.start_time = it->first;
 					it->second.generator = genid;
+					it->second.manager = this;
 					
 				}
 
@@ -200,13 +203,15 @@ void RAS::Manager::add_event_internal(Time time, ActorID actor, GeneratorID gene
 	add_event_internal(time, actor, generator, generators.at(generator).field);
 }
 
-void RAS::Manager::add_event_internal(Time time, ActorID actor, GeneratorID generator, FieldID field, bool system_event)
+void RAS::Manager::add_event_internal(Time time, ActorID actor, GeneratorID generator, FieldID field, bool system_event, size_t extra)
 {
 	const Generator& gen = generators.at(generator);
-	Event e = gen.generate(time, this, field, actor);
+	Event e = gen.generate(time, this, field, actor, extra);
+	e.manager = this;
 	e.start_time = time;
 	e.generator = generator;
 	e.regenerate = !system_event;
+	e.extra = extra;
 	actors.at(actor).timelines.at(field).events.emplace(time, e);
 	if (system_event)
 	{
@@ -223,6 +228,16 @@ void RAS::Manager::add_event_internal(Time time, ActorID actor, GeneratorID gene
 void RAS::Manager::add_event(Time time, ActorAlias actor, GeneratorAlias generator, FieldAlias field, bool system_generated)
 {
 	add_event_internal(time, lexer.get_alias(ACTOR, actor), lexer.get_alias(GEN, generator), lexer.get_alias(FIELD, field), system_generated);
+}
+
+void RAS::Manager::add_event_extra(Time time, ActorAlias actor, GeneratorAlias generator, FieldAlias field, size_t extra, bool system_generated)
+{
+	add_event_internal(time, lexer.get_alias(ACTOR, actor), lexer.get_alias(GEN, generator), lexer.get_alias(FIELD, field), system_generated, extra);
+}
+
+const RAS::Event& RAS::Manager::get_event_at_internal(Time time, ActorID actor, FieldID field)
+{
+	return actors.at(actor).timelines.at(field).event_at(time);
 }
 
 void RAS::Actor::snapshot(Time time, FieldID field, RawData field_data, const type_info& type)
@@ -261,6 +276,11 @@ RAS::Modifier* RAS::Event::modifier_at(Time time) const
 	return it->second;
 }
 
+RAS::Modifier* RAS::Event::modifier_at_absolute(Time time) const
+{
+	return modifier_at(time - start_time);
+}
+
 const pair<const size_t, RAS::Modifier*>& RAS::Event::pair_at(Time time) const
 {
 	auto it = modifiers.lower_bound(time);
@@ -271,6 +291,10 @@ const pair<const size_t, RAS::Modifier*>& RAS::Event::pair_at(Time time) const
 	}
 
 	return *it;
+}
+bool RAS::Event::is_gen(GeneratorAlias alias) const
+{ 
+	return generator == manager->get_gen(alias); 
 }
 
 void RAS::Event::snapshot(Time time, RawData data, const type_info& type) const

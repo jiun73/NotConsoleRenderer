@@ -235,7 +235,7 @@ namespace FIGHT
 		//RAS::ActorID ball = 2;
 		std::array<RAS::ActorAlias, 2> paddles = { PLAYER1 , PLAYER2 };
 		std::array<RAS::ActorAlias, MAX_BALLS * 2> balls;
-		std::array<CollisionInfo, 6 * 2> collisions;
+		std::array<CollisionInfo, MAX_BALLS * 2 * 2> collisions;
 
 		CollisionSystem() 
 		{
@@ -328,31 +328,68 @@ namespace FIGHT
 				valid_time = early_collision->collision_time + 1;
 
 				int ballY = manager->actor_field_at<int>(early_collision->collision_time, early_collision->ball, POSY);
+				int ballType = manager->actor_field_at<int>(early_collision->collision_time, early_collision->ball, TYPE);
 				int playerY = manager->actor_field_at<int>(early_collision->collision_time, early_collision->actor, POSY);
+				int playerType = manager->actor_field_at<int>(early_collision->collision_time, early_collision->actor, TYPE);
 
 				disable_snap = true; //prevents system events triggering this function through an event regeneration calling 
-				if (ballY >= playerY && ballY <= playerY + 90)
+				if (ballY >= playerY && ballY <= playerY + PADDLE_SIZE_Y)
 				{
+					const RAS::Event& ballex = manager->get_event_at(early_collision->collision_time, early_collision->ball, POSX);
+					const RAS::Event& balley = manager->get_event_at(early_collision->collision_time, early_collision->ball, POSY);
+					RAS::Modifier* mod = nullptr;
+					mod = balley.modifier_at(early_collision->collision_time - balley.start_time);
+
 					switch (early_collision->actor)
 					{
 					case 0:
-						std::cout << "collision 1 found " << valid_time << "! " << ballY << ":" << playerY << std::endl;
-						manager->add_event(early_collision->collision_time, early_collision->ball, MOVE_PONG_X, POSX, true);
+						std::cout << "collision 1 found " << valid_time << "! " << ballY << ":" << playerY << " gen:" << ballex.generator << std::endl;
+						
+						if (ballex.is_gen(MOVE_PONG_X) || ballex.is_gen(MOVE_PONG_XN))
+						{
+							manager->add_event(early_collision->collision_time, early_collision->ball, MOVE_PONG_X, POSX, true);
+							std::cout << "pong_collision" << std::endl;
+						}
 
+						if (ballex.is_gen(MOVE_BULLET_X) || ballex.is_gen(MOVE_BULLET_XN))
+						{
+							manager->add_event(early_collision->collision_time, early_collision->ball, MOVE_BULLET_X, POSX, true);
+							std::cout << "bullet_collision" << std::endl;
+						}
 
 						break;
 					case 1:
-						std::cout << "collision 2 found " << valid_time << "! " << ballY << ":" << playerY << std::endl;
-						manager->add_event(early_collision->collision_time, early_collision->ball, MOVE_PONG_XN, POSX, true);
+						std::cout << "collision 2 found " << valid_time << "! " << ballY << ":" << playerY << " gen:" << ballex.generator << std::endl;
+						//manager->add_event(early_collision->collision_time, early_collision->ball, MOVE_PONG_XN, POSX, true);
+
+						if (ballex.is_gen(MOVE_PONG_X) || ballex.is_gen(MOVE_PONG_XN))
+						{
+							manager->add_event(early_collision->collision_time, early_collision->ball, MOVE_PONG_XN, POSX, true);
+							std::cout << "pong_collision" << std::endl;
+						}
+
+						if (ballex.is_gen(MOVE_BULLET_X) || ballex.is_gen(MOVE_BULLET_XN))
+						{
+							manager->add_event(early_collision->collision_time, early_collision->ball, MOVE_BULLET_XN, POSX, true);
+							std::cout << "bullet_collision" << std::endl;
+						}
 
 						break;
 					default:
 						break;
 					}
 
-					const RAS::Event& balle = actors->at(manager->get_actor(early_collision->ball)).timelines.at(manager->get_field(POSY)).event_at(early_collision->collision_time);
-					RAS::Modifier* mod = nullptr;
-					mod = balle.modifier_at(early_collision->collision_time - balle.start_time);
+					if (playerType != SHIELD)
+					{
+						if (ballType == GLOCK)
+							manager->add_event(early_collision->collision_time, early_collision->actor, HEALTH_SUB_PONG, HEALTH, true);
+						else if (ballType == AK)
+							manager->add_event(early_collision->collision_time, early_collision->actor, HEALTH_SUB_BULLET, HEALTH, true);
+					}
+
+
+					manager->add_event_extra(early_collision->collision_time, SCREENSHAKER, SET_STRENGTH, STRENGTH, 20, true);
+					//manager->add_event_extra(early_collision->collision_time, SOUND_MASTER, PLAY_SOUND, SOUND, HURT, true);
 
 					if (mod->is_reversible() && mod->reverse_type() == LINEAR)
 					{

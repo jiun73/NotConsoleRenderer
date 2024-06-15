@@ -3,68 +3,6 @@
 
 MultiInput* Controls::min;
 
-void MultiInput::handleMouseMap(MappedInput& key, bool& found)
-{
-	switch (key.action)
-	{
-	case INPUT_PRESSED:
-		if (mouse.pressed(key.button_index))
-			found = true;
-		return;
-	case INPUT_HELD:
-		if (mouse.held(key.button_index))
-			found = true;
-		return;
-	}
-}
-
-void MultiInput::handleKeyboardMap(MappedInput& key, bool& found)
-{
-	switch (key.action)
-	{
-	case INPUT_PRESSED:
-
-		if (keyboard.pressed(key.button_index))
-			found = true;
-		return;
-	case INPUT_HELD:
-		if (keyboard.held(key.button_index))
-			found = true;
-		return;
-	case INPUT_RELEASED:
-		if (keyboard.released(key.button_index))
-			found = true;
-		return;
-	}
-}
-
-void MultiInput::handleControllerMap(MappedInput& key, bool& found)
-{
-	switch (key.action)
-	{
-	case INPUT_HELD:
-		if (joystick.held(key.player_index, key.button_index))
-			found = true;
-		return;
-	case INPUT_PRESSED:
-		if (joystick.pressed(key.player_index, key.button_index))
-			found = true;
-		return;
-	case INPUT_RELEASED:
-		if (joystick.released(key.player_index, key.button_index))
-			found = true;
-		return;
-	case INPUT_AXIS_POSITIVE:
-		if (joystick.getAxis(key.player_index, key.button_index) == 1)
-			found = true;
-		return;
-	case INPUT_AXIS_NEGATIVE:
-		if (joystick.getAxis(key.player_index, key.button_index) == -1)
-			found = true;
-		return;
-	}
-}
-
 void MultiInput::loadMappings(std::string path)
 {
 	/*File f(path);
@@ -106,18 +44,28 @@ void MultiInput::saveCurrentMapping(std::string path)
 void MultiInput::map(std::string name, std::initializer_list<MappedInput> map)
 {
 	std::list<MappedInput> list = map;
-	mapped_inputs.emplace(name, std::make_pair(list, false));
+	mapped_inputs.emplace(name, MappedInputList(list) );
 }
 
 void MultiInput::map(std::string name, MappedInput map)
 {
 	std::list<MappedInput> list = { map };
-	mapped_inputs.emplace(name, std::make_pair(list, false));
+	mapped_inputs.emplace(name, MappedInputList(list));
 }
 
-bool MultiInput::check(const std::string& name)
+bool MultiInput::check(const std::string& name, InputActionType action)
 {
-	return mapped_inputs.at(name).second && !input_locked;
+	switch (action)
+	{
+	case INPUT_HELD:
+		return mapped_inputs.at(name).current_state;
+	case INPUT_PRESSED:
+		return mapped_inputs.at(name).current_state && !mapped_inputs.at(name).old_state;
+	case INPUT_RELEASED:
+		return !mapped_inputs.at(name).current_state && mapped_inputs.at(name).old_state;
+	default:
+		return 0;
+	}
 }
 
 void MultiInput::events(SDL_Event event)
@@ -129,45 +77,13 @@ void MultiInput::events(SDL_Event event)
 
 void MultiInput::update()
 {
-	update_locks();
-
 	mouse.update();
 	//keyboard.update();
 	joystick.update();
 
 	for (auto& k : mapped_inputs)
 	{
-		std::list<MappedInput>& keys = k.second.first;
-
-		bool found = false;
-		for (auto& key : keys)
-		{
-			switch (key.type)
-			{
-			case MOUSE_INPUT:
-				handleMouseMap(key, found);
-				break;
-			case KEYBOARD_INPUT:
-				handleKeyboardMap(key, found);
-				break;
-			case CONTROLLER_INPUT:
-				handleControllerMap(key, found);
-				break;
-			default:
-				break;
-			}
-
-			if (found)
-				break;
-		}
-
-		k.second.second = found;
+		k.second.old_state = k.second.current_state;
+		k.second.current_state = full_mapping_state(k.second);
 	}
-}
-
-void MultiInput::update_locks()
-{
-	keyboard.locked = input_locked;
-	mouse.locked = input_locked;
-	joystick.locked = input_locked;
 }

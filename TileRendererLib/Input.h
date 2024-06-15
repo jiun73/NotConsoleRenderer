@@ -107,6 +107,7 @@ private:
 	bool released(SDL_Joystick* device, int button);
 
 	int getAxisRaw(SDL_Joystick* device, int axis);
+	int getAxisNorm(SDL_Joystick* device, int axis);
 
 public:
 	bool locked = false;

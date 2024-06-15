@@ -109,6 +109,7 @@ namespace RAS {
 		bool regenerate = true;
 		map<Time, Modifier*> modifiers;
 		Time start_time = 0;
+		size_t extra = 0;
 
 		template <typename T>
 		Event& add_modifier(Time time, function<void(Time, T&)> function)
@@ -131,21 +132,23 @@ namespace RAS {
 		}
 
 		Modifier* modifier_at(Time time) const;
+		Modifier* modifier_at_absolute(Time time) const;
 		const pair<const size_t, Modifier*>& pair_at(Time time) const;
 		void snapshot(Time time, RawData data, const type_info& type) const;
+		bool is_gen(GeneratorAlias alias) const;
 	};
 
-#define GENERATOR_ARGS RAS::Time time, RAS::Manager* manager, RAS::FieldID generator_field, RAS::ActorID actor
+#define GENERATOR_ARGS RAS::Time time, RAS::Manager* manager, RAS::FieldID generator_field, RAS::ActorID actor, size_t extra
 
 	//Generates Events of a certain type 
 	struct Generator 
 	{
 		FieldID field = -1;
-		function<Event(Time, Manager*, FieldID, ActorID)> generate;
+		function<Event(Time, Manager*, FieldID, ActorID, size_t)> generate;
 
 		Generator() {}
-		Generator(function<Event(Time, Manager*, FieldID, ActorID)> generate) : generate(generate) {}
-		Generator(function<Event(Time, Manager*, FieldID, ActorID)> generate, FieldID field) : generate(generate), field(field) {}
+		Generator(function<Event(Time, Manager*, FieldID, ActorID, size_t)> generate) : generate(generate) {}
+		Generator(function<Event(Time, Manager*, FieldID, ActorID, size_t)> generate, FieldID field) : generate(generate), field(field) {}
 		~Generator() {}
 	};
 
@@ -255,9 +258,13 @@ namespace RAS {
 		void trigger_systems(Time time);
 		void regenerate_from(Time time, bool delete_sys);
 		void add_event_internal(Time time, ActorID actor, GeneratorID generator);
-		void add_event_internal(Time time, ActorID actor, GeneratorID generator, FieldID field, bool system_generated =  false);
+		void add_event_internal(Time time, ActorID actor, GeneratorID generator, FieldID field, bool system_generated =  false, size_t extra = 0);
 
 		void add_event(Time time, ActorAlias actor, GeneratorAlias generator, FieldAlias field, bool system_generated = false);
+		void add_event_extra(Time time, ActorAlias actor, GeneratorAlias generator, FieldAlias field, size_t extra, bool system_generated = false);
+
+		const RAS::Event& get_event_at_internal(Time time, ActorID actor, FieldID field);
+		const RAS::Event& get_event_at(Time time, ActorAlias actor, FieldAlias field) { return get_event_at_internal(time, get_actor(actor), get_field(field)); }
 
 		template<typename T>
 		T& current_actor_field_internal(ActorID actor, FieldID field)
@@ -299,6 +306,11 @@ namespace RAS {
 		ActorID get_actor(ActorAlias alias)
 		{
 			return lexer.get_alias(ACTOR, alias);
+		}
+
+		GeneratorID get_gen(GeneratorAlias alias)
+		{
+			return lexer.get_alias(GEN, alias);
 		}
 
 		//Modifier* make_modifier();

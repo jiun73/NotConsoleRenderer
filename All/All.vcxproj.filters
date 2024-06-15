@@ -81,9 +81,6 @@
     <ClCompile Include="vlanhelper.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="main_fighter.cpp">
-      <Filter>Fichiers sources\Real pong</Filter>
-    </ClCompile>
     <ClCompile Include="RAS.cpp">
       <Filter>Fichiers sources\Real pong</Filter>
     </ClCompile>
@@ -94,6 +91,9 @@
       <Filter>Fichiers sources\Real pong</Filter>
     </ClCompile>
     <ClCompile Include="CustomNet.cpp">
+      <Filter>Fichiers sources\Real pong</Filter>
+    </ClCompile>
+    <ClCompile Include="main_fighter.cpp">
       <Filter>Fichiers sources\Real pong</Filter>
     </ClCompile>
   </ItemGroup>
@@ -156,6 +156,9 @@
       <Filter>Fichiers sources\Real pong</Filter>
     </ClInclude>
     <ClInclude Include="test.h">
+      <Filter>Fichiers sources\Real pong</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundSystem.h">
       <Filter>Fichiers sources\Real pong</Filter>
     </ClInclude>
   </ItemGroup>

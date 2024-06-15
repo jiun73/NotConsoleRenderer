@@ -10,7 +10,9 @@ enum InputType
 {
 	MOUSE_INPUT,
 	KEYBOARD_INPUT,
-	CONTROLLER_INPUT
+	CONTROLLER_INPUT,
+	CONTROLLER_AXISPOSITIVE_INPUT,
+	CONTROLLER_AXISNEGATIVE_INPUT,
 };
 
 enum InputActionType
@@ -18,16 +20,24 @@ enum InputActionType
 	INPUT_HELD,
 	INPUT_PRESSED,
 	INPUT_RELEASED,
-	INPUT_AXIS_NEGATIVE,
-	INPUT_AXIS_POSITIVE,
 };
 
 struct MappedInput
 {
 	InputType type;
-	InputActionType action;
 	int button_index;
-	int player_index = 0; //for joysticks
+	int player_index = -1; //for joysticks
+};
+
+struct MappedInputList
+{
+	std::list<MappedInput> possible_inputs_source;
+	bool current_state = false;
+	bool old_state = false;
+
+	MappedInputList() {}
+	MappedInputList(std::list<MappedInput> list) : possible_inputs_source(list) {}
+	~MappedInputList() {}
 };
 
 struct InputLock;
@@ -40,27 +50,51 @@ struct InputLock;
 class MultiInput
 {
 private:
-	std::map<std::string, std::pair<std::list<MappedInput>, bool>> mapped_inputs;
+	std::map<std::string, MappedInputList> mapped_inputs;
 
-	void handleMouseMap(MappedInput& key, bool& found);
-	void handleKeyboardMap(MappedInput& key, bool& found);
-	void handleControllerMap(MappedInput& key, bool& found);
-
-	bool input_locked = false;
-	uint32_t input_key = 0;
-
-	uint32_t lock_inputs()
+	bool single_mapping_state(const MappedInput& input)
 	{
-		uint32_t key = SDL_GetTicks();
-		input_key = key;
-		input_locked = true;
-		return key;
+		switch (input.type)
+		{
+		case KEYBOARD_INPUT:
+			return keyboard.held(input.button_index);
+
+		case MOUSE_INPUT:
+			return mouse.held(input.button_index);
+
+		case CONTROLLER_INPUT:
+			return joystick.held(input.player_index, input.button_index);
+
+		case CONTROLLER_AXISPOSITIVE_INPUT:
+		{
+			int axis_value = joystick.getAxis(input.player_index, input.button_index);
+			return (axis_value > 0);
+		}
+
+		case CONTROLLER_AXISNEGATIVE_INPUT:
+		{
+			int axis_value = joystick.getAxis(input.player_index, input.button_index);
+			return (axis_value < 0);
+		}
+
+		default:
+			break;
+		}
 	}
 
-	void unlock_inputs(uint32_t key)
+	bool full_mapping_state(const MappedInputList& list) 
 	{
-		if (input_key == key)
-			input_locked = false;
+		bool state = false;
+		for (auto i : list.possible_inputs_source)
+		{
+			if (single_mapping_state(i))
+			{
+				state = true;
+				break;
+			}
+		}
+
+		return state;
 	}
 
 public:
@@ -74,10 +108,9 @@ public:
 	void map(std::string name, std::initializer_list<MappedInput> map);
 	void map(std::string name, MappedInput map);
 
-	bool check(const std::string& name);
+	bool check(const std::string& name, InputActionType action);
 	void events(SDL_Event event);
 	void update();
-	void update_locks();
 
 	friend InputLock;
 };
@@ -95,21 +128,21 @@ public:
 		return min;
 	}
 
-	static KeyboardInput& keyboard() { get()->update_locks();  return get()->keyboard; }
-	static MouseInput& mouse() { get()->update_locks(); return get()->mouse; }
-	static JoystickInput& joystick() { get()->update_locks(); return get()->joystick; }
-	static bool				map(const string& input) { return get()->check(input); }
+	static KeyboardInput& keyboard() { return get()->keyboard; }
+	static MouseInput& mouse() { return get()->mouse; }
+	static JoystickInput& joystick() { return get()->joystick; }
+	//static bool				map(const string& input) { return get()->check(input); }
 
 };
 
-struct InputLock
-{
-	bool locked = false;
-	uint32_t key = 0;
-
-	InputLock() {};
-	~InputLock() { unlock(); };
-
-	void lock() { key = Controls::get()->lock_inputs(); locked = true; }
-	void unlock() { if (locked) Controls::get()->unlock_inputs(key); }
-};
+//struct InputLock
+//{
+//	bool locked = false;
+//	uint32_t key = 0;
+//
+//	InputLock() {};
+//	~InputLock() { unlock(); };
+//
+//	void lock() { key = Controls::get()->lock_inputs(); locked = true; }
+//	void unlock() { if (locked) Controls::get()->unlock_inputs(key); }
+//};

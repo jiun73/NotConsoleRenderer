@@ -37,7 +37,7 @@ struct Controller_system
 {
 	void update(Position_x* position, Controller_x* controller, Collider_x* collider, Angle_x* ang)
 	{
-		if (input(controller->input_prefix + "up"))
+		/*if (input(controller->input_prefix + "up"))
 		{
 			position->position.y -= 5;
 		}
@@ -54,7 +54,7 @@ struct Controller_system
 		if (input(controller->input_prefix + "rot2"))
 		{
 			ang->angle -= M_PI / 25.0;
-		}
+		}*/
 
 		//V2d_d old = position->position;
 		////keyboard().quickKeyboardControlWASD(position->position, controller->force);

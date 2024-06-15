@@ -11,7 +11,7 @@ void SoundManager::init()
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == -1) //Initialisation de l'API Mixer
 		printf("%s", Mix_GetError());
 
-	Mix_AllocateChannels(8);
+	Mix_AllocateChannels(32);
 	Mix_Volume(1, MIX_MAX_VOLUME / 2);
 }
 

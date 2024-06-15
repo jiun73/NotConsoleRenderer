@@ -160,6 +160,7 @@
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Strings.cpp" />
     <ClCompile Include="test.cpp" />
+    <ClInclude Include="SoundSystem.h" />
     <ClInclude Include="test.h" />
     <ClCompile Include="tictactoe_main.cpp" />
     <ClCompile Include="usasim_main.cpp" />

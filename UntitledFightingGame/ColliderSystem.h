@@ -42,7 +42,7 @@ struct Controller_system
 
 		controller->displacement_vector = old - position->position;
 
-		if (input(controller->input_prefix + "left"))
+		/*if (input(controller->input_prefix + "left"))
 		{
 			phys->acceleration.x = -100;
 		}
@@ -60,7 +60,7 @@ struct Controller_system
 		if (input(controller->input_prefix + "jump") && collider->collide_down)
 		{
 			phys->forces.push_back({ 0,-1.3 });
-		}
+		}*/
 	}
 };
 

@@ -14,7 +14,7 @@ namespace GLUU {
 		bool lock = false;
 		string text;
 
-		InputLock ilock;
+		//InputLock ilock;
 
 		GLUU_Make(2, "dropbox")
 		{
@@ -39,7 +39,7 @@ namespace GLUU {
 			but.box = box;
 			but.update();
 
-			ilock.unlock();
+			//ilock.unlock();
 
 			if (but.is_press_once())
 			{
@@ -72,7 +72,7 @@ namespace GLUU {
 					i++;
 				}
 
-				ilock.lock();
+				//ilock.lock();
 			}
 
 

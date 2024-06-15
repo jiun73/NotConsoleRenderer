@@ -50,7 +50,7 @@ public:
 	bool isPlayingMusic() { return Mix_PlayingMusic(); }
 
 	int channelCount() { return Mix_AllocateChannels(-1); }
-	bool playSound(std::string path, int loopCount = 0) { return (Mix_PlayChannel(-1, getSound(path), loopCount) != -1); } //<--- probablement la seule fonction plus utile 'path' est un chemin ou se trouve le .wav
+	bool playSound(std::string path, int loopCount = 0, int channel = -1) { return (Mix_PlayChannel(channel, getSound(path), loopCount) != -1); } //<--- probablement la seule fonction plus utile 'path' est un chemin ou se trouve le .wav
 	void pauseSounds() { Mix_Pause(-1); }
 	void resumeSounds() { Mix_Resume(-1); }
 
