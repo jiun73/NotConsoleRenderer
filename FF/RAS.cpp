@@ -3,7 +3,7 @@
 
 size_t RAS::Manager::get_field_offset(FieldKey key, FieldID field, bool check)
 {
-	if(check)
+	if (check)
 		assert(has_field(key, field)); // verify that the key actually has the field
 
 	FieldKey copy = key;
@@ -20,7 +20,7 @@ size_t RAS::Manager::get_field_offset(FieldKey key, FieldID field, bool check)
 		copy >>= 1;
 		i++;
 
-		
+
 	}
 	return size;
 }
@@ -182,14 +182,14 @@ void RAS::Manager::regenerate_from(Time time, bool delete_sys = true)
 				else
 				{
 					GeneratorID genid = it->second.generator;
-					std::vector<size_t> extra = it->second.extra;
+					std::vector<double> extra = it->second.extra;
 					Generator& gen = generators.at(genid);
 					it->second = gen.generate(it->first, this, t.first, actor, extra);
 					it->second.extra = extra;
 					it->second.start_time = it->first;
 					it->second.generator = genid;
 					it->second.manager = this;
-					
+
 				}
 
 				it++;
@@ -204,7 +204,7 @@ void RAS::Manager::add_event_internal(Time time, ActorID actor, GeneratorID gene
 	add_event_internal(time, actor, generator, generators.at(generator).field);
 }
 
-void RAS::Manager::add_event_internal(Time time, ActorID actor, GeneratorID generator, FieldID field, bool system_event, const vector <size_t>& extra)
+void RAS::Manager::add_event_internal(Time time, ActorID actor, GeneratorID generator, FieldID field, bool system_event, const vector <double>& extra)
 {
 	const Generator& gen = generators.at(generator);
 	Event e = gen.generate(time, this, field, actor, extra);
@@ -231,7 +231,7 @@ void RAS::Manager::add_event(Time time, ActorAlias actor, GeneratorAlias generat
 	add_event_internal(time, lexer.get_alias(ACTOR, actor), lexer.get_alias(GEN, generator), lexer.get_alias(FIELD, field), system_generated);
 }
 
-void RAS::Manager::add_event_extra(Time time, ActorAlias actor, GeneratorAlias generator, FieldAlias field, const vector<size_t>& extra, bool system_generated)
+void RAS::Manager::add_event_extra(Time time, ActorAlias actor, GeneratorAlias generator, FieldAlias field, const vector<double>& extra, bool system_generated)
 {
 	add_event_internal(time, lexer.get_alias(ACTOR, actor), lexer.get_alias(GEN, generator), lexer.get_alias(FIELD, field), system_generated, extra);
 }
@@ -282,7 +282,7 @@ RAS::Modifier* RAS::Event::modifier_at_absolute(Time time) const
 	return modifier_at(time - start_time);
 }
 
-const pair<const size_t, RAS::Modifier*>& RAS::Event::pair_at(Time time) const
+const std::pair<const size_t, RAS::Modifier*>& RAS::Event::pair_at(Time time) const
 {
 	auto it = modifiers.lower_bound(time);
 
@@ -294,12 +294,20 @@ const pair<const size_t, RAS::Modifier*>& RAS::Event::pair_at(Time time) const
 	return *it;
 }
 bool RAS::Event::is_gen(GeneratorAlias alias) const
-{ 
-	return generator == manager->get_gen(alias); 
+{
+	return generator == manager->get_gen(alias);
 }
 
 void RAS::Event::snapshot(Time time, RawData data, const type_info& type) const
 {
 	auto pair = pair_at(time - start_time);
 	pair.second->apply(time - start_time - pair.first, data, type);
+}
+
+void RAS::Trigger::trigger(RAS::Time time, Manager* man, int userid, size_t id_diff)
+{
+	for (auto& e : events)
+	{
+		man->add_event_extra(time, e.actor + id_diff, e.gen, e.field, e.extra);
+	}
 }

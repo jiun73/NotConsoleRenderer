@@ -388,7 +388,7 @@ namespace FIGHT
 					}
 
 
-					manager->add_event_extra(early_collision->collision_time, SCREENSHAKER, SET_STRENGTH, STRENGTH, 20, true);
+					manager->add_event_extra(early_collision->collision_time, SCREENSHAKER, SET_STRENGTH, STRENGTH, { 20 }, true);
 					//manager->add_event_extra(early_collision->collision_time, SOUND_MASTER, PLAY_SOUND, SOUND, HURT, true);
 
 					if (mod->is_reversible() && mod->reverse_type() == LINEAR)

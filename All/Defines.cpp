@@ -87,8 +87,8 @@ void FIGHT::process_event_pack(CustomNet& net, RAS::Manager& manager, RAS::Time 
 			manager.add_event(time + 2, BALL_PLAYER1 + ballid, MOVE_PONG_Y, POSY);
 			manager.add_event(time, BALL_PLAYER1 + ballid, SET_TYPE_GLOCK, TYPE);
 			manager.add_event(time, BALL_PLAYER1 + ballid, SET_ACTIVE, ACTIVE);
-			manager.add_event_extra(time, SOUND_MASTER, PLAY_SOUND, SOUND, GUN1);
-			manager.add_event_extra(time, SCREENSHAKER, SET_STRENGTH, STRENGTH, 10);
+			manager.add_event_extra(time, SOUND_MASTER, PLAY_SOUND, SOUND, { GUN1 });
+			manager.add_event_extra(time, SCREENSHAKER, SET_STRENGTH, STRENGTH, { 10 });
 		}
 		else
 		{
@@ -98,8 +98,8 @@ void FIGHT::process_event_pack(CustomNet& net, RAS::Manager& manager, RAS::Time 
 			manager.add_event(time + 2, BALL_PLAYER2 + ballid, MOVE_PONG_Y, POSY);
 			manager.add_event(time, BALL_PLAYER2 + ballid, SET_TYPE_GLOCK, TYPE);
 			manager.add_event(time, BALL_PLAYER2 + ballid, SET_ACTIVE, ACTIVE);
-			manager.add_event_extra(time, SOUND_MASTER, PLAY_SOUND, SOUND, GUN1);
-			manager.add_event_extra(time, SCREENSHAKER, SET_STRENGTH, STRENGTH, 10);
+			manager.add_event_extra(time, SOUND_MASTER, PLAY_SOUND, SOUND, { GUN1 });
+			manager.add_event_extra(time, SCREENSHAKER, SET_STRENGTH, STRENGTH, { 10 });
 		}
 	}
 
@@ -114,8 +114,8 @@ void FIGHT::process_event_pack(CustomNet& net, RAS::Manager& manager, RAS::Time 
 			manager.add_event(time + 2, BALL_PLAYER1 + ballid, MOVE_PONG_YN, POSY);
 			manager.add_event(time, BALL_PLAYER1 + ballid, SET_TYPE_GLOCK, TYPE);
 			manager.add_event(time, BALL_PLAYER1 + ballid, SET_ACTIVE, ACTIVE);
-			manager.add_event_extra(time, SOUND_MASTER, PLAY_SOUND, SOUND, GUN1);
-			manager.add_event_extra(time, SCREENSHAKER, SET_STRENGTH, STRENGTH, 10);
+			manager.add_event_extra(time, SOUND_MASTER, PLAY_SOUND, SOUND, { GUN1 });
+			manager.add_event_extra(time, SCREENSHAKER, SET_STRENGTH, STRENGTH, { 10 });
 		}
 		else
 		{
@@ -125,8 +125,8 @@ void FIGHT::process_event_pack(CustomNet& net, RAS::Manager& manager, RAS::Time 
 			manager.add_event(time + 2, BALL_PLAYER2 + ballid, MOVE_PONG_YN, POSY);
 			manager.add_event(time, BALL_PLAYER2 + ballid, SET_TYPE_GLOCK, TYPE);
 			manager.add_event(time, BALL_PLAYER2 + ballid, SET_ACTIVE, ACTIVE);
-			manager.add_event_extra(time, SOUND_MASTER, PLAY_SOUND, SOUND, GUN1);
-			manager.add_event_extra(time, SCREENSHAKER, SET_STRENGTH, STRENGTH, 10);
+			manager.add_event_extra(time, SOUND_MASTER, PLAY_SOUND, SOUND, { GUN1 });
+			manager.add_event_extra(time, SCREENSHAKER, SET_STRENGTH, STRENGTH, {10});
 		}
 	}
 
@@ -141,8 +141,8 @@ void FIGHT::process_event_pack(CustomNet& net, RAS::Manager& manager, RAS::Time 
 			manager.add_event(time + 2, BALL_PLAYER1 + ballid, STAY, POSY);
 			manager.add_event(time, BALL_PLAYER1 + ballid, SET_TYPE_GLOCK, TYPE);
 			manager.add_event(time, BALL_PLAYER1 + ballid, SET_ACTIVE, ACTIVE);
-			manager.add_event_extra(time, SOUND_MASTER, PLAY_SOUND, SOUND, GUN1);
-			manager.add_event_extra(time, SCREENSHAKER, SET_STRENGTH, STRENGTH, 10);
+			manager.add_event_extra(time, SOUND_MASTER, PLAY_SOUND, SOUND, { GUN1 });
+			manager.add_event_extra(time, SCREENSHAKER, SET_STRENGTH, STRENGTH, { 10 });
 		}
 		else
 		{
@@ -152,8 +152,8 @@ void FIGHT::process_event_pack(CustomNet& net, RAS::Manager& manager, RAS::Time 
 			manager.add_event(time + 2, BALL_PLAYER2 + ballid, STAY, POSY);
 			manager.add_event(time, BALL_PLAYER2 + ballid, SET_TYPE_GLOCK, TYPE);
 			manager.add_event(time, BALL_PLAYER2 + ballid, SET_ACTIVE, ACTIVE);
-			manager.add_event_extra(time, SOUND_MASTER, PLAY_SOUND, SOUND, GUN1);
-			manager.add_event_extra(time, SCREENSHAKER, SET_STRENGTH, STRENGTH, 10);
+			manager.add_event_extra(time, SOUND_MASTER, PLAY_SOUND, SOUND, { GUN1 });
+			manager.add_event_extra(time, SCREENSHAKER, SET_STRENGTH, STRENGTH, {10});
 		}
 	}
 
@@ -168,8 +168,8 @@ void FIGHT::process_event_pack(CustomNet& net, RAS::Manager& manager, RAS::Time 
 			manager.add_event(time + 2, BALL_PLAYER1 + ballid, MOVE_BULLET_Y, POSY);
 			manager.add_event(time, BALL_PLAYER1 + ballid, SET_TYPE_AK, TYPE);
 			manager.add_event(time, BALL_PLAYER1 + ballid, SET_ACTIVE, ACTIVE);
-			manager.add_event_extra(time, SOUND_MASTER, PLAY_SOUND, SOUND, GUN2);
-			manager.add_event_extra(time, SCREENSHAKER, SET_STRENGTH, STRENGTH, 10);
+			manager.add_event_extra(time, SOUND_MASTER, PLAY_SOUND, SOUND, { GUN2 });
+			manager.add_event_extra(time, SCREENSHAKER, SET_STRENGTH, STRENGTH, {10});
 		}
 		else
 		{
@@ -179,8 +179,8 @@ void FIGHT::process_event_pack(CustomNet& net, RAS::Manager& manager, RAS::Time 
 			manager.add_event(time + 2, BALL_PLAYER2 + ballid, MOVE_BULLET_Y, POSY);
 			manager.add_event(time, BALL_PLAYER2 + ballid, SET_TYPE_AK, TYPE);
 			manager.add_event(time, BALL_PLAYER2 + ballid, SET_ACTIVE, ACTIVE);
-			manager.add_event_extra(time, SOUND_MASTER, PLAY_SOUND, SOUND, GUN2);
-			manager.add_event_extra(time, SCREENSHAKER, SET_STRENGTH, STRENGTH, 10);
+			manager.add_event_extra(time, SOUND_MASTER, PLAY_SOUND, SOUND, {GUN2});
+			manager.add_event_extra(time, SCREENSHAKER, SET_STRENGTH, STRENGTH, { 10 });
 		}
 	}
 

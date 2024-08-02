@@ -79,8 +79,8 @@ namespace FIGHT
 	public:
 		void connection_menu()
 		{
+			
 			net.setup(&man);
-
 			bool b = true;
 
 
@@ -269,7 +269,7 @@ namespace FIGHT
 
 				return RAS::Event().add_modifier<string>(0ms, [extra](RAS::Time time, string& x) 
 					{
-						switch (extra)
+						switch (extra.at(0))
 						{
 						case RIZZ:
 							x = "Sounds/rizz.wav";
@@ -455,9 +455,9 @@ namespace FIGHT
 				{
 					double old_x = manager->actor_field_at<int>(time - 1, actor, generator_field);
 
-					RAS::Time time_at_0 = find_linear(0, { (double)extra, -30.0 });
+					RAS::Time time_at_0 = find_linear(0, { (double)extra.at(0), -30.0});
 
-					return RAS::Event().add_modifier<int, 2>(0, linear_func, LINEAR, { (double)extra, -30.0 }).add_modifier<int, 1>(time_at_0, point_func<int>, POINT, { 0 });
+					return RAS::Event().add_modifier<int, 2>(0, linear_func, LINEAR, { (double)extra.at(0), -30.0 }).add_modifier<int, 1>(time_at_0, point_func<int>, POINT, { 0 });
 				}), SET_STRENGTH);
 		}
 
@@ -492,9 +492,9 @@ namespace FIGHT
 			add_actors();
 		}
 
-		void setup_game() 
+		void setup_game()
 		{
-			man.add_event_extra(0ms, SCREENSHAKER, SET_STRENGTH, STRENGTH, 1);
+			man.add_event_extra(0ms, SCREENSHAKER, SET_STRENGTH, STRENGTH, { 1 });
 
 			man.add_event(0ms, PLAYER1, PLAYER1_START_POSX, POSX);
 			man.add_event(0ms, PLAYER1, PLAYER1_START_POSY, POSY);

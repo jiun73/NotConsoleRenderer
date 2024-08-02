@@ -62,9 +62,14 @@ private:
 
 	void getHeaderData();
 
+	bool exists = false;
+	bool might_not_exist = false;
+
 public:
-	File(const std::string& path, FileXMode mode) { open(path, mode); }
+	File(const std::string& path, FileXMode mode, bool might_not_exist = false) : might_not_exist(might_not_exist) { open(path, mode); }
 	~File() { close(); }
+
+	bool does_exists() { return exists; }
 
 	void open(const std::string& path, FileXMode mode);
 	void close();

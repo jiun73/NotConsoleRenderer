@@ -896,6 +896,8 @@ int draw_glyph(const char& character, const V2d_i& pos, const Font& font, int ke
 
 void draw_simple_text(const string& text, const V2d_i& pos, const Font& font)
 {
+	if (text == "") return;
+
 	TextDrawCounter counter(font, pos);
 	for (auto& c : text)
 	{
@@ -914,6 +916,8 @@ void draw_simple_text(const string& text, const V2d_i& pos, const Font& font)
 
 void draw_text(const string& text, const int& max_width, const V2d_i& pos, const Font& font)
 {
+	if (text == "") return;
+
 	string_range range = { text.cbegin(), text.cend() };
 
 	TextDrawCounter counter(font, pos);
@@ -932,6 +936,8 @@ void draw_text(const string& text, const int& max_width, const V2d_i& pos, const
 
 void draw_special_text(const string& text, const int& max_width, const V2d_i& pos, const Font& font)
 {
+	if (text == "") return;
+
 	string_range range = { text.cbegin(), text.cend() };
 
 	TextDrawCounter counter(font, pos);

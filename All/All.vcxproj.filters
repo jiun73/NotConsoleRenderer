@@ -40,6 +40,9 @@
     <Filter Include="Fichiers sources\Real pong">
       <UniqueIdentifier>{bf2126f6-5b4f-4bda-87e4-e77230028d81}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers sources\FightingGame">
+      <UniqueIdentifier>{09d7ecce-5824-4b14-837e-281fe0d2e663}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -95,6 +98,9 @@
     </ClCompile>
     <ClCompile Include="main_fighter.cpp">
       <Filter>Fichiers sources\Real pong</Filter>
+    </ClCompile>
+    <ClCompile Include="Fighter.cpp">
+      <Filter>Fichiers sources\FightingGame</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -160,6 +166,18 @@
     </ClInclude>
     <ClInclude Include="SoundSystem.h">
       <Filter>Fichiers sources\Real pong</Filter>
+    </ClInclude>
+    <ClInclude Include="Fields.h">
+      <Filter>Fichiers sources\FightingGame</Filter>
+    </ClInclude>
+    <ClInclude Include="Actors.h">
+      <Filter>Fichiers sources\FightingGame</Filter>
+    </ClInclude>
+    <ClInclude Include="Generators.h">
+      <Filter>Fichiers sources\FightingGame</Filter>
+    </ClInclude>
+    <ClInclude Include="FunctionMod.h">
+      <Filter>Fichiers sources\FightingGame</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

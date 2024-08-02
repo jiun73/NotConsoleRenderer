@@ -29,7 +29,7 @@ namespace FIGHT
 				recursion_protection = false;
 
 				std::cout << "playing " << sound_path << std::endl;
-				sound().playSound(sound_path, 0, event_it->second.extra + 4);
+				sound().playSound(sound_path, 0, event_it->second.extra.at(0) + 4);
 			}
 
 			done_time = (std::max)(arg_time, done_time); //ensure we never play the same sound twice no matter what

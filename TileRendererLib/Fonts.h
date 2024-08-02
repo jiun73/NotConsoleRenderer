@@ -260,24 +260,28 @@ public:
 
 	void read_hint_file(SDL_Renderer* renderer, const string& path = "Fonts/fonts.hint")
 	{
-		File hint_file(path, FILE_READING_STRING);
-		string content = hint_file.getString();
+		File hint_file(path, FILE_READING_STRING, true);
 
-		size_t sz = 0;
-		vector<string> fonts_paths = split(content, '\n');
-		for (auto& paths : fonts_paths)
+		if (hint_file.does_exists())
 		{
-			vector<string> settings = split(paths, ';');
-			if (settings.size() != 2)
-			{
-				std::cout << "font at line " << sz << " has no size!" << std::endl;
-				continue;
-			}
-			add_font(renderer, settings.at(0), stoi(settings.at(1)));
-			sz++;
-		}
+			string content = hint_file.getString();
 
-		std::cout << sz << " fonts loaded from hint file" << std::endl;
+			size_t sz = 0;
+			vector<string> fonts_paths = split(content, '\n');
+			for (auto& paths : fonts_paths)
+			{
+				vector<string> settings = split(paths, ';');
+				if (settings.size() != 2)
+				{
+					std::cout << "font at line " << sz << " has no size!" << std::endl;
+					continue;
+				}
+				add_font(renderer, settings.at(0), stoi(settings.at(1)));
+				sz++;
+			}
+
+			std::cout << sz << " fonts loaded from hint file" << std::endl;
+		}
 	}
 
 	void add_effect(const string& name, FontEffect_f callback)

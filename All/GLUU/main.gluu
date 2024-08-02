@@ -18,5 +18,6 @@ row px 500 <
 		row button Pong					{ $pong_main }  
 		row button VlanHelper			{ $vlan_helper }  
 		row button { "Netpong" }		{ $main_fight }  
+		row button { "Fighter" }		{ $main_ff }  
 	>
 >
