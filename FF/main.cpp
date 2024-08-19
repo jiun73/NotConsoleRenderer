@@ -31,15 +31,28 @@ namespace FF
 		{
 			if (input_pressed("up") || (input_released("down") && input_held("up")))
 			{
-				man.trigger_now(PLYR1_MOVE_LEFT);
+				man.trigger_now(PLYR1_MOVE_UP);
 			}
 			else if (input_pressed("down") || (input_released("up") && input_held("down")))
 			{
-				man.trigger_now(PLYR1_MOVE_RIGHT);
+				man.trigger_now(PLYR1_MOVE_DOWN);
 			}
 			else if ((input_released("down") && !input_held("up")) || (input_released("up") && !input_held("up")))
 			{
-				man.trigger_now(PLYR1_STOP);
+				man.trigger_now(PLYR1_STOPY);
+			}
+
+			if (input_pressed("left") || (input_released("right") && input_held("left")))
+			{
+				man.trigger_now(PLYR1_MOVE_LEFT);
+			}
+			else if (input_pressed("right") || (input_released("left") && input_held("right")))
+			{
+				man.trigger_now(PLYR1_MOVE_RIGHT);
+			}
+			else if ((input_released("right") && !input_held("left")) || (input_released("left") && !input_held("left")))
+			{
+				man.trigger_now(PLYR1_STOPX);
 			}
 		}
 
@@ -47,9 +60,10 @@ namespace FF
 		{
 			handle_inputs();
 			man.snapshot_now();	
-			std::cout << man.current_actor_field<Mvt>(PLAYER1, MVTX).pos << std::endl;
 			pencil(COLOR_WHITE);
-			draw_rect({ {(int)man.current_actor_field<Mvt>(PLAYER1, MVTX).pos , 10}, {10,10} });
+			Mvt curx = man.current_actor_field<Mvt>(PLAYER1, MVTX);
+			Mvt cury = man.current_actor_field<Mvt>(PLAYER1, MVTY);
+			draw_rect({ {(int)(curx.pos) , (int)(cury.pos)}, {10,10}});
 		}
 	};
 	

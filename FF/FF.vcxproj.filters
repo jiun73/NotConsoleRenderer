@@ -44,5 +44,11 @@
     <ClInclude Include="Lexer.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Systems.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionSystem.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -160,6 +160,7 @@ namespace RAS {
 		const Event& event_at(Time time) const;
 		void snapshot(Time time, RawData data, const type_info& type);
 
+
 		Timeline() { }
 		~Timeline() { }
 	};

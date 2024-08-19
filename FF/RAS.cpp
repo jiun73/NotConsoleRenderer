@@ -267,19 +267,29 @@ void RAS::Timeline::snapshot(Time time, RawData data, const type_info& type)
 
 RAS::Modifier* RAS::Event::modifier_at(Time time) const
 {
+	return modifier_at_pair(time).second;
+}
+
+pair<RAS::Time, RAS::Modifier*> RAS::Event::modifier_at_pair(Time time) const
+{
 	auto it = modifiers.lower_bound(time);
 
 	if (it != modifiers.begin())
 	{
-		return (--it)->second;
+		return *(--it);
 	}
 
-	return it->second;
+	return *it;
 }
 
 RAS::Modifier* RAS::Event::modifier_at_absolute(Time time) const
 {
 	return modifier_at(time - start_time);
+}
+
+pair<RAS::Time, RAS::Modifier*> RAS::Event::modifier_at_absolute_pair(Time time) const
+{
+	return modifier_at_pair(time - start_time);
 }
 
 const std::pair<const size_t, RAS::Modifier*>& RAS::Event::pair_at(Time time) const

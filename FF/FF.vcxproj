@@ -136,11 +136,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actors.h" />
+    <ClInclude Include="CollisionSystem.h" />
     <ClInclude Include="Fields.h" />
     <ClInclude Include="FMods.h" />
     <ClInclude Include="Generators.h" />
     <ClInclude Include="Lexer.h" />
     <ClInclude Include="RAS.h" />
+    <ClInclude Include="Systems.h" />
     <ClInclude Include="Triggers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

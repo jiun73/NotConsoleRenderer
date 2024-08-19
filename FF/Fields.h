@@ -13,6 +13,9 @@ namespace FF {
 	{
 		MVTX,
 		MVTY,
+		COLLIDER_SETID,
+		COLLIDER_GROUP,
+		FRAME_ID,
 	};
 
 	void add_field(RAS::Manager& manager)
