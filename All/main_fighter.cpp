@@ -5,6 +5,7 @@
 #include "CollisionSystem.h"
 #include "SoundSystem.h"
 #include "AnimationX.h"
+#include "test.h"
 
 /*
 * I don't really know what to add to make this more interesting, i mean, at the end of the day it's still pong
@@ -482,9 +483,13 @@ namespace FIGHT
 
 		}
 
+		std::list<std::thread> ts;
+
 		void init() 
 		{
-			man.set_time_fetcher(SDL_GetTicks);
+			
+			test_clients(ts);
+			man.set_time_fetcher(get_clock);
 
 			add_systems();
 			add_fields();

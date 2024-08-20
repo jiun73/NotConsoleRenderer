@@ -99,7 +99,7 @@ private:
 		{
 			shared_generic current;
 			if (arg.at(I).is_string)
-				current = make_generic_from_string<std::tuple_element_t<I, std::tuple<std::remove_reference<Args>::type...>>>(arg.at(I).str);
+				current = make_generic_from_string<std::tuple_element_t<I, std::tuple<typename std::remove_reference<Args>::type...>>>(arg.at(I).str);
 			else
 				current = arg.at(I).value;
 
