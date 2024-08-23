@@ -52,11 +52,13 @@ namespace FF
 
 		RAS::Modifier* mod1;
 		RAS::Time mod_offset1;
+		double axis_size1;
 		ColliderSet* collider1;
 		size_t group1;
 
 		RAS::Modifier* mod2;
 		RAS::Time mod_offset2;
+		double axis_size2;
 		ColliderSet* collider2;
 		size_t group2;
 	};
@@ -76,38 +78,13 @@ namespace FF
 	public:
 		const RAS::FieldAlias set_id_field = COLLIDER_SETID;
 
-		bool find_collision(const SetPair& pair, const std::pair<double,double>& r1, const std::pair<double, double>& r2)
+		void find_collision(const SetPair& pair)
 		{
 			auto p1 = mvt_mod_to_quad(pair.mod1);
-			auto p1_1 = p1;
-			p1_1[0] += r1.first;
-			auto p1_2 = p1_1;
-			p1_2[0] += r1.second;
 
 			auto p2 = mvt_mod_to_quad(pair.mod1);
-			auto p2_1 = p2;
-			p2_1[0] += r2.first;
-			auto p2_2 = p2_1;
-			p2_2[0] += r2.second;
 
-			auto r1_1 = quad_root({ p1_1[0] - p2_1[0], p1_1[1] - p2_1[1], p1_1[2] - p2_1[2]});
-			auto r1_2 = quad_root({ p1_1[0] - p2_2[0], p1_1[1] - p2_2[1], p1_1[2] - p2_2[2] });
-			auto r2_1 = quad_root({ p1_2[0] - p2_1[0], p1_2[1] - p2_1[1], p1_2[2] - p2_1[2] });
-			auto r2_2 = quad_root({ p1_2[0] - p2_2[0], p1_2[1] - p2_2[1], p1_2[2] - p2_2[2] });
-
-			vector<RAS::Time> all_found;
-	
-			all_found.insert(all_found.end(), r1_1.begin(), r1_1.end());
-			all_found.insert(all_found.end(), r1_2.begin(), r1_2.end());
-			all_found.insert(all_found.end(), r2_1.begin(), r2_1.end());
-			all_found.insert(all_found.end(), r2_2.begin(), r2_2.end());
-
-			if (all_found.size() == 0)
-			{
-
-			}
-
-			std::sort(all_found.begin(), all_found.end());
+			find_overlap_range(p1_1, p1_2, p2_1, p2_2);
 		}
 
 		CollisionInfo find_pair_collision_info(const SetPair& pair) 

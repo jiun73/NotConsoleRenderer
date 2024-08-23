@@ -135,4 +135,15 @@ namespace FF
 			return {};
 		}
 	}
+
+	struct TimeRange 
+	{
+		RAS::Time time_begin = 0;
+		RAS::Time time_end = 0;
+	};
+
+	inline vector<TimeRange> find_overlap_range(const array<double, 3>& quad1_top, const array<double, 3>& quad1_bottom , const array<double, 3>& quad2_top, const array<double, 3>& quad2_bottom)
+	{
+		
+	}
 }

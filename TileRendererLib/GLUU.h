@@ -17,15 +17,15 @@
 namespace GLUU {
 	using std::unique_ptr;
 
-	//inline Import import_std(import_standard);
-	//inline ImportWidget<TextWidget> import_text;
-	//inline ImportWidget<TextboxWidget> import_textbox;
+	inline Import import_std(import_standard);
+	inline ImportWidget<TextWidget> import_text;
+	inline ImportWidget<TextboxWidget> import_textbox;
 
-	/*NEW_INSPECTOR(Element)({
+	NEW_INSPECTOR(Element)({
 		INSPECTOR_FIELDS(Element, fit),
 		INSPECTOR_FIELDS(Element, size),
 		INSPECTOR_FIELD(Element, last_dest)
-		});*/
+		});
 }
 
 #define GLUU_IMPORT_MAIN(n) inline ::GLUU::ImportFunction<decltype(n)> gluu_##n##_import("$" + string(#n), n);
